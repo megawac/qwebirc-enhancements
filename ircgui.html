@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            IRC GUI
+        </title>
+        <link rel="stylesheet" href="css/tfircgui.css">
+        <link rel="stylesheet" href="css/qwebirc.css">
+
+        <script src="js/mootools.min.js"></script>
+        <!-- <script src="js/hacks.js"></script>-->
+        <script src="js/Handlebars.js">
+        </script>
+        <script src="js/src/Templates.js">
+        </script>
+        <script src="js/src/ircgui.js"></script>
+
+        <script>
+            window.addEvent('domready', function() {
+                var content = $('content');
+                var ui = new tf.ui(content);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="content">
+        <ul class="tfclasslist">
+            <li><span class="tfclass tfscout"></span><span class="tfplayers"><span>megawac</span><span>mason</span></span></li>
+            <li><span class="tfclass tfsoldier"></span><span class="tfplayers"><span>megawac</span><span>tko</span></span></li>
+            <li><span class="tfclass tfdemo"></span><span class="tfplayers"><span>jeff</span><span>extine</span></span></li>
+            <li><span class="tfclass tfmedic"></span><span class="tfplayers"><span></span>taylor<span></span>swift</span></li>
+        </ul>
+        <!-- <section><input type="button" id="disablePug" value="Disable PUG GUI"></section> -->
+        <!-- <ul id="tf-classlist">
+        <li id="tf-scouts"><span class="tf-class">Scout</span> <span class="tf-players">=<span>tko</span><span>JPP</span><span>RaysFire</span></span></li>
+    </ul> -->
+        <div class="tf-middle">
+        </div>
+    </div>
+    </body>
+
+</html>

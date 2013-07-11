@@ -1,0 +1,11 @@
+<form id='login'>
+    <h1>Connect to {{network}} IRC</h1>
+    <div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value={{nickname}} /></div>
+    <div class='username right {{#unless full}}hidden{{/unless}}'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='{{username}}'></div>
+    <div class='password right {{#unless full}}hidden{{/unless}}'><span>Password:</span><input type='password' name='full' id='password' value='{{password}}'></div>
+    <div class='authenticate'>
+        <span>Authenticate (optional)</span><input type='checkbox' id='authenticate' {{check full}}>
+    </div>
+    <div><input type='submit' value='Connect' /></div>
+</form>
+<div class='qwebirc-init-channels'><span>{{channels}}</span></div>

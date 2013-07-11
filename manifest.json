@@ -1,0 +1,29 @@
+{
+   "version": "0.0.1",
+   "manifest_version": 2,
+
+   "description": "Interactive IRC client",
+   "name": "qwebirc enhancements",
+
+   "permissions": ["http://atf2.org/*/", "http://webchat.quakenet.org/*/"],
+
+   "content_scripts": [{
+      "run_at": "document_start",
+      "js": ["js/contentscript.js"],
+      "matches": ["http://atf2.org/*", "http://webchat.quakenet.org/*"]
+   }],
+
+   "web_accessible_resources": [
+      "css/tfircgui.css",
+      "css/qwebirc.css",
+      "css/jqueryui_icons.css",
+      "css/modifiablecss.mcss",
+      "js/hacks.js",
+
+      "img/ui-icons_222222_256x240.png",
+      "img/ui-icons_2e83ff_256x240.png",
+      "img/ui-icons_454545_256x240.png",
+      "img/ui-icons_888888_256x240.png",
+      "img/ui-icons_cd0a0a_256x240.png"
+   ]
+}

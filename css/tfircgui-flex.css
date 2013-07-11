@@ -1,0 +1,207 @@
+
+.windows, .window {
+    height: 100%;
+}
+
+.window {
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+}
+
+.content {
+    /* Firefox*/
+    /*height: -moz-calc(100% - 46px);*/
+    /*WebKit*/
+    /*height: -webkit-calc(100% - 46px);*/
+    /*Opera*/
+    /*height: -o-calc(100% - 46px);*/
+    /*Standard*/
+    /*height: calc(100% - 46px);*/
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+}
+
+.lines {
+    word-wrap: normal;
+}
+
+.leftpanel {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+}
+
+
+.rightpanel {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    box-flex: 0;
+}
+
+.qui.rightpanel.nicklist {
+    position: inherit;
+    top: inherit;
+    right: inherit;
+}
+
+/* .detached.windows {
+    position:absolute;
+} */
+
+
+.attach, .detach, .tab-close, .resize-handle {
+    cursor: pointer;
+}
+
+
+.detached-window {
+    border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px; 
+    border: 5px solid #800000;
+}
+
+.header {
+    padding: 4px 0;
+}
+
+.header .attach, .header .tab-close {
+    float:right;
+}
+
+.header .title {
+    padding-left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.resize-handle {
+    margin: -35px -5px 0 0;
+    float: right;
+    padding: 0 5px 5px 0;
+
+}
+
+.tabbar .tab {
+}
+
+.tabbar .detach, .tabbar .close {
+    vertical-align: middle;
+    padding-bottom: 3px;
+    display: inline-block;
+}
+
+.topic {
+    top: auto !important;
+}
+
+.properties {
+    height: 26px;
+}
+
+.bottomboundpanel {
+    height: 20px;
+}
+
+html, body {
+/* 
+    font-family: crete-round, serif; */
+    height: 100%;
+}
+
+.tfclasslist li {
+}
+
+.tfclasslist li span.tf-class {
+    font-weight: bold;
+    font-size: 140%;
+}
+
+.tfplayers span {
+    padding: 0 5px;
+}
+
+/*hacky table no ie8- support*/
+/* .tf-middle {
+  height:100%;
+    text-align: center;
+    vertical-align: middle;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display:table;
+    margin: 0 auto;
+}*/
+
+
+.tf-middle {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+}
+
+.tf-middle > * {
+    text-align: center;
+    display: inline-block;
+    margin: auto;
+ /*center in parent*/
+} 
+
+/* The ghost, nudged to maintain perfect centering */
+/* .tf-middle:before {
+  content: '';
+  display: inline-block;
+  height: 20%;
+  margin-right: -0.25em;
+} 
+*/
+.tf-middle form {
+}
+
+.hidden {
+    display: none;
+}
+
+#login div {
+    margin-bottom: 5px;
+}
+
+#login div div {
+    width: 380px;
+    margin: .5em 0;
+}
+
+#login div div > * {
+    margin: 0px .2em;
+}
+
+#login div .right {
+    text-align: right;
+}
+
+#login div div:not(.right) {
+    margin-left: 30px;
+}
+
+#login div input[type="text"], #login input[type="password"] {
+    width: 200px;
+}
+
+.qwebirc-init-channels span {
+    font-size: 95%;
+    color: #928D8D;
+    padding-right: 15px;
+}
