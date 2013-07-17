@@ -4258,31 +4258,31 @@ Element.Styles = {
 
 //<1.3compat>
 
-Element.implement({
+// Element.implement({
 
-	setOpacity: function(value){
-		setOpacity(this, value);
-		return this;
-	},
+// 	setOpacity: function(value){
+// 		setOpacity(this, value);
+// 		return this;
+// 	},
 
-	getOpacity: function(){
-		return getOpacity(this);
-	}
+// 	getOpacity: function(){
+// 		return getOpacity(this);
+// 	}
 
-});
+// });
 
-Element.Properties.opacity = {
+// Element.Properties.opacity = {
 
-	set: function(opacity){
-		setOpacity(this, opacity);
-		setVisibility(this, opacity);
-	},
+// 	set: function(opacity){
+// 		setOpacity(this, opacity);
+// 		setVisibility(this, opacity);
+// 	},
 
-	get: function(){
-		return getOpacity(this);
-	}
+// 	get: function(){
+// 		return getOpacity(this);
+// 	}
 
-};
+// };
 
 //</1.3compat>
 
@@ -13282,10 +13282,10 @@ Fx.AutoScroll = new Class({
     options: {
         direction: 'Bottom', //Top, Right, Left, Bottom
         interval: 500,
-        duration: 10, //ms to execute effect
-        threshold: 10,//px - how close to bottom to start scrolling
+        duration: 0, //ms to execute effect
+        threshold: null,//px - how close to bottom to start scrolling
         wheelStops: true,
-        link: 'chain'
+        link: 'cancel'
     },
     lastUpdate: 0,
 
@@ -13299,55 +13299,67 @@ Fx.AutoScroll = new Class({
 
             //fix for a small bug caused by using throttle - ensures fn is called after scrolling ends
             throttleToggler = function() {
-                if((self.lastUpdate + opts.duration + 5) < Date.now()) {//not self triggered
+                if(Date.now() > (self.lastUpdate + opts.duration + 20)) {//not self triggered (20ms to compensate for runtime)
+                    // console.log('checkin bc last change : ' + (d - (self.lastUpdate + opts.duration + 20)));
                     clearTimeout(timers.throttle);
                     timers.throttle = self.toggleScroll.delay(interval - opts.duration, self);
                 }
             };
 
-        ele.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
+        this.element.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
             // .addEvent("selectstart:throttle(" + interval + ")", throttleToggler)
             .addEvent("adopt", self.updatePosition); //new elements appended to container
+        window.addEvent("resize:throttle(" + opts.duration + ")", self.updatePosition);
 
         self.autoScroll();
     },
 
     autoScroll: function() {
         this.scroll = true;
-        this.$timers.autoscroll = this.updatePosition.periodical(this.options.interval, this); //neccessary for container resizes etc
-        return this;
+        // this.$timers.autoscroll = this.updatePosition.periodical(this.options.interval, this); //neccessary for container resizes etc
+        return this.updatePosition();
     },
 
     stopScroll: function() {
         delete this.$timers.autoscroll;
-        this.scroll = false;
     },
 
     toggleScroll: function() {
+        this.scroll = false;
+
         var $ele = this.element,
             timers = this.$timers,
-            pxFromBottom = Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop());
+            pxFromBottom = Math.abs($ele.getScrollHeight() - ($ele.getHeight() + $ele.getScrollTop()));
 
         //old timers
         clearTimeout(timers.throttle);
         clearInterval(timers.autoscroll);
 
-        if(pxFromBottom <= this.options.threshold) {//bottom of element + offset - begin autoscrolling
+        if(pxFromBottom <= this.threshold) {//bottom of element + offset - begin autoscrolling
             this.autoScroll();
+            // console.log('startin scrollin')
         }
         else { //stop autoscrolling
+            // console.log('done scrollin - ' + pxFromBottom)
             this.stopScroll();
         }
         return this;
     },
 
-    updatePosition: function() {
-        this.lastUpdate = Date.now();
+    updatePosition: function(target) {
         // var fn = "to" + this.options.direction;
         var $ele = this.element;
         if(this.scroll  &&
-          /*bug fix for a off by one one in Fx.Scroll*/ Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop()) > 2)
-            this.toBottom();
+          /*bug fix for a off by one one in Fx.Scroll*/ Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop()) > 2) {
+            this.lastUpdate = Date.now();
+
+            if(this.options.duration == 0)
+                $ele.scrollTop = $ele.scrollHeight;
+            else
+                this.toBottom();
+            if(target)
+                this.threshold = this.options.threshold || target.getHeight();
+        }
         return this;
     }
 });
@@ -14365,18 +14377,8 @@ String.implement({
 
 Object.extend({
 
-    //Mootools 1.3 Object.subset
-    //http://mootools.net/docs/core/Types/Object#Object:Object-subset
-    subset: function(object, keys){
-        var results = {};
-        for (var i = 0, l = keys.length; i < l; i++){
-            var k = keys[i];
-            if (k in object) results[k] = object[k];
-        }
-        return results;
-    },
     isEmpty: function(hash) {
-        return Object.keys(hash) === 0;
+        return Object.getLength(hash) === 0;
     },
     //same as Object.map but maps to an array
     mapA: function (object, fn, bind){
@@ -14428,11 +14430,8 @@ Element.implement({
     },
 
     insertAt: function(element, position) {
-        if (position >= this.childNodes.length) {
-            this.appendChild(element);
-        } else {
-            this.insertBefore(element, this.childNodes[position]);
-        }
+        //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
+        return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
     },
 
     isDisplayed: function(){
@@ -14457,7 +14456,22 @@ Element.implement({
     swapParent: function(parent) {
         this.dispose();
         return parent.adopt(this);
+    },
+
+    addClasses: function() {
+        Array.each(arguments, this.addClass, this);
+        return this;
+    },
+
+    removeClasses: function() {
+        Array.each(arguments, this.removeClass, this);
+        return this;
     }
+
+    // hasClasses: function() {
+    //     Array.every(arguments, this.hasClass, this);
+    // }
+
 });
 
 Element.extend({
@@ -14677,7 +14691,7 @@ Drag.SplitPane = new Class({
             };
 
         if(opts.store) {
-            var change = store.get();
+            var change = opts.store.get();
             this.adjust(change);
         }
 
@@ -15330,7 +15344,7 @@ irc.Numerics = {
         changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
 
         poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
-        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting...", types.ERROR),
+        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
         invalidCommand: message("Can't use this command in this window", types.ERROR),
         invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
         insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
@@ -15576,12 +15590,12 @@ util.validPrefix = prelude.contains;
 //equilvalent Functional.compose(joinEmpty, concatUnique)
 util.addPrefix = function(nc, pref, prefs) {
     if(prefs && !util.validPrefix(prefs, pref))
-        return;
-    nc.prefixes = concatUnique(nc.prefixes, pref).join("");
+        return nc.prefixes;
+    return nc.prefixes = concatUnique(nc.prefixes, pref).join("");
 };
 
 util.removePrefix = function(nc, pref) {
-    nc.prefixes = nc.prefixes.replaceAll(pref, "");
+    return nc.prefixes = nc.prefixes.replaceAll(pref, "");
 };
 
 //if theres a prefix it gets returned
@@ -16402,7 +16416,7 @@ ui.Interface = new Class({
         networkServices: [],
 
         initialNickname: "newb1234",
-        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#tf2.mix.nahl","#tf2scrim","#tf2hlscrim","#tftv"],
+        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tf2hlscrim","#tftv"],
         channels: new Storer("channels"),
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
@@ -16417,7 +16431,8 @@ ui.Interface = new Class({
 
         loginRegex: null,
         nickValidation: null,
-        urlregex: /\b((https?|ftp|qwebirc):\/\/|www\.)[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i,
+        urlregex: /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i,//matches urls, qwebirc handlers, & steam connect strings
+
 
         specialUserActions: [ //special actions to take when particular users speak
             function(user, msg, target, client) {
@@ -16503,10 +16518,13 @@ ui.Interface = new Class({
                 if(!auth.enabled) {
                     self.ui_.beep();
                 }
-                var listener = client.addEvent("auth", function() {
+
+
+                var listener = function() {
                     self.ui_.beep();
-                    client.removeEvent(listener);
-                });
+                    client.removeEvent("auth", listener);
+                };
+                client.addEvent("auth", listener);
 
                 self.fireEvent("login", {
                     'IRCClient': client,
@@ -17021,7 +17039,7 @@ irc.BaseIRCClient = new Class({
 
             var replyfn = irc.RegisteredCTCPs[type];
             if (replyfn) {
-                var t = $time() / 1000;
+                var t = Date.now() / 1000;
                 if (t > this.nextctcp) { //too quick? why not just a buffer?
                     var repctcp = replyfn(ctcp[1]);
                     this.send("NOTICE " + util.hostToNick(user) + " :\x01" + type + " " + repctcp + "\x01");
@@ -17697,18 +17715,38 @@ irc.Commands = new Class({
         this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
         this.send("JOIN " + c);
     }],
-    cmd_JOIN: [false, 2, 1, function(args) {
-        var channels = args.shift();
+    cmd_FJOIN: [false, 2, 1, function(args) {
+        if(args.length === 0)
+            return;
+        var channels = args.shift(),
+            formatted = util.formatChannelString(channels);
 
-        var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
-            formatted = util.formatChannelString(chans);
-
-        if (util.joinChans(chans) !== formatted) {
+        if (channels !== formatted) {
             this.parentObject.writeMessages(lang.poorJoinFormat);
         }
-        if(chans)
+        if(formatted)
             this.send("JOIN " + formatted + " " + args.join(" "));
     }],
+    cmd_JOIN: [false, 2, 1, function(args) {
+        var channels = args.shift(),
+            chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject);
+            // formatted = util.formatChannelString(chans);
+
+            // this.send("JOIN " + formatted + " " + args.join(" "));
+        this.cmd_FJOIN[3].call(this, $A(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
+    }],
+    // cmd_JOIN: [false, 2, 1, function(args) {
+    //     var channels = args.shift();
+
+    //     var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
+    //         formatted = util.formatChannelString(chans);
+
+    //     if (util.joinChans(chans) !== formatted) {
+    //         this.parentObject.writeMessages(lang.poorJoinFormat);
+    //     }
+    //     if(chans)
+    //         this.send("JOIN " + formatted + " " + args.join(" "));
+    // }],
     cmd_UMODE: [false, 1, 0, function(args) {
         this.send("MODE " + this.parentObject.getNickname() + (args ? (" " + args[0]) : ""));
     }],
@@ -18165,9 +18203,7 @@ irc.IRCClient = new Class({
             this.exec("/AUTOJOIN");
         }
 
-        this.fireEvent("auth", {
-
-        });
+        this.fireEvent("auth");
     },
 
     userJoined: function(user, channel) { //todo determine way to get brouhaha selected at start
@@ -18481,16 +18517,14 @@ irc.IRCClient = new Class({
                 nc = self.tracker.getOrCreateNickOnChannel(nick, channel),
                 oped = direction === OPED;
 
-            if (oped) {
-                util.addPrefix(nc, prefixchar, self.prefixes);
-            } else {
-                util.removePrefix(nc, prefixchar);
-            }
+            prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
+                                util.removePrefix(nc, prefixchar)
 
             this.fireEvent("mode", {
                 "added": oped,
                 "prefix": prefixchar,
                 "nick": nick,
+                "channel": channel,
                 "thisclient": nick === this.nickname,
                 "nickchan": nc
             });
@@ -18641,7 +18675,11 @@ irc.IRCClient = new Class({
     },
 
     canJoinChannel: function(chan) {
-        //TODO check if already on channel
+        //check if already on channel
+        if(Object.keys(this.windows).contains(this.toIRCLower(chan)))
+            return false;
+        else if(chan === BROUHAHA)
+            return true;
 
         var chansets = session.get(chan) || [], //oldest -> newest
             currTime = Date.now(),
@@ -19628,6 +19666,1238 @@ sound.SoundPlayer = new Class({
 var templates = par.Handlebars.templates;
 
 
+ui.BaseUI = new Class({
+    Implements: [Events],
+    initialize: function(parentElement, windowClass, uiName, options) {
+        var self = this;
+        self.options = options;
+
+        self.windows = {};
+        self.clients = {};
+        self.windows[ui.CUSTOM_CLIENT] = {};
+        self.windowArray = [];
+        self.windowClass = windowClass;
+        self.parentElement = parentElement;
+        self.parentElement.addClass("qwebirc");
+        self.parentElement.addClass("qwebirc-" + uiName);
+        self.commandhistory = new irc.CommandHistory();
+        self.clientId = 0;
+
+        self.windowFocused = true;
+
+        if (Browser.Engine.trident) {
+            var checkFocus = function() {
+                    var hasFocus = document.hasFocus();
+                    if (hasFocus !== self.windowFocused) {
+                        self.windowFocused = hasFocus;
+                        self.focusChange(hasFocus);
+                    }
+                };
+
+            checkFocus.periodical(100, self);
+        } else {
+            var blur = function() {
+                    if (self.windowFocused) {
+                        self.windowFocused = false;
+                        self.focusChange(false);
+                    }
+                },
+                focus = function() {
+                    if (!self.windowFocused) {
+                        self.windowFocused = true;
+                        self.focusChange(true);
+                    }
+                };
+
+            /* firefox requires both */
+
+            document.addEvent("blur", blur);
+            window.addEvent("blur", blur);
+            document.addEvent("focus", focus);
+            window.addEvent("focus", focus);
+        }
+    },
+    newClient: function(client) {
+        client.id = this.clientId++;
+        // client.hilightController = new ui.HilightController(client);
+
+        this.windows[client.id] = {};
+        this.clients[client.id] = client;
+        var win = this.newWindow(client, ui.WINDOW_STATUS, STATUS);
+        this.selectWindow(win);
+
+        client.addEvent("nickChange", this.nickChange);
+
+        return win;
+    },
+    getClientId: function(client) {
+        return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
+    },
+    getWindowIdentifier: function(client, type, name) {
+        if (type === ui.WINDOW_MESSAGES)
+            return "-M";
+        else if (type === ui.WINDOW_STATUS)
+            return "";
+        else if (client === ui.CUSTOM_CLIENT)
+            return "_" + name;
+        else
+            return "_" + client.toIRCLower(name);
+    },
+    newWindow: function(client, type, name) {
+        var win = this.getWindow(client, type, name);
+        if ($defined(win))
+            return win;
+
+        var wId = this.getWindowIdentifier(client, type, name);
+        win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, client, type, name, wId);
+        this.windowArray.push(win);
+
+        return win;
+    },
+    nickChange: $empty,
+
+    getWindow: function(client, type, name) {
+        var wins = this.windows[this.getClientId(client)];
+        if (!$defined(wins))
+            return null;
+
+        return wins[this.getWindowIdentifier(client, type, name)];
+    },
+    getActiveWindow: function() {
+        return this.active;
+    },
+    getActiveIRCWindow: function(client) {
+        if (!this.active || this.active.type == ui.WINDOW_CUSTOM) {
+            return this.windows[this.getClientId(client)][this.getWindowIdentifier(client, ui.WINDOW_STATUS)];
+        } else {
+            return this.active;
+        }
+    },
+    __setActiveWindow: function(win) {
+        this.active = win;
+    },
+    selectWindow: function(win) {
+        if (this.active)
+            this.active.deselect();
+        win.select();
+        this.updateTitle(win.name + " - " + this.options.appTitle);
+    },
+    nextWindow: function(direction, fromWin) {
+        var windows = this.windowArray,
+            win = windows.next(windows.indexOf(fromWin || this.active), direction); //get window from array
+        this.selectWindow(win);
+
+        return win;
+    },
+    prevWindow: function() {
+        this.nextWindow(-1);
+    },
+    __closed: function(win) {
+        var winarr = this.windowArray;
+        if (win.active) {
+            // this.active = undefined;
+            if (winarr.length === 1) {
+                winarr.empty();
+            } else {
+                var index = winarr.indexOf(win);
+                if(index === -1) {
+                    return;
+                } else if (index === (winarr.length - 1)) {
+                    this.prevWindow();
+                } else {
+                    this.nextWindow();
+                }
+            }
+        }
+
+        winarr = this.windowArray.erase(win);
+        delete this.windows[this.getClientId(win.client)][win.identifier];
+    },
+/*
+      this shouldn't be called by overriding classes!
+      they should implement their own!
+      some form of user input MUST be received before an
+      IRC connection is made, else users are going to get
+      tricked into getting themselves glined
+    */
+    loginBox: function(callback, initialNickname, initialChannels, autoConnect, autoNick, storage) {
+        ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
+    },
+    focusChange: function(newValue) {
+        window.ctrl = 0;
+        var win = this.getActiveWindow();
+        if ($defined(win))
+            win.focusChange(newValue);
+    }
+});
+
+
+ui.StandardUI = new Class({
+    Extends: ui.BaseUI,
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete"],
+
+    UICommands: ui.UI_COMMANDS,
+    initialize: function(parentElement, windowClass, uiName, options) {
+        this.parent(parentElement, windowClass, uiName, options);
+
+        this.tabCompleter = new ui.TabCompleterFactory(this);
+        this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
+        this.customWindows = {};
+
+        this.__styleValues = {
+            hue: this.uiOptions.STYLE_HUE,
+            saturation: 0,
+            lightness: 0
+        };
+        if ($defined(this.options.hue))
+            this.__styleValues.hue = this.options.hue;
+        if ($defined(this.options.saturation))
+            this.__styleValues.saturation = this.options.saturation;
+        if ($defined(this.options.lightness))
+            this.__styleValues.lightness = this.options.lightness;
+
+        var ev;
+        if (Browser.Engine.trident) {
+            ev = "keydown";
+        } else {
+            ev = "keypress";
+        }
+        document.addEvent(ev, this.__handleHotkey);
+    },
+    __handleHotkey: function(x) {
+        if (!x.alt || x.control) {
+            if (x.key === "backspace" || x.key === "/")
+                if (!this.getInputFocused(x))
+                    x.stop();
+            return;
+        }
+        var success = false;
+        if (x.key.match(/a/i)) {
+            var highestNum = 0;
+            var highestIndex = -1;
+            success = true;
+
+            x.stop();
+            //good place for foldr no?
+            this.windowArray.each(function(win, indx){
+                var h = win.hilighted;
+                if (h > highestNum) {
+                    highestIndex = indx;
+                    highestNum = h;
+                }
+            });
+            if (highestIndex !== -1)
+                this.selectWindow(this.windowArray[highestIndex]);
+        } else if (prelude.isNumber(x.key)) { /*x.key >= '0' && x.key <= '9'*/
+            success = true;
+
+            //number = x.key - '0'; //ridiculously stupid
+            number = (Number.toInt(x.key) || 10) - 1;
+
+            if (number >= this.windowArray.length)
+                return;
+
+            this.selectWindow(this.windowArray[number]);
+        } else if (x.key == "left") {
+            this.prevWindow();
+            success = true;
+        } else if (x.key == "right") {
+            this.nextWindow();
+            success = true;
+        }
+        if (success)
+            x.stop();
+    },
+    getInputFocused: function(x) {
+        //wtf? (x.target.TYPE =="INPUT") or something work?
+        var focused = !($$("input").contains(x.target) && $$("textarea").contains(x.target));
+        return focused;
+    },
+    newCustomWindow: function(name, select, type) {
+        if (!type)
+            type = ui.WINDOW_CUSTOM;
+
+        var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
+        win.addEvent("close", function(win) {
+            delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
+        }.bind(this));
+
+        if (select)
+            this.selectWindow(win);
+
+        return win;
+    },
+    addCustomWindow: function(windowName, class_, cssClass, options) {
+        if (!$defined(options))
+            options = {};
+
+        if (this.customWindows[windowName]) {
+            this.selectWindow(this.customWindows[windowName]);
+            return;
+        }
+
+        var win = this.newCustomWindow(windowName, true);
+        this.customWindows[windowName] = win;
+
+        win.addEvent("close", function() {
+            this.customWindows[windowName] = null;
+        }.bind(this));
+
+        if (cssClass)
+            win.lines.addClass("qwebirc-" + cssClass);
+
+        var ew = new class_(win.lines, options);
+        ew.addEvent("close", win.close/*.bind(win)*/); //already bound
+
+        win.setSubWindow(ew);
+    },
+    embeddedWindow: function() {
+        this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
+            baseURL: this.options.baseURL,
+            uiOptions: this.uiOptions,
+            optionsCallback: this.optionsWindow
+        });
+    },
+    optionsWindow: function() {
+        this.addCustomWindow("Options", ui.OptionsPane, "optionspane", this.uiOptions);
+    },
+    aboutWindow: function() {
+        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions);
+    },
+    privacyWindow: function() {
+        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions);
+    },
+    feedbackWindow: function() {
+        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions);
+    },
+    faqWindow: function() {
+        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions);
+    },
+    urlDispatcher: function(name, window) {
+        if (name == "embedded") {
+            return ["a", this.embeddedWindow];
+        }
+        else if (name == "options"){
+            return ["a", this.optionsWindow];
+        }
+        /* doesn't really belong here */
+        else if (name === "whois") {
+            var uiOptions = this.uiOptions;
+            ///this method is dumb
+            return ["span", function(nick) {
+                if (uiOptions.QUERY_ON_NICK_CLICK) {
+                    window.client.exec("/QUERY " + nick);
+                } else {
+                    if (isChannel(nick)) {
+                        nick = util.unformatChannel(nick);
+                    } else {
+                        if (nick.search(window.client.nickname + '>') >= 0) {
+                            nick = nick.substr(nick.search('>') + 1, nick.length);
+                        } else {
+                            nick = nick.substr(0, nick.search('>'));
+                        }
+                    }
+                    // window.properties.text(nick);
+                    window.client.exec("/WHOIS " + nick);
+                }
+            }];
+        }
+        else
+            return null;
+    },
+    tabComplete: function(element) {
+        // this.tabCompleter.tabComplete(element);
+    },
+    resetTabComplete: function() {
+        // this.tabCompleter.reset();
+    },
+    setModifiableStylesheet: function(name) {
+        this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
+        this.setModifiableStylesheetValues({});
+    },
+    setModifiableStylesheetValues: function(values) {
+        // for (var k in values)
+        //     this.__styleValues[k] = values[k];
+        $extend(this.__styleValues, values);
+
+        if (!$defined(this.__styleSheet))
+            return;
+
+        var hue = this.__styleValues.hue,
+            lightness = this.__styleValues.lightness,
+            saturation = this.__styleValues.saturation,
+            uiOptions = this.uiOptions;
+
+        this.__styleSheet.set(function(mode, col) {
+            if (mode == "c") {
+                var x = new Color(col);
+                var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
+                if (c == "255,255,255") // IE confuses white with transparent... 
+                c = "255,255,254";
+
+                return "rgb(" + c + ")";
+            } else if (mode == "o") {
+                return uiOptions[arguments[1]] ? arguments[2] : arguments[3];
+            }
+        });
+    }
+});
+
+
+
+ui.NotificationUI = new Class({
+    Extends: ui.StandardUI,
+
+    Binds: ["beep"],
+
+    options: {
+        minSoundRepeatInterval: 1000
+    },
+    initialize: function(/*parentElement, windowClass, uiName, options*/) {
+        // this.parent(parentElement, windowClass, uiName, options);
+        this.parent.apply(this, arguments);
+
+
+        if (this.uiOptions.BEEP_ON_MENTION) {
+            this.lastSound = 0;
+            this.soundReady = false;
+            this.soundInit();
+        }
+
+
+        var flasher = this.__flasher = new ui.Flasher(this.uiOptions);
+
+        this.flash = flasher.flash;
+        this.cancelFlash = flasher.cancelFlash;
+    },
+    setBeepOnMention: function(value) {
+        if (value)
+            this.__beeper.soundInit();
+    },
+    updateTitle: function(text) {
+        if (this.__flasher.updateTitle(text))
+            ui.setTitle(text);
+    },
+    focusChange: function(value) {
+        this.parent(value);
+        this.__flasher.focusChange(value);
+    },
+    beep: function() {
+        this.playSound('beep');
+    },
+    playSound: function(alias) {
+        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION && 
+                (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+            this.soundPlayer[alias]();
+            this.lastSound = Date.now();
+        }
+    },
+
+    soundInit: function() {
+        var self = this;
+
+        //used to have a bunch of flash checks. going to let the sm handle it
+        if($defined(self.soundPlayer)) {
+            return;
+        }
+
+        self.soundPlayer = new sound.SoundPlayer(self.options.sounds);
+        self.soundPlayer.addEvent("ready", function() {
+            self.soundReady = true;
+        });
+
+        self.soundPlayer.load();
+    }
+});
+
+ui.Flasher = new Class({
+    Binds: ["flash", "cancelFlash"],
+
+    initialize: function(uiOptions) {
+        this.uiOptions = uiOptions;
+
+        this.windowFocused = false;
+        this.canUpdateTitle = true;
+        this.titleText = document.title;
+
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        if ($defined(favIcon)) {
+            this.favIcon = favIcon;
+            this.favIconParent = favIcon.parentNode;
+            this.favIconVisible = true;
+
+            // this.emptyFavIcon = new Element("link");
+            // this.emptyFavIcon.rel = "shortcut icon";
+            // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
+            // this.emptyFavIcon.type = "image/x-icon";
+            this.emptyFavIcon = Element.from(templates.favicon({link: uiOptions.ui.options.icons.empty_favicon}));
+
+            this.flashing = false;
+
+            this.canFlash = true;
+            var cancel = this.cancelFlash;
+            document.addEvent("mousedown", cancel);
+            document.addEvent("keydown", cancel);
+        } else {
+            this.canFlash = false;
+        }
+    },
+    flash: function() {
+        var self = this;
+        if (!self.uiOptions.FLASH_ON_MENTION || self.windowFocused || !self.canFlash || self.flashing)
+            return;
+
+        self.titleText = document.title; /* just in case */
+
+        var flash = function() {
+            var vis = self.toggleFavIcon();
+            self.canUpdateTitle = vis;
+            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
+        };
+
+        //http://mootools.net/forge/p/tab_alert
+        // var ex3 = yourInstance = new tabAlert({
+        //         text: lang.activityNotice.message,
+        //         ticker: true,
+        //         onLoop: flash
+        //     });
+
+        self.flashing = true;
+        // flashA();
+        self.flasher = flash.periodical(750);
+    },
+    cancelFlash: function() {
+        if (!this.canFlash || !$defined(this.flasher))
+            return;
+
+        this.flashing = false;
+
+        $clear(this.flasher);
+        this.flasher = undefined;
+
+        this.toggleFavIcon(true);
+        ui.setTitle(this.titleText);
+        this.canUpdateTitle = true;
+    },
+    //not sure if changing the favicon is a good idea - messes with peoples bookmarks
+    toggleFavIcon: function(state) {
+        var vis = $defined(state) ? state : !this.favIconVisible;
+        if(vis){
+            if (!this.favIconVisible) {
+                this.favIcon.replaces(this.emptyFavIcon);
+            }
+        }
+        else{
+            if (this.favIconVisible) {
+                this.emptyFavIcon.replaces(this.favIcon);
+            }
+        }
+        this.favIconVisible = vis;
+        return vis;
+    },
+    updateTitle: function(text) {
+        this.titleText = text;
+        return this.canUpdateTitle;
+    },
+    focusChange: function(value) {
+        this.windowFocused = value;
+
+        if (value)
+            this.cancelFlash();
+    }
+});
+
+
+ui.NewLoginUI = new Class({
+    Extends: ui.NotificationUI,
+    loginBox: function(callbackfn, initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
+        this.postInitialize();
+
+        var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
+        var callback = function() {
+                win.close();
+                callbackfn.apply(this, arguments);
+            };
+        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
+    }
+});
+
+ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName, storage) {
+    if (autoConnect) {
+        ui.ConfirmBox(parentElement, callback, initialNickname, initialChannels, autoNick, networkName,storage);
+    } else {
+        ui.LoginBox(parentElement, callback, initialNickname, initialChannels, networkName,storage);
+    }
+};
+
+ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
+
+    // var outerbox = new Element("div");
+    // outerbox.addClass('tf-middle');
+    // parentElement.appendChild(outerbox);
+
+    parentElement.addClass('qui-center');
+    var content = new Element('div');
+    parentElement.appendChild(content);
+
+    var nickname = cookies.nick.get() || initialNickname,
+        gamesurge = util.B64.decode(cookies.user.get()),
+        password = util.B64.decode(cookies.pass.get()),
+        eauth = auth.enabled || cookies.auth.get();
+
+    var context = {
+        'network':networkName,
+        'nickname':nickname,
+        'username':gamesurge,
+        'password':password,
+        'full': eauth, //whether to show the extra auth options (check the checkbox)
+        'channels': initialChannels.join()
+    };
+    content.html(templates.authpage(context));
+
+    var nickBox = content.getElementById('nickname'),
+        usernameBox = content.getElementById('username'),
+        passwordBox = content.getElementById('password'),
+        chkAddAuth = content.getElementById('authenticate'),
+        form = content.getElementById('login'),
+        fullForm;
+
+
+    function toggleFull () {
+        fullForm = fullForm || form.getElements('[name="full"]').getParent('div');//moootols returns an array for some stupid reason
+        fullForm.each(function(e) {
+            e.toggle();
+        });
+    }
+
+    chkAddAuth.addEvent('click', toggleFull);
+
+    form.addEvent("submit", function(e) {
+        e.stop();
+
+        var nickname = nickBox.value;
+
+        //validate nick
+        if (!nickname) {
+            alert(lang.missingNick);
+            nickBox.focus();
+            return;
+        }
+        var stripped = qwebirc.global.nicknameValidator.validate(nickname);
+        if (stripped !== nickname) {
+            nickBox.value = stripped;
+            alert(lang.invalidNick);
+            nickBox.focus();
+            return;
+        }
+
+        var data = {
+            "nickname": nickname
+        };
+
+        cookies.nick.set(nickname);
+
+
+        if (chkAddAuth.checked || auth.enabled) {//disabled
+            // we're valid - good to go
+            data.gamesurge = gamesurge = usernameBox.value;
+            data.password = password = passwordBox.value;
+            if (auth.bouncerAuth()) {
+                if (!password) {
+                    alert(lang.missingPass.message);
+                    passwordBox.focus();
+                    return;
+                }
+
+                data.serverPassword = password;
+            }
+            if (!gamesurge || !password) {
+                alert(lang.missingAuthInfo.message);
+                if (!usernameBox.value) {
+                    usernameBox.focus();
+                } else {
+                    passwordBox.focus();
+                }
+                return;
+            } else {
+                if(auth.passAuth()){
+                    data.serverPassword = gamesurge + " " + password;
+                }
+
+            }
+
+            cookies.user.set(util.B64.encode(gamesurge));
+            cookies.pass.set(util.B64.encode(password));
+            cookies.auth.set(true);
+            auth.enabled = true;
+        } else {
+            cookies.auth.dispose();
+        }
+
+
+        parentElement.empty();
+
+        auth.loggedin = true;
+        callback.call(this,data);
+    }.bind(this));
+
+    // nickBox.set("value", initialNickname);
+    //chan.set("value", initialChannels);
+
+    if (window === window.top)
+        nickBox.focus();
+};
+
+
+//todo clean this up - not currently implemented
+ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChannels, autoNick, networkName) {
+    var outerbox = new Element("table");
+    outerbox.addClass("qwebirc-centrebox");
+    parentElement.appendChild(outerbox);
+    var tbody = new Element("tbody");
+    outerbox.appendChild(tbody);
+    var tr = new Element("tr");
+    tbody.appendChild(tr);
+    var td = new Element("td");
+    tr.appendChild(td);
+
+    var box = new Element("table");
+    box.addClass("qwebirc-confirmbox");
+    td.appendChild(box);
+
+    var tbody = new Element("tbody");
+    box.appendChild(tbody);
+
+    var tr = new Element("tr");
+    tbody.appendChild(tr);
+    tr.addClass("tr1");
+
+    var text = new Element("td");
+    tr.appendChild(text);
+
+    var nick = new Element("b");
+    nick.set("text", initialNickname);
+
+    var c = initialChannels.split(" ")[0].split(",");
+
+    text.appendChild(document.createTextNode("To connect to " + networkName + " IRC and join channel" + ((c.length > 1) ? "s" : "") + " "));
+
+    for (var i = 0; i < c.length; i++) {
+        if ((c.length > 1) && (i == c.length - 1)) {
+            text.appendChild(document.createTextNode(" and "));
+        } else if (i > 0) {
+            text.appendChild(document.createTextNode(", "));
+        }
+        text.appendChild(new Element("b").set("text", c[i]));
+
+    }
+
+    if (!autoNick) {
+        text.appendChild(document.createTextNode(" as "));
+        text.appendChild(nick);
+    }
+
+    text.appendChild(document.createTextNode(" click 'Connect'."));
+    text.appendChild(new Element("br"));
+    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin)
+        text.appendChild(document.createTextNode("If you'd like to connect using your Q auth click 'Log in'."));
+
+    var tr = new Element("tr");
+    tbody.appendChild(tr);
+    tr.addClass("tr2");
+
+    var td = new Element("td");
+    tr.appendChild(td);
+
+    var yes = new Element("input", {
+        "type": "submit",
+        "value": "Connect"
+    });
+    td.appendChild(yes);
+    yes.addEvent("click", function(e) {
+        parentElement.removeChild(outerbox);
+        callback({
+            "nickname": initialNickname,
+            "autojoin": initialChannels
+        });
+    });
+
+    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin) {
+        var auth = new Element("input", {
+            "type": "submit",
+            "value": "Log in"
+        });
+        td.appendChild(auth);
+        auth.addEvent("click", ui.AuthLogin);
+    }
+
+    if (window == window.top)
+        yes.focus();
+}
+
+ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
+    var visible = checkbox.checked;
+    var display = visible ? null : "none";
+    usernameRow.setStyle("display", display);
+    passwordRow.setStyle("display", display);
+
+    if (visible) {
+        //    authRow.parentNode.setStyle("display", "none");
+        usernameBox.focus();
+    }
+}
+
+
+
+ui.QuakeNetUI = new Class({
+    Extends: ui.NewLoginUI,
+    urlDispatcher: function(name, window) {
+        if (name == "qwhois") {
+            return ["span", function(auth) {
+                this.client.exec("/MSG Q whois #" + auth);
+            }.bind(window)];
+        }
+        return this.parent(name, window);
+    },
+    logout: function() {
+        if (!auth.loggedin)
+            return;
+        if (confirm("Log out?")) {
+            Object.each(this.clients, function(client) {
+                client.quit(lang.logOut.message);
+            });
+
+            (function() {
+                document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
+            }).delay(500);
+        }
+    }
+});
+
+
+ui.QUI = new Class({
+    Extends: ui.QuakeNetUI,
+    Binds: ["__createChannelMenu"],
+    initialize: function(parentElement, theme, options) {
+        this.parent(parentElement, ui.QUI.Window, "qui", options);
+
+        parentElement.addClass('qui')
+                    .addClass('signed-out');
+        this.theme = theme;
+        this.parentElement = parentElement;
+        this.setModifiableStylesheet("qui");
+        this.setHotKeys();
+    },
+    postInitialize: function() {
+        var self = this,
+            qjsui = self.qjsui = new ui.QUI.JSUI("qui", self.parentElement);
+
+        // qjsui.addEvent("reflow", function() {
+        //     var win = self.getActiveWindow();
+        //     if ($defined(win))
+        //         win.onResize();
+        // });
+
+        self.outerTabs = qjsui.top;
+        self.tabs = Element.from(templates.tabbar());
+        var joinChan =  function(){
+                var chan = prompt("Enter channel name:");
+                if(chan.trim() !== ""){
+                    Object.each(self.clients, function(client) {
+                        client.exec("/JOIN " + chan);
+                    });
+                }
+            },
+            addTab = self.addTab = Element.from(templates.addTab());
+        addTab.addEvents({
+            'dblclick': joinChan,
+            'click': self.__createChannelMenu
+        });
+
+        //for scrolling tabs with mousewheel
+        self.tabs.addEvent("mousewheel", function(event) {
+            event.stop();
+            /* up */
+            if (event.wheel > 0) {
+                self.nextWindow();
+            } else if (event.wheel < 0) { /* down */
+                self.prevWindow();
+            }
+        });
+
+
+        //append menu and tabbar
+        self.outerTabs.adopt(self.__createDropdownMenu(),
+                            self.tabs,
+                            addTab);
+
+        var origWin = qjsui.createWindow();
+        self.origtopic = self.topic = origWin.topic;
+        self.origlines = self.lines = origWin.middle;
+        self.orignicklist = self.nicklist = origWin.right;
+
+        self.input = origWin.bottom;
+        // self.reflow = qjsui.reflow.bind(qjsui);
+
+        // self.reflow(origWin);
+        // self.reflow.delay(100, self, origWin); /* Konqueror fix */
+
+
+        //For window resizing
+        // window.addEvent("resize", function() {
+        //     self.getActiveWindow().reflow(100);
+        // });
+
+
+        //delay for style recalc
+        self.__createDropdownHint.delay(500, self);
+    },
+    __createDropdownMenu: function() {
+        var self = this,
+
+            dropdownMenu = Element.from(templates.menudrop());
+
+        //     hidemenu = dropdownMenu.hideMenu = function(e) {
+        //         if(e)
+        //             e.stop();
+        //         dropdownMenu.hide();
+        //         document.removeEvent("mousedown", hidemenu);
+        //     },
+        //     showMenu = dropdownMenu.showMenu = function(e) {
+        //         e.stop();
+        //         self.hideHint();
+
+        //         if (dropdownMenu.isDisplayed()) {
+        //            hidemenu();
+        //         } else {
+        //             dropdownMenu.show()
+        //             document.addEvent("mousedown", hidemenu);
+        //         }
+        //     };
+
+        // hidemenu();
+
+        // dropdownMenu.position.delay(500, dropdownMenu, {
+        //             relativeTo: self.outerTabs,
+        //             position: {x: 'left', y: 'bottom'},
+        //             edge: {x: 'left', y: 'top'}
+        //         }
+
+        dropdownMenu.inject(self.parentElement);
+
+        var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
+        dropdown.setStyle("opacity", 1);
+                // .addEvent("mousedown", Event.stop)
+                // .addEvent("click", showMenu);
+
+
+        self.UICommands.each(function(cmd) {
+            var text = cmd[0];
+            var fn = self[cmd[1] + "Window"].bind(self);
+            var ele = Element.from(templates.menuitem({text:text}));
+            ele.addEvent("mousedown", function(e) {
+                    e.stop();
+                })
+                .addEvent("click", function() {
+                    dropdownMenu.hideMenu();
+                    fn();
+                });
+            dropdownMenu.appendChild(ele);
+        });
+
+        // var dropdown = new Element("div");
+        // dropdown.addClass("dropdown-tab");
+        // dropdown.appendChild(new Element("img", {
+        //     src: qwebirc.global.staticBaseURL + "images/icon.png",
+        //     title: "menu",
+        //     alt: "menu"
+        // }));
+
+        var dropdownEffect = new Fx.Tween(dropdown, {
+            duration: "long",
+            property: "opacity",
+            link: "chain"
+        });
+
+        dropdownEffect.start(0.25)
+                    .start(1)
+                    .start(0.33)
+                    .start(1);
+
+
+        ui.decorateDropdown(dropdown,dropdownMenu, {
+            onShow: function() {
+                if(self.hideHint)
+                    self.hideHint();
+                delete self.hideHint;
+            }
+        });
+        return dropdown;
+    },
+
+    setHotKeys: function (argument) {
+        var events = storage.get('hotkeys');
+        console.log('todo');
+        if(keys && events) {
+            keys.activate();
+        }
+    },
+
+    //the effect on page load
+    __createDropdownHint: function() {
+        var dropdownhint = Element.from(templates.dropdownhint());
+        dropdownhint.inject(this.parentElement)
+                    .position({
+                        relativeTo: this.outerTabs,
+                        position: {'y': 'bottom'},
+                        offset: {y:10}
+                    });
+
+        new Fx.Morph(dropdownhint, {
+            duration: "normal",
+            transition: Fx.Transitions.Sine.easeOut
+        }).start({
+            left: [900, 5]
+        });
+
+        var hider = function() {
+                new Fx.Morph(dropdownhint, {
+                    duration: "long"
+                }).start({
+                    left: [5, -900]
+                });
+            }.delay(4000);
+
+        var hider2 = this.hideHint = Element.destroy.curry(dropdownhint);
+
+        hider2.delay(4000);
+
+        var hider3 = function(e) {
+                if (e.code === 17) {
+                    window.ctrl = 0;
+                }
+            };
+
+        document.addEvent("mousedown", hider2)
+                .addEvent("keydown", hider2)
+                .addEvent("keyup", hider3);
+    },
+
+    //todo use other dropdown menu code
+    __createChannelMenu: function() {
+        var client = this.getActiveIRCWindow().client,
+            chans = client.getPopularChannels().map(function(chan) {
+                return {
+                    text: chan.channel,
+                    hint: chan.users
+                };
+            }),
+            menu = Element.from(templates.chanmenu({
+                channels: chans
+            }));
+
+        menu.inject(this.parentElement);
+
+        ui.decorateDropdown(this.addTab, menu);
+        menu.show();
+    },
+
+    newClient: function(client) {
+        this.parentElement.removeClass('signed-out')
+                            .addClass('signed-in');
+        return this.parent(client);
+    },
+
+    // setLines: function(lines) {
+    //     this.lines.parentNode.replaceChild(lines, this.lines);
+    //     this.qjsui.middle = this.lines = lines;
+    // },
+    // setChannelItems: function(nicklist, topic) {
+    //     if (!$defined(nicklist)) {
+    //         nicklist = this.orignicklist;
+    //         topic = this.origtopic;
+    //     }
+    //     nicklist.replaces(this.nicklist);
+    //     this.qjsui.right = this.nicklist = nicklist;
+
+    //     topic.replaces(this.topic);
+
+    //     this.qjsui.topic = this.topic = topic;
+    // }
+    setWindow: function(win) {
+        this.qjsui.setWindow(win);
+    },
+
+    //called in context of irc client
+    nickChange: function(data) {
+        if(data.thisclient) {
+            Object.each(this.windows, function(win) {
+                win.$nicklabel.set("text", data.newnick);
+            });
+        }
+    }
+});
+
+ui.QUI.JSUI = new Class({
+    Implements: [Events],
+    initialize: function(class_, parent, sizer) {
+        this.parent = parent;
+        this.windows = [];
+
+        this.sizer = $defined(sizer) ? sizer : parent;
+
+        this.class_ = class_;
+        this.create();
+
+        // this.reflowevent = null;
+    },
+    // applyClasses: function(pos, el) {
+    //     el.addClass("dynamicpanel")
+    //         .addClass(this.class_);
+
+    //     switch(pos) {
+    //         case "middle":
+    //             el.addClass("leftboundpanel");
+    //             break;
+    //         case "top":
+    //             el.addClass("topboundpanel")
+    //                 .addClass("widepanel");
+    //             break;
+    //         case "right":
+    //             el.addClass("rightboundpanel");
+    //             break;
+    //         case "topic":
+    //             el.addClass("widepanel");
+    //             break;
+    //         case "bottom":
+    //             el.addClass("bottomboundpanel")
+    //                 .addClass("widepanel");
+    //             break;
+    //     }
+    // },
+    create: function() {
+        // var XE = function(pos) {
+        //         var element = new Element("div");
+        //         this.applyClasses(pos, element);
+
+        //         this.parent.appendChild(element);
+        //         return element;
+        //     }.bind(this);
+
+        // this.top = XE("top");
+        // this.topic = XE("topic");
+        // this.middle = XE("middle");
+        // this.right = XE("right");
+        // this.properties = XE("properties");
+        // this.bottom = XE("bottom");
+
+        var top = this.top = Element.from(templates.topPane()),
+            windows = this.winContainer = Element.from(templates.windowsPane()),
+            detach = this.detachContainer = Element.from(templates.detachedPane());
+        this.parent.adopt(top, windows, detach);
+    },
+
+    createWindow: function() {
+        var win = {
+            'window': Element.from(templates.windowPane()),
+            'topic': Element.from(templates.topicPane()),
+            'content': Element.from(templates.contentPane()),
+            'middle': Element.from(templates.leftPane()),
+            'right': Element.from(templates.nickPane()),
+            'properties': Element.from(templates.propertiesPane()),
+            'bottom': Element.from(templates.inputPane())
+        };
+
+        win.content.adopt(win.middle, win.right);
+        win.window.adopt(win.topic, win.content, win.properties, win.bottom);
+        this.winContainer.appendChild(win.window);
+        this.windows.push(win);
+
+        return win;
+    },
+
+    reflow: function(win, delay) {
+        console.log('dummy');
+        // if (!delay)
+        //     delay = 1;
+
+        // if (this.reflowevent)
+        //     $clear(this.reflowevent);
+        // this.__reflow(win);
+        // this.reflowevent = this.__reflow.delay(delay, this, win);
+    },
+    __reflow: function(win) {
+        // var properties = win.properties,
+        //     bottom = win.bottom,
+        //     middle = win.middle,
+        //     right = win.right,
+        //     topic = win.topic,
+        //     top = this.top,
+
+        //     topicsize = topic.getSize(),
+        //     topsize = top.getSize(),
+        //     rightsize = right.getSize(),
+        //     bottomsize = bottom.getSize(),
+        //     docsize = this.sizer.getSize();
+
+        // var mheight = (docsize.y - topsize.y - bottomsize.y - topicsize.y),
+        //     mwidth = (docsize.x - rightsize.x);
+
+        // topic.setStyle("top", topsize.y);
+
+        // var last5_height = 0;
+        // var last5msg = $('last5messages');
+        // if (last5msg) {
+        //     last5msg.className = "qwebirc-qui ircwindow dynamicpanel lines";
+        //     last5msg.style.top = topsize.y + topicsize.y + 'px';
+        //     last5msg.style.width = mwidth + 'px';
+        //     last5msg.style.zIndex = '1';
+        //     last5msg.style.borderBottom = '1px dashed #C8D1DB';
+        //     last5_height = last5msg.offsetHeight;
+        //     middle.setStyle("top", (topsize.y + topicsize.y + last5msg.offsetHeight));
+        // } else {
+        //     middle.setStyle("top", (topsize.y + topicsize.y));
+        // }
+
+        // if (mheight > 0) {
+        //     middle.setStyle("height", mheight - 25 - last5_height);
+        //     right.setStyle("height", mheight);
+        // }
+
+        // if (mwidth > 0) {
+        //     middle.setStyle("width", mwidth);
+        //     properties.setStyle("width", mwidth);
+        // }
+        // right.setStyle("top", (topsize.y + topicsize.y))
+        //     .setStyle("left", mwidth);
+
+        // properties.setStyle("top", (docsize.y - bottomsize.y - 25));
+        // bottom.setStyle("top", (docsize.y - bottomsize.y));
+        // this.fireEvent("reflow", win);
+    },
+    // showChannel: function(win, state, nicklistVisible) {
+    //     // var display = state ? "block" : "none";
+    //     // this.right.setStyle("display", nicklistVisible ? display : "none");
+    //     // this.topic.setStyle("display", display);
+    //     win.right.toggle(state && nicklistVisible);
+    //     win.topic.toggle(state);
+    // },
+    // showInput: function(win, state) {
+    //     // this.bottom.setStyle("display", state ? "block" : "none");
+    //     win.bottom.isVisible = state;
+    //     win.bottom.toggle(state);
+    // }
+    setWindow: function(newWin) {
+        this.windows.each(function (win) {
+            if(win.detached !== true) {
+                win.window.hide();
+            }
+        });
+        newWin.window.show();
+    }
+});
+
+
 // hacky... todo simplify
 ui.Colourise = function(line, entity, execfn, cmdfn, win) {
     var fg;
@@ -20366,6 +21636,22 @@ ui.decorateDropdown = function(btn, ddm, options) {
     });
 };
 
+//dirty function please help with css :(
+//dir can be 'width' 'height'
+util.fillContainer = function ($ele, sty) {
+    (function() {//wait a sec for style recalcs
+        var offset = 10;
+        sty = (sty || 'width').toLowerCase();
+
+        $ele.getSiblings().each(function(sib) {
+            offset += sib["get" + sty.capitalize()]();
+        });
+
+        $ele.setStyle(sty, "calc(100% - " + offset + "px)");
+    }).delay(20);
+    return $ele;
+};
+
 
 var keys;
 if(!util.isMobile) {
@@ -20451,456 +21737,6 @@ ui.MENU_ITEMS = (function() {
 })();
 
 
-ui.BaseUI = new Class({
-    Implements: [Events],
-    initialize: function(parentElement, windowClass, uiName, options) {
-        var self = this;
-        self.options = options;
-
-        self.windows = {};
-        self.clients = {};
-        self.windows[ui.CUSTOM_CLIENT] = {};
-        self.windowArray = [];
-        self.windowClass = windowClass;
-        self.parentElement = parentElement;
-        self.parentElement.addClass("qwebirc");
-        self.parentElement.addClass("qwebirc-" + uiName);
-        self.commandhistory = new irc.CommandHistory();
-        self.clientId = 0;
-
-        self.windowFocused = true;
-
-        if (Browser.Engine.trident) {
-            var checkFocus = function() {
-                    var hasFocus = document.hasFocus();
-                    if (hasFocus !== self.windowFocused) {
-                        self.windowFocused = hasFocus;
-                        self.focusChange(hasFocus);
-                    }
-                };
-
-            checkFocus.periodical(100, self);
-        } else {
-            var blur = function() {
-                    if (self.windowFocused) {
-                        self.windowFocused = false;
-                        self.focusChange(false);
-                    }
-                },
-                focus = function() {
-                    if (!self.windowFocused) {
-                        self.windowFocused = true;
-                        self.focusChange(true);
-                    }
-                };
-
-            /* firefox requires both */
-
-            document.addEvent("blur", blur);
-            window.addEvent("blur", blur);
-            document.addEvent("focus", focus);
-            window.addEvent("focus", focus);
-        }
-    },
-    newClient: function(client) {
-        client.id = this.clientId++;
-        // client.hilightController = new ui.HilightController(client);
-
-        this.windows[client.id] = {};
-        this.clients[client.id] = client;
-        var win = this.newWindow(client, ui.WINDOW_STATUS, STATUS);
-        this.selectWindow(win);
-
-        client.addEvent("nickChange", this.nickChange);
-
-        return win;
-    },
-    getClientId: function(client) {
-        return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
-    },
-    getWindowIdentifier: function(client, type, name) {
-        if (type === ui.WINDOW_MESSAGES)
-            return "-M";
-        else if (type === ui.WINDOW_STATUS)
-            return "";
-        else if (client === ui.CUSTOM_CLIENT)
-            return "_" + name;
-        else
-            return "_" + client.toIRCLower(name);
-    },
-    newWindow: function(client, type, name) {
-        var win = this.getWindow(client, type, name);
-        if ($defined(win))
-            return win;
-
-        var wId = this.getWindowIdentifier(client, type, name);
-        win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, client, type, name, wId);
-        this.windowArray.push(win);
-
-        return win;
-    },
-    nickChange: $empty,
-
-    getWindow: function(client, type, name) {
-        var wins = this.windows[this.getClientId(client)];
-        if (!$defined(wins))
-            return null;
-
-        return wins[this.getWindowIdentifier(client, type, name)];
-    },
-    getActiveWindow: function() {
-        return this.active;
-    },
-    getActiveIRCWindow: function(client) {
-        if (!this.active || this.active.type == ui.WINDOW_CUSTOM) {
-            return this.windows[this.getClientId(client)][this.getWindowIdentifier(client, ui.WINDOW_STATUS)];
-        } else {
-            return this.active;
-        }
-    },
-    __setActiveWindow: function(win) {
-        this.active = win;
-    },
-    selectWindow: function(win) {
-        if (this.active)
-            this.active.deselect();
-        win.select();
-        this.updateTitle(win.name + " - " + this.options.appTitle);
-    },
-    updateTitle: function(text) {
-        ui.setTitle(text);
-    },
-    nextWindow: function(direction, fromWin) {
-        var windows = this.windowArray,
-            win = windows.next(windows.indexOf(fromWin || this.active), direction); //get window from array
-        this.selectWindow(win);
-
-        return win;
-    },
-    prevWindow: function() {
-        this.nextWindow(-1);
-    },
-    __closed: function(win) {
-        var winarr = this.windowArray;
-        if (win.active) {
-            // this.active = undefined;
-            if (winarr.length === 1) {
-                winarr.empty();
-            } else {
-                var index = winarr.indexOf(win);
-                if(index === -1) {
-                    return;
-                } else if (index === (winarr.length - 1)) {
-                    this.prevWindow();
-                } else {
-                    this.nextWindow();
-                }
-            }
-        }
-
-        winarr = this.windowArray.erase(win);
-        delete this.windows[this.getClientId(win.client)][win.identifier];
-    },
-/*
-      this shouldn't be called by overriding classes!
-      they should implement their own!
-      some form of user input MUST be received before an
-      IRC connection is made, else users are going to get
-      tricked into getting themselves glined
-    */
-    loginBox: function(callback, initialNickname, initialChannels, autoConnect, autoNick, storage) {
-        ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
-    },
-    focusChange: function(newValue) {
-        window.ctrl = 0;
-        var win = this.getActiveWindow();
-        if ($defined(win))
-            win.focusChange(newValue);
-    }
-});
-
-ui.StandardUI = new Class({
-    Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete"],
-
-    UICommands: ui.UI_COMMANDS,
-    initialize: function(parentElement, windowClass, uiName, options) {
-        this.parent(parentElement, windowClass, uiName, options);
-
-        this.tabCompleter = new ui.TabCompleterFactory(this);
-        this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
-        this.customWindows = {};
-
-        this.__styleValues = {
-            hue: this.uiOptions.STYLE_HUE,
-            saturation: 0,
-            lightness: 0
-        };
-        if ($defined(this.options.hue))
-            this.__styleValues.hue = this.options.hue;
-        if ($defined(this.options.saturation))
-            this.__styleValues.saturation = this.options.saturation;
-        if ($defined(this.options.lightness))
-            this.__styleValues.lightness = this.options.lightness;
-
-        var ev;
-        if (Browser.Engine.trident) {
-            ev = "keydown";
-        } else {
-            ev = "keypress";
-        }
-        document.addEvent(ev, this.__handleHotkey);
-    },
-    __handleHotkey: function(x) {
-        if (!x.alt || x.control) {
-            if (x.key === "backspace" || x.key === "/")
-                if (!this.getInputFocused(x))
-                    x.stop();
-            return;
-        }
-        var success = false;
-        if (x.key.match(/a/i)) {
-            var highestNum = 0;
-            var highestIndex = -1;
-            success = true;
-
-            x.stop();
-            //good place for foldr no?
-            this.windowArray.each(function(win, indx){
-                var h = win.hilighted;
-                if (h > highestNum) {
-                    highestIndex = indx;
-                    highestNum = h;
-                }
-            });
-            if (highestIndex !== -1)
-                this.selectWindow(this.windowArray[highestIndex]);
-        } else if (prelude.isNumber(x.key)) { /*x.key >= '0' && x.key <= '9'*/
-            success = true;
-
-            //number = x.key - '0'; //ridiculously stupid
-            number = (Number.toInt(x.key) || 10) - 1;
-
-            if (number >= this.windowArray.length)
-                return;
-
-            this.selectWindow(this.windowArray[number]);
-        } else if (x.key == "left") {
-            this.prevWindow();
-            success = true;
-        } else if (x.key == "right") {
-            this.nextWindow();
-            success = true;
-        }
-        if (success)
-            x.stop();
-    },
-    getInputFocused: function(x) {
-        //wtf? (x.target.TYPE =="INPUT") or something work?
-        var focused = !($$("input").contains(x.target) && $$("textarea").contains(x.target));
-        return focused;
-    },
-    newCustomWindow: function(name, select, type) {
-        if (!type)
-            type = ui.WINDOW_CUSTOM;
-
-        var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        win.addEvent("close", function(win) {
-            delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
-        }.bind(this));
-
-        if (select)
-            this.selectWindow(win);
-
-        return win;
-    },
-    addCustomWindow: function(windowName, class_, cssClass, options) {
-        if (!$defined(options))
-            options = {};
-
-        if (this.customWindows[windowName]) {
-            this.selectWindow(this.customWindows[windowName]);
-            return;
-        }
-
-        var win = this.newCustomWindow(windowName, true);
-        this.customWindows[windowName] = win;
-
-        win.addEvent("close", function() {
-            this.customWindows[windowName] = null;
-        }.bind(this));
-
-        if (cssClass)
-            win.lines.addClass("qwebirc-" + cssClass);
-
-        var ew = new class_(win.lines, options);
-        ew.addEvent("close", win.close/*.bind(win)*/); //already bound
-
-        win.setSubWindow(ew);
-    },
-    embeddedWindow: function() {
-        this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
-            baseURL: this.options.baseURL,
-            uiOptions: this.uiOptions,
-            optionsCallback: this.optionsWindow
-        });
-    },
-    optionsWindow: function() {
-        this.addCustomWindow("Options", ui.OptionsPane, "optionspane", this.uiOptions);
-    },
-    aboutWindow: function() {
-        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions);
-    },
-    privacyWindow: function() {
-        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions);
-    },
-    feedbackWindow: function() {
-        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions);
-    },
-    faqWindow: function() {
-        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions);
-    },
-    urlDispatcher: function(name, window) {
-        if (name == "embedded") {
-            return ["a", this.embeddedWindow];
-        }
-        else if (name == "options"){
-            return ["a", this.optionsWindow];
-        }
-        /* doesn't really belong here */
-        else if (name === "whois") {
-            var uiOptions = this.uiOptions;
-            ///this method is dumb
-            return ["span", function(nick) {
-                if (uiOptions.QUERY_ON_NICK_CLICK) {
-                    window.client.exec("/QUERY " + nick);
-                } else {
-                    if (isChannel(nick)) {
-                        nick = util.unformatChannel(nick);
-                    } else {
-                        if (nick.search(window.client.nickname + '>') >= 0) {
-                            nick = nick.substr(nick.search('>') + 1, nick.length);
-                        } else {
-                            nick = nick.substr(0, nick.search('>'));
-                        }
-                    }
-                    // window.properties.text(nick);
-                    window.client.exec("/WHOIS " + nick);
-                }
-            }];
-        }
-        else
-            return null;
-    },
-    tabComplete: function(element) {
-        // this.tabCompleter.tabComplete(element);
-    },
-    resetTabComplete: function() {
-        // this.tabCompleter.reset();
-    },
-    setModifiableStylesheet: function(name) {
-        this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues({});
-    },
-    setModifiableStylesheetValues: function(values) {
-        // for (var k in values)
-        //     this.__styleValues[k] = values[k];
-        $extend(this.__styleValues, values);
-
-        if (!$defined(this.__styleSheet))
-            return;
-
-        var hue = this.__styleValues.hue,
-            lightness = this.__styleValues.lightness,
-            saturation = this.__styleValues.saturation,
-            uiOptions = this.uiOptions;
-
-        this.__styleSheet.set(function(mode, col) {
-            if (mode == "c") {
-                var x = new Color(col);
-                var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
-                if (c == "255,255,255") // IE confuses white with transparent... 
-                c = "255,255,254";
-
-                return "rgb(" + c + ")";
-            } else if (mode == "o") {
-                return uiOptions[arguments[1]] ? arguments[2] : arguments[3];
-            }
-        });
-    }
-});
-
-ui.NotificationUI = new Class({
-    Extends: ui.StandardUI,
-    initialize: function(/*parentElement, windowClass, uiName, options*/) {
-        // this.parent(parentElement, windowClass, uiName, options);
-        this.parent.apply(this, arguments);
-
-        var beeper = this.__beeper = new ui.Beeper(this.uiOptions),
-            flasher = this.__flasher = new ui.Flasher(this.uiOptions);
-
-        this.beep = beeper.beep;
-
-        this.flash = flasher.flash;
-        this.cancelFlash = flasher.cancelFlash;
-    },
-    setBeepOnMention: function(value) {
-        if (value)
-            this.__beeper.soundInit();
-    },
-    updateTitle: function(text) {
-        if (this.__flasher.updateTitle(text))
-            this.parent(text);
-    },
-    focusChange: function(value) {
-        this.parent(value);
-        this.__flasher.focusChange(value);
-    }
-});
-
-
-ui.NewLoginUI = new Class({
-    Extends: ui.NotificationUI,
-    loginBox: function(callbackfn, initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
-        this.postInitialize();
-
-        var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
-        var callback = function() {
-                win.close();
-                callbackfn.apply(this, arguments);
-            };
-        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
-    }
-});
-
-
-ui.QuakeNetUI = new Class({
-    Extends: ui.NewLoginUI,
-    urlDispatcher: function(name, window) {
-        if (name == "qwhois") {
-            return ["span", function(auth) {
-                this.client.exec("/MSG Q whois #" + auth);
-            }.bind(window)];
-        }
-        return this.parent(name, window);
-    },
-    logout: function() {
-        if (!auth.loggedin)
-            return;
-        if (confirm("Log out?")) {
-            Object.each(this.clients, function(client) {
-                client.quit(lang.logOut.message);
-            });
-
-            (function() {
-                document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
-            }).delay(500);
-        }
-    }
-});
-
-ui.RootUI = ui.QuakeNetUI;
-
 ui.RequestTransformHTML = function(options) {
     var HREF_ELEMENTS = ["IMG"];
 
@@ -20938,309 +21774,6 @@ ui.RequestTransformHTML = function(options) {
     return new Request.HTML(options);
 };
 
-
-ui.Window = new Class({
-    Implements: [Events],
-    initialize: function(parentObject, client, type, name, identifier) {
-        this.parentObject = parentObject;
-        this.type = type;
-        this.name = name;
-        this.active = false;
-        this.client = client;
-        this.identifier = identifier;
-        this.hilighted = ui.HILIGHT_NONE;
-        // this.scrolltimer = null;
-        this.commandhistory = this.parentObject.commandhistory;
-        // this.scrolleddown = true;
-        // this.scrollpos = null;
-        this.lastNickHash = {};
-        this.lastSelected = null;
-        this.subWindow = null;
-        this.closed = false;
-
-        if (this.type & ui.WINDOW_LASTLINE) {
-            this.lastPositionLine = Element.from(templates.messageLine());
-            this.lastPositionLineInserted = false;
-        }
-
-        this.window = this.parentObject.qjsui.createWindow();
-    },
-    updateTopic: function(topic, element) {
-        ui.Colourise("[" + topic + "]", element, this.client.exec, this.parentObject.urlDispatcher, this);
-    },
-    close: function() {
-        this.closed = true;
-
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
-        this.parentObject.__closed(this);
-        this.fireEvent("close", this);
-    },
-    subEvent: function(event) {
-        if ($defined(this.subWindow))
-            this.subWindow.fireEvent(event);
-    },
-    setSubWindow: function(win) {
-        this.subWindow = win;
-    },
-
-    select: function() {
-        if (this.lastPositionLineInserted && !this.parentObject.uiOptions.LASTPOS_LINE) {
-            this.lines.disown(this.lastPositionLine);
-            this.lastPositionLineInserted = false;
-        }
-
-        this.active = true;
-        this.parentObject.__setActiveWindow(this);
-        if (this.hilighted)
-            this.highlightTab(ui.HILIGHT_NONE);
-
-        this.subEvent("select");
-        // this.resetScrollPos();
-        this.lastSelected = new Date();
-    },
-
-    deselect: function() {
-        this.subEvent("deselect");
-
-        // this.setScrollPos();
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
-        if (this.type & ui.WINDOW_LASTLINE)
-            this.replaceLastPositionLine();
-
-        this.active = false;
-    },
-
-    resetScrollPos: function() {
-        // if (this.scrolleddown) {
-        //     this.scrollToBottom();
-        // } else if ($defined(this.scrollpos)) {
-        //     this.getScrollParent().scrollTo(this.scrollpos.x, this.scrollpos.y);
-        // }
-    },
-    setScrollPos: function() {
-        // if (!this.parentObject.singleWindow) {
-        //     this.scrolleddown = this.scrolledDown();
-        //     this.scrollpos = this.lines.getScroll();
-        // }
-    },
-
-
-    /* A line is an object of the form:
-    -: current nick
-    @: opstatus
-    c: channel
-    f: origin channel
-    h: ip of propogater
-    m: msg
-    n: nick
-    */
-
-    addLine: function(type, line, colour, $ele) {
-        var self = this,
-            uiobj = self.parentObject;
-        var hilight = ui.HILIGHT_NONE,
-            hl_line = false;
-
-        if (type && line) {
-        //regexs
-            var isbot = /^TF2/.test(line.n), //works for pugna(hl), mix(hl)
-                ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
-                regNotice = /NOTICE$/,
-                sentByUs = /^OUR/.test(type),//ignore
-                containsNick = util.testForNick(self.nickname);
-
-            var notice = function() {
-                if (!(self.active && uiobj.windowFocused) && line.c !== BROUHAHA) {
-                    uiobj.beep();
-                    uiobj.flash();
-                }
-            };
-
-            hilight = ui.HILIGHT_ACTIVITY;
-
-            if (ismsg) {
-                //highlighting
-                if (line.n && line.m && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.addClass('message');
-                    if(isbot)
-                        $ele.addClass('bot');
-                    else if(sentByUs)
-                        $ele.addClass('our');
-                    if(!isbot && line.m.startsWith("!"))
-                        $ele.addClass('command');
-                }
-
-                if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
-                    if (sentByUs || regNotice.test(type)) {
-                        hilight = ui.HILIGHT_ACTIVITY;
-                    } else {
-                        hilight = ui.HILIGHT_US;
-                        notice(); //private message
-                    }
-                }
-                else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.style.color = "red";
-                    notice();
-                }
-                else if (!sentByUs && !isbot && containsNick(line.m)) { //dont beep if bot says our name
-                    hl_line = true;
-                    hilight = ui.HILIGHT_US;
-                    notice();//name mention in chan
-                }
-                else if (hilight !== ui.HILIGHT_US) {
-                    hilight = ui.HILIGHT_SPEECH;
-                }
-            }
-        }
-
-        if (!self.active && (hilight !== ui.HILIGHT_NONE))
-            self.highlightTab(hilight);
-
-        if (type)
-            line = uiobj.theme.message(type, line, hl_line);
-
-        var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
-        $ele.insertAdjacentHTML('afterbegin', tsE);
-        // $ele.appendChild($ele.from(tsE));
-
-        ui.Colourise(line, $ele, self.client.exec, uiobj.urlDispatcher, self);
-        // self.scrollAdd($ele);
-        self.lines.adopt($ele);
-    },
-    errorMessage: function(message) {
-        this.addLine("", message, "warncolour");
-    },
-    infoMessage: function(message) {
-        this.addLine("", message, "infocolour");
-    },
-    highlightTab: function(state) {
-        if (state == ui.HILIGHT_NONE || state >= this.hilighted)
-            this.hilighted = state;
-    },
-    // scrolledDown: function() {
-        // if (this.scrolltimer)
-        //     return true;
-
-        // var parent = this.lines;
-
-        // var prev = parent.getScroll();
-        // var prevbottom = parent.getScrollSize().y;
-        // var prevheight = parent.clientHeight;
-
-        // /*
-        //  * fixes an IE bug: the scrollheight is less than the actual height
-        //  * when the div isn't full
-        //  */
-        // if (prevbottom < prevheight)
-        //     prevbottom = prevheight;
-
-        // return ((prev.y + prevheight) - prevbottom).abs() <= 1;
-    // },
-    // getScrollParent: function() {
-        // var scrollparent = this.lines;
-
-        // if ($defined(this.scroller))
-        //     scrollparent = this.scroller;
-        // return scrollparent;
-    // },
-    // scrollToBottom: function() {
-        // if (this.type === ui.WINDOW_CUSTOM || this.type === ui.WINDOW_CONNECT)
-        //     return;
-
-        // var parent = this.lines;
-        // var scrollparent = this.getScrollParent();
-
-        // scrollparent.scrollTo(parent.getScroll().x, parent.getScrollSize().y);
-    // },
-    // scrollAdd: function(element) {
-        // var parent = this.lines;
-
-        // /* scroll in bursts, else the browser gets really slow */
-        // if ($defined(element)) {
-        //     var scrolled = this.scrolledDown();
-        //     parent.appendChild(element);
-
-        //     //overflow
-        //     // if (parent.childNodes.length > ui.MAXIMUM_LINES_PER_WINDOW) {
-        //     //     parent.removeChild(parent.firstChild);
-        //     // }
-        //     parent.maxChildren(ui.MAXIMUM_LINES_PER_WINDOW);
-
-        //     if (!!scrolled) {
-        //         if (this.scrolltimer)
-        //             $clear(this.scrolltimer);
-        //         //TODO
-        //         //http://mootools.net/docs/more/Class/Events.Pseudos#Pseudos:throttle
-        //         this.scrolltimer = this.scrollAdd.delay(100, this, [null]);
-        //     } else {
-        //         //chrome fix - http://hg.qwebirc.org/qwebirc/commits/8361cc5b020d389c7add98a50f539bda96f9465f
-        //         this.scrollToBottom();
-        //         this.scrolltimer = null;
-        //     }
-        // } else {
-        //     this.scrollToBottom();
-        //     this.scrolltimer = null;
-        // }
-    // },
-
-    //holy shit i got this to actually make sense
-    // takes nicks (sorted array)
-    updateNickList: function(nicks) {
-        var lnh = this.lastNickHash,
-            oldnames = Object.keys(lnh),
-
-            added = prelude.difference(nicks, oldnames),//users who joined
-            left = prelude.difference(oldnames, nicks); //users who left
-
-        left.each(function(nick) {
-            var element = lnh[nick];
-            this.nickListRemove(nick, element);
-            delete lnh[nick];
-        }, this);
-
-        added.each(function(nick) {
-            var index = nicks.indexOf(nick); //indx in sorted array
-            lnh[nick] = this.nickListAdd(nick, index) || 1;
-        }, this);
-    },
-
-    nickListAdd: function(nick, position) {},
-    nickListRemove: function(nick, stored) {},
-    historyExec: function(line) {
-        this.commandhistory.addLine(line);
-        this.client.exec(line);
-    },
-    focusChange: function(newValue) {
-        if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))
-            this.replaceLastPositionLine();
-    },
-    replaceLastPositionLine: function() {
-        if (this.parentObject.uiOptions.LASTPOS_LINE) {
-            if (!this.lastPositionLineInserted) {
-                // this.scrollAdd(this.lastPositionLine);
-            } else if (this.lines.lastChild !== this.lastPositionLine) {
-                try {
-                    this.lines.disown(this.lastPositionLine);
-                } catch (e) { /* IGNORE, /clear removes lastPositionLine from the dom without resetting it. */
-                }
-                // this.scrollAdd(this.lastPositionLine);
-            }
-        } else {
-            if (this.lastPositionLineInserted)
-                this.lines.disown(this.lastPositionLine);
-        }
-
-        this.lastPositionLineInserted = this.parentObject.uiOptions.LASTPOS_LINE;
-    }
-});
 
 ui.Theme = new Class({
     initialize: function(themeDict) {
@@ -21501,1209 +22034,6 @@ ui.ChannelUsersTabCompleter = new Class({
     }
 });
 
-
-ui.QUI = new Class({
-    Extends: ui.RootUI,
-    Binds: ["__createChannelMenu"],
-    initialize: function(parentElement, theme, options) {
-        this.parent(parentElement, ui.QUI.Window, "qui", options);
-
-        parentElement.addClass('qui')
-                    .addClass('signed-out');
-        this.theme = theme;
-        this.parentElement = parentElement;
-        this.setModifiableStylesheet("qui");
-        this.setHotKeys();
-    },
-    postInitialize: function() {
-        var self = this,
-            qjsui = self.qjsui = new ui.QUI.JSUI("qui", self.parentElement);
-
-        // qjsui.addEvent("reflow", function() {
-        //     var win = self.getActiveWindow();
-        //     if ($defined(win))
-        //         win.onResize();
-        // });
-
-        self.outerTabs = qjsui.top;
-        self.tabs = Element.from(templates.tabbar());
-        var joinChan =  function(){
-                var chan = prompt("Enter channel name:");
-                if(chan.trim() !== ""){
-                    Object.each(self.clients, function(client) {
-                        client.exec("/JOIN " + chan);
-                    });
-                }
-            },
-            addTab = self.addTab = Element.from(templates.addTab());
-        addTab.addEvents({
-            'dblclick': joinChan,
-            'click': self.__createChannelMenu
-        });
-
-        //for scrolling tabs with mousewheel
-        self.tabs.addEvent("mousewheel", function(event) {
-            event.stop();
-            /* up */
-            if (event.wheel > 0) {
-                self.nextWindow();
-            } else if (event.wheel < 0) { /* down */
-                self.prevWindow();
-            }
-        });
-
-
-        //append menu and tabbar
-        self.outerTabs.adopt(self.__createDropdownMenu(),
-                            self.tabs,
-                            addTab);
-
-        var origWin = qjsui.createWindow();
-        self.origtopic = self.topic = origWin.topic;
-        self.origlines = self.lines = origWin.middle;
-        self.orignicklist = self.nicklist = origWin.right;
-
-        self.input = origWin.bottom;
-        // self.reflow = qjsui.reflow.bind(qjsui);
-
-        // self.reflow(origWin);
-        // self.reflow.delay(100, self, origWin); /* Konqueror fix */
-
-
-        //For window resizing
-        // window.addEvent("resize", function() {
-        //     self.getActiveWindow().reflow(100);
-        // });
-
-
-        //delay for style recalc
-        self.__createDropdownHint.delay(500, self);
-    },
-    __createDropdownMenu: function() {
-        var self = this,
-
-            dropdownMenu = Element.from(templates.menudrop());
-
-        //     hidemenu = dropdownMenu.hideMenu = function(e) {
-        //         if(e)
-        //             e.stop();
-        //         dropdownMenu.hide();
-        //         document.removeEvent("mousedown", hidemenu);
-        //     },
-        //     showMenu = dropdownMenu.showMenu = function(e) {
-        //         e.stop();
-        //         self.hideHint();
-
-        //         if (dropdownMenu.isDisplayed()) {
-        //            hidemenu();
-        //         } else {
-        //             dropdownMenu.show()
-        //             document.addEvent("mousedown", hidemenu);
-        //         }
-        //     };
-
-        // hidemenu();
-
-        // dropdownMenu.position.delay(500, dropdownMenu, {
-        //             relativeTo: self.outerTabs,
-        //             position: {x: 'left', y: 'bottom'},
-        //             edge: {x: 'left', y: 'top'}
-        //         }
-
-        dropdownMenu.inject(self.parentElement);
-
-        var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
-        dropdown.setStyle("opacity", 1);
-                // .addEvent("mousedown", Event.stop)
-                // .addEvent("click", showMenu);
-
-
-        self.UICommands.each(function(cmd) {
-            var text = cmd[0];
-            var fn = self[cmd[1] + "Window"].bind(self);
-            var ele = Element.from(templates.menuitem({text:text}));
-            ele.addEvent("mousedown", function(e) {
-                    e.stop();
-                })
-                .addEvent("click", function() {
-                    dropdownMenu.hideMenu();
-                    fn();
-                });
-            dropdownMenu.appendChild(ele);
-        });
-
-        // var dropdown = new Element("div");
-        // dropdown.addClass("dropdown-tab");
-        // dropdown.appendChild(new Element("img", {
-        //     src: qwebirc.global.staticBaseURL + "images/icon.png",
-        //     title: "menu",
-        //     alt: "menu"
-        // }));
-
-        var dropdownEffect = new Fx.Tween(dropdown, {
-            duration: "long",
-            property: "opacity",
-            link: "chain"
-        });
-
-        dropdownEffect.start(0.25)
-                    .start(1)
-                    .start(0.33)
-                    .start(1);
-
-
-        ui.decorateDropdown(dropdown,dropdownMenu, {
-            onShow: function() {
-                if(self.hideHint)
-                    self.hideHint();
-                delete self.hideHint;
-            }
-        });
-        return dropdown;
-    },
-
-    setHotKeys: function (argument) {
-        var events = storage.get('hotkeys');
-        console.log('todo');
-        if(keys && events) {
-            keys.activate();
-        }
-    },
-
-    //the effect on page load
-    __createDropdownHint: function() {
-        var dropdownhint = Element.from(templates.dropdownhint());
-        dropdownhint.inject(this.parentElement)
-                    .position({
-                        relativeTo: this.outerTabs,
-                        position: {'y': 'bottom'},
-                        offset: {y:10}
-                    });
-
-        new Fx.Morph(dropdownhint, {
-            duration: "normal",
-            transition: Fx.Transitions.Sine.easeOut
-        }).start({
-            left: [900, 5]
-        });
-
-        var hider = function() {
-                new Fx.Morph(dropdownhint, {
-                    duration: "long"
-                }).start({
-                    left: [5, -900]
-                });
-            }.delay(4000);
-
-        var hider2 = this.hideHint = Element.destroy.curry(dropdownhint);
-
-        hider2.delay(4000);
-
-        var hider3 = function(e) {
-                if (e.code === 17) {
-                    window.ctrl = 0;
-                }
-            };
-
-        document.addEvent("mousedown", hider2)
-                .addEvent("keydown", hider2)
-                .addEvent("keyup", hider3);
-    },
-
-    //todo use other dropdown menu code
-    __createChannelMenu: function() {
-        var client = this.getActiveIRCWindow().client,
-            chans = client.getPopularChannels().map(function(chan) {
-                return {
-                    text: chan.channel,
-                    hint: chan.users
-                };
-            }),
-            menu = Element.from(templates.chanmenu({
-                channels: chans
-            }));
-
-        menu.inject(this.parentElement);
-
-        ui.decorateDropdown(this.addTab, menu);
-        menu.show();
-    },
-
-    newClient: function(client) {
-        this.parentElement.removeClass('signed-out')
-                            .addClass('signed-in');
-        return this.parent(client);
-    },
-
-    // setLines: function(lines) {
-    //     this.lines.parentNode.replaceChild(lines, this.lines);
-    //     this.qjsui.middle = this.lines = lines;
-    // },
-    // setChannelItems: function(nicklist, topic) {
-    //     if (!$defined(nicklist)) {
-    //         nicklist = this.orignicklist;
-    //         topic = this.origtopic;
-    //     }
-    //     nicklist.replaces(this.nicklist);
-    //     this.qjsui.right = this.nicklist = nicklist;
-
-    //     topic.replaces(this.topic);
-
-    //     this.qjsui.topic = this.topic = topic;
-    // }
-    setWindow: function(win) {
-        this.qjsui.setWindow(win);
-    },
-
-    //called in context of irc client
-    nickChange: function(data) {
-        if(data.thisclient) {
-            Object.each(this.windows, function(win) {
-                win.$nicklabel.set("text", data.newnick);
-            });
-        }
-    }
-});
-
-ui.QUI.JSUI = new Class({
-    Implements: [Events],
-    initialize: function(class_, parent, sizer) {
-        this.parent = parent;
-        this.windows = [];
-
-        this.sizer = $defined(sizer) ? sizer : parent;
-
-        this.class_ = class_;
-        this.create();
-
-        // this.reflowevent = null;
-    },
-    // applyClasses: function(pos, el) {
-    //     el.addClass("dynamicpanel")
-    //         .addClass(this.class_);
-
-    //     switch(pos) {
-    //         case "middle":
-    //             el.addClass("leftboundpanel");
-    //             break;
-    //         case "top":
-    //             el.addClass("topboundpanel")
-    //                 .addClass("widepanel");
-    //             break;
-    //         case "right":
-    //             el.addClass("rightboundpanel");
-    //             break;
-    //         case "topic":
-    //             el.addClass("widepanel");
-    //             break;
-    //         case "bottom":
-    //             el.addClass("bottomboundpanel")
-    //                 .addClass("widepanel");
-    //             break;
-    //     }
-    // },
-    create: function() {
-        // var XE = function(pos) {
-        //         var element = new Element("div");
-        //         this.applyClasses(pos, element);
-
-        //         this.parent.appendChild(element);
-        //         return element;
-        //     }.bind(this);
-
-        // this.top = XE("top");
-        // this.topic = XE("topic");
-        // this.middle = XE("middle");
-        // this.right = XE("right");
-        // this.properties = XE("properties");
-        // this.bottom = XE("bottom");
-
-        var top = this.top = Element.from(templates.topPane()),
-            windows = this.winContainer = Element.from(templates.windowsPane()),
-            detach = this.detachContainer = Element.from(templates.detachedPane());
-        this.parent.adopt(top, windows, detach);
-    },
-
-    createWindow: function() {
-        var win = {
-            'window': Element.from(templates.windowPane()),
-            'topic': Element.from(templates.topicPane()),
-            'content': Element.from(templates.contentPane()),
-            'middle': Element.from(templates.leftPane()),
-            'right': Element.from(templates.nickPane()),
-            'properties': Element.from(templates.propertiesPane()),
-            'bottom': Element.from(templates.inputPane())
-        };
-
-        win.content.adopt(win.middle, win.right);
-        win.window.adopt(win.topic, win.content, win.properties, win.bottom);
-        this.winContainer.appendChild(win.window);
-        this.windows.push(win);
-
-        return win;
-    },
-
-    reflow: function(win, delay) {
-        console.log('dummy');
-        // if (!delay)
-        //     delay = 1;
-
-        // if (this.reflowevent)
-        //     $clear(this.reflowevent);
-        // this.__reflow(win);
-        // this.reflowevent = this.__reflow.delay(delay, this, win);
-    },
-    __reflow: function(win) {
-        // var properties = win.properties,
-        //     bottom = win.bottom,
-        //     middle = win.middle,
-        //     right = win.right,
-        //     topic = win.topic,
-        //     top = this.top,
-
-        //     topicsize = topic.getSize(),
-        //     topsize = top.getSize(),
-        //     rightsize = right.getSize(),
-        //     bottomsize = bottom.getSize(),
-        //     docsize = this.sizer.getSize();
-
-        // var mheight = (docsize.y - topsize.y - bottomsize.y - topicsize.y),
-        //     mwidth = (docsize.x - rightsize.x);
-
-        // topic.setStyle("top", topsize.y);
-
-        // var last5_height = 0;
-        // var last5msg = $('last5messages');
-        // if (last5msg) {
-        //     last5msg.className = "qwebirc-qui ircwindow dynamicpanel lines";
-        //     last5msg.style.top = topsize.y + topicsize.y + 'px';
-        //     last5msg.style.width = mwidth + 'px';
-        //     last5msg.style.zIndex = '1';
-        //     last5msg.style.borderBottom = '1px dashed #C8D1DB';
-        //     last5_height = last5msg.offsetHeight;
-        //     middle.setStyle("top", (topsize.y + topicsize.y + last5msg.offsetHeight));
-        // } else {
-        //     middle.setStyle("top", (topsize.y + topicsize.y));
-        // }
-
-        // if (mheight > 0) {
-        //     middle.setStyle("height", mheight - 25 - last5_height);
-        //     right.setStyle("height", mheight);
-        // }
-
-        // if (mwidth > 0) {
-        //     middle.setStyle("width", mwidth);
-        //     properties.setStyle("width", mwidth);
-        // }
-        // right.setStyle("top", (topsize.y + topicsize.y))
-        //     .setStyle("left", mwidth);
-
-        // properties.setStyle("top", (docsize.y - bottomsize.y - 25));
-        // bottom.setStyle("top", (docsize.y - bottomsize.y));
-        // this.fireEvent("reflow", win);
-    },
-    // showChannel: function(win, state, nicklistVisible) {
-    //     // var display = state ? "block" : "none";
-    //     // this.right.setStyle("display", nicklistVisible ? display : "none");
-    //     // this.topic.setStyle("display", display);
-    //     win.right.toggle(state && nicklistVisible);
-    //     win.topic.toggle(state);
-    // },
-    // showInput: function(win, state) {
-    //     // this.bottom.setStyle("display", state ? "block" : "none");
-    //     win.bottom.isVisible = state;
-    //     win.bottom.toggle(state);
-    // }
-    setWindow: function(newWin) {
-        this.windows.each(function (win) {
-            if(win.detached !== true) {
-                win.window.hide();
-            }
-        });
-        newWin.window.show();
-    }
-});
-
-ui.QUI.Window = new Class({
-    Extends: ui.Window,
-    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic"],
-
-    initialize: function(parentObject, client, type, name, identifier) {
-        var self = this;
-        self.parent(parentObject, client, type, name, identifier);
-
-        var tabname, tabclass,
-            qwindow = self.window;
-
-        qwindow.detached = self.detached = false;
-
-        if (name === BROUHAHA) {
-            tabclass = "brouhaha";
-            tabname = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-        } else {
-            tabname = name;
-        }
-
-        var $tab = self.tab = Element.from(templates.ircTab({
-                'class': tabclass,
-                'name': tabname
-            })),
-            $tabDetach = $tab.getElement('.detach');
-
-        parentObject.tabs.appendChild($tab);
-
-
-        // var elchanid = document.getElementById('channel-name-id');
-
-        $tab.addEvents({
-            focus: $tab.blur,
-            click: self.selectTab,
-            dblclick: function(e) {
-                e.stop();
-
-                if (self.closed)
-                    return;
-
-                parentObject.selectWindow(self);
-            }
-        });
-        $tabDetach.addEvent('click', self.detach);
-
-        if (!isBaseWindow(name)) {
-            // var tabclose = new Element("span");
-            // tabclose.set("text", "X");
-            // tabclose.addClass("tabclose");
-            var $tabclose = Element.from(templates.tabClose()),
-                close = self.close;
-            //close window
-
-            $tabclose.addEvent("click", close);
-            $tab.addEvent("mouseup", function(e) {
-                    var button = Browser.Engine.trident ? 4 : 1;
-
-                    if (e.event.button === button)
-                        close(e);
-                })
-                .appendChild($tabclose);
-        }
-
-        var lines = self.lines = qwindow.middle;
-        // self.parentObject.qjsui.applyClasses("middle", self.lines);
-        if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
-            qwindow.window.addClass('ircwindow');
-                // .set('id', 'mainircwindow');
-            self.fxscroll = new Fx.AutoScroll(lines, {
-                wheelStops: false
-            });
-            self.highlighter = new Highlighter(lines, { //highlight last 5 messages
-                filter: function($ele) {
-                    return $ele.hasClass('message') &&
-                        !$ele.hasClass('bot') &&
-                        !$ele.hasClass('command') &&//msg 2 bot
-                        !$ele.hasClass('our');//from us
-                },
-                selector: '.message:not(.bot):not(.command):not(.our)',
-                maxHighlight: 15
-            });
-
-            lines.store("fxscroll", self.fxscroll);
-
-        } else {
-            qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details
-        }
-
-        // lines.addEvent("scroll", function() {
-        //     self.scrolleddown = self.scrolledDown();
-        //     self.scrollpos = self.getScrollParent().getScroll();
-        // });
-
-        if (type === ui.WINDOW_CHANNEL) {
-            qwindow.window.addClass('channel');
-
-            qwindow.topic.html(templates.topicBar({topic:false}));
-            var topic = self.topic = qwindow.topic;
-            topic.addEvent("dblclick", self.editTopic);
-            self.updateTopic("");
-
-            var $nicklist = self.nicklist = qwindow.right;
-            $nicklist.addClass("nicklist")
-                    // .addEvent("click", self.removePrevMenu.bind(self))
-                    .addEvent("click:relay(a.user)", self.nickClick)
-                    .addEvent("focus:relay(a)", Element.prototype.blur);
-
-
-            var $divider = self.divider = Element.from(templates.verticalDivider())
-                                                    .inject($nicklist, "before");
-            //cant create splitpane here because elements are still hidden
-        }
-
-        var properties = self.properties = Element.from(templates.channelName({channel: name}));
-        qwindow.properties.appendChild(properties);
-
-        if(util.windowNeedsInput(type))
-            qwindow.bottom.appendChild(self.createInput());
-
-
-        self.nicksColoured = self.parentObject.uiOptions.NICK_COLOURS;
-        // self.reflow();
-    },
-
-    close: function(e) {
-        if(e)
-            e.stop();
-
-        if (this.closed)
-            return;
-
-        if (isChannelType(this.type) && (!isBaseWindow(this.name)) && !util.wasKicked()) {
-            var client = this.client,
-                channels = util.removeChannel(client.channels, this.name);
-
-            client.exec("/PART " + this.name);
-            client.storeChannels(channels);
-        }
-        this.parent();
-
-        this.parentObject.tabs.removeChild(this.tab);
-
-        if(this.detached) {
-            this.wrapper.destroy();
-        } else {
-            this.window.window.destroy();
-        }
-
-        // this.tab.dispose();
-        // this.reflow();
-    },
-
-    attach: function(e) {
-        var win = this.window.window,
-            wrapper = this.wrapper,
-            po = this.parentObject;
-
-        this.window.detached = this.detached = false;
-
-        wrapper.hide();
-        win.hide();
-        // wrapper.removeChild(win);
-        win.replaces(wrapper);
-        wrapper.destroy();
-
-        this.drag.detach().stop();
-        this.resizable.detach().stop();
-        this.wrapper = this.resizable = this.drag = undefined;
-
-        this.tab.show();
-        this.select();
-    },
-
-    detach: function(e) {
-        var self = this,
-            win = self.window.window,
-            po = self.parentObject,
-            qjsui = po.qjsui,
-
-            wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                                                                'channel': this.name,
-                                                                'base': util.isBaseWindow(this.name)
-                                                            })),
-            header = wrapper.getElement('.header'),
-            attach = header.getElement('.attach'),
-            close = header.getElement('.tab-close'),
-
-            resizeWrapper = Element.from(templates.resizeHandle()),
-            resizeHandle = resizeWrapper.getElement('.resize-handle'),
-
-            setActive = function(e) {
-                po.windowArray.each(function(win) {
-                    if(win.detached)
-                        win.wrapper.removeClass('active');
-                });
-                wrapper.addClass('active');
-            };
-
-        attach.addEvent('click', self.attach);
-        if(close) {
-            close.addEvent('click', self.close);
-        }
-
-        //change window if we're active
-        if(self.active)
-            po.nextWindow(1, self);
-
-
-        var size = util.percentToPixel({x:40, y:60}, qjsui.parent);
-        wrapper.setStyles({
-                "width": size.x,
-                "height": size.y
-            })
-            .wraps(win) //*** adds wrapper to dom
-            .appendChild(resizeWrapper);
-        win.show();
-        setActive();
-
-        self.resizable = wrapper.makeResizable({
-                                limit: {//min/max
-                                    x: [400, null],
-                                    y: [200, null]
-                                },
-                                'handle': resizeHandle
-                            });
-        self.drag = wrapper.makeDraggable({
-                                            container: document,
-                                            handle: header,
-                                            includeMargins: false
-                                        });
-
-        wrapper.addEvents({
-            click: setActive
-        });
-
-        if(self.nicklist && !self.split) {
-            (function() { //wait a sec for the styles to be calculated
-                self.split = new Drag.SplitPane(self.divider, {
-                    store: new Storage('__panelwidth')
-                });
-            }).delay(500);
-        }
-        if(self.fxscroll)
-            self.fxscroll.autoScroll();
-
-        // util.centerElement(wrapper, qjsui.parent);
-        wrapper.position();
-
-        self.detached = self.window.detached = true;
-
-        //keeps order
-        self.tab.hide();
-    },
-
-    selectTab: function() {
-        if (this.name !== BROUHAHA) { //so you can still type in last channel
-            this.parentObject.windowArray.each(function(win) {
-                if(!win.detached) {
-                    win.tab.removeClass("tab-selected")
-                            .addClass("tab-unselected");
-                }
-                else if(win.name === BROUHAHA) {
-                    if(util.isChannelType(self.type))
-                        win.properties.text(self.name); //update current channel in brouhaha
-                }
-            });
-            irc.activeChannel = self.name;
-            this.tab.removeClass("tab-hilight-activity")
-                    .removeClass("tab-hilight-us")
-                    .removeClass("tab-hilight-speech")
-                    .removeClass("tab-unselected")
-                    .addClass("tab-selected");
-        }
-    },
-
-    select: function() {
-        var inputVisible = util.isChannelType(this.type),
-            parentObject = this.parentObject;
-
-        if (this.name === BROUHAHA) {
-            this.tab.removeClass("brouhaha-unselected")
-                    .addClass("brouhaha");
-        } else {
-            this.selectTab();
-        }
-
-        //changing windows occurs here
-        parentObject.setWindow(this.window);
-
-        // this.reflow();
-        this.parent();
-
-        if (inputVisible)
-            this.$inputbox.focus();
-
-        if (this.type === ui.WINDOW_CHANNEL && this.nicksColoured !== parentObject.uiOptions.NICK_COLOURS) {
-            this.nicksColoured = parentObject.uiOptions.NICK_COLOURS;
-
-            var nodes = this.nicklist.childNodes;
-            if (parentObject.uiOptions.NICK_COLOURS) {
-                Array.each(nodes, function(node) {
-                    var colour = util.toHSBColour(node.retrieve("nick"), this.client);
-                    if ($defined(colour))
-                        node.firstChild.setStyle("color", colour.rgbToHex());
-                }, this);
-            } else {
-                Array.each(nodes, function(node) {
-                    node.firstChild.setStyle("color", null);
-                });
-            }
-        }
-        if(this.nicklist && !this.split) {
-            (function() { //wait a sec for the styles to be calculated
-                this.split = new Drag.SplitPane(this.divider);
-            }).delay(500, this);
-        }
-
-        if(this.fxscroll) //scroll to bottom
-            this.fxscroll.autoScroll();
-    },
-
-    deselect: function() {
-        this.parent();
-
-        this.tab.removeClass("tab-selected");
-        if (this.name === BROUHAHA) {
-            this.tab.removeClass("brouhaha")
-                    .addClass("brouhaha-unselected");
-        } else {
-            this.tab.addClass("tab-unselected");
-        }
-    },
-
-    editTopic: function() {
-        if (!this.client.nickOnChanHasPrefix(this.client.nickname, this.name, "@")) {
-/*      var cmodes = this.client.getChannelModes(channel);
-      if(cmodes.indexOf("t")) {*/
-            return alert(lang.needOp.message); /*}*/
-        }
-        var newTopic = prompt(util.formatter(lang.changeTopicConfirm.message, {channel: this.name}), this.topic.topicText);
-        if ($defined(newTopic))
-            return;
-
-        this.client.exec("/TOPIC " + newTopic);
-    },
-    // reflow: function() {
-    //     this.parentObject.reflow(this.window);
-    // },
-    onResize: function() {
-        // if (this.scrolleddown) {
-        //     if (Browser.Engine.trident) {
-        //         this.scrollToBottom.delay(5, this);
-        //     } else {
-        //         this.scrollToBottom();
-        //     }
-        // } else if ($defined(this.scrollpos)) {
-        //     if (Browser.Engine.trident) {
-        //         this.getScrollParent().scrollTo(this.scrollpos.x, this.scrollpos.y);
-        //     } else {
-        //         this.getScrollParent().scrollTo.delay(5, this, [this.scrollpos.x, this.scrollpos.y]);
-        //     }
-        // }
-    },
-
-    //creates the input box on the bottom
-    createInput: function() {
-        var self = this,
-            parentO = self.parentObject,
-
-            inputtype = Browser.isMobile ?  "mobile-input": "keyboard-input",
-
-            nick = self.client.nickname,
-
-            $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
-            $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
-            $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.input-button'),
-
-            sendInput = function(e) {
-                if(e)
-                    e.stop();
-                if ($inputbox.value.trim() !== "") {
-                    parentO.resetTabComplete();
-                    self.historyExec($inputbox.value);
-                    $inputbox.value = "";
-                }
-                $inputbox.focus();
-            };
-
-        if (Browser.isMobile) {
-            $inputbtn.addClass("mobile-button");
-        } else {
-            $inputbox.addEvents({
-                blur: function() {
-                    window.keyboardInputFocus = 0;
-                },
-                focus: function() {
-                    window.keyboardInputFocus = 1;
-                }
-            });
-        }
-
-        var resettab = parentO.resetTabComplete,
-            complete = function(e) {
-                var resultfn;
-                var cvalue = $inputbox.value;
-
-                if (e.key === "up") {
-                    resultfn = self.commandhistory.upLine;
-                } else if (e.key === "down") {
-                    resultfn = self.commandhistory.downLine;
-                } else if (e.key === "tab" && window.ctrl != 1) {
-                    e.stop();
-                    self.tabComplete($inputbox);
-                    return;
-                } else { /* ideally alt and other keys wouldn't break self */
-                    parentO.resetTabComplete();
-                    return;
-                }
-                e.stop();
-
-                parentO.resetTabComplete();
-                if ((!!cvalue) && (self.lastcvalue !== cvalue))
-                    self.commandhistory.addLine(cvalue, true);
-
-                var result = resultfn.call(self.commandhistory);//.bind(self.commandhistory)();
-
-                if (!result)
-                    result = "";
-                self.lastcvalue = result;
-
-                $inputbox.value = result;
-                util.setAtEnd($inputbox);
-            };
-
-        self.client.addEvents({
-            "mode": function(data) {
-                if(data.thisclient) {
-                    var statusclass = (data.prefix === OPSTATUS) ? "op" : (data.prefix === VOICESTATUS) ? "voice" : "";
-                    $nicklabel.getElement('.status')
-                                .removeClass('op')
-                                .removeClass('voice')
-                                .addClass(statusclass);
-                }
-            }
-        });
-
-        (function() { //have to delay to get from server :/
-            var status = (util.isChannel(self.name) && util.isChannelType(self.type)) ? self.client.getNickStatus(self.name, nick) : "", //for this channel (self.name)
-                c = (status === OPSTATUS) ? "op" : (status === VOICESTATUS) ? "voice" : "";
-            $nicklabel.getElement('.status').addClass(c);
-        }).delay(5000);
-
-        $nicklabel.addEvent("click", function() {
-            var nick = prompt("Enter a new nickname", self.nickname);
-            if(nick) {
-                self.client.exec("/nick " + nick);
-            }
-        });
-
-        $inputbtn.addEvent("click", sendInput);
-        $form.addEvent("submit", sendInput);
-        $inputbox.addEvents({
-                    "focus": resettab,
-                    "mousedown": resettab,
-                    "keydown": complete
-                    });
-        return $form;
-    },
-
-    nickClick: function(evt, $tar) { //delegation to nick items
-        var $tar2 = evt.target.getParent('a.user') || evt.target,//cant gaurentee what was clicked
-            hasMenu = $tar.hasClass('selected-middle');
-
-        console.log($tar2)
-        console.log($tar);
-
-        this.removePrevMenu(); //collapse old menus
-        if (!hasMenu) {
-            this.moveMenuClass($tar);
-            $tar.addClass("selected")
-                .store("menu", this.createMenu($tar.retrieve("nick"), $tar));
-        }
-    },
-
-    // - clicking user in nick list
-    createMenu: function(nick, $parent) {
-        var pmenu = $parent.retrieve('menu');
-        if(pmenu) {
-            return pmenu.toggle();
-        }
-
-        var $menu = Element.from(templates.menuContainer()),
-            self = this;
-
-        (ui.MENU_ITEMS.filter(function(item) {
-            var pred = item.predicate;
-
-            return ($type(pred) === 'function') ? pred.call(self, nick) : //pred.apply(this, nickArray)
-                                                  !!pred;
-        })).each(function(item) {
-            var e2 = Element.from(templates.nickbtn({'nick': "- " + item.text}));
-            // var e2 = new Element("a");
-            // e2.href = "#";
-            // e2.set("text", "- " + item.text)
-            e2.addEvents({
-                focus: e2.blur,
-                click: function(e) {
-                    e.stop();
-                    self.menuClick(item.fn);
-                }
-            });
-
-            $menu.appendChild(e2);
-        });
-        $parent.appendChild($menu);
-
-        return $menu;
-    },
-
-    menuClick: function(fn) {
-        var selected = this.nicklist.getElement('.selected');
-        //i dont understand why these arent equivalent
-        fn.call(this, selected.retrieve("nick"));
-        this.removePrevMenu();
-    },
-
-    moveMenuClass: function($sel) {
-        $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        if (!$sel){}
-        else if (this.nicklist.firstChild === $sel) {
-            $sel.removeClass("selected-middle");
-        } else {
-            $sel.addClass("selected-middle");
-        }
-    },
-
-    removePrevMenu: function() {
-        var $sel = this.nicklist.getElements('.nicklist .selected-middle', '.nicklist .selected');
-        if ($sel) {
-            $sel.removeClass("selected")
-                .removeClass("selected-middle");
-            var $menu = $sel.retrieve('menu');
-            if ($menu) {
-                $menu.dispose();
-                $sel.eliminate('menu');
-            }
-        }
-    },
-
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
-        var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
-
-
-        if (this.parentObject.uiOptions.NICK_COLOURS) {
-            var colour = util.toHSBColour(realNick, this.client);
-            if ($defined(colour))
-                span.setStyle("color", colour.rgbToHex());
-        }
-
-        this.nicklist.insertAt(nickele, position);
-        this.moveMenuClass();
-
-        return nickele;
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            this.nicklist.removeChild(stored);
-            this.moveMenuClass();
-        } catch (e) {
-        }
-    },
-    updateTopic: function(topic) {
-        var topice = this.topic;
-        topice.empty();
-
-        topice.topicText = topic;
-        if (topic) {
-            this.parent(topic, topice);
-        } else {
-            topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
-        }
-        // this.reflow();
-    },
-
-    //TODO do all processing in template?
-    addLine: function(type, line, colourClass) {
-        // var e = new Element("div");
-        var eclass;
-
-        if (colourClass) {
-            eclass = colourClass;
-        } else if (this.lastcolour) {
-            eclass = "linestyle1";
-        } else {
-            eclass = "linestyle2";
-        }
-        var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
-        this.lastcolour = !this.lastcolour;
-
-        this.parent(type, line, colourClass, msge);
-        // this.reflow();
-    },
-    highlightTab: function(state) {
-        this.parent(state);
-
-        if (state == this.hilighted)
-            return;
-
-        //inefficient as fuck
-        this.tab.removeClass("tab-hilight-activity")
-                .removeClass("tab-hilight-us")
-                .removeClass("tab-hilight-speech");
-
-        switch (state) {
-        case ui.HILIGHT_US:
-            this.tab.addClass("tab-hilight-us");
-            break;
-        case ui.HILIGHT_SPEECH:
-            this.tab.addClass("tab-hilight-speech");
-            break;
-        case ui.HILIGHT_ACTIVITY:
-            this.tab.addClass("tab-hilight-activity");
-            break;
-        }
-    }
-});
-
-
-//this is pretty abstract do you really need this on top of the sound player ontop of the sound module
-ui.Beeper = new Class({
-    Binds: ["beep", "playSound"],
-
-    options: {
-        minSoundRepeatInterval: 1000
-    },
-    initialize: function(uiOptions) {
-        $extend(this.options, uiOptions.ui.options.sounds);
-        this.uiOptions = uiOptions;
-
-        this.soundInited = false;
-        this.soundReady = false;
-
-        if (this.uiOptions.BEEP_ON_MENTION)
-            this.soundInit();
-    },
-    soundInit: function() {
-        var self = this;
-
-        //used to have a bunch of flash checks. going to let the sm handle it
-        if(self.soundInited) {
-            return;
-        }
-        self.soundInited = true;
-
-        self.soundPlayer = new qwebirc.sound.SoundPlayer(self.options);
-        self.soundPlayer.addEvent("ready", function() {
-            self.soundReady = true;
-        });
-
-        self.soundPlayer.load();
-    },
-    beep: function() {
-        this.playSound('beep');
-    },
-    playSound: function(alias) {
-        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION) {
-            this.soundReady = false;
-            this.soundPlayer[alias]();
-            (function() { //throttle sound intervals
-                this.soundReady = true;
-            }).delay(this.options.minSoundRepeatInterval, this);
-        }
-    }
-});
-
-ui.Flasher = new Class({
-    Binds: ["flash", "cancelFlash"],
-
-    initialize: function(uiOptions) {
-        this.uiOptions = uiOptions;
-
-        this.windowFocused = false;
-        this.canUpdateTitle = true;
-        this.titleText = document.title;
-
-        var favIcon = this._getFavIcon();
-        if ($defined(favIcon)) {
-            this.favIcon = favIcon;
-            this.favIconParent = favIcon.parentNode;
-            this.favIconVisible = true;
-
-            // this.emptyFavIcon = new Element("link");
-            // this.emptyFavIcon.rel = "shortcut icon";
-            // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
-            // this.emptyFavIcon.type = "image/x-icon";
-            this.emptyFavIcon = Element.from(templates.favicon({link: uiOptions.ui.options.icons.empty_favicon}));
-
-            this.flashing = false;
-
-            this.canFlash = true;
-            var cancel = this.cancelFlash;
-            document.addEvent("mousedown", cancel);
-            document.addEvent("keydown", cancel);
-        } else {
-            this.canFlash = false;
-        }
-    },
-    _getFavIcon: function() {
-        return document.head.getElement("link[rel^='shortcut'][rel$='icon']");//should just add an id
-    },
-    flash: function() {
-        var self = this;
-        if (!self.uiOptions.FLASH_ON_MENTION || self.windowFocused || !self.canFlash || self.flashing)
-            return;
-
-        self.titleText = document.title; /* just in case */
-
-        var flash = function() {
-            var vis = self.toggleFavIcon();
-            self.canUpdateTitle = vis;
-            document.title = vis ? self.titleText : lang.activityNotice.message;
-        };
-
-        //http://mootools.net/forge/p/tab_alert
-        // var ex3 = yourInstance = new tabAlert({
-        //         text: lang.activityNotice.message,
-        //         ticker: true,
-        //         onLoop: flash
-        //     });
-
-        self.flashing = true;
-        // flashA();
-        self.flasher = flash.periodical(750);
-    },
-    cancelFlash: function() {
-        if (!this.canFlash || !$defined(this.flasher))
-            return;
-
-        this.flashing = false;
-
-        $clear(this.flasher);
-        this.flasher = undefined;
-
-        this.toggleFavIcon(true);
-        document.title = this.titleText;
-        this.canUpdateTitle = true;
-    },
-    //not sure if changing the favicon is a good idea - messes with peoples bookmarks
-    toggleFavIcon: function(state) {
-        var vis = $defined(state) ? state : !this.favIconVisible;
-        if(vis){
-            if (!this.favIconVisible) {
-                this.favIcon.replaces(this.emptyFavIcon);
-            }
-        }
-        else{
-            if (this.favIconVisible) {
-                this.emptyFavIcon.replaces(this.favIcon);
-            }
-        }
-        this.favIconVisible = vis;
-        return vis;
-    },
-    updateTitle: function(text) {
-        this.titleText = text;
-        return this.canUpdateTitle;
-    },
-    focusChange: function(value) {
-        this.windowFocused = value;
-
-        if (value)
-            this.cancelFlash();
-    }
-});
 
 
 /*
@@ -23289,237 +22619,840 @@ ui.style.ModifiableStylesheet = new Class({
 });
 
 
-ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName, storage) {
-    if (autoConnect) {
-        ui.ConfirmBox(parentElement, callback, initialNickname, initialChannels, autoNick, networkName,storage);
-    } else {
-        ui.LoginBox(parentElement, callback, initialNickname, initialChannels, networkName,storage);
+ui.Window = new Class({
+    Implements: [Events],
+    initialize: function(parentObject, client, type, name, identifier) {
+        this.parentObject = parentObject;
+        this.type = type;
+        this.name = name;
+        this.active = false;
+        this.client = client;
+        this.identifier = identifier;
+        this.hilighted = ui.HILIGHT_NONE;
+        // this.scrolltimer = null;
+        this.commandhistory = this.parentObject.commandhistory;
+        // this.scrolleddown = true;
+        // this.scrollpos = null;
+        this.lastNickHash = {};
+        this.lastSelected = null;
+        this.subWindow = null;
+        this.closed = false;
+
+        if (this.type & ui.WINDOW_LASTLINE) {
+            this.lastPositionLine = Element.from(templates.messageLine());
+            this.lastPositionLineInserted = false;
+        }
+
+        this.window = this.parentObject.qjsui.createWindow();
+    },
+    updateTopic: function(topic, element) {
+        ui.Colourise("[" + topic + "]", element, this.client.exec, this.parentObject.urlDispatcher, this);
+    },
+    close: function() {
+        this.closed = true;
+
+        // if ($defined(this.scrolltimer)) {
+        //     $clear(this.scrolltimer);
+        //     this.scrolltimer = null;
+        // }
+
+        this.parentObject.__closed(this);
+        this.fireEvent("close", this);
+    },
+    subEvent: function(event) {
+        if ($defined(this.subWindow))
+            this.subWindow.fireEvent(event);
+    },
+    setSubWindow: function(win) {
+        this.subWindow = win;
+    },
+
+    select: function() {
+        if (this.lastPositionLineInserted && !this.parentObject.uiOptions.LASTPOS_LINE) {
+            this.lines.disown(this.lastPositionLine);
+            this.lastPositionLineInserted = false;
+        }
+
+        this.active = true;
+        this.parentObject.__setActiveWindow(this);
+        if (this.hilighted)
+            this.highlightTab(ui.HILIGHT_NONE);
+
+        this.subEvent("select");
+        // this.resetScrollPos();
+        this.lastSelected = new Date();
+    },
+
+    deselect: function() {
+        this.subEvent("deselect");
+
+        // this.setScrollPos();
+        // if ($defined(this.scrolltimer)) {
+        //     $clear(this.scrolltimer);
+        //     this.scrolltimer = null;
+        // }
+
+        if (this.type & ui.WINDOW_LASTLINE)
+            this.replaceLastPositionLine();
+
+        this.active = false;
+    },
+
+    resetScrollPos: function() {
+        // if (this.scrolleddown) {
+        //     this.scrollToBottom();
+        // } else if ($defined(this.scrollpos)) {
+        //     this.getScrollParent().scrollTo(this.scrollpos.x, this.scrollpos.y);
+        // }
+    },
+    setScrollPos: function() {
+        // if (!this.parentObject.singleWindow) {
+        //     this.scrolleddown = this.scrolledDown();
+        //     this.scrollpos = this.lines.getScroll();
+        // }
+    },
+
+
+    /* A line is an object of the form:
+    -: current nick
+    @: opstatus
+    c: channel
+    f: origin channel
+    h: ip of propogater
+    m: msg
+    n: nick
+    */
+
+    addLine: function(type, line, colour, $ele) {
+        var self = this,
+            uiobj = self.parentObject;
+        var hilight = ui.HILIGHT_NONE,
+            hl_line = false;
+
+        if (type && line) {
+        //regexs
+            var isbot = /^TF2/.test(line.n), //works for pugna(hl), mix(hl)
+                ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
+                regNotice = /NOTICE$/,
+                sentByUs = /^OUR/.test(type),//ignore
+                containsNick = util.testForNick(self.client.nickname);
+
+            var notice = function() {
+                if (!(self.active && uiobj.windowFocused) && line.c !== BROUHAHA) {
+                    uiobj.beep();
+                    uiobj.flash();
+                }
+            };
+
+            hilight = ui.HILIGHT_ACTIVITY;
+
+            if (ismsg) {
+                //highlighting
+                if (line.n && line.m && self.type === ui.WINDOW_CHANNEL) {
+                    $ele.addClass('message');
+                    if(isbot)
+                        $ele.addClass('bot');
+                    else if(sentByUs)
+                        $ele.addClass('our');
+                    if(!isbot && line.m.startsWith("!"))
+                        $ele.addClass('command');
+                }
+
+                if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
+                    if (sentByUs || regNotice.test(type)) {
+                        hilight = ui.HILIGHT_ACTIVITY;
+                    } else {
+                        hilight = ui.HILIGHT_US;
+                        notice(); //private message
+                    }
+                }
+                else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
+                    $ele.style.color = "red";
+                    notice();
+                }
+                else if (!sentByUs && !isbot && containsNick(line.m)) { //dont beep if bot says our name
+                    hl_line = true;
+                    hilight = ui.HILIGHT_US;
+                    notice();//name mention in chan
+                }
+                else if (hilight !== ui.HILIGHT_US) {
+                    hilight = ui.HILIGHT_SPEECH;
+                }
+            }
+        }
+
+        if (!self.active && (hilight !== ui.HILIGHT_NONE))
+            self.highlightTab(hilight);
+
+        if (type)
+            line = uiobj.theme.message(type, line, hl_line);
+
+        var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
+        $ele.insertAdjacentHTML('afterbegin', tsE);
+        // $ele.appendChild($ele.from(tsE));
+
+        ui.Colourise(line, $ele, self.client.exec, uiobj.urlDispatcher, self);
+        // self.scrollAdd($ele);
+        self.lines.adopt($ele);
+    },
+    errorMessage: function(message) {
+        this.addLine("", message, "warncolour");
+    },
+    infoMessage: function(message) {
+        this.addLine("", message, "infocolour");
+    },
+    highlightTab: function(state) {
+        if (state == ui.HILIGHT_NONE || state >= this.hilighted)
+            this.hilighted = state;
+    },
+
+    //holy shit i got this to actually make sense
+    // takes nicks (sorted array)
+    updateNickList: function(nicks) {
+        var lnh = this.lastNickHash,
+            oldnames = Object.keys(lnh),
+
+            added = prelude.difference(nicks, oldnames),//users who joined
+            left = prelude.difference(oldnames, nicks); //users who left
+
+        left.each(function(nick) {
+            var element = lnh[nick];
+            this.nickListRemove(nick, element);
+            delete lnh[nick];
+        }, this);
+
+        added.each(function(nick) {
+            var index = nicks.indexOf(nick); //indx in sorted array
+            lnh[nick] = this.nickListAdd(nick, index) || 1;
+        }, this);
+    },
+
+    nickListAdd: function(nick, position) {},
+    nickListRemove: function(nick, stored) {},
+    historyExec: function(line) {
+        this.commandhistory.addLine(line);
+        this.client.exec(line);
+    },
+    focusChange: function(newValue) {
+        if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))
+            this.replaceLastPositionLine();
+    },
+    replaceLastPositionLine: function() {
+        if (this.parentObject.uiOptions.LASTPOS_LINE) {
+            if (!this.lastPositionLineInserted) {
+                // this.scrollAdd(this.lastPositionLine);
+            } else if (this.lines.lastChild !== this.lastPositionLine) {
+                try {
+                    this.lines.disown(this.lastPositionLine);
+                } catch (e) { /* IGNORE, /clear removes lastPositionLine from the dom without resetting it. */
+                }
+                // this.scrollAdd(this.lastPositionLine);
+            }
+        } else {
+            if (this.lastPositionLineInserted)
+                this.lines.disown(this.lastPositionLine);
+        }
+
+        this.lastPositionLineInserted = this.parentObject.uiOptions.LASTPOS_LINE;
     }
-};
-
-ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
-
-    // var outerbox = new Element("div");
-    // outerbox.addClass('tf-middle');
-    // parentElement.appendChild(outerbox);
-
-    parentElement.addClass('qui-center');
-    var content = new Element('div');
-    parentElement.appendChild(content);
-
-    var nickname = cookies.nick.get() || initialNickname,
-        gamesurge = util.B64.decode(cookies.user.get()),
-        password = util.B64.decode(cookies.pass.get()),
-        eauth = auth.enabled || cookies.auth.get();
-
-    var context = {
-        'network':networkName,
-        'nickname':nickname,
-        'username':gamesurge,
-        'password':password,
-        'full': eauth, //whether to show the extra auth options (check the checkbox)
-        'channels': initialChannels.join()
-    };
-    content.html(templates.authpage(context));
-
-    var nickBox = content.getElementById('nickname'),
-        usernameBox = content.getElementById('username'),
-        passwordBox = content.getElementById('password'),
-        chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login'),
-        fullForm;
+});
 
 
-    function toggleFull () {
-        fullForm = fullForm || form.getElements('[name="full"]').getParent('div');//moootols returns an array for some stupid reason
-        fullForm.each(function(e) {
-            e.toggle();
+ui.QUI.Window = new Class({
+    Extends: ui.Window,
+    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
+
+    initialize: function(parentObject, client, type, name, identifier) {
+        var self = this;
+        self.parent(parentObject, client, type, name, identifier);
+
+
+        var qwindow = self.window;
+        qwindow.detached = self.detached = false;
+
+
+        var $tab = self.tab = Element.from(templates.ircTab({
+                'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
+            })).inject(parentObject.tabs),
+            $tabDetach = $tab.getElement('.detach');
+
+        if(name === BROUHAHA) {
+            $tab.addClass('brouhaha');
+        }
+
+
+
+        // var elchanid = document.getElementById('channel-name-id');
+
+        $tab.addEvents({
+                focus: $tab.blur,
+                click: self.selectTab,
+                dblclick: function(e) {
+                    e.stop();
+
+                    if (self.closed)
+                        return;
+
+                    parentObject.selectWindow(self);
+                }
+            })
+            .store("window", self);
+
+        $tabDetach.addEvent('click', self.detach);
+
+        if (!isBaseWindow(name)) {
+            // var tabclose = new Element("span");
+            // tabclose.set("text", "X");
+            // tabclose.addClass("tabclose");
+            var $tabclose = Element.from(templates.tabClose()),
+                close = self.close;
+            //close window
+
+            $tabclose.addEvent("click", close);
+            $tab.addEvent("mouseup", function(e) {
+                    var button = Browser.Engine.trident ? 4 : 1;
+
+                    if (e.event.button === button)
+                        close(e);
+                })
+                .appendChild($tabclose);
+        }
+
+        var lines = self.lines = qwindow.middle;
+        // self.parentObject.qjsui.applyClasses("middle", self.lines);
+        if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
+            qwindow.window.addClass('ircwindow');
+                // .set('id', 'mainircwindow');
+            self.fxscroll = new Fx.AutoScroll(lines, {
+            });
+            self.highlighter = new Highlighter(lines, { //highlight last 5 messages
+                filter: function($ele) {
+                    return $ele.hasClass('message') &&
+                        !$ele.hasClass('bot') &&
+                        !$ele.hasClass('command') &&//msg 2 bot
+                        !$ele.hasClass('our');//from us
+                },
+                selector: '.message:not(.bot):not(.command):not(.our)',
+                maxHighlight: NaN
+            });
+
+            lines.store("fxscroll", self.fxscroll);
+
+        } else {
+            qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details
+        }
+
+        // lines.addEvent("scroll", function() {
+        //     self.scrolleddown = self.scrolledDown();
+        //     self.scrollpos = self.getScrollParent().getScroll();
+        // });
+
+        if (type === ui.WINDOW_CHANNEL) {
+            qwindow.window.addClass('channel');
+
+            qwindow.topic.html(templates.topicBar({topic:false}));
+            var topic = self.topic = qwindow.topic;
+            topic.addEvent("dblclick", self.editTopic);
+            self.updateTopic("");
+
+            var $nicklist = self.nicklist = qwindow.right;
+            $nicklist.addClass("nicklist")
+                    // .addEvent("click", self.removePrevMenu.bind(self))
+                    .addEvent("click:relay(a.user)", self.nickClick)
+                    .addEvent("focus:relay(a)", $nicklist.blur);
+
+
+            var $divider = self.divider = Element.from(templates.verticalDivider())
+                                                    .inject($nicklist, "before");
+            //cant create splitpane here because elements are still hidden
+        }
+
+        var properties = self.properties = Element.from(templates.channelName({channel: name}))
+                                                    .inject(qwindow.properties);
+
+        if(util.windowNeedsInput(type))
+            qwindow.bottom.appendChild(self.createInput());
+
+
+        self.nicksColoured = self.parentObject.uiOptions.NICK_COLOURS;
+        // self.reflow();
+    },
+
+    close: function(e) {
+        if(e)
+            e.stop();
+
+        if (this.closed)
+            return;
+
+        if (isChannelType(this.type) && (!isBaseWindow(this.name)) && !util.wasKicked()) {
+            var client = this.client,
+                channels = util.removeChannel(client.channels, this.name);
+
+            client.exec("/PART " + this.name);
+            client.storeChannels(channels);
+        }
+        this.parent();
+
+        this.parentObject.tabs.removeChild(this.tab);
+
+        if(this.detached) {
+            this.wrapper.destroy();
+        } else {
+            this.window.window.destroy();
+        }
+
+        // this.tab.dispose();
+        // this.reflow();
+    },
+
+    attach: function(e) {
+        var win = this.window.window,
+            wrapper = this.wrapper,
+            po = this.parentObject;
+
+        this.window.detached = this.detached = false;
+
+        wrapper.hide();
+        win.hide();
+        // wrapper.removeChild(win);
+        win.replaces(wrapper);
+        wrapper.destroy();
+
+        this.drag.detach().stop();
+        this.resizable.detach().stop();
+        this.wrapper = this.resizable = this.drag = undefined;
+
+        this.tab.show();
+        this.select();
+    },
+
+    detach: function(e) {
+        var self = this,
+            win = self.window.window,
+            po = self.parentObject,
+            qjsui = po.qjsui,
+
+            wrapper = self.wrapper = Element.from(templates.detachedWindow({
+                                                                'channel': this.name,
+                                                                'base': util.isBaseWindow(this.name)
+                                                            })),
+            header = wrapper.getElement('.header'),
+            attach = header.getElement('.attach'),
+            close = header.getElement('.tab-close'),
+
+            resizeWrapper = Element.from(templates.resizeHandle()),
+            resizeHandle = resizeWrapper.getElement('.resize-handle'),
+
+            setActive = function(e) {
+                po.windowArray.each(function(win) {
+                    if(win.detached)
+                        win.wrapper.removeClass('active');
+                });
+                wrapper.addClass('active');
+            };
+
+        attach.addEvent('click', self.attach);
+        if(close) {
+            close.addEvent('click', self.close);
+        }
+
+        //change window if we're active
+        if(self.active)
+            po.nextWindow(1, self);
+
+        var size = util.percentToPixel({x:40, y:60}, qjsui.parent);
+        wrapper.setStyles({
+                "width": size.x,
+                "height": size.y
+            })
+            .wraps(win) //*** adds wrapper to dom
+            .appendChild(resizeWrapper);
+        win.show();
+        setActive();
+
+        self.resizable = wrapper.makeResizable({
+                                limit: {//min/max
+                                    x: [400, null],
+                                    y: [200, null]
+                                },
+                                'handle': resizeHandle
+                            });
+        self.drag = wrapper.makeDraggable({
+                                            container: document,
+                                            handle: header,
+                                            includeMargins: false
+                                        });
+
+        wrapper.addEvents({
+            click: setActive
         });
-    }
 
-    chkAddAuth.addEvent('click', toggleFull);
 
-    form.addEvent("submit", function(e) {
-        new Event(e).stop();
+        self.selectUpdates();
 
-        var nickname = nickBox.value;
+        // util.centerElement(wrapper, qjsui.parent);
+        wrapper.position();
 
-        //validate nick
-        if (!nickname) {
-            alert(lang.missingNick);
-            nickBox.focus();
-            return;
+        self.detached = self.window.detached = true;
+
+        //keeps order
+        self.tab.hide();
+    },
+
+    selectTab: function(e) {
+        var self = this;
+        if(self.name !== BROUHAHA) {
+            self.parentObject.windowArray.each(function(win) {
+                if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
+                    win.tab.swapClass("tab-selected", "tab-unselected");
+                }
+                if(win.name === BROUHAHA) {
+                    if(util.isChannelType(self.type))
+                        win.properties.text(self.name); //update current channel in brouhaha
+                }
+            });
         }
-        var stripped = qwebirc.global.nicknameValidator.validate(nickname);
-        if (stripped !== nickname) {
-            nickBox.value = stripped;
-            alert(lang.invalidNick);
-            nickBox.focus();
-            return;
+        irc.activeChannel = self.name;
+        self.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech")
+                .swapClass("tab-unselected", "tab-selected");
+    },
+
+    select: function() {
+        this.selectTab();
+
+        //changing windows occurs here
+        this.parentObject.setWindow(this.window);
+
+        // this.reflow();
+        this.parent();
+
+        this.selectUpdates();
+    },
+
+    //styles and ui things to update
+    selectUpdates: function() {
+        var self = this,
+            parentObject = self.parentObject;
+
+        if(self.nicklist && !self.split) {
+            // (function() { //wait a sec for the styles to be calculated
+            //     self.split = new Drag.SplitPane(self.divider, {
+            //         // store: new Storage('__panelwidth')
+            //     });
+            // }).delay(50);
         }
 
-        var data = {
-            "nickname": nickname
-        };
+        if(self.fxscroll) {//scroll to bottom
+            self.fxscroll.autoScroll();
+        }
 
-        cookies.nick.set(nickname);
+        if (util.windowNeedsInput(self.type)) {
+            util.fillContainer(self.$inputbox);
+            self.$inputbox.focus();
+        }
 
+        if(util.isChannelType(self.type)) {
+            if (self.nicksColoured !== parentObject.uiOptions.NICK_COLOURS) {
+                self.nicksColoured = parentObject.uiOptions.NICK_COLOURS;
 
-        if (chkAddAuth.checked || auth.enabled) {//disabled           
-            if (auth.bouncerAuth()) {
-                if (!password) {
-                    alert(lang.missingPass.message);
-                    passwordBox.focus();
+                var nodes = self.nicklist.childNodes;
+                if (parentObject.uiOptions.NICK_COLOURS) {
+                    Array.each(nodes, function(node) {
+                        var colour = util.toHSBColour(node.retrieve("nick"), self.client);
+                        if ($defined(colour))
+                            node.firstChild.setStyle("color", colour.rgbToHex());
+                    });
+                } else {
+                    Array.each(nodes, function(node) {
+                        node.firstChild.setStyle("color", null);
+                    });
+                }
+            }
+
+            self.updatePrefix();
+        }
+
+    },
+
+    deselect: function() {
+        this.parent();
+
+        this.tab.swapClass("tab-selected", "tab-unselected");
+    },
+
+    editTopic: function() {
+        if (!this.client.nickOnChanHasPrefix(this.client.nickname, this.name, "@")) {
+/*      var cmodes = this.client.getChannelModes(channel);
+      if(cmodes.indexOf("t")) {*/
+            return alert(lang.needOp.message); /*}*/
+        }
+        var newTopic = prompt(util.formatter(lang.changeTopicConfirm.message, {channel: this.name}), this.topic.topicText);
+        if (!$defined(newTopic))
+            return;
+
+        this.client.exec("/TOPIC " + newTopic);
+    },
+
+    //creates the input box on the bottom
+    createInput: function() {
+        var self = this,
+            parentO = self.parentObject,
+
+            inputtype = Browser.isMobile ?  "mobile-input": "keyboard-input",
+
+            nick = self.client.nickname,
+
+            $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
+            $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
+            $inputbox = self.$inputbox = $form.getElement('.input-field'),
+            $inputbtn = $form.getElement('.input-button'),
+
+            sendInput = function(e) {
+                if(e)
+                    e.stop();
+                if ($inputbox.value.trim() !== "") {
+                    parentO.resetTabComplete();
+                    self.historyExec($inputbox.value);
+                    $inputbox.value = "";
+                }
+                $inputbox.focus();
+            }
+
+        if (Browser.isMobile) {
+            $inputbtn.addClass("mobile-button");
+        } else {
+            $inputbox.addEvents({
+                blur: function() {
+                    window.keyboardInputFocus = 0;
+                },
+                focus: function() {
+                    window.keyboardInputFocus = 1;
+                }
+            });
+        }
+
+        var resettab = parentO.resetTabComplete,
+            complete = function(e) {
+                var resultfn;
+                var cvalue = $inputbox.value;
+
+                if (e.key === "up") {
+                    resultfn = self.commandhistory.upLine;
+                } else if (e.key === "down") {
+                    resultfn = self.commandhistory.downLine;
+                } else if (e.key === "tab" && window.ctrl != 1) {
+                    e.stop();
+                    self.tabComplete($inputbox);
+                    return;
+                } else { /* ideally alt and other keys wouldn't break self */
+                    parentO.resetTabComplete();
                     return;
                 }
+                e.stop();
 
-                data.serverPassword = password;
+                parentO.resetTabComplete();
+                if ((!!cvalue) && (self.lastcvalue !== cvalue))
+                    self.commandhistory.addLine(cvalue, true);
+
+                var result = resultfn.call(self.commandhistory);//.bind(self.commandhistory)();
+
+                if (!result)
+                    result = "";
+                self.lastcvalue = result;
+
+                $inputbox.value = result;
+                util.setAtEnd($inputbox);
+            };
+
+        if(isChannelType(self.type)) {
+            self.client.addEvents({
+                "mode": self.updatePrefix
+            });
+        }
+
+        $nicklabel.addEvent("dblclick", function() {
+            var nick = prompt("Enter a new nickname", self.nickname);
+            if(nick) {
+                self.client.exec("/nick " + nick);
             }
-            if (!gamesurge || !password) {
-                alert(lang.missingAuthInfo.message);
-                if (!usernameBox.value) {
-                    usernameBox.focus();
-                } else {
-                    passwordBox.focus();
-                }
-                return;
-            } else {
-                if(auth.passAuth()){
-                    data.serverPassword = gamesurge + " " + password;
-                }
+        });
 
-            }
-            // we're valid - good to go
-            data.gamesurge = gamesurge = usernameBox.value;
-            data.password = password = passwordBox.value;
+        $inputbtn.addEvent("click", sendInput);
+        $form.addEvent("submit", sendInput);
+        $inputbox.addEvents({
+                    "focus": resettab,
+                    "mousedown": resettab,
+                    "keydown": complete
+                    });
+        return $form;
+    },
 
-            cookies.user.set(util.B64.encode(gamesurge));
-            cookies.pass.set(util.B64.encode(password));
-            cookies.auth.set(true);
-            auth.enabled = true;
+    updatePrefix: function (data) {
+        var prefix;
+        if(data) {
+            if(data.channel === this.name)
+                prefix = data.prefix;
+            else return;
         } else {
-            cookies.auth.dispose();
+            prefix = this.client.getNickStatus(this.name, this.client.nickname)
+        }
+        this.$nicklabel.getElement('.status')
+                        .removeClasses('op', 'voice')
+                        .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "")
+        util.fillContainer(this.$inputbox);
+    },
+
+    nickClick: function(evt, $tar) { //delegation to nick items
+        var hasMenu = $tar.hasClass('selected-middle');
+
+        this.removePrevMenu(); //collapse old menus
+        if (!hasMenu) {
+            this.moveMenuClass($tar);
+            $tar.addClass("selected")
+                .store("menu", this.createMenu($tar.retrieve("nick"), $tar));
+        }
+    },
+
+    // - clicking user in nick list
+    createMenu: function(nick, $parent) {
+        var pmenu = $parent.retrieve('menu');
+        if(pmenu) {
+            return pmenu.toggle();
         }
 
+        var $menu = Element.from(templates.menuContainer()),
+            self = this;
 
-        parentElement.empty();
+        (ui.MENU_ITEMS.filter(function(item) {
+            var pred = item.predicate;
 
-        auth.loggedin = true;
-        callback.call(this,data);
-    }.bind(this));
+            return ($type(pred) === 'function') ? pred.call(self, nick) : //pred.apply(this, nickArray)
+                                                  !!pred;
+        })).each(function(item) {
+            Element.from(templates.nickbtn({'nick': "- " + item.text}))
+                    .store("action", item.fn)
+                    .inject($menu);
+        });
 
-    // nickBox.set("value", initialNickname);
-    //chan.set("value", initialChannels);
+        $menu.addEvent('click:relay(.user)', function(e, target) {
+                e.stop();
+                self.menuClick(target.retrieve("action"));
+            })
+            .addEvent('focus:relay(a)', Element.prototype.blur)
+            .inject($parent);
 
-    if (window === window.top)
-        nickBox.focus();
-};
+        return $menu;
+    },
 
+    menuClick: function(fn) {
+        var selected = this.nicklist.getElement('.selected');
+        //i dont understand why these arent equivalent
+        fn.call(this, selected.retrieve("nick"));
+        this.removePrevMenu();
+    },
 
-//todo clean this up - not currently implemented
-ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChannels, autoNick, networkName) {
-    var outerbox = new Element("table");
-    outerbox.addClass("qwebirc-centrebox");
-    parentElement.appendChild(outerbox);
-    var tbody = new Element("tbody");
-    outerbox.appendChild(tbody);
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    var td = new Element("td");
-    tr.appendChild(td);
-
-    var box = new Element("table");
-    box.addClass("qwebirc-confirmbox");
-    td.appendChild(box);
-
-    var tbody = new Element("tbody");
-    box.appendChild(tbody);
-
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    tr.addClass("tr1");
-
-    var text = new Element("td");
-    tr.appendChild(text);
-
-    var nick = new Element("b");
-    nick.set("text", initialNickname);
-
-    var c = initialChannels.split(" ")[0].split(",");
-
-    text.appendChild(document.createTextNode("To connect to " + networkName + " IRC and join channel" + ((c.length > 1) ? "s" : "") + " "));
-
-    for (var i = 0; i < c.length; i++) {
-        if ((c.length > 1) && (i == c.length - 1)) {
-            text.appendChild(document.createTextNode(" and "));
-        } else if (i > 0) {
-            text.appendChild(document.createTextNode(", "));
+    moveMenuClass: function($sel) {
+        $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
+        if (!$sel){}
+        else if (this.nicklist.firstChild === $sel) {
+            $sel.removeClass("selected-middle");
+        } else {
+            $sel.addClass("selected-middle");
         }
-        text.appendChild(new Element("b").set("text", c[i]));
+    },
 
+    removePrevMenu: function() {
+        var $sel = this.nicklist.getElements('.selected-middle, .selected');
+        if ($sel) {
+            $sel.removeClasses("selected", "selected-middle");
+            var $menu = $sel.retrieve('menu');
+            if ($menu) {
+                $menu.dispose();
+                $sel.eliminate('menu');
+            }
+        }
+    },
+
+    nickListAdd: function(nick, position) {
+        var realNick = util.stripPrefix(this.client.prefixes, nick);
+
+        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+        var span = nickele.getElement('span');
+        nickele.store("nick", realNick);
+
+
+        if (this.parentObject.uiOptions.NICK_COLOURS) {
+            var colour = util.toHSBColour(realNick, this.client);
+            if ($defined(colour))
+                span.setStyle("color", colour.rgbToHex());
+        }
+
+        this.nicklist.insertAt(nickele, position);
+        this.moveMenuClass();
+
+        return nickele;
+    },
+
+    nickListRemove: function(nick, stored) {
+        try {
+            this.nicklist.removeChild(stored);
+            this.moveMenuClass();
+        } catch (e) {
+        }
+    },
+
+    updateTopic: function(topic) {
+        var topice = this.topic.empty();
+
+        topice.topicText = topic;
+        if (topic) {
+            this.parent(topic, topice);
+        } else {
+            topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
+        }
+        // this.reflow();
+    },
+
+    //TODO do all processing in template?
+    addLine: function(type, line, colourClass) {
+        // var e = new Element("div");
+        var eclass = colourClass || this.lastcolour ? "linestyle1" : "linestyle2";
+
+        var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
+        this.lastcolour = !this.lastcolour;
+
+        this.parent(type, line, colourClass, msge);
+        // this.reflow();
+    },
+    highlightTab: function(state) {
+        this.parent(state);
+
+        if (state == this.hilighted)
+            return;
+
+        //inefficient as fuck
+        this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
+
+        switch (state) {
+        case ui.HILIGHT_US:
+            this.tab.addClass("tab-hilight-us");
+            break;
+        case ui.HILIGHT_SPEECH:
+            this.tab.addClass("tab-hilight-speech");
+            break;
+        case ui.HILIGHT_ACTIVITY:
+            this.tab.addClass("tab-hilight-activity");
+            break;
+        }
     }
-
-    if (!autoNick) {
-        text.appendChild(document.createTextNode(" as "));
-        text.appendChild(nick);
-    }
-
-    text.appendChild(document.createTextNode(" click 'Connect'."));
-    text.appendChild(new Element("br"));
-    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin)
-        text.appendChild(document.createTextNode("If you'd like to connect using your Q auth click 'Log in'."));
-
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    tr.addClass("tr2");
-
-    var td = new Element("td");
-    tr.appendChild(td);
-
-    var yes = new Element("input", {
-        "type": "submit",
-        "value": "Connect"
-    });
-    td.appendChild(yes);
-    yes.addEvent("click", function(e) {
-        parentElement.removeChild(outerbox);
-        callback({
-            "nickname": initialNickname,
-            "autojoin": initialChannels
-        });
-    });
-
-    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin) {
-        var auth = new Element("input", {
-            "type": "submit",
-            "value": "Log in"
-        });
-        td.appendChild(auth);
-        auth.addEvent("click", ui.AuthLogin);
-    }
-
-    if (window == window.top)
-        yes.focus();
-}
-
-ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
-    var visible = checkbox.checked;
-    var display = visible ? null : "none";
-    usernameRow.setStyle("display", display);
-    passwordRow.setStyle("display", display);
-
-    if (visible) {
-        //    authRow.parentNode.setStyle("display", "none");
-        usernameBox.focus();
-    }
-}
-
+});
 
 //close the iife and call with this
 })(this);
 
 function qwebirc_ui_onbeforeunload(e) { /* IE sucks */
-    if ($time() - document.window.steamlink > 100) {
+    if (Date.now() - document.window.steamlink > 100) {
         var message = "This action will close all active IRC connections.";
         if ((e = e || window.event)) {
             e.returnValue = message;

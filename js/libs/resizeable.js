@@ -208,7 +208,7 @@ Drag.SplitPane = new Class({
             };
 
         if(opts.store) {
-            var change = store.get();
+            var change = opts.store.get();
             this.adjust(change);
         }
 

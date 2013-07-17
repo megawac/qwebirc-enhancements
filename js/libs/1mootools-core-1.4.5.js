@@ -4258,31 +4258,31 @@ Element.Styles = {
 
 //<1.3compat>
 
-Element.implement({
+// Element.implement({
 
-	setOpacity: function(value){
-		setOpacity(this, value);
-		return this;
-	},
+// 	setOpacity: function(value){
+// 		setOpacity(this, value);
+// 		return this;
+// 	},
 
-	getOpacity: function(){
-		return getOpacity(this);
-	}
+// 	getOpacity: function(){
+// 		return getOpacity(this);
+// 	}
 
-});
+// });
 
-Element.Properties.opacity = {
+// Element.Properties.opacity = {
 
-	set: function(opacity){
-		setOpacity(this, opacity);
-		setVisibility(this, opacity);
-	},
+// 	set: function(opacity){
+// 		setOpacity(this, opacity);
+// 		setVisibility(this, opacity);
+// 	},
 
-	get: function(){
-		return getOpacity(this);
-	}
+// 	get: function(){
+// 		return getOpacity(this);
+// 	}
 
-};
+// };
 
 //</1.3compat>
 

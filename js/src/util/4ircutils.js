@@ -169,12 +169,12 @@ util.validPrefix = prelude.contains;
 //equilvalent Functional.compose(joinEmpty, concatUnique)
 util.addPrefix = function(nc, pref, prefs) {
     if(prefs && !util.validPrefix(prefs, pref))
-        return;
-    nc.prefixes = concatUnique(nc.prefixes, pref).join("");
+        return nc.prefixes;
+    return nc.prefixes = concatUnique(nc.prefixes, pref).join("");
 };
 
 util.removePrefix = function(nc, pref) {
-    nc.prefixes = nc.prefixes.replaceAll(pref, "");
+    return nc.prefixes = nc.prefixes.replaceAll(pref, "");
 };
 
 //if theres a prefix it gets returned

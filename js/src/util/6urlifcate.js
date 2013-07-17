@@ -2,6 +2,7 @@
 //TODO cleanup
 ui.urlificate = function(element, text, execfn, cmdfn, window, urlregex) {
     var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
+    var urlregex = /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i; //matches links, qwebirc handlers, and steam connect info - sorry
     var addedText = [];
 
     var txtprocess = function(text, regex, appendfn, matchfn) {

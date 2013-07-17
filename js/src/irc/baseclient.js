@@ -298,7 +298,7 @@ irc.BaseIRCClient = new Class({
 
             var replyfn = irc.RegisteredCTCPs[type];
             if (replyfn) {
-                var t = $time() / 1000;
+                var t = Date.now() / 1000;
                 if (t > this.nextctcp) { //too quick? why not just a buffer?
                     var repctcp = replyfn(ctcp[1]);
                     this.send("NOTICE " + util.hostToNick(user) + " :\x01" + type + " " + repctcp + "\x01");

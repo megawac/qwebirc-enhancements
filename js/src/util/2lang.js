@@ -38,7 +38,7 @@
         changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
 
         poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
-        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting...", types.ERROR),
+        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
         invalidCommand: message("Can't use this command in this window", types.ERROR),
         invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
         insufficentArgs: message("Insufficient arguments for command.", types.ERROR),

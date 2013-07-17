@@ -111,3 +111,19 @@ ui.decorateDropdown = function(btn, ddm, options) {
         "click": ddm.showMenu
     });
 };
+
+//dirty function please help with css :(
+//dir can be 'width' 'height'
+util.fillContainer = function ($ele, sty) {
+    (function() {//wait a sec for style recalcs
+        var offset = 10;
+        sty = (sty || 'width').toLowerCase();
+
+        $ele.getSiblings().each(function(sib) {
+            offset += sib["get" + sty.capitalize()]();
+        });
+
+        $ele.setStyle(sty, "calc(100% - " + offset + "px)");
+    }).delay(20);
+    return $ele;
+};

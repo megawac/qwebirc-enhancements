@@ -330,9 +330,7 @@ irc.IRCClient = new Class({
             this.exec("/AUTOJOIN");
         }
 
-        this.fireEvent("auth", {
-
-        });
+        this.fireEvent("auth");
     },
 
     userJoined: function(user, channel) { //todo determine way to get brouhaha selected at start
@@ -646,16 +644,14 @@ irc.IRCClient = new Class({
                 nc = self.tracker.getOrCreateNickOnChannel(nick, channel),
                 oped = direction === OPED;
 
-            if (oped) {
-                util.addPrefix(nc, prefixchar, self.prefixes);
-            } else {
-                util.removePrefix(nc, prefixchar);
-            }
+            prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
+                                util.removePrefix(nc, prefixchar)
 
             this.fireEvent("mode", {
                 "added": oped,
                 "prefix": prefixchar,
                 "nick": nick,
+                "channel": channel,
                 "thisclient": nick === this.nickname,
                 "nickchan": nc
             });
@@ -806,7 +802,11 @@ irc.IRCClient = new Class({
     },
 
     canJoinChannel: function(chan) {
-        //TODO check if already on channel
+        //check if already on channel
+        if(Object.keys(this.windows).contains(this.toIRCLower(chan)))
+            return false;
+        else if(chan === BROUHAHA)
+            return true;
 
         var chansets = session.get(chan) || [], //oldest -> newest
             currTime = Date.now(),

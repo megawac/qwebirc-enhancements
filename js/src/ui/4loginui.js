@@ -1,4 +1,18 @@
 
+ui.NewLoginUI = new Class({
+    Extends: ui.NotificationUI,
+    loginBox: function(callbackfn, initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
+        this.postInitialize();
+
+        var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
+        var callback = function() {
+                win.close();
+                callbackfn.apply(this, arguments);
+            };
+        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
+    }
+});
+
 ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName, storage) {
     if (autoConnect) {
         ui.ConfirmBox(parentElement, callback, initialNickname, initialChannels, autoNick, networkName,storage);
@@ -50,7 +64,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     chkAddAuth.addEvent('click', toggleFull);
 
     form.addEvent("submit", function(e) {
-        new Event(e).stop();
+        e.stop();
 
         var nickname = nickBox.value;
 
@@ -75,7 +89,10 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         cookies.nick.set(nickname);
 
 
-        if (chkAddAuth.checked || auth.enabled) {//disabled           
+        if (chkAddAuth.checked || auth.enabled) {//disabled
+            // we're valid - good to go
+            data.gamesurge = gamesurge = usernameBox.value;
+            data.password = password = passwordBox.value;
             if (auth.bouncerAuth()) {
                 if (!password) {
                     alert(lang.missingPass.message);
@@ -99,9 +116,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 }
 
             }
-            // we're valid - good to go
-            data.gamesurge = gamesurge = usernameBox.value;
-            data.password = password = passwordBox.value;
 
             cookies.user.set(util.B64.encode(gamesurge));
             cookies.pass.set(util.B64.encode(password));

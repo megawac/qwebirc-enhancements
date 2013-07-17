@@ -1,48 +1,67 @@
 
-//this is pretty abstract do you really need this on top of the sound player ontop of the sound module
-ui.Beeper = new Class({
-    Binds: ["beep", "playSound"],
+
+ui.NotificationUI = new Class({
+    Extends: ui.StandardUI,
+
+    Binds: ["beep"],
 
     options: {
         minSoundRepeatInterval: 1000
     },
-    initialize: function(uiOptions) {
-        $extend(this.options, uiOptions.ui.options.sounds);
-        this.uiOptions = uiOptions;
+    initialize: function(/*parentElement, windowClass, uiName, options*/) {
+        // this.parent(parentElement, windowClass, uiName, options);
+        this.parent.apply(this, arguments);
 
-        this.soundInited = false;
-        this.soundReady = false;
 
-        if (this.uiOptions.BEEP_ON_MENTION)
+        if (this.uiOptions.BEEP_ON_MENTION) {
+            this.lastSound = 0;
+            this.soundReady = false;
             this.soundInit();
-    },
-    soundInit: function() {
-        var self = this;
-
-        //used to have a bunch of flash checks. going to let the sm handle it
-        if(self.soundInited) {
-            return;
         }
-        self.soundInited = true;
 
-        self.soundPlayer = new qwebirc.sound.SoundPlayer(self.options);
-        self.soundPlayer.addEvent("ready", function() {
-            self.soundReady = true;
-        });
 
-        self.soundPlayer.load();
+        var flasher = this.__flasher = new ui.Flasher(this.uiOptions);
+
+        this.flash = flasher.flash;
+        this.cancelFlash = flasher.cancelFlash;
+    },
+    setBeepOnMention: function(value) {
+        if (value)
+            this.__beeper.soundInit();
+    },
+    updateTitle: function(text) {
+        if (this.__flasher.updateTitle(text))
+            ui.setTitle(text);
+    },
+    focusChange: function(value) {
+        this.parent(value);
+        this.__flasher.focusChange(value);
     },
     beep: function() {
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION) {
-            this.soundReady = false;
+        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION && 
+                (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.soundPlayer[alias]();
-            (function() { //throttle sound intervals
-                this.soundReady = true;
-            }).delay(this.options.minSoundRepeatInterval, this);
+            this.lastSound = Date.now();
         }
+    },
+
+    soundInit: function() {
+        var self = this;
+
+        //used to have a bunch of flash checks. going to let the sm handle it
+        if($defined(self.soundPlayer)) {
+            return;
+        }
+
+        self.soundPlayer = new sound.SoundPlayer(self.options.sounds);
+        self.soundPlayer.addEvent("ready", function() {
+            self.soundReady = true;
+        });
+
+        self.soundPlayer.load();
     }
 });
 
@@ -56,7 +75,7 @@ ui.Flasher = new Class({
         this.canUpdateTitle = true;
         this.titleText = document.title;
 
-        var favIcon = this._getFavIcon();
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
         if ($defined(favIcon)) {
             this.favIcon = favIcon;
             this.favIconParent = favIcon.parentNode;
@@ -78,9 +97,6 @@ ui.Flasher = new Class({
             this.canFlash = false;
         }
     },
-    _getFavIcon: function() {
-        return document.head.getElement("link[rel^='shortcut'][rel$='icon']");//should just add an id
-    },
     flash: function() {
         var self = this;
         if (!self.uiOptions.FLASH_ON_MENTION || self.windowFocused || !self.canFlash || self.flashing)
@@ -91,7 +107,7 @@ ui.Flasher = new Class({
         var flash = function() {
             var vis = self.toggleFavIcon();
             self.canUpdateTitle = vis;
-            document.title = vis ? self.titleText : lang.activityNotice.message;
+            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
 
         //http://mootools.net/forge/p/tab_alert
@@ -115,7 +131,7 @@ ui.Flasher = new Class({
         this.flasher = undefined;
 
         this.toggleFavIcon(true);
-        document.title = this.titleText;
+        ui.setTitle(this.titleText);
         this.canUpdateTitle = true;
     },
     //not sure if changing the favicon is a good idea - messes with peoples bookmarks

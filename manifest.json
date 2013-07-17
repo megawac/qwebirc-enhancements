@@ -5,12 +5,12 @@
    "description": "Interactive IRC client",
    "name": "qwebirc enhancements",
 
-   "permissions": ["http://atf2.org/*/", "http://webchat.quakenet.org/*/"],
+   "permissions": ["http://atf2.org/*/", "http://webchat.quakenet.org/*/", "http://webchat.gamesurge.net/*"],
 
    "content_scripts": [{
       "run_at": "document_start",
       "js": ["js/contentscript.js"],
-      "matches": ["http://atf2.org/*", "http://webchat.quakenet.org/*"]
+      "matches": ["http://atf2.org/*", "http://webchat.quakenet.org/*", "http://webchat.gamesurge.net/*"]
    }],
 
    "web_accessible_resources": [

@@ -44,7 +44,7 @@ ui.Colourise = function(line, entity, execfn, cmdfn, win) {
     function emitEndToken() {
         var data = "";
         if (out.length > 0) {
-            data = ui.urlificate(element, out.join(""), execfn, cmdfn, win, win.parentObject.options.urlregex);
+            data = ui.urlificate(element, out.join(""), execfn, cmdfn, win);
             entity.appendChild(element);
             out.empty();
         }

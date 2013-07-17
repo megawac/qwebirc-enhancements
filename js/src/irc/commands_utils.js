@@ -332,18 +332,38 @@ irc.Commands = new Class({
         this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
         this.send("JOIN " + c);
     }],
-    cmd_JOIN: [false, 2, 1, function(args) {
-        var channels = args.shift();
+    cmd_FJOIN: [false, 2, 1, function(args) {
+        if(args.length === 0)
+            return;
+        var channels = args.shift(),
+            formatted = util.formatChannelString(channels);
 
-        var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
-            formatted = util.formatChannelString(chans);
-
-        if (util.joinChans(chans) !== formatted) {
+        if (channels !== formatted) {
             this.parentObject.writeMessages(lang.poorJoinFormat);
         }
-        if(chans)
+        if(formatted)
             this.send("JOIN " + formatted + " " + args.join(" "));
     }],
+    cmd_JOIN: [false, 2, 1, function(args) {
+        var channels = args.shift(),
+            chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject);
+            // formatted = util.formatChannelString(chans);
+
+            // this.send("JOIN " + formatted + " " + args.join(" "));
+        this.cmd_FJOIN[3].call(this, $A(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
+    }],
+    // cmd_JOIN: [false, 2, 1, function(args) {
+    //     var channels = args.shift();
+
+    //     var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
+    //         formatted = util.formatChannelString(chans);
+
+    //     if (util.joinChans(chans) !== formatted) {
+    //         this.parentObject.writeMessages(lang.poorJoinFormat);
+    //     }
+    //     if(chans)
+    //         this.send("JOIN " + formatted + " " + args.join(" "));
+    // }],
     cmd_UMODE: [false, 1, 0, function(args) {
         this.send("MODE " + this.parentObject.getNickname() + (args ? (" " + args[0]) : ""));
     }],

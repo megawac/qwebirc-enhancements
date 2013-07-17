@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-    var concatfiles = ['js/src/qwebirc_start.js', 'js/src/util/*.js', 'js/src/qwebirc.js', 'js/src/irc/*.js', 'js/src/ui/Handlebars/*.js', 'js/src/ui/*.js', //ui +etc
+    var concatfiles = ['js/src/qwebirc_start.js', 'js/src/util/*.js', 'js/src/qwebirc.js', 'js/src/irc/*.js', 'js/src/ui/Handlebars/*.js', 'js/src/ui/*.js', 'js/src/ui/window/*.js', //ui +etc
     'js/src/qwebirc_end.js'];
 
     grunt.initConfig({

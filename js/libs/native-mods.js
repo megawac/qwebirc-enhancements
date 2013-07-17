@@ -80,18 +80,8 @@ String.implement({
 
 Object.extend({
 
-    //Mootools 1.3 Object.subset
-    //http://mootools.net/docs/core/Types/Object#Object:Object-subset
-    subset: function(object, keys){
-        var results = {};
-        for (var i = 0, l = keys.length; i < l; i++){
-            var k = keys[i];
-            if (k in object) results[k] = object[k];
-        }
-        return results;
-    },
     isEmpty: function(hash) {
-        return Object.keys(hash) === 0;
+        return Object.getLength(hash) === 0;
     },
     //same as Object.map but maps to an array
     mapA: function (object, fn, bind){
@@ -143,11 +133,8 @@ Element.implement({
     },
 
     insertAt: function(element, position) {
-        if (position >= this.childNodes.length) {
-            this.appendChild(element);
-        } else {
-            this.insertBefore(element, this.childNodes[position]);
-        }
+        //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
+        return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
     },
 
     isDisplayed: function(){
@@ -172,7 +159,22 @@ Element.implement({
     swapParent: function(parent) {
         this.dispose();
         return parent.adopt(this);
+    },
+
+    addClasses: function() {
+        Array.each(arguments, this.addClass, this);
+        return this;
+    },
+
+    removeClasses: function() {
+        Array.each(arguments, this.removeClass, this);
+        return this;
     }
+
+    // hasClasses: function() {
+    //     Array.every(arguments, this.hasClass, this);
+    // }
+
 });
 
 Element.extend({

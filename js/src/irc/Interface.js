@@ -12,7 +12,7 @@ ui.Interface = new Class({
         networkServices: [],
 
         initialNickname: "newb1234",
-        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#tf2.mix.nahl","#tf2scrim","#tf2hlscrim","#tftv"],
+        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tf2hlscrim","#tftv"],
         channels: new Storer("channels"),
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
@@ -27,7 +27,6 @@ ui.Interface = new Class({
 
         loginRegex: null,
         nickValidation: null,
-        urlregex: /\b((https?|ftp|qwebirc):\/\/|www\.)[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i,
 
         specialUserActions: [ //special actions to take when particular users speak
             function(user, msg, target, client) {
@@ -113,10 +112,13 @@ ui.Interface = new Class({
                 if(!auth.enabled) {
                     self.ui_.beep();
                 }
-                var listener = client.addEvent("auth", function() {
+
+
+                var listener = function() {
                     self.ui_.beep();
-                    client.removeEvent(listener);
-                });
+                    client.removeEvent("auth", listener);
+                };
+                client.addEvent("auth", listener);
 
                 self.fireEvent("login", {
                     'IRCClient': client,
