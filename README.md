@@ -10,6 +10,7 @@ atf2.org
 
 
 Done:
+
 -reduced network bandwidth load
 -various new ui features and fixes
 -code quality improvements (more dry and intuitive and less hacky)
@@ -17,6 +18,6 @@ Done:
 
 TODOs:
 -fix split panes
--redo url parser and colouriser
+-redo colouriser
 -rewrite options config
 -move the wizard to a seperate module (to be imported like privacy pol etc)
