@@ -27,7 +27,7 @@ ui.NotificationUI = new Class({
     },
     setBeepOnMention: function(value) {
         if (value)
-            this.__beeper.soundInit();
+            this.soundInit();
     },
     updateTitle: function(text) {
         if (this.__flasher.updateTitle(text))

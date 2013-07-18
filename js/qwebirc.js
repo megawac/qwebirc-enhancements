@@ -1,4 +1,24 @@
-//memory consumption will be much lower after handlebars templates are precompiled and unused functional helpers are removed
+/*Copyright (c) 2008-2009 the qwebirc project.
+http://www.qwebirc.org/
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+Though it is not required, we would appreciate public facing
+instances leaving a mention of the original author(s) and the
+project name and URL in the about dialog, thanks!*/
+
+
 ; (function(par, undefined) {
     "use strict";
 
@@ -468,6 +488,7 @@ util.unformatChannelString = Functional.compose(prelude.uniq, Functional.map(unf
 util.addChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel);
 //adds channel to front of list of channels
 util.prependChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel.flip());
+
 
 //filter an array to not contain main window or dubs then joins it
 // util.arrayToChanString = Functional.compose(joinComma, prelude.uniq, Functional.filter.curry(Functional.not(isBaseWindow)));
@@ -1117,139 +1138,145 @@ util.crypto.getARC4Stream = function(key, length) {
 
 //TODO cleanup
 ui.urlificate = function(element, text, execfn, cmdfn, window, urlregex) {
-    var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
-    var addedText = [];
 
-    var txtprocess = function(text, regex, appendfn, matchfn) {
-        var processed = text;
-        for (var index;(index = processed.search(regex)) !== -1;) {
-            var match = processed.match(regex);
+    // var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
+    // var urlregex = /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i; //matches links, qwebirc handlers, and steam connect info - sorry
+    // var addedText = [];
 
-            var before = processed.slice(0, index);
-            var matched = match[0];
-            var after = processed.slice(index + matched.length);
+    // var txtprocess = function(text, regex, appendfn, matchfn) {
+    //     var processed = text;
+    //     for (var index;(index = processed.search(regex)) !== -1;) {
+    //         var match = processed.match(regex);
 
-            appendfn(before);
-            var more = matchfn(matched, appendfn) || "";
-            processed = more + after;
-        }
-        appendfn(processed);
-    };
+    //         var before = processed.slice(0, index);
+    //         var matched = match[0];
+    //         var after = processed.slice(index + matched.length);
 
-    var appendText = function(text) {
-        addedText.push(text);
-        util.NBSPCreate(text, element);
-    };
+    //         appendfn(before);
+    //         var more = matchfn(matched, appendfn) || "";
+    //         processed = more + after;
+    //     }
+    //     appendfn(processed);
+    // };
 
-    var appendChan = function(text) {
-        var newtext = text.replace(punct_re, "");
-        addedText.push(newtext);
-        var punct = text.substring(newtext.length);
+    // var appendText = function(text) {
+    //     addedText.push(text);
+    //     util.NBSPCreate(text, element);
+    // };
 
-        var a = new Element("span");
-        a.href = "#";
-        a.addClass("hyperlink-channel")
-            .addEvent("click", function(e) {
-                new Event(e).stop();
-                execfn("/JOIN " + newtext); //be more efficent and semantic to add this as a prop and have a listener on the element for the event
-            })
-            .appendChild(document.createTextNode(newtext));
-        element.appendChild(a);
+    // var appendChan = function(text) {
+    //     var newtext = text.replace(punct_re, "");
+    //     addedText.push(newtext);
+    //     var punct = text.substring(newtext.length);
 
-        return punct;
-    };
+    //     var a = new Element("span");
+    //     a.href = "#";
+    //     a.addClass("hyperlink-channel")
+    //         .addEvent("click", function(e) {
+    //             new Event(e).stop();
+    //             execfn("/JOIN " + newtext); //be more efficent and semantic to add this as a prop and have a listener on the element for the event
+    //         })
+    //         .appendText(newtext);
+    //     element.appendChild(a);
 
-    var appendURL = function(text, appendfn, regex) {
-        var url = text.replace(punct_re, "");
-        var punct = text.substring(url.length);
+    //     return punct;
+    // };
 
-        var href = "";
-        var fn = null;
-        var target = "_blank";
-        var disptext = url;
-        var elementType = "a";
-        var addClass;
+    // var appendURL = function(text, appendfn, regex) {
+    //     var url = text.replace(punct_re, "");
+    //     var punct = text.substring(url.length);
 
-        var ma = url.match(/^qwebirc:\/\/(.*)$/);
-        if (ma) {
-            var m = ma[1].match(/^([^\/]+)\/([^\/]+)\/?(.*)$/);
-            if (!m) {
-                appendfn(text);
-                return;
-            }
+    //     var href = "";
+    //     var fn = null;
+    //     var target = "_blank";
+    //     var disptext = url;
+    //     var elementType = "a";
+    //     var addClass;
 
-            var cmd = cmdfn(m[1], window);
-            if (cmd) {
-                addClass = m[1];
-                elementType = cmd[0];
-                if (cmd[0] != "a") {
-                    url = null;
-                } else {
-                    url = "#";
-                }
-                fn = cmd[1];
-                disptext = unescape(m[2]);
-                target = null;
-            } else {
-                appendfn(text);
-                return;
-            }
-            if (m[3])
-                punct = m[3] + punct;
-        } else {
-            if (url.match(/^www\./))
-                url = "http://" + url;
-            else if (url.match(/^connect/)) {
-                target = null;
-                var info = url.split(';'),
-                    server = info[0].split(' ')[1],
-                    password = info[1].split(' ').getLast();
-                url = 'steam://connect/' + server + '/' + password;
-            }
-        }
+    //     var ma = url.match(/^qwebirc:\/\/(.*)$/);
+    //     if (ma) {
+    //         var m = ma[1].match(/^([^\/]+)\/([^\/]+)\/?(.*)$/);
+    //         if (!m) {
+    //             appendfn(text);
+    //             return;
+    //         }
 
-        var a = new Element(elementType);
-        if (addClass)
-            a.addClass("hyperlink-" + addClass);
+    //         var cmd = cmdfn(m[1], window);
+    //         if (cmd) {
+    //             addClass = m[1];
+    //             elementType = cmd[0];
+    //             if (cmd[0] != "a") {
+    //                 url = null;
+    //             } else {
+    //                 url = "#";
+    //             }
+    //             fn = cmd[1];
+    //             disptext = unescape(m[2]);
+    //             target = null;
+    //         } else {
+    //             appendfn(text);
+    //             return;
+    //         }
+    //         if (m[3])
+    //             punct = m[3] + punct;
+    //     } 
+    //     else if (url.match(/^www\./))
+    //         url = "http://" + url;
+    //     else if (url.match(/^connect/)) {
+    //         target = null;
+    //         var info = url.split(';'),
+    //             server = info[0].split(' ')[1],
+    //             password = info[1].split(' ').getLast();
+    //         url = 'steam://connect/' + server + '/' + password;
+    //     }
 
-        if (url) {
-            a.href = url;
-            a.onclick = function() {
-                par.steamlink = Date.now();
-            };
+    //     var a = new Element(elementType);
+    //     if (addClass)
+    //         a.addClass("hyperlink-" + addClass);
 
-            if (target) {
-                a.target = target;
-            }
-        }
-        addedText.push(disptext);
-        a.appendChild(document.createTextNode(disptext));
+    //     if (url) {
+    //         a.href = url;
+    //         a.onclick = function() {
+    //             par.steamlink = Date.now();
+    //         };
 
-        element.appendChild(a);
-        if ($defined(fn)){
-            a.addEvent("click", function(e) {// Functional.compose(fn.bind(disptext), Event.stop)
-                e.stop();
-                fn(disptext);
-            });
-        }
-        return punct;
-    };
+    //         if (target) {
+    //             a.target = target;
+    //         }
+    //     }
+    //     addedText.push(disptext);
+    //     a.appendText(disptext);
 
-    txtprocess(text, urlregex, function(text) {
-        txtprocess(text, /\B#[^ ,]+/, appendText, appendChan);
-    }, appendURL);
+    //     element.appendChild(a);
+    //     if ($defined(fn)){
+    //         a.addEvent("click", function(e) {// Functional.compose(fn.bind(disptext), Event.stop)
+    //             // e.stop();
+    //             fn(disptext);
+    //         });
+    //     }
+    //     return punct;
+    // };
 
-    return addedText.join("");
+    // txtprocess(text, urlregex, function(text) {
+    //     txtprocess(text, /\B#[^ ,]+/, appendText, appendChan);
+    // }, appendURL);
+
+
+
+    var result = urlifier.urlerize(text);
+    element.insertAdjacentHTML("BeforeEnd", result);
+
+    // return addedText.join("");
 };
 
 
-var storage = new Storage({
+var storage = util.storage = new Storage({
     duration: 365,
     domain: '/',
     debug: DEBUG
 }),
 
-session = new Storage({
+session = util.sessionStorage = new Storage({
     storageType: 'sessionStorage',
     duration: 1,
     debug: DEBUG,
@@ -1277,6 +1304,44 @@ var Storer = (function(name, storer) {
     write: 'set',
     remove: 'dispose'
 }));*/
+
+
+//Parses messages for url strings and creates hyperlinks
+var urlifier = util.urlifier = new Urlerizer({
+    target: '_blank'
+});
+
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(text) {
+            //given "qwebirc://whois/rushey#tf2mix/"
+
+            var words = text.split(" ");
+
+            for (var i = words.length - 1, word = ""; i >= 0; i--) {
+                word = words[i];
+                if(word.contains("qwebirc://")) {
+                    var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+
+                    if(res)
+                        res = res[0].slice(10);//remove qwebirc://
+                    else continue;
+                    if(res.contains("whois/")) {
+                        var chan_match = res.match(/#[\s\S]*(?=\/)/); //matches the chan to the dash
+                        var chan = chan_match ? chan_match[0] : "";
+                        var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
+                        var user = res.slice(6,  chanlen);
+                        res = templates.userlink({'userid': user, 'username': user + chan});
+                    }
+                    else if(res.contains("options") || res.contains("embedded")) {
+                        console.log("called yo");
+                        console.log(res);
+                    }
+                    words[i] = res;
+                }
+            }
+            return words.join(" ");
+
+            //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
+        })
 
 
 
@@ -1352,22 +1417,7 @@ ui.Interface = new Class({
         uiOptionsArg: null,
 
         loginRegex: null,
-        nickValidation: null,
-        urlregex: /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i,//matches urls, qwebirc handlers, & steam connect strings
-
-
-        specialUserActions: [ //special actions to take when particular users speak
-            function(user, msg, target, client) {
-                var interested = user.match(/authserv/i);
-                if(interested) {
-                    if(msg.contains('I recognize you')) {
-                        client.authEvent();
-                    }
-                    client.getActiveWindow().infoMessage(msg);
-                }
-                return interested;
-            }
-        ],
+        nickValidation: null
 
     },
     //var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {"appTitle":"QuakeNet Web IRC","dynamicBaseURL":"/dynamic/leibniz/","baseURL":"http://webchat.quakenet.org/","validateNickname":false,"networkServices":["Q!TheQBot@CServe.quakenet.org"],"nickValidation":{"maxLen":15,"validSubChars":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|0123456789-","validFirstChar":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|","minLen":2},"staticBaseURL":"/static/leibniz/","loginRegex":"^You are now logged in as [^ ]+\\.$","networkName":"QuakeNet"});
@@ -1409,6 +1459,19 @@ ui.Interface = new Class({
             beepsrc: "/beep3.mp3",
             minSoundRepeatInterval: 5000
         };
+
+        opts.specialUserActions = [ //special actions to take when particular users speak
+            function(user, msg, target, client) {
+                var interested = opts.networkServices.contains(user);
+                if(interested) {
+                    if(opts.loginRegex.test(msg)) {
+                        client.authEvent();
+                    }
+                    client.getActiveWindow().infoMessage(msg);
+                }
+                return interested;
+            }
+        ],
 
         win.addEvent("domready", function() {
             var inick = opts.initialNickname,
@@ -4460,6 +4523,8 @@ sound.SoundPlayer = new Class({
 
     source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
     source.timestamp = "<span class='timestamp'>{{time}} </span>";
+    source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
+    source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
 
     source.messageLine = "<hr class='lastpos' />";
     source.ircMessage = "<div class='{{styles}}'></div>";
@@ -4756,7 +4821,7 @@ ui.BaseUI = new Class({
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whois"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
@@ -4927,6 +4992,26 @@ ui.StandardUI = new Class({
         else
             return null;
     },
+
+    whois: function(e, target) {
+        var client = target.getParent('.lines').retrieve('client'),
+            nick = target.get('data-user');
+        if (this.uiOptions.QUERY_ON_NICK_CLICK) {
+            client.exec("/QUERY " + nick);
+        } else {
+            if (isChannel(nick)) {
+                nick = util.unformatChannel(nick);
+            } else {
+                if (nick.search(client.nickname + '>') >= 0) {
+                    nick = nick.substr(nick.search('>') + 1, nick.length);
+                } else {
+                    nick = nick.substr(0, nick.search('>'));
+                }
+            }
+            client.exec("/WHOIS " + nick);
+        }
+    },
+
     tabComplete: function(element) {
         // this.tabCompleter.tabComplete(element);
     },
@@ -5409,6 +5494,12 @@ ui.QUI = new Class({
         this.parentElement = parentElement;
         this.setModifiableStylesheet("qui");
         this.setHotKeys();
+
+
+        this.parentElement.addEvents({
+            "click:relay(.lines .hyperlink-whois)": this.whois,
+            // "click:relay(.lines .hyperlink-channel)": prelude.log
+        });
     },
     postInitialize: function() {
         var self = this,
@@ -5865,7 +5956,7 @@ ui.Colourise = function(line, entity, execfn, cmdfn, win) {
     function emitEndToken() {
         var data = "";
         if (out.length > 0) {
-            data = ui.urlificate(element, out.join(""), execfn, cmdfn, win, win.parentObject.options.urlregex);
+            data = ui.urlificate(element, out.join(""), execfn, cmdfn, win);
             entity.appendChild(element);
             out.empty();
         }
@@ -7858,7 +7949,8 @@ ui.QUI.Window = new Class({
                 maxHighlight: NaN
             });
 
-            lines.store("fxscroll", self.fxscroll);
+            lines.store("fxscroll", self.fxscroll)
+                .store("client", self.client);
 
         } else {
             qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details

@@ -73,7 +73,11 @@ String.implement({
     //     newitems.push(items.slice(max - 1).join(by));
     // }
     startsWith: function(what) {
-        return this.slice(0, what.length) === what;
+        return this.slice(0, what.length) == what;
+    },
+
+    endsWith: function(what) {
+        return this.slice(this.length - what.length) == what;
     }
 });
 

@@ -11,6 +11,12 @@ ui.QUI = new Class({
         this.parentElement = parentElement;
         this.setModifiableStylesheet("qui");
         this.setHotKeys();
+
+
+        this.parentElement.addEvents({
+            "click:relay(.lines .hyperlink-whois)": this.whois,
+            // "click:relay(.lines .hyperlink-channel)": prelude.log
+        });
     },
     postInitialize: function() {
         var self = this,

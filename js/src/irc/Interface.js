@@ -26,20 +26,7 @@ ui.Interface = new Class({
         uiOptionsArg: null,
 
         loginRegex: null,
-        nickValidation: null,
-
-        specialUserActions: [ //special actions to take when particular users speak
-            function(user, msg, target, client) {
-                var interested = user.match(/authserv/i);
-                if(interested) {
-                    if(msg.contains('I recognize you')) {
-                        client.authEvent();
-                    }
-                    client.getActiveWindow().infoMessage(msg);
-                }
-                return interested;
-            }
-        ],
+        nickValidation: null
 
     },
     //var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {"appTitle":"QuakeNet Web IRC","dynamicBaseURL":"/dynamic/leibniz/","baseURL":"http://webchat.quakenet.org/","validateNickname":false,"networkServices":["Q!TheQBot@CServe.quakenet.org"],"nickValidation":{"maxLen":15,"validSubChars":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|0123456789-","validFirstChar":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|","minLen":2},"staticBaseURL":"/static/leibniz/","loginRegex":"^You are now logged in as [^ ]+\\.$","networkName":"QuakeNet"});
@@ -81,6 +68,19 @@ ui.Interface = new Class({
             beepsrc: "/beep3.mp3",
             minSoundRepeatInterval: 5000
         };
+
+        opts.specialUserActions = [ //special actions to take when particular users speak
+            function(user, msg, target, client) {
+                var interested = opts.networkServices.contains(user);
+                if(interested) {
+                    if(opts.loginRegex.test(msg)) {
+                        client.authEvent();
+                    }
+                    client.getActiveWindow().infoMessage(msg);
+                }
+                return interested;
+            }
+        ],
 
         win.addEvent("domready", function() {
             var inick = opts.initialNickname,

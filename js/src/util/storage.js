@@ -1,11 +1,11 @@
 
-var storage = new Storage({
+var storage = util.storage = new Storage({
     duration: 365,
     domain: '/',
     debug: DEBUG
 }),
 
-session = new Storage({
+session = util.sessionStorage = new Storage({
     storageType: 'sessionStorage',
     duration: 1,
     debug: DEBUG,

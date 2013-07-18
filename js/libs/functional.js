@@ -12,6 +12,8 @@
  * This file defines some higher-order methods and functions for
  * functional and function-level programming.
  */
+
+ //todo moo version
 ; var Functional = (function(parent, undefined) {
     // TODO see if '_' can be removed without breaking partial() function
     //- _ :: used for partial() function

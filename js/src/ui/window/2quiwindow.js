@@ -77,7 +77,8 @@ ui.QUI.Window = new Class({
                 maxHighlight: NaN
             });
 
-            lines.store("fxscroll", self.fxscroll);
+            lines.store("fxscroll", self.fxscroll)
+                .store("client", self.client);
 
         } else {
             qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details

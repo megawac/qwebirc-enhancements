@@ -126,6 +126,7 @@ util.addChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, *
 //adds channel to front of list of channels
 util.prependChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel.flip());
 
+
 //filter an array to not contain main window or dubs then joins it
 // util.arrayToChanString = Functional.compose(joinComma, prelude.uniq, Functional.filter.curry(Functional.not(isBaseWindow)));
 
