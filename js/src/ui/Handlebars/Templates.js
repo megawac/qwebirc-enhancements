@@ -41,6 +41,8 @@
 
     source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
     source.timestamp = "<span class='timestamp'>{{time}} </span>";
+    source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
+    source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
 
     source.messageLine = "<hr class='lastpos' />";
     source.ircMessage = "<div class='{{styles}}'></div>";

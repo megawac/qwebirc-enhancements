@@ -1,7 +1,7 @@
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whois"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
@@ -172,6 +172,26 @@ ui.StandardUI = new Class({
         else
             return null;
     },
+
+    whois: function(e, target) {
+        var client = target.getParent('.lines').retrieve('client'),
+            nick = target.get('data-user');
+        if (this.uiOptions.QUERY_ON_NICK_CLICK) {
+            client.exec("/QUERY " + nick);
+        } else {
+            if (isChannel(nick)) {
+                nick = util.unformatChannel(nick);
+            } else {
+                if (nick.search(client.nickname + '>') >= 0) {
+                    nick = nick.substr(nick.search('>') + 1, nick.length);
+                } else {
+                    nick = nick.substr(0, nick.search('>'));
+                }
+            }
+            client.exec("/WHOIS " + nick);
+        }
+    },
+
     tabComplete: function(element) {
         // this.tabCompleter.tabComplete(element);
     },
