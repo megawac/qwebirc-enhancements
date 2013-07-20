@@ -114,16 +114,30 @@ ui.decorateDropdown = function(btn, ddm, options) {
 
 //dirty function please help with css :(
 //dir can be 'width' 'height'
-util.fillContainer = function ($ele, sty) {
+util.fillContainer = function ($ele, sty, offset) {
+    offset = offset || 10;
+    sty = (sty || 'width').toLowerCase();
+    var method = 'get' + (sty.contains('width') ? 'Width' : 'Height');
     (function() {//wait a sec for style recalcs
-        var offset = 10;
-        sty = (sty || 'width').toLowerCase();
-
         $ele.getSiblings().each(function(sib) {
-            offset += sib["get" + sty.capitalize()]();
+            offset += sib[method](sty);
         });
 
         $ele.setStyle(sty, "calc(100% - " + offset + "px)");
     }).delay(20);
     return $ele;
+};
+
+util.elementAtScrollPos = function($ele, pos, dir, offset) {
+    dir = (dir || 'width').capitalize();
+    offset = offset || 10;
+    var $res = $ele.lastChild;
+    Array.some($ele.childNodes, function($kid) {
+        offset += $kid['get' + dir]();
+        if(offset >= pos) {
+            $res = $kid;
+            return true;
+        }
+    });
+    return $res;
 };

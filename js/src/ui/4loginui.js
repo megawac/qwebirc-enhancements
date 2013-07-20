@@ -32,14 +32,14 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     parentElement.appendChild(content);
 
     var nickname = cookies.nick.get() || initialNickname,
-        gamesurge = util.B64.decode(cookies.user.get()),
+        account = util.B64.decode(cookies.user.get()),
         password = util.B64.decode(cookies.pass.get()),
         eauth = auth.enabled || cookies.auth.get();
 
     var context = {
         'network':networkName,
         'nickname':nickname,
-        'username':gamesurge,
+        'username':account,
         'password':password,
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
@@ -50,15 +50,11 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         usernameBox = content.getElementById('username'),
         passwordBox = content.getElementById('password'),
         chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login'),
-        fullForm;
+        form = content.getElementById('login');
 
 
     function toggleFull () {
-        fullForm = fullForm || form.getElements('[name="full"]').getParent('div');//moootols returns an array for some stupid reason
-        fullForm.each(function(e) {
-            e.toggle();
-        });
+        form.getElements('[name="full"]').getParent('div').toggle();
     }
 
     chkAddAuth.addEvent('click', toggleFull);
@@ -91,7 +87,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
-            data.gamesurge = gamesurge = usernameBox.value;
+            data.account = account = usernameBox.value;
             data.password = password = passwordBox.value;
             if (auth.bouncerAuth()) {
                 if (!password) {
@@ -102,7 +98,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
                 data.serverPassword = password;
             }
-            if (!gamesurge || !password) {
+            if (!account || !password) {
                 alert(lang.missingAuthInfo.message);
                 if (!usernameBox.value) {
                     usernameBox.focus();
@@ -112,12 +108,12 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 return;
             } else {
                 if(auth.passAuth()){
-                    data.serverPassword = gamesurge + " " + password;
+                    data.serverPassword = account + " " + password;
                 }
 
             }
 
-            cookies.user.set(util.B64.encode(gamesurge));
+            cookies.user.set(util.B64.encode(account));
             cookies.pass.set(util.B64.encode(password));
             cookies.auth.set(true);
             auth.enabled = true;

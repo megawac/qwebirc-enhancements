@@ -120,13 +120,15 @@ irc.IRCClient = new Class({
         return this.windows[this.toIRCLower(name)];
     },
 
+    getActiveWindow: function() {
+        return this.ui.getActiveIRCWindow(this);
+    },
+
     newWindow: function(name, type, select) {
         //select
         var win = this.getWindow(name);
         if (!win) {
             win = this.windows[this.toIRCLower(name)] = this.ui.newWindow(this, type, name);
-            if (util.isChannel(name))
-                document.getElementById('channel-name-id').innerHTML = name;
 
             win.addEvent("close", function(win) {
                 delete this.windows[this.toIRCLower(name)];
@@ -140,7 +142,7 @@ irc.IRCClient = new Class({
     },
 
     getQueryWindow: function(name) {
-        return this.ui.getWindow(this, qwebirc.ui.WINDOW_QUERY, name);
+        return this.ui.getWindow(this, ui.WINDOW_QUERY, name);
     },
 
     newQueryWindow: function(name, privmsg) {
@@ -150,23 +152,24 @@ irc.IRCClient = new Class({
 
     newPrivmsgQueryWindow: function(name) {
         if (this.ui.uiOptions.DEDICATED_MSG_WINDOW) {
-            if (!this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES)) return this.ui.newWindow(this, qwebirc.ui.WINDOW_MESSAGES, "Messages");
+            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
+                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
         } else {
-            return this.newWindow(name, qwebirc.ui.WINDOW_QUERY, false);
+            return this.newWindow(name, ui.WINDOW_QUERY, false);
         }
     },
 
     newNoticeQueryWindow: function(name) {
         if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW)
-            if (!this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES))
-                return this.ui.newWindow(this, qwebirc.ui.WINDOW_MESSAGES, "Messages");
+            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
+                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
     },
 
     newQueryLine: function(win, type, data, privmsg, active) {
         if (this.getQueryWindow(win))
             return this.newLine(win, type, data);
 
-        var win = this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES);
+        var win = this.ui.getWindow(this, ui.WINDOW_MESSAGES);
 
         var e;
         if (privmsg) {
@@ -177,11 +180,8 @@ irc.IRCClient = new Class({
         if (e && win) {
             return win.addLine(type, data);
         } else {
-            if (active) {
-                return this.newActiveLine(type, data);
-            } else {
-                return this.newLine(win, type, data);
-            }
+            return active ? this.newActiveLine(type, data) :
+                            this.newLine(win, type, data);
         }
     },
 
@@ -195,7 +195,7 @@ irc.IRCClient = new Class({
             win = client.getActiveWindow(),
             types = lang.TYPES;
 
-        $A(messages).each(function(message) {
+        $each(messages, function(message) {
             var msg = args ? util.formatter(message.message, args) :
                             message.message; //replaces values like {replaceme} if args has a key like that
 
@@ -209,14 +209,6 @@ irc.IRCClient = new Class({
                 return win.infoMessage(msg);
             }
         });
-    },
-
-    getActiveWindow: function() {
-        return this.ui.getActiveIRCWindow(this);
-    },
-
-    getNickname: function() {
-        return this.nickname;
     },
 
     // addPrefix: function(nickchanentry, prefix) {
@@ -255,7 +247,7 @@ irc.IRCClient = new Class({
     rawNumeric: function(numeric, prefix, params) {
         this.newServerLine("RAW", {
             "n": "numeric",
-            "m": params.slice(1).join(" ") //go fuck yourself
+            "m": params.slice(1).join(" ")
         });
     },
 
@@ -301,7 +293,7 @@ irc.IRCClient = new Class({
     attemptAuth: function() {
         //only try to auth if its necessary
         if (!auth.authed && auth.enabled) {
-            var test = this.send("authserv AUTH " + this.options.gamesurge + " " + this.options.password);
+            var test = this.send("authserv AUTH " + this.options.account + " " + this.options.password);
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you

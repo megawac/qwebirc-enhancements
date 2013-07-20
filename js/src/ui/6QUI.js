@@ -14,8 +14,8 @@ ui.QUI = new Class({
 
 
         this.parentElement.addEvents({
-            "click:relay(.lines .hyperlink-whois)": this.whois,
-            // "click:relay(.lines .hyperlink-channel)": prelude.log
+            "click:relay(.lines .hyperlink-whois)": this.whoisURL,
+            "click:relay(.lines .hyperlink-channel)": this.chanURL
         });
     },
     postInitialize: function() {
@@ -29,8 +29,8 @@ ui.QUI = new Class({
         // });
 
         self.outerTabs = qjsui.top;
-        self.tabs = Element.from(templates.tabbar());
-        var joinChan =  function(){
+        var tabs = self.tabs = Element.from(templates.tabbar()),
+            joinChan =  function(){
                 var chan = prompt("Enter channel name:");
                 if(chan.trim() !== ""){
                     Object.each(self.clients, function(client) {
@@ -38,14 +38,58 @@ ui.QUI = new Class({
                     });
                 }
             },
-            addTab = self.addTab = Element.from(templates.addTab());
+            tabbtns = Element.from(templates.tabbarbtns()),
+            addTab = tabbtns.getElement('.add-chan'),
+            scrollers = tabbtns.getElements('[name="tabscroll"]'),
+            scroller = new Fx.Scroll(tabs),
+            resizeTabs = util.fillContainer.curry(tabs, 'max-width'),
+            onResize = function() {
+                var wid = tabs.getWidth(),
+                    swid = tabs.getScrollWidth();
+
+                if(swid > wid) {
+                    scrollers.show();
+                }
+                else {
+                    scrollers.hide();
+                }
+
+                resizeTabs();
+            };
+
+        window.addEvent('resize', onResize);
+        tabs.addEvents({
+            'adopt': onResize,
+            'disown': onResize
+        });
+
+        scrollers.filter('.to-left')
+            .addEvent('click', function(e) {
+                e.stop();
+                var pos = tabs.getScrollLeft(),
+                    $ele = util.elementAtScrollPos(tabs, pos);
+
+                scroller.toElement($ele, 'x');
+                console.log($ele);
+            });
+        scrollers.filter('.to-right')
+            .addEvent('click', function(e) {
+                e.stop();
+                var pos = tabs.getScrollLeft() + tabs.getWidth(),
+                    $ele = util.elementAtScrollPos(tabs, pos);
+
+                scroller.toElementEdge($ele, 'x');
+                console.log($ele);
+            });
+
+        resizeTabs();
         addTab.addEvents({
             'dblclick': joinChan,
             'click': self.__createChannelMenu
         });
 
         //for scrolling tabs with mousewheel
-        self.tabs.addEvent("mousewheel", function(event) {
+        tabs.addEvent("mousewheel", function(event) {
             event.stop();
             /* up */
             if (event.wheel > 0) {
@@ -58,8 +102,8 @@ ui.QUI = new Class({
 
         //append menu and tabbar
         self.outerTabs.adopt(self.__createDropdownMenu(),
-                            self.tabs,
-                            addTab);
+                            tabs,
+                            tabbtns);
 
         var origWin = qjsui.createWindow();
         self.origtopic = self.topic = origWin.topic;

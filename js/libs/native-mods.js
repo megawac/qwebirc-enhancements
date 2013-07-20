@@ -99,12 +99,8 @@ Object.extend({
 });
 
 
-var adopt = Element.prototype.adopt;
-function ad() {
-    //just mootools adopt method which fires an event when called
-    return adopt.call(this, arguments)
-        .fireEvent("adopt", arguments);
-}
+var adopt = Element.prototype.adopt,
+    inject = Element.prototype.inject;
 
 
 ["html", "text"].each(function(fn) {
@@ -117,7 +113,11 @@ function ad() {
 
 Element.implement({
 
-    adopt: ad,
+    adopt: function() {
+        //just mootools adopt method which fires an event when called
+        return adopt.apply(this, arguments)
+            .fireEvent("adopt", arguments);
+    },
 
     //removes all elements in arguments from array if found - opposite of adopt
     disown: function() {
@@ -127,6 +127,12 @@ Element.implement({
         });
         this.fireEvent("disown", arguments);
         return this;
+    },
+
+    inject: function(el) {
+        var ret = inject.apply(this, arguments);
+        el.fireEvent('adopt', arguments);
+        return ret;
     },
 
     maxChildren: function(n) {

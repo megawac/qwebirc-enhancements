@@ -11,6 +11,7 @@ ui.QUI.Window = new Class({
         var qwindow = self.window;
         qwindow.detached = self.detached = false;
 
+        self.currentChannel = self.name;
 
         var $tab = self.tab = Element.from(templates.ircTab({
                 'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
@@ -136,7 +137,7 @@ ui.QUI.Window = new Class({
         }
         this.parent();
 
-        this.parentObject.tabs.removeChild(this.tab);
+        this.parentObject.tabs.disown(this.tab);
 
         if(this.detached) {
             this.wrapper.destroy();
@@ -250,8 +251,10 @@ ui.QUI.Window = new Class({
                     win.tab.swapClass("tab-selected", "tab-unselected");
                 }
                 if(win.name === BROUHAHA) {
-                    if(util.isChannelType(self.type))
+                    if(util.isChannelType(self.type)) {
                         win.properties.text(self.name); //update current channel in brouhaha
+                        win.currentChannel = self.name;
+                    }
                 }
             });
         }
@@ -559,7 +562,7 @@ ui.QUI.Window = new Class({
     //TODO do all processing in template?
     addLine: function(type, line, colourClass) {
         // var e = new Element("div");
-        var eclass = colourClass || this.lastcolour ? "linestyle1" : "linestyle2";
+        var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
         var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
         this.lastcolour = !this.lastcolour;

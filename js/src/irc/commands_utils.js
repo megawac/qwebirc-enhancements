@@ -169,7 +169,7 @@ irc.Commands = new Class({
             args = "";
         }
 
-        var target = this.getActiveWindow().name;
+        var target = this.getActiveWindow().currentChannel;
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
@@ -257,7 +257,7 @@ irc.Commands = new Class({
     }],
 
     cmd_SAY: [true, undefined, undefined, function(msg) {
-        return ["PRIVMSG", this.getActiveWindow().name + " " + (msg || "")];
+        return ["PRIVMSG", this.getActiveWindow().currentChannel + " " + (msg || "")];
     }],
 
     cmd_LOGOUT: [false, undefined, undefined, function(args) {
@@ -285,7 +285,7 @@ irc.Commands = new Class({
     }],
 
     cmd_KICK: [true, 2, 1, function(args) {
-        var channel = this.getActiveWindow().name;
+        var channel = this.getActiveWindow().currentChannel;
 
         var target = args[0];
         var message = args.length >= 2 ? args[1] : "";
@@ -294,7 +294,7 @@ irc.Commands = new Class({
     }],
 
     automode: function(direction, mode, args) {
-        var channel = this.getActiveWindow().name;
+        var channel = this.getActiveWindow().currentChannel;
 
         var modes = direction;
 
@@ -318,7 +318,7 @@ irc.Commands = new Class({
         this.automode("-", "v", args);
     }],
     cmd_TOPIC: [true, 1, 1, function(args) {
-        this.send("TOPIC " + this.getActiveWindow().name + " :" + args[0]);
+        this.send("TOPIC " + this.getActiveWindow().currentChannel + " :" + args[0]);
     }],
     cmd_AWAY: [false, 1, 0, function(args) {
         this.send("AWAY :" + (args ? args[0] : ""));
@@ -327,7 +327,7 @@ irc.Commands = new Class({
         this.send("QUIT :" + (args ? args[0] : ""));
     }],
     cmd_CYCLE: [true, 1, 0, function(args) {
-        var c = this.getActiveWindow().name;
+        var c = this.getActiveWindow().currentChannel;
 
         this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
         this.send("JOIN " + c);

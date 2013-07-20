@@ -76,13 +76,27 @@
         },
 
         urlerize: function(text) {
-            var result = text;
-            this.patterns.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                if(pattern.pattern.test(result)) {
-                    result = pattern.parse.call(this, result);
+            var self = this,
+                result = text.split(" "),
+                funcs = self.patterns.filter(function(pat) {
+                    return !pat.wholeWord || pat.pattern.test(text);
+                });
+
+            for (var i = result.length - 1, item; i >= 0; i--) {
+                item = result[i];
+
+                funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                    if(pattern.pattern.test(item)) {
+                        result[i] = pattern.parse.call(self, item);
+                    }
+                });
+            };
+            self.patterns.each(function(pattern) {
+                if(pattern.wholeWord && pattern.pattern.test(result)) {
+                    result = pattern.parse.call(self, result);
                 }
-            }, this);
-            return result;
+            })
+            return result.join(" ");
         },
 
 
@@ -94,6 +108,7 @@
 
         patterns: [{
             pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
+            wholeWord: false,
             parse: function (text) {
                 var options = this.options;
                 var safe_input = false;
@@ -172,10 +187,11 @@
             }
         }],
 
-        addPattern: function(reg, action) {
+        addPattern: function(reg, action, whole) {
             this.patterns.push({
                 'pattern': reg,
-                'parse': action
+                'parse': action,
+                'wholeWord': whole || false
             });
             return this;
         }

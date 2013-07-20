@@ -2875,13 +2875,12 @@ Fx.Scroll = new Class({
 		axes = axes ? Array.from(axes) : ['x', 'y'];
 		el = document.id(el);
 		var to = {},
-			position = el.getPosition(this.element),
-			size = el.getSize(),
+			coords = el.getCoordinates(this.element),
 			scroll = this.element.getScroll(),
 			containerSize = this.element.getSize(),
 			edge = {
-				x: position.x + size.x,
-				y: position.y + size.y
+				x: coords.right,
+				y: coords.bottom
 			};
 
 		['x', 'y'].each(function(axis){

@@ -4,21 +4,15 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(text) {
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
             //given "qwebirc://whois/rushey#tf2mix/"
+            if(word.contains("qwebirc://")) {
+                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
-            var words = text.split(" ");
-
-            for (var i = words.length - 1, word = ""; i >= 0; i--) {
-                word = words[i];
-                if(word.contains("qwebirc://")) {
-                    var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
-
-                    if(res)
-                        res = res[0].slice(10);//remove qwebirc://
-                    else continue;
+                if(res) {
+                    res = res[0].slice(10);//remove qwebirc://
                     if(res.contains("whois/")) {
-                        var chan_match = res.match(/#[\s\S]*(?=\/)/); //matches the chan to the dash
+                        var chan_match = res.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
                         var user = res.slice(6,  chanlen);
@@ -28,10 +22,22 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(text) {
                         console.log("called yo");
                         console.log(res);
                     }
-                    words[i] = res;
+                    word = res;
                 }
             }
-            return words.join(" ");
+            return word;
 
             //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
         })
+        .addPattern(/\B#+(?![\._#-+])/, function(word) {
+            var res = word;
+
+                if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                    res = templates.channellink({channel:util.formatChannel(word)});
+                }
+
+            return res;
+        })
+        .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
+            return word;
+        });

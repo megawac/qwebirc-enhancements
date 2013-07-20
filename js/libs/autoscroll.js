@@ -40,7 +40,7 @@ Fx.AutoScroll = new Class({
         this.element.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
             // .addEvent("selectstart:throttle(" + interval + ")", throttleToggler)
             .addEvent("adopt", self.updatePosition); //new elements appended to container
-        window.addEvent("resize:throttle(" + opts.duration + ")", self.updatePosition);
+        window.addEvent("resize", self.updatePosition);
 
         self.autoScroll();
     },
@@ -85,7 +85,7 @@ Fx.AutoScroll = new Class({
             this.lastUpdate = Date.now();
 
             if(this.options.duration == 0)
-                $ele.scrollTop = $ele.scrollHeight;
+                this.set($ele.scrollLeft, $ele.scrollHeight); //place at bottom instantly
             else
                 this.toBottom();
             if(target)

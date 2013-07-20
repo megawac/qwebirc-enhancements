@@ -1,7 +1,7 @@
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whois"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
@@ -173,7 +173,7 @@ ui.StandardUI = new Class({
             return null;
     },
 
-    whois: function(e, target) {
+    whoisURL: function(e, target) {
         var client = target.getParent('.lines').retrieve('client'),
             nick = target.get('data-user');
         if (this.uiOptions.QUERY_ON_NICK_CLICK) {
@@ -181,22 +181,25 @@ ui.StandardUI = new Class({
         } else {
             if (isChannel(nick)) {
                 nick = util.unformatChannel(nick);
-            } else {
-                if (nick.search(client.nickname + '>') >= 0) {
-                    nick = nick.substr(nick.search('>') + 1, nick.length);
-                } else {
-                    nick = nick.substr(0, nick.search('>'));
-                }
-            }
+            } else if (nick.search(client.nickname + '>') >= 0) {
+                nick = nick.substr(nick.search('>') + 1, nick.length);
+            } 
             client.exec("/WHOIS " + nick);
         }
     },
 
+    chanURL: function(e, target) {
+        var client = target.getParent('.lines').retrieve('client'),
+            chan = target.get('data-chan');
+        if(util.isChannel(chan))
+            client.exec("/JOIN " + chan);
+    },
+
     tabComplete: function(element) {
-        // this.tabCompleter.tabComplete(element);
+        this.tabCompleter.tabComplete(element);
     },
     resetTabComplete: function() {
-        // this.tabCompleter.reset();
+        this.tabCompleter.reset();
     },
     setModifiableStylesheet: function(name) {
         this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);

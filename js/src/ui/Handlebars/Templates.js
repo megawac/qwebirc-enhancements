@@ -79,7 +79,12 @@
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
-    source.addTab = "<div class='add-chan'><span class='ui-icon ui-icon-circle-plus' title='Join a channel'></span></div>";
+    source.tabbarbtns = [
+    "<div class='tab-buttons'>",
+        "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
+        "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
+        "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
+    "</div>"].join("");
     source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
     source.tabDetach = "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>";
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";

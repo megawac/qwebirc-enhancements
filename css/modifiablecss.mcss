@@ -142,6 +142,8 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     color: $(tabbar_text);
     line-height: 24px;
     display: inline-block;
+    /*max-width: calc(100% - 60px);*/
+    overflow-x: hidden;
 }
 
 .qui .tabbar .tab {
@@ -252,16 +254,16 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     color: $(tab_selected_text);
 }
 
-.qui .add-chan {
+.qui .tab-buttons {
     display: none;
 }
 
-.qui.signed-in .add-chan {
+.qui.signed-in .tab-buttons {
     display: inline-block;
     cursor: pointer;
 }
 
-.add-chan span {
+.tab-buttons span {
     vertical-align: middle;
     display: inline-block;
 }
@@ -286,6 +288,11 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     border-radius: 50%;
     display: inline-block;
     margin-right: 3px;
+}
+
+.input .nickname:hover {
+    border: 1px solid #d0d0d0;
+    box-shadow: 2px 2px 2px #888888;
 }
 
 .input .nickname .status.voice {

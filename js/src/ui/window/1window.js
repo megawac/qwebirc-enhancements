@@ -150,10 +150,15 @@ ui.Window = new Class({
                     $ele.style.color = "red";
                     notice();
                 }
-                else if (!sentByUs && !isbot && containsNick(line.m)) { //dont beep if bot says our name
-                    hl_line = true;
-                    hilight = ui.HILIGHT_US;
-                    notice();//name mention in chan
+                else if (!sentByUs && containsNick(line.m)) { //dont beep if bot says our name
+                    if(isbot) {
+                        $ele.addClass('bot@us')
+                    }
+                    else {
+                        hl_line = true;
+                        hilight = ui.HILIGHT_US;
+                        notice();//name mention in chan
+                    }
                 }
                 else if (hilight !== ui.HILIGHT_US) {
                     hilight = ui.HILIGHT_SPEECH;

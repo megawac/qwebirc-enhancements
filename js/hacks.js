@@ -13345,13 +13345,27 @@ Copyright (c) 2010 Arieh Glazer
         },
 
         urlerize: function(text) {
-            var result = text;
-            this.patterns.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                if(pattern.pattern.test(result)) {
-                    result = pattern.parse.call(this, result);
+            var self = this,
+                result = text.split(" "),
+                funcs = self.patterns.filter(function(pat) {
+                    return !pat.wholeWord || pat.pattern.test(text);
+                });
+
+            for (var i = result.length - 1, item; i >= 0; i--) {
+                item = result[i];
+
+                funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                    if(pattern.pattern.test(item)) {
+                        result[i] = pattern.parse.call(self, item);
+                    }
+                });
+            };
+            self.patterns.each(function(pattern) {
+                if(pattern.wholeWord && pattern.pattern.test(result)) {
+                    result = pattern.parse.call(self, result);
                 }
-            }, this);
-            return result;
+            })
+            return result.join(" ");
         },
 
 
@@ -13363,6 +13377,7 @@ Copyright (c) 2010 Arieh Glazer
 
         patterns: [{
             pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
+            wholeWord: false,
             parse: function (text) {
                 var options = this.options;
                 var safe_input = false;
@@ -13441,10 +13456,11 @@ Copyright (c) 2010 Arieh Glazer
             }
         }],
 
-        addPattern: function(reg, action) {
+        addPattern: function(reg, action, whole) {
             this.patterns.push({
                 'pattern': reg,
-                'parse': action
+                'parse': action,
+                'wholeWord': whole || false
             });
             return this;
         }
@@ -13494,7 +13510,7 @@ Fx.AutoScroll = new Class({
         this.element.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
             // .addEvent("selectstart:throttle(" + interval + ")", throttleToggler)
             .addEvent("adopt", self.updatePosition); //new elements appended to container
-        window.addEvent("resize:throttle(" + opts.duration + ")", self.updatePosition);
+        window.addEvent("resize", self.updatePosition);
 
         self.autoScroll();
     },
@@ -14583,12 +14599,8 @@ Object.extend({
 });
 
 
-var adopt = Element.prototype.adopt;
-function ad() {
-    //just mootools adopt method which fires an event when called
-    return adopt.call(this, arguments)
-        .fireEvent("adopt", arguments);
-}
+var adopt = Element.prototype.adopt,
+    inject = Element.prototype.inject;
 
 
 ["html", "text"].each(function(fn) {
@@ -14601,7 +14613,11 @@ function ad() {
 
 Element.implement({
 
-    adopt: ad,
+    adopt: function() {
+        //just mootools adopt method which fires an event when called
+        return adopt.apply(this, arguments)
+            .fireEvent("adopt", arguments);
+    },
 
     //removes all elements in arguments from array if found - opposite of adopt
     disown: function() {
@@ -14611,6 +14627,12 @@ Element.implement({
         });
         this.fireEvent("disown", arguments);
         return this;
+    },
+
+    inject: function(el) {
+        var ret = inject.apply(this, arguments);
+        el.fireEvent('adopt', arguments);
+        return ret;
     },
 
     maxChildren: function(n) {
@@ -16580,21 +16602,15 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(text) {
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
             //given "qwebirc://whois/rushey#tf2mix/"
+            if(word.contains("qwebirc://")) {
+                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
-            var words = text.split(" ");
-
-            for (var i = words.length - 1, word = ""; i >= 0; i--) {
-                word = words[i];
-                if(word.contains("qwebirc://")) {
-                    var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
-
-                    if(res)
-                        res = res[0].slice(10);//remove qwebirc://
-                    else continue;
+                if(res) {
+                    res = res[0].slice(10);//remove qwebirc://
                     if(res.contains("whois/")) {
-                        var chan_match = res.match(/#[\s\S]*(?=\/)/); //matches the chan to the dash
+                        var chan_match = res.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
                         var user = res.slice(6,  chanlen);
@@ -16604,14 +16620,25 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(text) {
                         console.log("called yo");
                         console.log(res);
                     }
-                    words[i] = res;
+                    word = res;
                 }
             }
-            return words.join(" ");
+            return word;
 
             //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
         })
+        .addPattern(/\B#+(?![\._#-+])/, function(word) {
+            var res = word;
 
+                if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                    res = templates.channellink({channel:util.formatChannel(word)});
+                }
+
+            return res;
+        })
+        .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
+            return word;
+        });
 
 
 
@@ -17806,7 +17833,7 @@ irc.Commands = new Class({
             args = "";
         }
 
-        var target = this.getActiveWindow().name;
+        var target = this.getActiveWindow().currentChannel;
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
@@ -17894,7 +17921,7 @@ irc.Commands = new Class({
     }],
 
     cmd_SAY: [true, undefined, undefined, function(msg) {
-        return ["PRIVMSG", this.getActiveWindow().name + " " + (msg || "")];
+        return ["PRIVMSG", this.getActiveWindow().currentChannel + " " + (msg || "")];
     }],
 
     cmd_LOGOUT: [false, undefined, undefined, function(args) {
@@ -17922,7 +17949,7 @@ irc.Commands = new Class({
     }],
 
     cmd_KICK: [true, 2, 1, function(args) {
-        var channel = this.getActiveWindow().name;
+        var channel = this.getActiveWindow().currentChannel;
 
         var target = args[0];
         var message = args.length >= 2 ? args[1] : "";
@@ -17931,7 +17958,7 @@ irc.Commands = new Class({
     }],
 
     automode: function(direction, mode, args) {
-        var channel = this.getActiveWindow().name;
+        var channel = this.getActiveWindow().currentChannel;
 
         var modes = direction;
 
@@ -17955,7 +17982,7 @@ irc.Commands = new Class({
         this.automode("-", "v", args);
     }],
     cmd_TOPIC: [true, 1, 1, function(args) {
-        this.send("TOPIC " + this.getActiveWindow().name + " :" + args[0]);
+        this.send("TOPIC " + this.getActiveWindow().currentChannel + " :" + args[0]);
     }],
     cmd_AWAY: [false, 1, 0, function(args) {
         this.send("AWAY :" + (args ? args[0] : ""));
@@ -17964,7 +17991,7 @@ irc.Commands = new Class({
         this.send("QUIT :" + (args ? args[0] : ""));
     }],
     cmd_CYCLE: [true, 1, 0, function(args) {
-        var c = this.getActiveWindow().name;
+        var c = this.getActiveWindow().currentChannel;
 
         this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
         this.send("JOIN " + c);
@@ -18247,13 +18274,15 @@ irc.IRCClient = new Class({
         return this.windows[this.toIRCLower(name)];
     },
 
+    getActiveWindow: function() {
+        return this.ui.getActiveIRCWindow(this);
+    },
+
     newWindow: function(name, type, select) {
         //select
         var win = this.getWindow(name);
         if (!win) {
             win = this.windows[this.toIRCLower(name)] = this.ui.newWindow(this, type, name);
-            if (util.isChannel(name))
-                document.getElementById('channel-name-id').innerHTML = name;
 
             win.addEvent("close", function(win) {
                 delete this.windows[this.toIRCLower(name)];
@@ -18267,7 +18296,7 @@ irc.IRCClient = new Class({
     },
 
     getQueryWindow: function(name) {
-        return this.ui.getWindow(this, qwebirc.ui.WINDOW_QUERY, name);
+        return this.ui.getWindow(this, ui.WINDOW_QUERY, name);
     },
 
     newQueryWindow: function(name, privmsg) {
@@ -18277,23 +18306,24 @@ irc.IRCClient = new Class({
 
     newPrivmsgQueryWindow: function(name) {
         if (this.ui.uiOptions.DEDICATED_MSG_WINDOW) {
-            if (!this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES)) return this.ui.newWindow(this, qwebirc.ui.WINDOW_MESSAGES, "Messages");
+            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
+                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
         } else {
-            return this.newWindow(name, qwebirc.ui.WINDOW_QUERY, false);
+            return this.newWindow(name, ui.WINDOW_QUERY, false);
         }
     },
 
     newNoticeQueryWindow: function(name) {
         if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW)
-            if (!this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES))
-                return this.ui.newWindow(this, qwebirc.ui.WINDOW_MESSAGES, "Messages");
+            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
+                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
     },
 
     newQueryLine: function(win, type, data, privmsg, active) {
         if (this.getQueryWindow(win))
             return this.newLine(win, type, data);
 
-        var win = this.ui.getWindow(this, qwebirc.ui.WINDOW_MESSAGES);
+        var win = this.ui.getWindow(this, ui.WINDOW_MESSAGES);
 
         var e;
         if (privmsg) {
@@ -18304,11 +18334,8 @@ irc.IRCClient = new Class({
         if (e && win) {
             return win.addLine(type, data);
         } else {
-            if (active) {
-                return this.newActiveLine(type, data);
-            } else {
-                return this.newLine(win, type, data);
-            }
+            return active ? this.newActiveLine(type, data) :
+                            this.newLine(win, type, data);
         }
     },
 
@@ -18322,7 +18349,7 @@ irc.IRCClient = new Class({
             win = client.getActiveWindow(),
             types = lang.TYPES;
 
-        $A(messages).each(function(message) {
+        $each(messages, function(message) {
             var msg = args ? util.formatter(message.message, args) :
                             message.message; //replaces values like {replaceme} if args has a key like that
 
@@ -18336,14 +18363,6 @@ irc.IRCClient = new Class({
                 return win.infoMessage(msg);
             }
         });
-    },
-
-    getActiveWindow: function() {
-        return this.ui.getActiveIRCWindow(this);
-    },
-
-    getNickname: function() {
-        return this.nickname;
     },
 
     // addPrefix: function(nickchanentry, prefix) {
@@ -18382,7 +18401,7 @@ irc.IRCClient = new Class({
     rawNumeric: function(numeric, prefix, params) {
         this.newServerLine("RAW", {
             "n": "numeric",
-            "m": params.slice(1).join(" ") //go fuck yourself
+            "m": params.slice(1).join(" ")
         });
     },
 
@@ -18428,7 +18447,7 @@ irc.IRCClient = new Class({
     attemptAuth: function() {
         //only try to auth if its necessary
         if (!auth.authed && auth.enabled) {
-            var test = this.send("authserv AUTH " + this.options.gamesurge + " " + this.options.password);
+            var test = this.send("authserv AUTH " + this.options.account + " " + this.options.password);
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you
@@ -19830,7 +19849,12 @@ sound.SoundPlayer = new Class({
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
-    source.addTab = "<div class='add-chan'><span class='ui-icon ui-icon-circle-plus' title='Join a channel'></span></div>";
+    source.tabbarbtns = [
+    "<div class='tab-buttons'>",
+        "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
+        "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
+        "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
+    "</div>"].join("");
     source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
     source.tabDetach = "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>";
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
@@ -20090,7 +20114,7 @@ ui.BaseUI = new Class({
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whois"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
@@ -20262,7 +20286,7 @@ ui.StandardUI = new Class({
             return null;
     },
 
-    whois: function(e, target) {
+    whoisURL: function(e, target) {
         var client = target.getParent('.lines').retrieve('client'),
             nick = target.get('data-user');
         if (this.uiOptions.QUERY_ON_NICK_CLICK) {
@@ -20270,22 +20294,25 @@ ui.StandardUI = new Class({
         } else {
             if (isChannel(nick)) {
                 nick = util.unformatChannel(nick);
-            } else {
-                if (nick.search(client.nickname + '>') >= 0) {
-                    nick = nick.substr(nick.search('>') + 1, nick.length);
-                } else {
-                    nick = nick.substr(0, nick.search('>'));
-                }
-            }
+            } else if (nick.search(client.nickname + '>') >= 0) {
+                nick = nick.substr(nick.search('>') + 1, nick.length);
+            } 
             client.exec("/WHOIS " + nick);
         }
     },
 
+    chanURL: function(e, target) {
+        var client = target.getParent('.lines').retrieve('client'),
+            chan = target.get('data-chan');
+        if(util.isChannel(chan))
+            client.exec("/JOIN " + chan);
+    },
+
     tabComplete: function(element) {
-        // this.tabCompleter.tabComplete(element);
+        this.tabCompleter.tabComplete(element);
     },
     resetTabComplete: function() {
-        // this.tabCompleter.reset();
+        this.tabCompleter.reset();
     },
     setModifiableStylesheet: function(name) {
         this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
@@ -20348,7 +20375,7 @@ ui.NotificationUI = new Class({
     },
     setBeepOnMention: function(value) {
         if (value)
-            this.__beeper.soundInit();
+            this.soundInit();
     },
     updateTitle: function(text) {
         if (this.__flasher.updateTitle(text))
@@ -20517,14 +20544,14 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     parentElement.appendChild(content);
 
     var nickname = cookies.nick.get() || initialNickname,
-        gamesurge = util.B64.decode(cookies.user.get()),
+        account = util.B64.decode(cookies.user.get()),
         password = util.B64.decode(cookies.pass.get()),
         eauth = auth.enabled || cookies.auth.get();
 
     var context = {
         'network':networkName,
         'nickname':nickname,
-        'username':gamesurge,
+        'username':account,
         'password':password,
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
@@ -20535,15 +20562,11 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         usernameBox = content.getElementById('username'),
         passwordBox = content.getElementById('password'),
         chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login'),
-        fullForm;
+        form = content.getElementById('login');
 
 
     function toggleFull () {
-        fullForm = fullForm || form.getElements('[name="full"]').getParent('div');//moootols returns an array for some stupid reason
-        fullForm.each(function(e) {
-            e.toggle();
-        });
+        form.getElements('[name="full"]').getParent('div').toggle();
     }
 
     chkAddAuth.addEvent('click', toggleFull);
@@ -20576,7 +20599,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
-            data.gamesurge = gamesurge = usernameBox.value;
+            data.account = account = usernameBox.value;
             data.password = password = passwordBox.value;
             if (auth.bouncerAuth()) {
                 if (!password) {
@@ -20587,7 +20610,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
                 data.serverPassword = password;
             }
-            if (!gamesurge || !password) {
+            if (!account || !password) {
                 alert(lang.missingAuthInfo.message);
                 if (!usernameBox.value) {
                     usernameBox.focus();
@@ -20597,12 +20620,12 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 return;
             } else {
                 if(auth.passAuth()){
-                    data.serverPassword = gamesurge + " " + password;
+                    data.serverPassword = account + " " + password;
                 }
 
             }
 
-            cookies.user.set(util.B64.encode(gamesurge));
+            cookies.user.set(util.B64.encode(account));
             cookies.pass.set(util.B64.encode(password));
             cookies.auth.set(true);
             auth.enabled = true;
@@ -20766,8 +20789,8 @@ ui.QUI = new Class({
 
 
         this.parentElement.addEvents({
-            "click:relay(.lines .hyperlink-whois)": this.whois,
-            // "click:relay(.lines .hyperlink-channel)": prelude.log
+            "click:relay(.lines .hyperlink-whois)": this.whoisURL,
+            "click:relay(.lines .hyperlink-channel)": this.chanURL
         });
     },
     postInitialize: function() {
@@ -20781,8 +20804,8 @@ ui.QUI = new Class({
         // });
 
         self.outerTabs = qjsui.top;
-        self.tabs = Element.from(templates.tabbar());
-        var joinChan =  function(){
+        var tabs = self.tabs = Element.from(templates.tabbar()),
+            joinChan =  function(){
                 var chan = prompt("Enter channel name:");
                 if(chan.trim() !== ""){
                     Object.each(self.clients, function(client) {
@@ -20790,14 +20813,58 @@ ui.QUI = new Class({
                     });
                 }
             },
-            addTab = self.addTab = Element.from(templates.addTab());
+            tabbtns = Element.from(templates.tabbarbtns()),
+            addTab = tabbtns.getElement('.add-chan'),
+            scrollers = tabbtns.getElements('[name="tabscroll"]'),
+            scroller = new Fx.Scroll(tabs),
+            resizeTabs = util.fillContainer.curry(tabs, 'max-width'),
+            onResize = function() {
+                var wid = tabs.getWidth(),
+                    swid = tabs.getScrollWidth();
+
+                if(swid > wid) {
+                    scrollers.show();
+                }
+                else {
+                    scrollers.hide();
+                }
+
+                resizeTabs();
+            };
+
+        window.addEvent('resize', onResize);
+        tabs.addEvents({
+            'adopt': onResize,
+            'disown': onResize
+        });
+
+        scrollers.filter('.to-left')
+            .addEvent('click', function(e) {
+                e.stop();
+                var pos = tabs.getScrollLeft(),
+                    $ele = util.elementAtScrollPos(tabs, pos);
+
+                scroller.toElement($ele, 'x');
+                console.log($ele);
+            });
+        scrollers.filter('.to-right')
+            .addEvent('click', function(e) {
+                e.stop();
+                var pos = tabs.getScrollLeft() + tabs.getWidth(),
+                    $ele = util.elementAtScrollPos(tabs, pos);
+
+                scroller.toElementEdge($ele, 'x');
+                console.log($ele);
+            });
+
+        resizeTabs();
         addTab.addEvents({
             'dblclick': joinChan,
             'click': self.__createChannelMenu
         });
 
         //for scrolling tabs with mousewheel
-        self.tabs.addEvent("mousewheel", function(event) {
+        tabs.addEvent("mousewheel", function(event) {
             event.stop();
             /* up */
             if (event.wheel > 0) {
@@ -20810,8 +20877,8 @@ ui.QUI = new Class({
 
         //append menu and tabbar
         self.outerTabs.adopt(self.__createDropdownMenu(),
-                            self.tabs,
-                            addTab);
+                            tabs,
+                            tabbtns);
 
         var origWin = qjsui.createWindow();
         self.origtopic = self.topic = origWin.topic;
@@ -21920,18 +21987,32 @@ ui.decorateDropdown = function(btn, ddm, options) {
 
 //dirty function please help with css :(
 //dir can be 'width' 'height'
-util.fillContainer = function ($ele, sty) {
+util.fillContainer = function ($ele, sty, offset) {
+    offset = offset || 10;
+    sty = (sty || 'width').toLowerCase();
+    var method = 'get' + (sty.contains('width') ? 'Width' : 'Height');
     (function() {//wait a sec for style recalcs
-        var offset = 10;
-        sty = (sty || 'width').toLowerCase();
-
         $ele.getSiblings().each(function(sib) {
-            offset += sib["get" + sty.capitalize()]();
+            offset += sib[method](sty);
         });
 
         $ele.setStyle(sty, "calc(100% - " + offset + "px)");
     }).delay(20);
     return $ele;
+};
+
+util.elementAtScrollPos = function($ele, pos, dir, offset) {
+    dir = (dir || 'width').capitalize();
+    offset = offset || 10;
+    var $res = $ele.lastChild;
+    Array.some($ele.childNodes, function($kid) {
+        offset += $kid['get' + dir]();
+        if(offset >= pos) {
+            $res = $kid;
+            return true;
+        }
+    });
+    return $res;
 };
 
 
@@ -23052,10 +23133,15 @@ ui.Window = new Class({
                     $ele.style.color = "red";
                     notice();
                 }
-                else if (!sentByUs && !isbot && containsNick(line.m)) { //dont beep if bot says our name
-                    hl_line = true;
-                    hilight = ui.HILIGHT_US;
-                    notice();//name mention in chan
+                else if (!sentByUs && containsNick(line.m)) { //dont beep if bot says our name
+                    if(isbot) {
+                        $ele.addClass('bot@us')
+                    }
+                    else {
+                        hl_line = true;
+                        hilight = ui.HILIGHT_US;
+                        notice();//name mention in chan
+                    }
                 }
                 else if (hilight !== ui.HILIGHT_US) {
                     hilight = ui.HILIGHT_SPEECH;
@@ -23152,6 +23238,7 @@ ui.QUI.Window = new Class({
         var qwindow = self.window;
         qwindow.detached = self.detached = false;
 
+        self.currentChannel = self.name;
 
         var $tab = self.tab = Element.from(templates.ircTab({
                 'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
@@ -23277,7 +23364,7 @@ ui.QUI.Window = new Class({
         }
         this.parent();
 
-        this.parentObject.tabs.removeChild(this.tab);
+        this.parentObject.tabs.disown(this.tab);
 
         if(this.detached) {
             this.wrapper.destroy();
@@ -23391,8 +23478,10 @@ ui.QUI.Window = new Class({
                     win.tab.swapClass("tab-selected", "tab-unselected");
                 }
                 if(win.name === BROUHAHA) {
-                    if(util.isChannelType(self.type))
+                    if(util.isChannelType(self.type)) {
                         win.properties.text(self.name); //update current channel in brouhaha
+                        win.currentChannel = self.name;
+                    }
                 }
             });
         }
@@ -23700,7 +23789,7 @@ ui.QUI.Window = new Class({
     //TODO do all processing in template?
     addLine: function(type, line, colourClass) {
         // var e = new Element("div");
-        var eclass = colourClass || this.lastcolour ? "linestyle1" : "linestyle2";
+        var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
         var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
         this.lastcolour = !this.lastcolour;
