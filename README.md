@@ -1,4 +1,4 @@
-qwebirc-upate
+qwebirc-mods
 =============
 
 Complete rewrite of Chris Porter's qwebirc (qwebirc.org) - added multiple features, code quality improvements, bug fixes, etc.

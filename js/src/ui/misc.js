@@ -116,7 +116,7 @@ ui.RequestTransformHTML = function(options) {
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            theme = self.__theme = Object.clone(ui.themes.Default);
+            theme = self.__theme = Object.clone(ui.themes.Default2);
 
         if (themeDict) {
             // for (var k in themeDict) {
@@ -135,7 +135,7 @@ ui.Theme = new Class({
             }
         });
 
-        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap);
+        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
 
         self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
@@ -145,28 +145,30 @@ ui.Theme = new Class({
 
     //fuck that this is awful - use String.substitute with a regex
     __dollarSubstitute: function(x, h, mapper) {
-        if (x == '-${$($N$)$}:$c- $m' && h['c'] == BROUHAHA)
-            x = '-${$($N$)$}- $m';
-        var msg = [];
+        // if (x == '-${$($N$)$}:$c- $m' && h['c'] == BROUHAHA)
+        //     x = '-${$($N$)$}- $m';
+        // var msg = [];
 
-        var n = x.split("");
-        //loop of the devil
-        for (var i = 0; i < n.length; i++) {
-            var c = n[i];
-            if (c == "$" && (i <= n.length - 1)) {
-                var c2 = n[++i];
+        // var n = x.split("");
+        // //loop of the devil
+        // for (var i = 0; i < n.length; i++) {
+        //     var c = n[i];
+        //     if (c == "$" && (i <= n.length - 1)) {
+        //         var c2 = n[++i];
 
-                var o = mapper[c2];
-                if (!o)
-                    o = h[c2];
-                if (o)
-                    msg.push(o);
-            } else {
-                msg.push(c);
-            }
-        }
+        //         var o = mapper[c2];
+        //         if (!o)
+        //             o = h[c2];
+        //         if (o)
+        //             msg.push(o);
+        //     } else {
+        //         msg.push(c);
+        //     }
+        // }
 
-        return msg.join("");
+        // return msg.join("");
+
+        return x.substitute(Object.append(h||{}, mapper||{}))
     },
     message: function(type, data, hilight) {
         var map;
