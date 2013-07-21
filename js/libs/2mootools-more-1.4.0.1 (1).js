@@ -1,3 +1,5 @@
+//made a couple bug fixes and changes such as for issue #1205
+
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
 // Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Fx.SmoothScroll More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
@@ -583,8 +585,6 @@ var Locale = this.Locale = {
 		}
 
 		if (set) locale.define(set, key, value);
-
-		
 
 		if (!current) current = locale;
 
@@ -1333,150 +1333,150 @@ Locale.addEvent('change', function(language){
 })();
 
 
-/*
----
+// /*
+// ---
 
-name: Hash
+// name: Hash
 
-description: Contains Hash Prototypes. Provides a means for overcoming the JavaScript practical impossibility of extending native Objects.
+// description: Contains Hash Prototypes. Provides a means for overcoming the JavaScript practical impossibility of extending native Objects.
 
-license: MIT-style license.
+// license: MIT-style license.
 
-requires:
-  - Core/Object
-  - /MooTools.More
+// requires:
+//   - Core/Object
+//   - /MooTools.More
 
-provides: [Hash]
+// provides: [Hash]
 
-...
-*/
+// ...
+// */
 
-(function(){
+// (function(){
 
-if (this.Hash) return;
+// if (this.Hash) return;
 
-var Hash = this.Hash = new Type('Hash', function(object){
-	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
-	for (var key in object) this[key] = object[key];
-	return this;
-});
+// var Hash = this.Hash = new Type('Hash', function(object){
+// 	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
+// 	for (var key in object) this[key] = object[key];
+// 	return this;
+// });
 
-this.$H = function(object){
-	return new Hash(object);
-};
+// this.$H = function(object){
+// 	return new Hash(object);
+// };
 
-Hash.implement({
+// Hash.implement({
 
-	forEach: function(fn, bind){
-		Object.forEach(this, fn, bind);
-	},
+// 	forEach: function(fn, bind){
+// 		Object.forEach(this, fn, bind);
+// 	},
 
-	getClean: function(){
-		var clean = {};
-		for (var key in this){
-			if (this.hasOwnProperty(key)) clean[key] = this[key];
-		}
-		return clean;
-	},
+// 	getClean: function(){
+// 		var clean = {};
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) clean[key] = this[key];
+// 		}
+// 		return clean;
+// 	},
 
-	getLength: function(){
-		var length = 0;
-		for (var key in this){
-			if (this.hasOwnProperty(key)) length++;
-		}
-		return length;
-	}
+// 	getLength: function(){
+// 		var length = 0;
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) length++;
+// 		}
+// 		return length;
+// 	}
 
-});
+// });
 
-Hash.alias('each', 'forEach');
+// Hash.alias('each', 'forEach');
 
-Hash.implement({
+// Hash.implement({
 
-	has: Object.prototype.hasOwnProperty,
+// 	has: Object.prototype.hasOwnProperty,
 
-	keyOf: function(value){
-		return Object.keyOf(this, value);
-	},
+// 	keyOf: function(value){
+// 		return Object.keyOf(this, value);
+// 	},
 
-	hasValue: function(value){
-		return Object.contains(this, value);
-	},
+// 	hasValue: function(value){
+// 		return Object.contains(this, value);
+// 	},
 
-	extend: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.set(this, key, value);
-		}, this);
-		return this;
-	},
+// 	extend: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.set(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	combine: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.include(this, key, value);
-		}, this);
-		return this;
-	},
+// 	combine: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.include(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	erase: function(key){
-		if (this.hasOwnProperty(key)) delete this[key];
-		return this;
-	},
+// 	erase: function(key){
+// 		if (this.hasOwnProperty(key)) delete this[key];
+// 		return this;
+// 	},
 
-	get: function(key){
-		return (this.hasOwnProperty(key)) ? this[key] : null;
-	},
+// 	get: function(key){
+// 		return (this.hasOwnProperty(key)) ? this[key] : null;
+// 	},
 
-	set: function(key, value){
-		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-		return this;
-	},
+// 	set: function(key, value){
+// 		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
+// 		return this;
+// 	},
 
-	empty: function(){
-		Hash.each(this, function(value, key){
-			delete this[key];
-		}, this);
-		return this;
-	},
+// 	empty: function(){
+// 		Hash.each(this, function(value, key){
+// 			delete this[key];
+// 		}, this);
+// 		return this;
+// 	},
 
-	include: function(key, value){
-		if (this[key] == undefined) this[key] = value;
-		return this;
-	},
+// 	include: function(key, value){
+// 		if (this[key] == undefined) this[key] = value;
+// 		return this;
+// 	},
 
-	map: function(fn, bind){
-		return new Hash(Object.map(this, fn, bind));
-	},
+// 	map: function(fn, bind){
+// 		return new Hash(Object.map(this, fn, bind));
+// 	},
 
-	filter: function(fn, bind){
-		return new Hash(Object.filter(this, fn, bind));
-	},
+// 	filter: function(fn, bind){
+// 		return new Hash(Object.filter(this, fn, bind));
+// 	},
 
-	every: function(fn, bind){
-		return Object.every(this, fn, bind);
-	},
+// 	every: function(fn, bind){
+// 		return Object.every(this, fn, bind);
+// 	},
 
-	some: function(fn, bind){
-		return Object.some(this, fn, bind);
-	},
+// 	some: function(fn, bind){
+// 		return Object.some(this, fn, bind);
+// 	},
 
-	getKeys: function(){
-		return Object.keys(this);
-	},
+// 	getKeys: function(){
+// 		return Object.keys(this);
+// 	},
 
-	getValues: function(){
-		return Object.values(this);
-	},
+// 	getValues: function(){
+// 		return Object.values(this);
+// 	},
 
-	toQueryString: function(base){
-		return Object.toQueryString(this, base);
-	}
+// 	toQueryString: function(base){
+// 		return Object.toQueryString(this, base);
+// 	}
 
-});
+// });
 
-Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
+// Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
 
 
-})();
+// })();
 
 
 
@@ -2879,20 +2879,23 @@ Fx.Scroll = new Class({
 			scroll = this.element.getScroll(),
 			containerSize = this.element.getSize(),
 			edge = {
-				x: coords.right,
-				y: coords.bottom
+				x: coords.right + scroll.x,
+				y: coords.bottom + scroll.y
 			};
 
 		['x', 'y'].each(function(axis){
 			if (axes.contains(axis)){
-				if (edge[axis] > scroll[axis] + containerSize[axis]) to[axis] = edge[axis] - containerSize[axis];
-				if (position[axis] < scroll[axis]) to[axis] = position[axis];
+				if (edge[axis] > scroll[axis] + containerSize[axis])
+					to[axis] = edge[axis] - containerSize[axis];
+				// if (edge[axis] < scroll[axis])
+				// 	to[axis] = edge[axis];
 			}
 			if (to[axis] == null) to[axis] = scroll[axis];
 			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
 		}, this);
 
-		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
+		if (to.x != scroll.x || to.y != scroll.y)
+			this.start(to.x, to.y);
 		return this;
 	},
 
