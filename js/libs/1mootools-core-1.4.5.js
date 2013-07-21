@@ -412,39 +412,39 @@ String.extend('uniqueID', function(){
 	return (UID++).toString(36);
 });
 
-//<1.2compat>
+// //<1.2compat>
 
-var Hash = this.Hash = new Type('Hash', function(object){
-	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
-	for (var key in object) this[key] = object[key];
-	return this;
-});
+// var Hash = this.Hash = new Type('Hash', function(object){
+// 	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
+// 	for (var key in object) this[key] = object[key];
+// 	return this;
+// });
 
-Hash.implement({
+// Hash.implement({
 
-	forEach: function(fn, bind){
-		Object.forEach(this, fn, bind);
-	},
+// 	forEach: function(fn, bind){
+// 		Object.forEach(this, fn, bind);
+// 	},
 
-	getClean: function(){
-		var clean = {};
-		for (var key in this){
-			if (this.hasOwnProperty(key)) clean[key] = this[key];
-		}
-		return clean;
-	},
+// 	getClean: function(){
+// 		var clean = {};
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) clean[key] = this[key];
+// 		}
+// 		return clean;
+// 	},
 
-	getLength: function(){
-		var length = 0;
-		for (var key in this){
-			if (this.hasOwnProperty(key)) length++;
-		}
-		return length;
-	}
+// 	getLength: function(){
+// 		var length = 0;
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) length++;
+// 		}
+// 		return length;
+// 	}
 
-});
+// });
 
-Hash.alias('each', 'forEach');
+// Hash.alias('each', 'forEach');
 
 Object.type = Type.isObject;
 
@@ -497,9 +497,9 @@ this.$extend = function(original, extended){
 	return Object.append(original, extended);
 };
 
-this.$H = function(object){
-	return new Hash(object);
-};
+// this.$H = function(object){
+// 	return new Hash(object);
+// };
 
 // this.$merge = function(){
 // 	var args = Array.slice(arguments);
@@ -1102,95 +1102,95 @@ Object.extend({
 
 })();
 
-//<1.2compat>
+// //<1.2compat>
 
-Hash.implement({
+// Hash.implement({
 
-	has: Object.prototype.hasOwnProperty,
+// 	has: Object.prototype.hasOwnProperty,
 
-	keyOf: function(value){
-		return Object.keyOf(this, value);
-	},
+// 	keyOf: function(value){
+// 		return Object.keyOf(this, value);
+// 	},
 
-	hasValue: function(value){
-		return Object.contains(this, value);
-	},
+// 	hasValue: function(value){
+// 		return Object.contains(this, value);
+// 	},
 
-	extend: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.set(this, key, value);
-		}, this);
-		return this;
-	},
+// 	extend: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.set(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	combine: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.include(this, key, value);
-		}, this);
-		return this;
-	},
+// 	combine: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.include(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	erase: function(key){
-		if (this.hasOwnProperty(key)) delete this[key];
-		return this;
-	},
+// 	erase: function(key){
+// 		if (this.hasOwnProperty(key)) delete this[key];
+// 		return this;
+// 	},
 
-	get: function(key){
-		return (this.hasOwnProperty(key)) ? this[key] : null;
-	},
+// 	get: function(key){
+// 		return (this.hasOwnProperty(key)) ? this[key] : null;
+// 	},
 
-	set: function(key, value){
-		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-		return this;
-	},
+// 	set: function(key, value){
+// 		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
+// 		return this;
+// 	},
 
-	empty: function(){
-		Hash.each(this, function(value, key){
-			delete this[key];
-		}, this);
-		return this;
-	},
+// 	empty: function(){
+// 		Hash.each(this, function(value, key){
+// 			delete this[key];
+// 		}, this);
+// 		return this;
+// 	},
 
-	include: function(key, value){
-		if (this[key] == null) this[key] = value;
-		return this;
-	},
+// 	include: function(key, value){
+// 		if (this[key] == null) this[key] = value;
+// 		return this;
+// 	},
 
-	map: function(fn, bind){
-		return new Hash(Object.map(this, fn, bind));
-	},
+// 	map: function(fn, bind){
+// 		return new Hash(Object.map(this, fn, bind));
+// 	},
 
-	filter: function(fn, bind){
-		return new Hash(Object.filter(this, fn, bind));
-	},
+// 	filter: function(fn, bind){
+// 		return new Hash(Object.filter(this, fn, bind));
+// 	},
 
-	every: function(fn, bind){
-		return Object.every(this, fn, bind);
-	},
+// 	every: function(fn, bind){
+// 		return Object.every(this, fn, bind);
+// 	},
 
-	some: function(fn, bind){
-		return Object.some(this, fn, bind);
-	},
+// 	some: function(fn, bind){
+// 		return Object.some(this, fn, bind);
+// 	},
 
-	getKeys: function(){
-		return Object.keys(this);
-	},
+// 	getKeys: function(){
+// 		return Object.keys(this);
+// 	},
 
-	getValues: function(){
-		return Object.values(this);
-	},
+// 	getValues: function(){
+// 		return Object.values(this);
+// 	},
 
-	toQueryString: function(base){
-		return Object.toQueryString(this, base);
-	}
+// 	toQueryString: function(base){
+// 		return Object.toQueryString(this, base);
+// 	}
 
-});
+// });
 
-Hash.extend = Object.append;
+// Hash.extend = Object.append;
 
-Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
+// Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
 
-//</1.2compat>
+// //</1.2compat>
 
 
 /*
@@ -3119,11 +3119,11 @@ if (!Browser.Element){
 
 Element.Constructors = {};
 
-//<1.2compat>
+// //<1.2compat>
 
-Element.Constructors = new Hash;
+// Element.Constructors = new Hash;
 
-//</1.2compat>
+// //</1.2compat>
 
 var IFrame = new Type('IFrame', function(){
 	var params = Array.link(arguments, {
@@ -4288,7 +4288,7 @@ Element.Styles = {
 
 //<1.2compat>
 
-Element.Styles = new Hash(Element.Styles);
+// Element.Styles = new Hash(Element.Styles);
 
 //</1.2compat>
 
@@ -4498,7 +4498,7 @@ if (!window.addEventListener){
 
 //<1.2compat>
 
-Element.Events = new Hash(Element.Events);
+// Element.Events = new Hash(Element.Events);
 
 //</1.2compat>
 
@@ -5336,7 +5336,7 @@ Fx.CSS.Parsers = {
 
 //<1.2compat>
 
-Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
+// Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
 
 //</1.2compat>
 
@@ -5593,7 +5593,7 @@ Fx.Transitions = {
 
 //<1.2compat>
 
-Fx.Transitions = new Hash(Fx.Transitions);
+// Fx.Transitions = new Hash(Fx.Transitions);
 
 //</1.2compat>
 
@@ -6040,10 +6040,10 @@ if (typeof JSON == 'undefined') this.JSON = {};
 
 //<1.2compat>
 
-JSON = new Hash({
+JSON = {
 	stringify: JSON.stringify,
 	parse: JSON.parse
-});
+};
 
 //</1.2compat>
 
