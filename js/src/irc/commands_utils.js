@@ -11,7 +11,7 @@ irc.BaseCommandParser = new Class({
             extra = {};
         }
 
-        extra["n"] = this.parentObject.getNickname();
+        extra["n"] = this.parentObject.nickname;
         extra["m"] = message;
         extra["t"] = target;
         return extra;
@@ -365,7 +365,7 @@ irc.Commands = new Class({
     //         this.send("JOIN " + formatted + " " + args.join(" "));
     // }],
     cmd_UMODE: [false, 1, 0, function(args) {
-        this.send("MODE " + this.parentObject.getNickname() + (args ? (" " + args[0]) : ""));
+        this.send("MODE " + this.parentObject.nickname + (args ? (" " + args[0]) : ""));
     }],
     cmd_BEEP: [false, undefined, undefined, function(args) {
         this.parentObject.ui.beep();

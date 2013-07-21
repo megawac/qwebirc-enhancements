@@ -124,14 +124,16 @@ ui.themes.ThemeControlCodeMap2 = {
     "$": "$"
 };
 
+//todo make this stuff more clear
 ui.themes.Default2 = {
-    "PREFIX": ["{C}4=={O} "],
     "SIGNON": ["Signed on!", true],
     "CONNECT": ["Connected to server.", true],
+
     "RAW": ["{m}", true],
     "DISCONNECT": ["Disconnected from server: {m}", true],
     "ERROR": ["ERROR: {m}", true],
     "SERVERNOTICE": ["{m}", true],
+
     "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
     "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
     "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
@@ -142,12 +144,16 @@ ui.themes.Default2 = {
     "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
     "UMODE": ["Usermode change: {m}", true],
     "INVITE": ["{N} invites you to join {c}", true],
+
+    "PREFIX": ["{C}4=={O} "],
     "HILIGHT": ["{C}4"],
     "HILIGHTEND": ["{O}"],
+
     "CHANMSG": ["<{D}{@}{(}{N}{)}{D}> {m}"],
     "PRIVMSG": ["<{(}{N}{)}> {m}"],
     "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
     "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
+
     "OURCHANMSG": ["<{@}{N}> {m}"],
     "OURPRIVMSG": ["<{N}> {m}"],
     "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
@@ -156,14 +162,17 @@ ui.themes.Default2 = {
     "OURPRIVNOTICE": ["-{N}- {m}"],
     "OURCHANACTION": [" * {N} {m}"],
     "OURPRIVACTION": [" * {N} {m}"],
+
     "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
     "PRIVACTION": [" * {(}{N}{)} {m}"],
     "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
     "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
     "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
+
     "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
     "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
     "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
+
     "WHOISUSER": ["{B}{N}{B} [{h}]", true],
     "WHOISREALNAME": [" realname : {m}", true],
     "WHOISCHANNELS": [" channels : {m}", true],
@@ -176,6 +185,7 @@ ui.themes.Default2 = {
     "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
     "WHOISGENERICTEXT": ["          : {m}", true],
     "WHOISEND": ["End of WHOIS", true],
+
     "AWAY": ["{N} is away: {m}", true],
     "GENERICERROR": ["{m}: {t}", true],
     "GENERICMESSAGE": ["{m}", true],
