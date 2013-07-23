@@ -22,7 +22,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "js/templates.js": ['js/src/ui/Handlebars/templates/*.hbs']
+                    "js/dist/templates.js": ['js/src/ui/Handlebars/templates/*.hbs']
                 }
             }
         },
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                 // the files to concatenate
                 src: concatfiles,
                 // the location of the resulting JS file
-                dest: 'js/qwebirc.js'
+                dest: 'js/dist/qwebirc.js'
             },
 
             full: {
@@ -45,9 +45,9 @@ module.exports = function(grunt) {
                 //'js/functional+.js',
                 // //'js/to-function.js',
                 // 'js/src/Templates.js',
-                'js/qwebirc.js'],
+                'js/dist/qwebirc.js'],
                 // the location of the resulting JS file
-                dest: 'js/qwebirc-0.93dev.js'
+                dest: 'js/dist/qwebirc-0.93dev.js'
             }
         },
 

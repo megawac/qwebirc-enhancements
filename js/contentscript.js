@@ -125,7 +125,7 @@
         //............... :(
         // head.appendChild(hack);
 
-        loader.loadScript(chrome.extension.getURL('js/qwebirc-0.93dev.js'), function() {
+        loader.loadScript(chrome.extension.getURL('js/dist/qwebirc-0.93dev.js'), function() {
             // head.appendChild(startup);
             loader.loadInlineScript(init);
         });
