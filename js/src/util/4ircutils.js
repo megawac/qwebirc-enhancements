@@ -25,10 +25,10 @@ var $identity = Functional.I,
     concatUnique = Functional.compose(prelude.uniq, prelude.concat),
 
     concatSep = function(sep, s1, s2) {
-        if(prelude.isArray(s1)) {
+        if(Array.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(prelude.isArray(s2)) {
+        if(Array.isArray(s2)) {
             s2 = s2.join(sep);
         }
         if(s1 !== "" && s2 !== "") {
@@ -101,7 +101,7 @@ var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(prelude.isArray(xs))
+        if(Array.isArray(xs))
             return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },

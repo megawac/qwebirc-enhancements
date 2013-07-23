@@ -25,15 +25,13 @@ irc.BaseCommandParser = new Class({
             type = "TARGETED" + type;
             target = false;
             this.parentObject.newActiveLine("OUR" + type, extra);
-            return;
         } else if (win.type == ui.WINDOW_CHANNEL) {
             this.parentObject.newChanLine(target, "OURCHAN" + type, null, extra);
-            return;
         } else {
             type = "PRIV" + type;
+            this.parentObject.newLine(target, "OUR" + type, extra);
         }
 
-        this.parentObject.newLine(target, "OUR" + type, extra);
     },
 
     newQueryLine: function(target, type, message, extra) {
@@ -50,8 +48,9 @@ irc.BaseCommandParser = new Class({
         return this.newTargetLine(target, type, message, extra);
     },
 
-    // TODO still uglymore work
-    dispatch: function(line) {
+    // routes all outputs with the server
+    // this method will call functions in: Commands based on the this scope
+    dispatch: function(line, chan) {
         var self = this,
             allargs = util.formatCommand(line),
             par = self.parentObject;
@@ -78,7 +77,8 @@ irc.BaseCommandParser = new Class({
             fn = cmdopts[3];
 
             //errors in command
-            if (activewin && (win = self.getActiveWindow()) && !isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
+            win = chan ? par.windows[chan] : self.getActiveWindow();
+            if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
                 par.writeMessages(lang.invalidCommand);
                 break;
             }
@@ -90,7 +90,7 @@ irc.BaseCommandParser = new Class({
                 args = args.splitMax(" ", splitargs);
             }
 
-            allargs = fn.call(self, args);
+            allargs = fn.call(self, args, chan);
             // allargs = fn.run($A(args), this);
         }
     },
@@ -135,7 +135,7 @@ irc.BaseCommandParser = new Class({
                     }
                 });
                 d.appendChild(img);
-                window.scrollAdd(d);
+                // window.scrollAdd(d); - not a fn
             }
         });
         r.get();
@@ -146,7 +146,7 @@ irc.BaseCommandParser = new Class({
 
 //can probably out source a lot of these to constants and helpers
 //placing arrays on the prototype looks really fucking weird
-// maybe just make this a single object?
+// maybe just make this a single dictionary?
 irc.Commands = new Class({
     Extends: irc.BaseCommandParser,
     initialize: function(parentObject) {
@@ -164,12 +164,12 @@ irc.Commands = new Class({
     },
 
     /* [require_active_window, splitintoXargs, minargs, function] */
-    cmd_ME: [true, undefined, undefined, function(args) {
+    cmd_ME: [true, undefined, undefined, function(args, target) {
         if (!args) {
             args = "";
         }
 
-        var target = this.getActiveWindow().currentChannel;
+        target = target || this.getActiveWindow().currentChannel;
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
@@ -200,15 +200,9 @@ irc.Commands = new Class({
     cmd_PRIVMSG: [false, 2, 2, function(args) {
         var target = args[0];
         var message = args[1];
-        var channelElement = $('channel-name-id');
         var parentObj = this.parentObject;
 
-        if (irc.activeChannel !== target && target === BROUHAHA) {
-            target = channelElement.innerHTML;
-        }
-
         parentObj.broadcast(parentObj.nickname, BROUHAHA, message, target, "CHANMSG");
-        channelElement.innerHTML = target;
 
         if (!util.isChannel(target)) {
             parentObj.pushLastNick(target);
@@ -225,13 +219,8 @@ irc.Commands = new Class({
     cmd_NOTICE: [false, 2, 2, function(args) {
         var target = args[0];
         var message = args[1];
-        var channelElement = $('channel-name-id');
 
-        if (irc.activeChannel !== target && target === BROUHAHA) { //?????
-            target = channelElement.innerHTML;
-        }
         this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
-        channelElement.innerHTML = target;
 
         if (this.send("NOTICE " + target + " :" + message)) {
             if (util.isChannel(target)) {
@@ -256,8 +245,8 @@ irc.Commands = new Class({
         }
     }],
 
-    cmd_SAY: [true, undefined, undefined, function(msg) {
-        return ["PRIVMSG", this.getActiveWindow().currentChannel + " " + (msg || "")];
+    cmd_SAY: [true, undefined, undefined, function(msg, target) {
+        return ["PRIVMSG", (target || this.getActiveWindow().currentChannel) + " " + (msg || "")];
     }],
 
     cmd_LOGOUT: [false, undefined, undefined, function(args) {
@@ -284,8 +273,8 @@ irc.Commands = new Class({
         this.send(args[0]);
     }],
 
-    cmd_KICK: [true, 2, 1, function(args) {
-        var channel = this.getActiveWindow().currentChannel;
+    cmd_KICK: [true, 2, 1, function(args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
         var target = args[0];
         var message = args.length >= 2 ? args[1] : "";
@@ -293,8 +282,8 @@ irc.Commands = new Class({
         this.send("KICK " + channel + " " + target + " :" + message);
     }],
 
-    automode: function(direction, mode, args) {
-        var channel = this.getActiveWindow().currentChannel;
+    automode: function(direction, mode, args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
         var modes = direction;
 
@@ -317,8 +306,8 @@ irc.Commands = new Class({
     cmd_DEVOICE: [true, 6, 1, function(args) {
         this.automode("-", "v", args);
     }],
-    cmd_TOPIC: [true, 1, 1, function(args) {
-        this.send("TOPIC " + this.getActiveWindow().currentChannel + " :" + args[0]);
+    cmd_TOPIC: [true, 1, 1, function(args, channel) {
+        this.send("TOPIC " + (channel || this.getActiveWindow().currentChannel) + " :" + args[0]);
     }],
     cmd_AWAY: [false, 1, 0, function(args) {
         this.send("AWAY :" + (args ? args[0] : ""));
@@ -326,11 +315,11 @@ irc.Commands = new Class({
     cmd_QUIT: [false, 1, 0, function(args) {
         this.send("QUIT :" + (args ? args[0] : ""));
     }],
-    cmd_CYCLE: [true, 1, 0, function(args) {
-        var c = this.getActiveWindow().currentChannel;
+    cmd_CYCLE: [true, 1, 0, function(args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
-        this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
-        this.send("JOIN " + c);
+        this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
+        this.send("JOIN " + channel);
     }],
     cmd_FJOIN: [false, 2, 1, function(args) {
         if(args.length === 0)
@@ -376,54 +365,20 @@ irc.Commands = new Class({
             return ["JOIN", this.parentObject.options.autojoin.join(",")];
         }
     }],
-    cmd_CLEAR: [false, undefined, undefined, function(args) {
-        var win = this.getActiveWindow().lines;
+    cmd_CLEAR: [false, undefined, undefined, function(args, channel) {
+        var win = channel ? this.parentObject.windows[channel] : this.getActiveWindow().lines;
         // while (win.childNodes.length > 0){
         //     win.removeChild(win.firstChild);
         // }
         win.empty();
     }],
     cmd_PART: [false, 2, 0, function(args) {
-        var self = this;
-        var win = self.getActiveWindow();
-        var message = "";
-        var channel;
-
-        var msg,chan;
         args = $A(args);
-        //think this works
-        chan = args[0] || win.name;
-        msg = args[1] || lang.partChan.message;
 
-        // if (/*win.type != ui.WINDOW_CHANNEL */isChannelType(win.type)) {
-        //     if (!args || args.length === 0) {
-        //         self.parentObject.writeMessages(lang.message.insufficentArgs);
-        //         return;
-        //     }
-        //     channel = args[0];
-        //     if (args.length > 1) 
-        //         message = args[1];
-        // } else {
-        //     if (!args || args.length === 0) {
-        //         channel = win.name;
-        //     } else {
-        //         var isChan = util.isChannel(args[0]);
-        //         if (isChan) {
-        //             channel = args[0];
+        var msg = args[1] || lang.partChan.message,
+            channel = args[0] || this.getActiveWindow().currentChannel;
 
-        //             if (args.length > 1)
-        //                 message = args[1];
-        //         } else {
-        //             channel = win.name;
-        //             message = args.join(" ");
-        //         }
-        //     }
-        // }
-        // console.assert(channel === chan);
-        // console.assert(message === msg);
-
-        // this.send("PART " + channel + " :" + message);
-        this.send("PART " + chan + " :" + msg);
+        this.send("PART " + channel + " :" + msg);
     }]
 });
 

@@ -62,14 +62,9 @@
             return x === y;
         }.autoCurry(),
 
-        //+ isArray :: a -> Boolean
-        isArray = ret.isArray = function(obj) {
-            return (obj && obj.constructor == Array);
-        },
-
         //+ isObj :: a -> Boolean
         isObj = ret.isObj = function(obj) {
-            return (typeof obj == "object" && !isArray(obj));
+            return (typeof obj == "object" && !Array.isArray(obj));
         },
 
         //+ isNumber :: a -> Boolean

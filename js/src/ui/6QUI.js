@@ -101,9 +101,7 @@ ui.QUI = new Class({
 
 
         //append menu and tabbar
-        self.outerTabs.adopt(self.__createDropdownMenu(),
-                            tabs,
-                            tabbtns);
+        self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns);
 
         var origWin = qjsui.createWindow();
         self.origtopic = self.topic = origWin.topic;
@@ -130,49 +128,17 @@ ui.QUI = new Class({
         var self = this,
 
             dropdownMenu = Element.from(templates.menudrop());
-
-        //     hidemenu = dropdownMenu.hideMenu = function(e) {
-        //         if(e)
-        //             e.stop();
-        //         dropdownMenu.hide();
-        //         document.removeEvent("mousedown", hidemenu);
-        //     },
-        //     showMenu = dropdownMenu.showMenu = function(e) {
-        //         e.stop();
-        //         self.hideHint();
-
-        //         if (dropdownMenu.isDisplayed()) {
-        //            hidemenu();
-        //         } else {
-        //             dropdownMenu.show()
-        //             document.addEvent("mousedown", hidemenu);
-        //         }
-        //     };
-
-        // hidemenu();
-
-        // dropdownMenu.position.delay(500, dropdownMenu, {
-        //             relativeTo: self.outerTabs,
-        //             position: {x: 'left', y: 'bottom'},
-        //             edge: {x: 'left', y: 'top'}
-        //         }
-
         dropdownMenu.inject(self.parentElement);
 
         var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
         dropdown.setStyle("opacity", 1);
-                // .addEvent("mousedown", Event.stop)
-                // .addEvent("click", showMenu);
 
 
         self.UICommands.each(function(cmd) {
             var text = cmd[0];
             var fn = self[cmd[1] + "Window"].bind(self);
             var ele = Element.from(templates.menuitem({text:text}));
-            ele.addEvent("mousedown", function(e) {
-                    e.stop();
-                })
-                .addEvent("click", function() {
+            ele.addEvent("click", function(e) {
                     dropdownMenu.hideMenu();
                     fn();
                 });
@@ -197,7 +163,6 @@ ui.QUI = new Class({
                     .start(1)
                     .start(0.33)
                     .start(1);
-
 
         ui.decorateDropdown(dropdown,dropdownMenu, {
             onShow: function() {
@@ -246,39 +211,51 @@ ui.QUI = new Class({
 
         hider2.delay(4000);
 
-        var hider3 = function(e) {
-                if (e.code === 17) {
-                    window.ctrl = 0;
-                }
-            };
-
-        document.addEvent("mousedown", hider2)
-                .addEvent("keydown", hider2)
-                .addEvent("keyup", hider3);
+        document.addEvents({
+                "mousedown": hider2,
+                "keydown": hider2
+            });
     },
 
     //todo use other dropdown menu code
     __createChannelMenu: function() {
-        var client = this.getActiveIRCWindow().client,
-            chans = client.getPopularChannels().map(function(chan) {
-                return {
-                    text: chan.channel,
-                    hint: chan.users
-                };
-            }),
-            menu = Element.from(templates.chanmenu({
-                channels: chans
-            }));
+        var self = this,
+            client = self.getActiveIRCWindow().client;
 
-        menu.inject(this.parentElement);
+        client.getPopularChannels(function(chans) {
+            chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                        .map(function(chan) {
+                            return {
+                                text: chan.channel,
+                                value: chan.channel,
+                                hint: chan.users
+                            };
+                        });
+            var menu = Element.from(templates.chanmenu({
+                    channels: chans
+                })),
+                btn = self.outerTabs.getElement('.add-chan'),
+                btnmenu = btn.retrieve('menu');
 
-        ui.decorateDropdown(this.addTab, menu);
-        menu.show();
+            if(btnmenu) {
+                menu.replaces(btnmenu);
+            }
+            else {
+                var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
+                ui.decorateDropdown(btn, wrapper);
+                wrapper.addEvent("click:relay(a)", function(e, target) {
+                    var chan = target.get('data-value');
+                    client.exec("/JOIN " + chan);
+                });
+            }
+            btn.store('menu', menu);
+
+            menu.parentElement.showMenu();
+        });
     },
 
     newClient: function(client) {
-        this.parentElement.removeClass('signed-out')
-                            .addClass('signed-in');
+        this.parentElement.swapClass('signed-out','signed-in');
         return this.parent(client);
     },
 

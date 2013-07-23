@@ -4,7 +4,7 @@ ui.Window = new Class({
     initialize: function(parentObject, client, type, name, identifier) {
         this.parentObject = parentObject;
         this.type = type;
-        this.name = name;
+        this.currentChannel = this.name = name;
         this.active = false;
         this.client = client;
         this.identifier = identifier;
@@ -216,7 +216,7 @@ ui.Window = new Class({
     nickListRemove: function(nick, stored) {},
     historyExec: function(line) {
         this.commandhistory.addLine(line);
-        this.client.exec(line);
+        this.client.exec(line, this.currentChannel);
     },
     focusChange: function(newValue) {
         if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))

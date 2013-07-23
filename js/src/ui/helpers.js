@@ -76,17 +76,12 @@ util.percentToPixel= function(data, par) {
 
 
 ui.decorateDropdown = function(btn, ddm, options) {
-    ddm.hideMenu = function(e) {
-        if(e)
-            e.stop();
+    ddm.hideMenu = function() {
         if(options && options.onHide)
             options.onHide.call(this, ddm);
-        ddm.hide();
-        document.removeEvent("mousedown", ddm.hideMenu);
+        return ddm.hide();
     };
-    ddm.showMenu = function(e) {
-        if(e)
-            e.stop();
+    ddm.showMenu = function() {
         if(options && options.onShow)
             options.onShow.call(this, ddm);
 
@@ -94,11 +89,10 @@ ui.decorateDropdown = function(btn, ddm, options) {
            ddm.hideMenu();
         } else {
             ddm.show();
-            document.addEvent("mousedown", ddm.hideMenu);
+            document.addEvent("click:once", ddm.hideMenu);
         }
+        return ddm;
     };
-
-    ddm.hideMenu();
 
     ddm.position.delay(50, ddm, {
         relativeTo: btn,
@@ -106,10 +100,11 @@ ui.decorateDropdown = function(btn, ddm, options) {
         edge: {x: 'left', y: 'top'}
     });
 
-    btn.addEvents({
-        "mousedown": Event.stop,
-        "click": ddm.showMenu
-    });
+    btn.addEvent("click", function(e) {
+            e.stop();
+            ddm.showMenu();
+        });
+    return ddm.hideMenu();
 };
 
 //dirty function please help with css :(

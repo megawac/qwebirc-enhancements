@@ -75,7 +75,7 @@
     source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
     source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
-    source.menuitem = "<a><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
+    source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";

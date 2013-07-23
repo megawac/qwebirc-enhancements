@@ -11,8 +11,6 @@ ui.QUI.Window = new Class({
         var qwindow = self.window;
         qwindow.detached = self.detached = false;
 
-        self.currentChannel = self.name;
-
         var $tab = self.tab = Element.from(templates.ircTab({
                 'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
             })).inject(parentObject.tabs),
@@ -210,8 +208,9 @@ ui.QUI.Window = new Class({
                 "height": size.y
             })
             .wraps(win) //*** adds wrapper to dom
-            .appendChild(resizeWrapper);
-        win.show();
+            .adopt(resizeWrapper);
+        win.show()
+            .addEvent("mousedown", Event.stopPropagation);//prevent draggin occurring while clickin window
         setActive();
 
         self.resizable = wrapper.makeResizable({
@@ -219,13 +218,13 @@ ui.QUI.Window = new Class({
                                     x: [400, null],
                                     y: [200, null]
                                 },
-                                'handle': resizeHandle
+                                handle: resizeHandle,
+                                stopPropagation: true
                             });
         self.drag = wrapper.makeDraggable({
-                                            container: document,
-                                            handle: header,
-                                            includeMargins: false
-                                        });
+                                handle: wrapper,
+                                includeMargins: true
+                            });
 
         wrapper.addEvents({
             click: setActive
@@ -386,7 +385,7 @@ ui.QUI.Window = new Class({
                     resultfn = self.commandhistory.upLine;
                 } else if (e.key === "down") {
                     resultfn = self.commandhistory.downLine;
-                } else if (e.key === "tab" && window.ctrl != 1) {
+                } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
                     self.tabComplete($inputbox);
                     return;

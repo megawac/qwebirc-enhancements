@@ -157,7 +157,6 @@ ui.BaseUI = new Class({
         ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
     },
     focusChange: function(newValue) {
-        window.ctrl = 0;
         var win = this.getActiveWindow();
         if ($defined(win))
             win.focusChange(newValue);

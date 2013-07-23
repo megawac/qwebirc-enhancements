@@ -35,6 +35,11 @@ Array.implement({
     // rest: function(n) {
     //     return this.slice(n || 1 /*, this.length*/ );
     // }
+})
+.extend({
+    isArray: function(xs) {
+        return $type(xs) == "array";
+    }
 });
 
 String.implement({
