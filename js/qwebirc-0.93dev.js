@@ -412,39 +412,39 @@ String.extend('uniqueID', function(){
 	return (UID++).toString(36);
 });
 
-//<1.2compat>
+// //<1.2compat>
 
-var Hash = this.Hash = new Type('Hash', function(object){
-	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
-	for (var key in object) this[key] = object[key];
-	return this;
-});
+// var Hash = this.Hash = new Type('Hash', function(object){
+// 	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
+// 	for (var key in object) this[key] = object[key];
+// 	return this;
+// });
 
-Hash.implement({
+// Hash.implement({
 
-	forEach: function(fn, bind){
-		Object.forEach(this, fn, bind);
-	},
+// 	forEach: function(fn, bind){
+// 		Object.forEach(this, fn, bind);
+// 	},
 
-	getClean: function(){
-		var clean = {};
-		for (var key in this){
-			if (this.hasOwnProperty(key)) clean[key] = this[key];
-		}
-		return clean;
-	},
+// 	getClean: function(){
+// 		var clean = {};
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) clean[key] = this[key];
+// 		}
+// 		return clean;
+// 	},
 
-	getLength: function(){
-		var length = 0;
-		for (var key in this){
-			if (this.hasOwnProperty(key)) length++;
-		}
-		return length;
-	}
+// 	getLength: function(){
+// 		var length = 0;
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) length++;
+// 		}
+// 		return length;
+// 	}
 
-});
+// });
 
-Hash.alias('each', 'forEach');
+// Hash.alias('each', 'forEach');
 
 Object.type = Type.isObject;
 
@@ -497,9 +497,9 @@ this.$extend = function(original, extended){
 	return Object.append(original, extended);
 };
 
-this.$H = function(object){
-	return new Hash(object);
-};
+// this.$H = function(object){
+// 	return new Hash(object);
+// };
 
 // this.$merge = function(){
 // 	var args = Array.slice(arguments);
@@ -1102,95 +1102,95 @@ Object.extend({
 
 })();
 
-//<1.2compat>
+// //<1.2compat>
 
-Hash.implement({
+// Hash.implement({
 
-	has: Object.prototype.hasOwnProperty,
+// 	has: Object.prototype.hasOwnProperty,
 
-	keyOf: function(value){
-		return Object.keyOf(this, value);
-	},
+// 	keyOf: function(value){
+// 		return Object.keyOf(this, value);
+// 	},
 
-	hasValue: function(value){
-		return Object.contains(this, value);
-	},
+// 	hasValue: function(value){
+// 		return Object.contains(this, value);
+// 	},
 
-	extend: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.set(this, key, value);
-		}, this);
-		return this;
-	},
+// 	extend: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.set(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	combine: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.include(this, key, value);
-		}, this);
-		return this;
-	},
+// 	combine: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.include(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	erase: function(key){
-		if (this.hasOwnProperty(key)) delete this[key];
-		return this;
-	},
+// 	erase: function(key){
+// 		if (this.hasOwnProperty(key)) delete this[key];
+// 		return this;
+// 	},
 
-	get: function(key){
-		return (this.hasOwnProperty(key)) ? this[key] : null;
-	},
+// 	get: function(key){
+// 		return (this.hasOwnProperty(key)) ? this[key] : null;
+// 	},
 
-	set: function(key, value){
-		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-		return this;
-	},
+// 	set: function(key, value){
+// 		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
+// 		return this;
+// 	},
 
-	empty: function(){
-		Hash.each(this, function(value, key){
-			delete this[key];
-		}, this);
-		return this;
-	},
+// 	empty: function(){
+// 		Hash.each(this, function(value, key){
+// 			delete this[key];
+// 		}, this);
+// 		return this;
+// 	},
 
-	include: function(key, value){
-		if (this[key] == null) this[key] = value;
-		return this;
-	},
+// 	include: function(key, value){
+// 		if (this[key] == null) this[key] = value;
+// 		return this;
+// 	},
 
-	map: function(fn, bind){
-		return new Hash(Object.map(this, fn, bind));
-	},
+// 	map: function(fn, bind){
+// 		return new Hash(Object.map(this, fn, bind));
+// 	},
 
-	filter: function(fn, bind){
-		return new Hash(Object.filter(this, fn, bind));
-	},
+// 	filter: function(fn, bind){
+// 		return new Hash(Object.filter(this, fn, bind));
+// 	},
 
-	every: function(fn, bind){
-		return Object.every(this, fn, bind);
-	},
+// 	every: function(fn, bind){
+// 		return Object.every(this, fn, bind);
+// 	},
 
-	some: function(fn, bind){
-		return Object.some(this, fn, bind);
-	},
+// 	some: function(fn, bind){
+// 		return Object.some(this, fn, bind);
+// 	},
 
-	getKeys: function(){
-		return Object.keys(this);
-	},
+// 	getKeys: function(){
+// 		return Object.keys(this);
+// 	},
 
-	getValues: function(){
-		return Object.values(this);
-	},
+// 	getValues: function(){
+// 		return Object.values(this);
+// 	},
 
-	toQueryString: function(base){
-		return Object.toQueryString(this, base);
-	}
+// 	toQueryString: function(base){
+// 		return Object.toQueryString(this, base);
+// 	}
 
-});
+// });
 
-Hash.extend = Object.append;
+// Hash.extend = Object.append;
 
-Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
+// Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
 
-//</1.2compat>
+// //</1.2compat>
 
 
 /*
@@ -3119,11 +3119,11 @@ if (!Browser.Element){
 
 Element.Constructors = {};
 
-//<1.2compat>
+// //<1.2compat>
 
-Element.Constructors = new Hash;
+// Element.Constructors = new Hash;
 
-//</1.2compat>
+// //</1.2compat>
 
 var IFrame = new Type('IFrame', function(){
 	var params = Array.link(arguments, {
@@ -4288,7 +4288,7 @@ Element.Styles = {
 
 //<1.2compat>
 
-Element.Styles = new Hash(Element.Styles);
+// Element.Styles = new Hash(Element.Styles);
 
 //</1.2compat>
 
@@ -4498,7 +4498,7 @@ if (!window.addEventListener){
 
 //<1.2compat>
 
-Element.Events = new Hash(Element.Events);
+// Element.Events = new Hash(Element.Events);
 
 //</1.2compat>
 
@@ -5336,7 +5336,7 @@ Fx.CSS.Parsers = {
 
 //<1.2compat>
 
-Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
+// Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
 
 //</1.2compat>
 
@@ -5593,7 +5593,7 @@ Fx.Transitions = {
 
 //<1.2compat>
 
-Fx.Transitions = new Hash(Fx.Transitions);
+// Fx.Transitions = new Hash(Fx.Transitions);
 
 //</1.2compat>
 
@@ -6040,10 +6040,10 @@ if (typeof JSON == 'undefined') this.JSON = {};
 
 //<1.2compat>
 
-JSON = new Hash({
+JSON = {
 	stringify: JSON.stringify,
 	parse: JSON.parse
-});
+};
 
 //</1.2compat>
 
@@ -6446,6 +6446,8 @@ Swiff.remote = function(obj, fn){
 
 })();
 
+
+//made a couple bug fixes and changes such as for issue #1205
 
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
@@ -7032,8 +7034,6 @@ var Locale = this.Locale = {
 		}
 
 		if (set) locale.define(set, key, value);
-
-		
 
 		if (!current) current = locale;
 
@@ -7782,150 +7782,150 @@ Locale.addEvent('change', function(language){
 })();
 
 
-/*
----
+// /*
+// ---
 
-name: Hash
+// name: Hash
 
-description: Contains Hash Prototypes. Provides a means for overcoming the JavaScript practical impossibility of extending native Objects.
+// description: Contains Hash Prototypes. Provides a means for overcoming the JavaScript practical impossibility of extending native Objects.
 
-license: MIT-style license.
+// license: MIT-style license.
 
-requires:
-  - Core/Object
-  - /MooTools.More
+// requires:
+//   - Core/Object
+//   - /MooTools.More
 
-provides: [Hash]
+// provides: [Hash]
 
-...
-*/
+// ...
+// */
 
-(function(){
+// (function(){
 
-if (this.Hash) return;
+// if (this.Hash) return;
 
-var Hash = this.Hash = new Type('Hash', function(object){
-	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
-	for (var key in object) this[key] = object[key];
-	return this;
-});
+// var Hash = this.Hash = new Type('Hash', function(object){
+// 	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
+// 	for (var key in object) this[key] = object[key];
+// 	return this;
+// });
 
-this.$H = function(object){
-	return new Hash(object);
-};
+// this.$H = function(object){
+// 	return new Hash(object);
+// };
 
-Hash.implement({
+// Hash.implement({
 
-	forEach: function(fn, bind){
-		Object.forEach(this, fn, bind);
-	},
+// 	forEach: function(fn, bind){
+// 		Object.forEach(this, fn, bind);
+// 	},
 
-	getClean: function(){
-		var clean = {};
-		for (var key in this){
-			if (this.hasOwnProperty(key)) clean[key] = this[key];
-		}
-		return clean;
-	},
+// 	getClean: function(){
+// 		var clean = {};
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) clean[key] = this[key];
+// 		}
+// 		return clean;
+// 	},
 
-	getLength: function(){
-		var length = 0;
-		for (var key in this){
-			if (this.hasOwnProperty(key)) length++;
-		}
-		return length;
-	}
+// 	getLength: function(){
+// 		var length = 0;
+// 		for (var key in this){
+// 			if (this.hasOwnProperty(key)) length++;
+// 		}
+// 		return length;
+// 	}
 
-});
+// });
 
-Hash.alias('each', 'forEach');
+// Hash.alias('each', 'forEach');
 
-Hash.implement({
+// Hash.implement({
 
-	has: Object.prototype.hasOwnProperty,
+// 	has: Object.prototype.hasOwnProperty,
 
-	keyOf: function(value){
-		return Object.keyOf(this, value);
-	},
+// 	keyOf: function(value){
+// 		return Object.keyOf(this, value);
+// 	},
 
-	hasValue: function(value){
-		return Object.contains(this, value);
-	},
+// 	hasValue: function(value){
+// 		return Object.contains(this, value);
+// 	},
 
-	extend: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.set(this, key, value);
-		}, this);
-		return this;
-	},
+// 	extend: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.set(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	combine: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.include(this, key, value);
-		}, this);
-		return this;
-	},
+// 	combine: function(properties){
+// 		Hash.each(properties || {}, function(value, key){
+// 			Hash.include(this, key, value);
+// 		}, this);
+// 		return this;
+// 	},
 
-	erase: function(key){
-		if (this.hasOwnProperty(key)) delete this[key];
-		return this;
-	},
+// 	erase: function(key){
+// 		if (this.hasOwnProperty(key)) delete this[key];
+// 		return this;
+// 	},
 
-	get: function(key){
-		return (this.hasOwnProperty(key)) ? this[key] : null;
-	},
+// 	get: function(key){
+// 		return (this.hasOwnProperty(key)) ? this[key] : null;
+// 	},
 
-	set: function(key, value){
-		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-		return this;
-	},
+// 	set: function(key, value){
+// 		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
+// 		return this;
+// 	},
 
-	empty: function(){
-		Hash.each(this, function(value, key){
-			delete this[key];
-		}, this);
-		return this;
-	},
+// 	empty: function(){
+// 		Hash.each(this, function(value, key){
+// 			delete this[key];
+// 		}, this);
+// 		return this;
+// 	},
 
-	include: function(key, value){
-		if (this[key] == undefined) this[key] = value;
-		return this;
-	},
+// 	include: function(key, value){
+// 		if (this[key] == undefined) this[key] = value;
+// 		return this;
+// 	},
 
-	map: function(fn, bind){
-		return new Hash(Object.map(this, fn, bind));
-	},
+// 	map: function(fn, bind){
+// 		return new Hash(Object.map(this, fn, bind));
+// 	},
 
-	filter: function(fn, bind){
-		return new Hash(Object.filter(this, fn, bind));
-	},
+// 	filter: function(fn, bind){
+// 		return new Hash(Object.filter(this, fn, bind));
+// 	},
 
-	every: function(fn, bind){
-		return Object.every(this, fn, bind);
-	},
+// 	every: function(fn, bind){
+// 		return Object.every(this, fn, bind);
+// 	},
 
-	some: function(fn, bind){
-		return Object.some(this, fn, bind);
-	},
+// 	some: function(fn, bind){
+// 		return Object.some(this, fn, bind);
+// 	},
 
-	getKeys: function(){
-		return Object.keys(this);
-	},
+// 	getKeys: function(){
+// 		return Object.keys(this);
+// 	},
 
-	getValues: function(){
-		return Object.values(this);
-	},
+// 	getValues: function(){
+// 		return Object.values(this);
+// 	},
 
-	toQueryString: function(base){
-		return Object.toQueryString(this, base);
-	}
+// 	toQueryString: function(base){
+// 		return Object.toQueryString(this, base);
+// 	}
 
-});
+// });
 
-Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
+// Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
 
 
-})();
+// })();
 
 
 
@@ -9320,30 +9320,26 @@ Fx.Scroll = new Class({
 		return this.start.apply(this, this.calculateScroll(position.x, position.y));
 	},
 
+	//fix for issue #1205
 	toElementEdge: function(el, axes, offset){
 		axes = axes ? Array.from(axes) : ['x', 'y'];
 		el = document.id(el);
 		var to = {},
-			position = el.getPosition(this.element),
-			size = el.getSize(),
+			coords = el.getCoordinates(this.element),
 			scroll = this.element.getScroll(),
 			containerSize = this.element.getSize(),
 			edge = {
-				x: position.x + size.x,
-				y: position.y + size.y
+				x: coords.right + scroll.x,
+				y: coords.bottom + scroll.y
 			};
-
 		['x', 'y'].each(function(axis){
-			if (axes.contains(axis)){
-				if (edge[axis] > scroll[axis] + containerSize[axis]) to[axis] = edge[axis] - containerSize[axis];
-				if (position[axis] < scroll[axis]) to[axis] = position[axis];
+			if (axes.contains(axis) && edge[axis] > scroll[axis] + containerSize[axis]){
+				to[axis] = edge[axis] - containerSize[axis];
 			}
 			if (to[axis] == null) to[axis] = scroll[axis];
 			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
-		}, this);
-
-		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
-		return this;
+		});
+		return (to.x != scroll.x || to.y != scroll.y) ? this.start(to.x, to.y) : this;
 	},
 
 	toElementCenter: function(el, axes, offset){
@@ -13555,7 +13551,7 @@ Fx.AutoScroll = new Class({
             this.lastUpdate = Date.now();
 
             if(this.options.duration == 0)
-                $ele.scrollTop = $ele.scrollHeight;
+                this.set($ele.scrollLeft, $ele.scrollHeight); //place at bottom instantly
             else
                 this.toBottom();
             if(target)
@@ -13563,348 +13559,6 @@ Fx.AutoScroll = new Class({
         }
         return this;
     }
-});
-
-/*
----
-description: CwComplete
-
-authors:
-  - Mario Fischer (http://www.chipwreck.de/blog/)
-
-license:
-  - MIT-style license
-
-requires:
-  core/1.3: '*'
-  more/1.3: 'Element.Shortcuts'
-  more/1.3: Event.Delegation
-
-provides:
-  - CwComplete
-
-...
-*/
-var CwAutocompleter = new Class({
-
-	Implements: [Options, Events],
-	Binds: ['keypressed', 'selectItem', 'hover'],
-
-	options: {
-		// ajaxMethod: 'get',
-		// use get or post for the request?
-		// ajaxParam: 'search',
-		// number of characters at which the auto completion starts
-		// pause: 0,
-		// data url
-		// url: '',
-		// number of ms before autocomplete starts (set to 0 for immediately)
-		maxItems: 5,
-		// name of parameter for the request (..url.php?search=..)
-		inputMinLength: 2,
-
-		targetfieldForKey: '',
-		// if set, the user selected key will be written to this field as value (usually a hidden field)
-		targetfieldForValue: '',
-		// if set, the user selected item will be written to this field as value (usually a text field)
-		suggestionBoxOuterClass: 'cwCompleteOuter',
-		// rename css classes here if necessary
-		suggestionBoxListClass: 'cwCompleteChoices',
-		// rename css classes here if necessary
-		suggestionBoxLoadingClass: 'cwCompleteLoading',
-		// rename css classes here if necessary
-		suggestionBoxHoverClass: 'cwCompleteChoicesHover',
-		//position relative (top/bottom)
-		relativePosition: 'bottom',
-
-
-		// rename css classes here if necessary
-		clearChoicesOnBlur: true,
-		// whether to clear choices when the container loses focus
-		clearChoicesOnEsc: true,
-		// whether to clear choices when the container loses focus
-		clearChoicesOnChoose: true,
-		// whether to clear choices when a value is chosen
-		setValuesOnChoose: true,
-		// whether to set values when a choice is selected
-		suggestionContainer: {},
-		// an existing element to contain the suggestions
-		choiceContainer: 'ul',
-		// the element used to encapsulate all choices
-		choiceElement: 'li',
-		// the element used to encapsulate the actual choice text
-		/*      doRetrieveValues: function(input) { return [['1','example'], ['2','something else']]; }, // optional method to provide the values, the url is ignored then */
-		onChoose: $empty // function to execute if the user chose an item
-	},
-
-	lielems: [],
-
-	// initialization : css class of the input field, url for ajax query, options
-	initialize: function(inputfield, options) {
-		// prepare options
-		this.setOptions(options);
-		inputfield = $(inputfield);
-		if (!inputfield) {
-			return;
-		}
-
-		this.textfield = inputfield;
-		this.prevlength = 0;
-		// this.url = this.options.url;
-		this.clickeddoc = false;
-		this.edge = this.options.top == 'top' ? 'bottom' : 'top';
-
-		if (this.options.suggestionContainer && $(this.options.suggestionContainer)) {
-			this.container = $(this.options.suggestionContainer);
-			this.container.addClass(this.options.suggestionBoxOuterClass);
-		} else {
-			this.container = new Element('div', {
-				'class': this.options.suggestionBoxOuterClass,
-				'styles': {
-					'width': inputfield.getWidth() + 'px'
-				}
-			})
-			.inject(document.body);
-			this.updatePos();
-		}
-
-		this.choices = new Element(this.options.choiceContainer, {
-			'class': this.options.suggestionBoxListClass
-		}).inject(this.container, 'inside');
-
-
-		this.choices.addEvent('click:relay(' + this.options.choiceElement + ')', this.selectItem)
-					.addEvent('mouseenter:relay(' + this.options.choiceElement + ')', this.hover); //change selection class on hover
-
-		if (Browser.ie) {
-			this.choices.addEvent('mousedown:relay(' + this.options.choiceElement + ')', this.selectItem);
-		} else {
-			this.choices.addEvent('mousedown', Event.preventDefault);
-		}
-
-		this.clearChoices();
-
-		// attach events
-		inputfield.setProperty('autocomplete', 'off')
-				.addEvents({
-					'keydown': this.keypressed,
-					'keyup': this.keypressed
-				});
-		if (this.options.clearChoicesOnBlur) {
-			if (!Browser.ie) {
-				document.addEvent('click', this.docclick.bind(this));
-				this.textfield.addEvents({
-					'blur': this.blurLater.bind(this)
-				});
-			} else {
-				this.textfield.addEvents({
-					'blur': this.clearChoices.bind(this)
-				});
-			}
-		}
-
-		// prepare ajax
-		// if (this.url) {
-		// 	this.ajax = new Request({
-		// 		url: this.url,
-		// 		method: this.options.ajaxMethod
-		// 	});
-		// 	this.ajax.addEvent('onComplete', this.ajaxComplete.bind(this));
-		// }
-	},
-
-	updatePos: function() {
-		this.container.position({
-			relativeTo: this.textfield,
-			position: {y: this.options.relativePosition, x: 'left'},
-			edge: {y: this.edge, x:'left'}
-		});
-	},
-
-	// Retrieve values given the textfield input and show "loading..."
-	getValues: function(input) {
-		var t_input = input;
-
-		if (this.options.doRetrieveValues != null) {
-			this.setValues(this.options.doRetrieveValues.call(this, input));
-		}// else if (this.ajax) {
-
-		// 	if (this.options.pause === 0) {
-		// 		this.choices.hide();
-		// 		this.container.addClass(this.options.suggestionBoxLoadingClass).show();
-		// 		this.ajax.send(this.options.ajaxParam + "=" + t_input);
-		// 	} else {
-		// 		// dont spam the lookup script wait to see if typing has stopped
-		// 		clearTimeout(this.waiter);
-		// 		this.waiter = (function() {
-		// 			if (t_input === this.textfield.get('value')) {
-		// 				this.choices.hide();
-		// 				this.container.addClass(this.options.suggestionBoxLoadingClass).show();
-		// 				this.ajax.send(this.options.ajaxParam + "=" + t_input);
-		// 			} else {
-		// 				this.ajax.cancel();
-		// 			}
-		// 		}).delay(this.options.pause, this);
-		// 	}
-		// }
-	},
-
-	// Ajax oncomplete, eval response and fill dropdown, remove "loading"-classes
-	// ajaxComplete: function(input) {
-	// 	if (!input) {
-	// 		return;
-	// 	}
-	// 	var myvalue = JSON.decode(input, true);
-
-	// 	if (myvalue === false || !myvalue.length) {
-	// 		this.clearChoices();
-	// 	} else {
-	// 		this.setValues(myvalue);
-	// 	}
-	// },
-
-	setValues: function(values) {
-		var oldlen = this.lielems.length;
-		this.values = values;
-		this.clearChoices();
-
-		Math.min(this.options.maxItems, values.length).times(function(i) {
-			var val = values[i];
-			if (val) {
-				this.lielems[i] = new Element(this.options.choiceElement, {
-					'html': val[1],
-					'value': val[0]
-				});
-				this.lielems[i].inject(this.choices, 'inside');
-			}
-		}, this)
-
-		this.container.show();
-		this.container.removeClass(this.options.suggestionBoxLoadingClass);
-		this.choices.show();
-		this.lielems[this.selected].addClass(this.options.suggestionBoxHoverClass);
-
-		if(oldlen !== this.lielems.length && this.options.relativePosition == 'top') {
-			this.updatePos();
-		}
-	},
-
-	// Clear list of choices
-	clearChoices: function(obj) {
-		this.lielems.empty();
-		this.selected = 0;
-		this.choices.empty();
-		this.container.hide();
-	},
-
-	selectItem: function(e, target) {
-		e.stop();
-		this.enterValue({
-			id: target.value,
-			value: target.get('html')
-		})
-	},
-
-	// Enter value from selection into text-field and fire onChoose-event
-	enterValue: function(selected) {
-		if (this.options.setValuesOnChoose) {
-			if (this.options.targetfieldForKey && $(this.options.targetfieldForKey)) {
-				$(this.options.targetfieldForKey).value = selected['id'];
-			}
-			if (this.options.targetfieldForValue && $(this.options.targetfieldForValue)) {
-				$(this.options.targetfieldForValue).value = selected['value'];
-			} else {
-				this.textfield.value = selected['value'];
-			}
-		}
-
-		this.fireEvent('onChoose', {
-			'key': selected['id'],
-			'value': selected['value']
-		});
-
-		if (this.options.clearChoicesOnChoose) {
-			this.clearChoices();
-		}
-	},
-
-	moveSelection: function(dir) {
-			this.lielems[this.selected].removeClass(this.options.suggestionBoxHoverClass);
-		if (this.lielems[this.selected + dir]) {
-			this.selected += dir;
-			this.lielems[this.selected].addClass(this.options.suggestionBoxHoverClass);
-		}
-	},
-
-	// Text field key handler
-	keypressed: function(event) {
-		if (event.target.id === this.textfield.id) {
-			if (event.type == 'keyup') {
-				switch (event.key) {
-				case 'enter':
-					if (this.lielems[this.selected]) {
-						this.lielems[this.selected].fireEvent('click');
-					}
-					event.preventDefault();
-					break;
-				case 'down':
-					this.moveSelection(+1);
-					event.preventDefault();
-					break;
-				case 'up':
-					this.moveSelection(-1);
-					event.preventDefault();
-					break;
-				case 'esc':
-					if (this.options.clearChoicesOnEsc) {
-						this.clearChoices();
-					}
-					break;
-				default:
-					var text = event.target.value;
-					if (text.length != this.prevlength) { // text length has changed
-						event.preventDefault();
-						if (text.length >= this.options.inputMinLength) { // ..and is long enough
-							this.prevlength = text.length;
-							this.getValues(text);
-						} else {
-							this.clearChoices();
-						}
-					}
-				}
-			} else if (event.key == 'enter' || event.key == 'esc') { // keydown disabled for those
-				event.preventDefault();
-			} else {
-				this.prevlength = event.target.value.length; // any other keydown
-			}
-		}
-	},
-
-	hover: function(event, target) {
-		this.lielems[this.selected].removeClass(this.options.suggestionBoxHoverClass);
-
-		this.selected = this.lielems.indexOf(target);
-		target.addClass(this.options.suggestionBoxHoverClass);
-	},
-
-	// IE6/7 workaround...
-	docclick: function(event) {
-		if (this.textfield.id !== event.target.id) {
-			this.clickeddoc = true;
-		}
-	},
-
-	// IE6/7 workaround...
-	blurLater: function(event) {
-		(function() {
-			if (this.clickeddoc) {
-				this.clickeddoc = false;
-				this.clearChoices(event);
-			} else {
-				this.textfield.focus();
-			}
-		}).delay(200, this);
-	}
 });
 
 //functional js adapted library. read the comments in the osteels library for better comments on functions and examples
@@ -14535,6 +14189,11 @@ Array.implement({
     // rest: function(n) {
     //     return this.slice(n || 1 /*, this.length*/ );
     // }
+})
+.extend({
+    isArray: function(xs) {
+        return $type(xs) == "array";
+    }
 });
 
 String.implement({
@@ -15034,14 +14693,9 @@ Drag.SplitPane = new Class({
             return x === y;
         }.autoCurry(),
 
-        //+ isArray :: a -> Boolean
-        isArray = ret.isArray = function(obj) {
-            return (obj && obj.constructor == Array);
-        },
-
         //+ isObj :: a -> Boolean
         isObj = ret.isObj = function(obj) {
-            return (typeof obj == "object" && !isArray(obj));
+            return (typeof obj == "object" && !Array.isArray(obj));
         },
 
         //+ isNumber :: a -> Boolean
@@ -15423,98 +15077,17 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     /* xf8-xff */ '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'];
 
 
-ui.themes.ThemeControlCodeMap = {
-    "C": "\x03",
-    "B": "\x02",
-    "U": "\x1F",
-    "O": "\x0F",
-    "{": "\x00",
-    "}": "\x00",
-    "[": "qwebirc://whois/",
-    "]": "/",
-    "$": "$"
-};
-
-ui.themes.Default = {
-    "PREFIX": ["$C4==$O "],
-    "SIGNON": ["Signed on!", true],
-    "CONNECT": ["Connected to server.", true],
-    "RAW": ["$m", true],
-    "DISCONNECT": ["Disconnected from server: $m", true],
-    "ERROR": ["ERROR: $m", true],
-    "SERVERNOTICE": ["$m", true],
-    "JOIN": ["${$N$} [$h] has joined $c", true],
-    "OURJOIN": ["${$N$} [$h] has joined $c", true],
-    "PART": ["${$N$} [$h] has left $c [$m]", true],
-    "KICK": ["${$v$} was kicked from $c by ${$N$} [$m]", true],
-    "MODE": ["mode/$c [$m] by ${$N$}", true],
-    "QUIT": ["${$N$} [$h] has quit [$m]", true],
-    "NICK": ["${$n$} has changed nick to ${$[$w$]$}", true],
-    "TOPIC": ["${$N$} changed the topic of $c to: $m", true],
-    "UMODE": ["Usermode change: $m", true],
-    "INVITE": ["$N invites you to join $c", true],
-    "HILIGHT": ["$C4"],
-    "HILIGHTEND": ["$O"],
-    "CHANMSG": ["<${$@$($N$)$}> $m"],
-    "PRIVMSG": ["<$($N$)> $m"],
-    "CHANNOTICE": ["-${$($N$)$}:$c- $m"],
-    "PRIVNOTICE": ["-$($N$)- $m"],
-    "OURCHANMSG": ["<$@$N> $m"],
-    "OURPRIVMSG": ["<$N> $m"],
-    "OURTARGETEDMSG": ["*$[$t$]* $m"],
-    "OURTARGETEDNOTICE": ["[notice($[$t$])] $m"],
-    "OURCHANNOTICE": ["-$N:$t- $m"],
-    "OURPRIVNOTICE": ["-$N- $m"],
-    "OURCHANACTION": [" * $N $m"],
-    "OURPRIVACTION": [" * $N $m"],
-    "CHANACTION": [" * ${$($N$)$} $m"],
-    "PRIVACTION": [" * $($N$) $m"],
-    "CHANCTCP": ["$N [$h] requested CTCP $x from $c: $m"],
-    "PRIVCTCP": ["$N [$h] requested CTCP $x from $-: $m"],
-    "CTCPREPLY": ["CTCP $x reply from $N: $m"],
-    "OURCHANCTCP": ["[ctcp($t)] $x $m"],
-    "OURPRIVCTCP": ["[ctcp($t)] $x $m"],
-    "OURTARGETEDCTCP": ["[ctcp($t)] $x $m"],
-    "WHOISUSER": ["$B$N$B [$h]", true],
-    "WHOISREALNAME": [" realname : $m", true],
-    "WHOISCHANNELS": [" channels : $m", true],
-    "WHOISSERVER": [" server   : $x [$m]", true],
-    "WHOISACCOUNT": [" account  : qwebirc://qwhois/$m", true],
-    "WHOISIDLE": [" idle     : $x [connected: $m]", true],
-    "WHOISAWAY": [" away     : $m", true],
-    "WHOISOPER": ["          : $BIRC Operator$B", true],
-    "WHOISOPERNAME": [" operedas : $m", true],
-    "WHOISACTUALLY": [" realhost : $m [ip: $x]", true],
-    "WHOISGENERICTEXT": ["          : $m", true],
-    "WHOISEND": ["End of WHOIS", true],
-    "AWAY": ["$N is away: $m", true],
-    "GENERICERROR": ["$m: $t", true],
-    "GENERICMESSAGE": ["$m", true],
-    "WALLOPS": ["WALLOP $n: $t", true],
-    "CHANNELCREATIONTIME": ["Channel $c was created at: $m", true],
-    "CHANNELMODEIS": ["Channel modes on $c are: $m", true]
-};
-
-ui.UI_COMMANDS = [
-    ["Options", "options"],
-    ["Add webchat to your site", "embedded"],
-    ["Privacy policy", "privacy"],
-    ["Feedback", "feedback"],
-    ["Frequently asked questions", "faq"],
-    ["About qwebirc", "about"]
-];
-
-
 irc.Numerics = {
     "001": "RPL_WELCOME",
-    "433": "ERR_NICKNAMEINUSE",
     "004": "RPL_MYINFO",
     "005": "RPL_ISUPPORT",
     "353": "RPL_NAMREPLY",
     "366": "RPL_ENDOFNAMES",
+
     "331": "RPL_NOTOPIC",
     "332": "RPL_TOPIC",
     "333": "RPL_TOPICWHOTIME",
+
     "311": "RPL_WHOISUSER",
     "312": "RPL_WHOISSERVER",
     "313": "RPL_WHOISOPERATOR",
@@ -15527,14 +15100,22 @@ irc.Numerics = {
     "343": "RPL_WHOISOPERNAME",
     "320": "RPL_WHOISGENERICTEXT",
     "325": "RPL_WHOISWEBIRC",
+
     "301": "RPL_AWAY",
+    "305": "RPL_UNAWAY",
+    "306": "RPL_NOWAWAY",
+
+    "324": "RPL_CHANNELMODEIS",
+    "329": "RPL_CREATIONTIME",
+
+    "433": "ERR_NICKNAMEINUSE",
     "401": "ERR_NOSUCHNICK",
     "404": "ERR_CANNOTSENDTOCHAN",
     "482": "ERR_CHANOPPRIVSNEEDED",
-    "305": "RPL_UNAWAY",
-    "306": "RPL_NOWAWAY",
-    "324": "RPL_CHANNELMODEIS",
-    "329": "RPL_CREATIONTIME"
+
+    "321": "RPL_LISTSTART",
+    "322": "RPL_LISTITEM",
+    "323": "RPL_LISTEND"
 };
 
 
@@ -15602,6 +15183,7 @@ irc.Numerics = {
         partChan: message("Part", types.MESSAGE),
         logOut: message("Logged out", types.MESSAGE),
         quit: message("Page closed", types.MESSAGE),
+        disconnected: message("Client has been disconnected", types.INFO),
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),
@@ -15651,6 +15233,98 @@ irc.Numerics = {
     //     "Nov",
     //     "Dec"];
 
+
+ui.themes.ThemeControlCodeMap2 = {
+    "C": "\x03",
+    "B": "\x02",
+    "U": "\x1F",
+    "O": "\x0F",
+    "D": "\x00",
+    "[": "qwebirc://whois/",
+    "]": "/",
+    "$": "$"
+};
+
+//todo make this stuff more clear
+ui.themes.Default2 = {
+    "SIGNON": ["Signed on!", true],
+    "CONNECT": ["Connected to server.", true],
+
+    "RAW": ["{m}", true],
+    "DISCONNECT": ["Disconnected from server: {m}", true],
+    "ERROR": ["ERROR: {m}", true],
+    "SERVERNOTICE": ["{m}", true],
+
+    "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
+    "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
+    "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
+    "KICK": ["{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]", true],
+    "MODE": ["mode/{c} [{m}] by {D}{N}{D}", true],
+    "QUIT": ["{D}{N}{D} [{h}] has quit [{m}]", true],
+    "NICK": ["{D}{n}{D} has changed nick to {D}{[}{w}{]}{D}", true],
+    "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
+    "UMODE": ["Usermode change: {m}", true],
+    "INVITE": ["{N} invites you to join {c}", true],
+
+    "PREFIX": ["{C}4=={O} "],
+    "HILIGHT": ["{C}4"],
+    "HILIGHTEND": ["{O}"],
+
+    "CHANMSG": ["<{D}{@}{(}{N}{)}{D}> {m}"],
+    "PRIVMSG": ["<{(}{N}{)}> {m}"],
+    "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
+    "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
+
+    "OURCHANMSG": ["<{@}{N}> {m}"],
+    "OURPRIVMSG": ["<{N}> {m}"],
+    "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
+    "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
+    "OURCHANNOTICE": ["-{N}:{t}- {m}"],
+    "OURPRIVNOTICE": ["-{N}- {m}"],
+    "OURCHANACTION": [" * {N} {m}"],
+    "OURPRIVACTION": [" * {N} {m}"],
+
+    "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
+    "PRIVACTION": [" * {(}{N}{)} {m}"],
+    "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
+    "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
+    "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
+
+    "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
+    "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
+    "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
+
+    "WHOISUSER": ["{B}{N}{B} [{h}]", true],
+    "WHOISREALNAME": [" realname : {m}", true],
+    "WHOISCHANNELS": [" channels : {m}", true],
+    "WHOISSERVER": [" server   : {x} [{m}]", true],
+    "WHOISACCOUNT": [" account  : qwebirc://qwhois/{m}", true],
+    "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
+    "WHOISAWAY": [" away     : {m}", true],
+    "WHOISOPER": ["          : {B}IRC Operator{B}", true],
+    "WHOISOPERNAME": [" operedas : {m}", true],
+    "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
+    "WHOISGENERICTEXT": ["          : {m}", true],
+    "WHOISEND": ["End of WHOIS", true],
+
+    "AWAY": ["{N} is away: {m}", true],
+    "GENERICERROR": ["{m}: {t}", true],
+    "GENERICMESSAGE": ["{m}", true],
+    "WALLOPS": ["WALLOP {n}: {t}", true],
+    "CHANNELCREATIONTIME": ["Channel {c} was created at: {m}", true],
+    "CHANNELMODEIS": ["Channel modes on {c} are: {m}", true]
+};
+
+ui.UI_COMMANDS = [
+    ["Options", "options"],
+    ["Add webchat to your site", "embedded"],
+    ["Privacy policy", "privacy"],
+    ["Feedback", "feedback"],
+    ["Frequently asked questions", "faq"],
+    ["About qwebirc", "about"]
+];
+
+
 })();
 
 
@@ -15679,10 +15353,10 @@ var $identity = Functional.I,
     concatUnique = Functional.compose(prelude.uniq, prelude.concat),
 
     concatSep = function(sep, s1, s2) {
-        if(prelude.isArray(s1)) {
+        if(Array.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(prelude.isArray(s2)) {
+        if(Array.isArray(s2)) {
             s2 = s2.join(sep);
         }
         if(s1 !== "" && s2 !== "") {
@@ -15755,7 +15429,7 @@ var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(prelude.isArray(xs))
+        if(Array.isArray(xs))
             return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
@@ -16602,10 +16276,10 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs qwebirc://whois/hi-#tf2mix/
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
-                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
                 if(res) {
                     res = res[0].slice(10);//remove qwebirc://
@@ -16699,7 +16373,7 @@ ui.Interface = new Class({
         networkServices: [],
 
         initialNickname: "newb1234",
-        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tf2hlscrim","#tftv"],
+        initialChannels: ["#gamesurge","#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         channels: new Storer("channels"),
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
@@ -16720,16 +16394,15 @@ ui.Interface = new Class({
     initialize: function(element, uitheme, options) {
         this.setOptions(options);
         var self = this,
-            win = window,
             opts = self.options;
 
-        win.steamlink = 0;
-        win.lastkick = {
+        window.steamlink = 0;
+        window.lastkick = {
             channel: '',
             last: 1
         };
-        win.hasfocus = true;
-        win.addEvent('focus', function() {
+        window.hasfocus = true;
+        window.addEvent('focus', function() {
                 this.hasfocus = true;
             })
             .addEvent('blur', function() {
@@ -16769,7 +16442,7 @@ ui.Interface = new Class({
             }
         ],
 
-        win.addEvent("domready", function() {
+        window.addEvent("domready", function() {
             var inick = opts.initialNickname,
                 ichans = opts.channels.get() || opts.initialChannels,
                 autoConnect = false;
@@ -16792,20 +16465,25 @@ ui.Interface = new Class({
 
                 var client = self.IRCClient = new irc.IRCClient(loginopts, self.ui_);
                 client.connect();
-                win.onbeforeunload = qwebirc_ui_onbeforeunload;
-                win.addEvent("unload", function() {
-                    client.quit(lang.quit.message);
-                });
+
+
+                window.onbeforeunload =  function(e) {
+                    if (!client.disconnected) {
+                        var message = "This action will close all active IRC connections.";
+                        if ((e = e || window.event)) {
+                            e.returnValue = message;
+                        }
+                        return message;
+                    }
+                };
+                window.onunload = client.quit;
+
+
                 if(!auth.enabled) {
                     self.ui_.beep();
                 }
 
-
-                var listener = function() {
-                    self.ui_.beep();
-                    client.removeEvent("auth", listener);
-                };
-                client.addEvent("auth", listener);
+                client.addEvent("auth:once", self.ui_.beep);
 
                 self.fireEvent("login", {
                     'IRCClient': client,
@@ -17061,10 +16739,17 @@ irc.BaseIRCClient = new Class({
         });
 
         self.send = conn.send;
-        self.connect = conn.connect;
-        self.disconnect = conn.disconnect;
 
         self.setupGenericErrors();
+    },
+
+    connect: function() {
+        return this.connection.connect();
+    },
+
+    disconnect: function() {
+        this.disconnected = true;
+        return this.connection.disconnect();
     },
 
     dispatch: function(data) {
@@ -17086,9 +16771,7 @@ irc.BaseIRCClient = new Class({
                     prefix = data[2],
                     sl = data[3],
 
-                    cmdName = "irc_".concat(irc.Numerics[command] || command),
-
-                    fn = this[cmdName];
+                    fn = this["irc_" + (irc.Numerics[command] || command)];
 
                 // //this block doesnt do anything?...
                 // var cmd = irc.Numerics[command];
@@ -17658,7 +17341,28 @@ irc.BaseIRCClient = new Class({
 
         this.channelModeIs(channel, modes);
         return true;
+    },
+
+
+    irc_RPL_LISTSTART: function() {
+        this.listedChans = [];
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LISTITEM: function(bot, args) {
+        this.listedChans.push({
+            channel: args[1],
+            users: args[2],
+            topic: args[3]
+        });
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LISTEND: function() {
+        this.fireEvent("listend", this.listedChans);
+        return !this.hidelistout;
     }
+
 });
 
 
@@ -17675,7 +17379,7 @@ irc.BaseCommandParser = new Class({
             extra = {};
         }
 
-        extra["n"] = this.parentObject.getNickname();
+        extra["n"] = this.parentObject.nickname;
         extra["m"] = message;
         extra["t"] = target;
         return extra;
@@ -17689,15 +17393,13 @@ irc.BaseCommandParser = new Class({
             type = "TARGETED" + type;
             target = false;
             this.parentObject.newActiveLine("OUR" + type, extra);
-            return;
         } else if (win.type == ui.WINDOW_CHANNEL) {
             this.parentObject.newChanLine(target, "OURCHAN" + type, null, extra);
-            return;
         } else {
             type = "PRIV" + type;
+            this.parentObject.newLine(target, "OUR" + type, extra);
         }
 
-        this.parentObject.newLine(target, "OUR" + type, extra);
     },
 
     newQueryLine: function(target, type, message, extra) {
@@ -17714,8 +17416,9 @@ irc.BaseCommandParser = new Class({
         return this.newTargetLine(target, type, message, extra);
     },
 
-    // TODO still uglymore work
-    dispatch: function(line) {
+    // routes all outputs with the server
+    // this method will call functions in: Commands based on the this scope
+    dispatch: function(line, chan) {
         var self = this,
             allargs = util.formatCommand(line),
             par = self.parentObject;
@@ -17742,7 +17445,8 @@ irc.BaseCommandParser = new Class({
             fn = cmdopts[3];
 
             //errors in command
-            if (activewin && (win = self.getActiveWindow()) && !isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
+            win = chan ? par.windows[chan] : self.getActiveWindow();
+            if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
                 par.writeMessages(lang.invalidCommand);
                 break;
             }
@@ -17754,7 +17458,7 @@ irc.BaseCommandParser = new Class({
                 args = args.splitMax(" ", splitargs);
             }
 
-            allargs = fn.call(self, args);
+            allargs = fn.call(self, args, chan);
             // allargs = fn.run($A(args), this);
         }
     },
@@ -17799,7 +17503,7 @@ irc.BaseCommandParser = new Class({
                     }
                 });
                 d.appendChild(img);
-                window.scrollAdd(d);
+                // window.scrollAdd(d); - not a fn
             }
         });
         r.get();
@@ -17810,7 +17514,7 @@ irc.BaseCommandParser = new Class({
 
 //can probably out source a lot of these to constants and helpers
 //placing arrays on the prototype looks really fucking weird
-// maybe just make this a single object?
+// maybe just make this a single dictionary?
 irc.Commands = new Class({
     Extends: irc.BaseCommandParser,
     initialize: function(parentObject) {
@@ -17828,12 +17532,12 @@ irc.Commands = new Class({
     },
 
     /* [require_active_window, splitintoXargs, minargs, function] */
-    cmd_ME: [true, undefined, undefined, function(args) {
+    cmd_ME: [true, undefined, undefined, function(args, target) {
         if (!args) {
             args = "";
         }
 
-        var target = this.getActiveWindow().currentChannel;
+        target = target || this.getActiveWindow().currentChannel;
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
@@ -17864,15 +17568,9 @@ irc.Commands = new Class({
     cmd_PRIVMSG: [false, 2, 2, function(args) {
         var target = args[0];
         var message = args[1];
-        var channelElement = $('channel-name-id');
         var parentObj = this.parentObject;
 
-        if (irc.activeChannel !== target && target === BROUHAHA) {
-            target = channelElement.innerHTML;
-        }
-
         parentObj.broadcast(parentObj.nickname, BROUHAHA, message, target, "CHANMSG");
-        channelElement.innerHTML = target;
 
         if (!util.isChannel(target)) {
             parentObj.pushLastNick(target);
@@ -17889,13 +17587,8 @@ irc.Commands = new Class({
     cmd_NOTICE: [false, 2, 2, function(args) {
         var target = args[0];
         var message = args[1];
-        var channelElement = $('channel-name-id');
 
-        if (irc.activeChannel !== target && target === BROUHAHA) { //?????
-            target = channelElement.innerHTML;
-        }
         this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
-        channelElement.innerHTML = target;
 
         if (this.send("NOTICE " + target + " :" + message)) {
             if (util.isChannel(target)) {
@@ -17920,8 +17613,8 @@ irc.Commands = new Class({
         }
     }],
 
-    cmd_SAY: [true, undefined, undefined, function(msg) {
-        return ["PRIVMSG", this.getActiveWindow().currentChannel + " " + (msg || "")];
+    cmd_SAY: [true, undefined, undefined, function(msg, target) {
+        return ["PRIVMSG", (target || this.getActiveWindow().currentChannel) + " " + (msg || "")];
     }],
 
     cmd_LOGOUT: [false, undefined, undefined, function(args) {
@@ -17948,8 +17641,8 @@ irc.Commands = new Class({
         this.send(args[0]);
     }],
 
-    cmd_KICK: [true, 2, 1, function(args) {
-        var channel = this.getActiveWindow().currentChannel;
+    cmd_KICK: [true, 2, 1, function(args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
         var target = args[0];
         var message = args.length >= 2 ? args[1] : "";
@@ -17957,8 +17650,8 @@ irc.Commands = new Class({
         this.send("KICK " + channel + " " + target + " :" + message);
     }],
 
-    automode: function(direction, mode, args) {
-        var channel = this.getActiveWindow().currentChannel;
+    automode: function(direction, mode, args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
         var modes = direction;
 
@@ -17981,8 +17674,8 @@ irc.Commands = new Class({
     cmd_DEVOICE: [true, 6, 1, function(args) {
         this.automode("-", "v", args);
     }],
-    cmd_TOPIC: [true, 1, 1, function(args) {
-        this.send("TOPIC " + this.getActiveWindow().currentChannel + " :" + args[0]);
+    cmd_TOPIC: [true, 1, 1, function(args, channel) {
+        this.send("TOPIC " + (channel || this.getActiveWindow().currentChannel) + " :" + args[0]);
     }],
     cmd_AWAY: [false, 1, 0, function(args) {
         this.send("AWAY :" + (args ? args[0] : ""));
@@ -17990,11 +17683,11 @@ irc.Commands = new Class({
     cmd_QUIT: [false, 1, 0, function(args) {
         this.send("QUIT :" + (args ? args[0] : ""));
     }],
-    cmd_CYCLE: [true, 1, 0, function(args) {
-        var c = this.getActiveWindow().currentChannel;
+    cmd_CYCLE: [true, 1, 0, function(args, channel) {
+        channel = channel || this.getActiveWindow().currentChannel;
 
-        this.send("PART " + c + " :" + (args ? args[0] : "rejoining. . ."));
-        this.send("JOIN " + c);
+        this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
+        this.send("JOIN " + channel);
     }],
     cmd_FJOIN: [false, 2, 1, function(args) {
         if(args.length === 0)
@@ -18029,7 +17722,7 @@ irc.Commands = new Class({
     //         this.send("JOIN " + formatted + " " + args.join(" "));
     // }],
     cmd_UMODE: [false, 1, 0, function(args) {
-        this.send("MODE " + this.parentObject.getNickname() + (args ? (" " + args[0]) : ""));
+        this.send("MODE " + this.parentObject.nickname + (args ? (" " + args[0]) : ""));
     }],
     cmd_BEEP: [false, undefined, undefined, function(args) {
         this.parentObject.ui.beep();
@@ -18040,54 +17733,20 @@ irc.Commands = new Class({
             return ["JOIN", this.parentObject.options.autojoin.join(",")];
         }
     }],
-    cmd_CLEAR: [false, undefined, undefined, function(args) {
-        var win = this.getActiveWindow().lines;
+    cmd_CLEAR: [false, undefined, undefined, function(args, channel) {
+        var win = channel ? this.parentObject.windows[channel] : this.getActiveWindow().lines;
         // while (win.childNodes.length > 0){
         //     win.removeChild(win.firstChild);
         // }
         win.empty();
     }],
     cmd_PART: [false, 2, 0, function(args) {
-        var self = this;
-        var win = self.getActiveWindow();
-        var message = "";
-        var channel;
-
-        var msg,chan;
         args = $A(args);
-        //think this works
-        chan = args[0] || win.name;
-        msg = args[1] || lang.partChan.message;
 
-        // if (/*win.type != ui.WINDOW_CHANNEL */isChannelType(win.type)) {
-        //     if (!args || args.length === 0) {
-        //         self.parentObject.writeMessages(lang.message.insufficentArgs);
-        //         return;
-        //     }
-        //     channel = args[0];
-        //     if (args.length > 1) 
-        //         message = args[1];
-        // } else {
-        //     if (!args || args.length === 0) {
-        //         channel = win.name;
-        //     } else {
-        //         var isChan = util.isChannel(args[0]);
-        //         if (isChan) {
-        //             channel = args[0];
+        var msg = args[1] || lang.partChan.message,
+            channel = args[0] || this.getActiveWindow().currentChannel;
 
-        //             if (args.length > 1)
-        //                 message = args[1];
-        //         } else {
-        //             channel = win.name;
-        //             message = args.join(" ");
-        //         }
-        //     }
-        // }
-        // console.assert(channel === chan);
-        // console.assert(message === msg);
-
-        // this.send("PART " + channel + " :" + message);
-        this.send("PART " + chan + " :" + msg);
+        this.send("PART " + channel + " :" + msg);
     }]
 });
 
@@ -18155,7 +17814,7 @@ irc.CommandHistory = new Class({
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Extends: irc.BaseIRCClient,
-    Binds: ["writeMessages", "newTargetOrActiveLine"],
+    Binds: ["quit", "writeMessages", "newTargetOrActiveLine"],
     options: {
         nickname: "qwebirc",
         autojoin: "",
@@ -18349,7 +18008,7 @@ irc.IRCClient = new Class({
             win = client.getActiveWindow(),
             types = lang.TYPES;
 
-        $each(messages, function(message) {
+        function write(message) {
             var msg = args ? util.formatter(message.message, args) :
                             message.message; //replaces values like {replaceme} if args has a key like that
 
@@ -18362,40 +18021,13 @@ irc.IRCClient = new Class({
             case types.INFO:
                 return win.infoMessage(msg);
             }
-        });
+        }
+
+        if(Array.isArray(messages))
+            messages.each(write);
+        else
+            write(messages);
     },
-
-    // addPrefix: function(nickchanentry, prefix) {
-        // var ncp = nickchanentry.prefixes + prefix;
-        // var prefixes = [];
-        // /* O(n^2) */
-        // for (var i = 0; i < this.prefixes.length; i++) {
-        //     var pc = this.prefixes.charAt(i);
-        //     var index = ncp.indexOf(pc);
-        //     if (index != -1) {
-        //         prefixes.push(pc);
-        //     }
-        // }
-        // nickchanentry.prefixes = prefixes.join("");
-    //     nickchanentry.prefixes = util.validPrefix(this.prefixes, prefix) ? util.addPrefix(nickchanentry.prefixes, prefix) : "";
-    // },
-
-    //moved to util
-    // stripPrefix: function(nick) {
-    //     var l = nick.charAt(0);
-    //     if (!l) {
-    //         return nick;
-    //     }
-
-    //     if (this.prefixes.indexOf(l) != -1) {
-    //         return nick.substring(1);
-    //     }    
-    //     return nick;
-    // },
-
-    // removePrefix: function(nickchanentry, prefix) {
-    //     nickchanentry.prefixes = nickchanentry.prefixes.replaceAll(prefix, "");
-    // },
 
     /* from here down are events */
     rawNumeric: function(numeric, prefix, params) {
@@ -19100,7 +18732,7 @@ irc.IRCClient = new Class({
     },
 
     quit: function(message) {
-        this.send("QUIT :" + message, true);
+        this.send("QUIT :" + (message || lang.quit.message), true);
         this.disconnect();
     },
 
@@ -19108,10 +18740,9 @@ irc.IRCClient = new Class({
         // for (var k in this.activeTimers) {
         //     this.activeTimers[k].cancel();
         // }
-        Object.each(this.activeTimers, function(timer) {
-            timer.cancel();
-        });
+        Object.each(this.activeTimers, $clear);
         this.activeTimers = {};
+        this.writeMessages(lang.disconnected);
 
         this.parent();
     },
@@ -19129,12 +18760,10 @@ irc.IRCClient = new Class({
         };
         var mtype = type.toUpperCase();
 
-        var xsend = this.newTargetOrActiveLine.curry(nick, "WHOIS" + mtype, ndata);
-
         switch(type.toLowerCase()) {
             case "user":
                 ndata.h = data.ident + "@" + data.hostname;
-                xsend();
+                this.newTargetOrActiveLine(nick, "WHOISUSER", ndata); //whois user
                 mtype = "REALNAME";
                 ndata.m = data.realname;
             break;
@@ -19163,13 +18792,11 @@ irc.IRCClient = new Class({
             case "generictext":
                 ndata.m = data.text;
             break;
-            // case "end": 
-            // break;
             default:
                 return false;
         }
 
-        xsend();
+        this.newTargetOrActiveLine(nick, "WHOIS" + mtype, ndata);;
         return true;
     },
 
@@ -19228,16 +18855,22 @@ irc.IRCClient = new Class({
         });
     },
 
-    getPopularChannels: function() {
-        this.exec('/list >75'); //request chans with more than 75 users
-        return [{channel:'ToDo', users: 300}, {channel:'show pop channels', users: 186}];
+    getPopularChannels: function(cb, minUsers) {
+        this.hidelistout = true;
+        this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
+        this.addEvent("listend:once", function() {
+            var chans = this.listedChans.clone().sort(function(a,b){return b.users-a.users});//max -> min sort
+            cb(chans);
+            this.hidelistout = false;
+        })
     }
 });
+
 /* This could do with a rewrite from scratch. */
 
 irc.IRCConnection = new Class({
     Implements: [Events, Options],
-    Binds: ["send", "disconnect", "connect", "__completeRequest"],
+    Binds: ["send","__completeRequest"],
     options: {
         initialNickname: "ircconnX",
         minTimeout: 45000,
@@ -19247,7 +18880,6 @@ irc.IRCConnection = new Class({
         floodInterval: 200,
         floodMax: 10,
         floodReset: 5000,
-        gamesurge: '',
         errorAlert: true,
         maxRetries: 5,
         password: '',
@@ -19257,7 +18889,6 @@ irc.IRCConnection = new Class({
     initialize: function(options) {
         var self = this;
         self.setOptions(options);
-        self.initialNickname = self.options.initialNickname;
         self.counter = 0;
         self.disconnected = false;
         self.__floodLastRequest = 0;
@@ -19284,7 +18915,7 @@ irc.IRCConnection = new Class({
                 self.__error(lang.connectionFail);
                 return;
             }
-            if (!stream[0]) {
+            else if (!stream[0]) {
                 self.disconnect();
                 self.__error(lang.connError, stream);
                 return;
@@ -19293,7 +18924,7 @@ irc.IRCConnection = new Class({
             self.recv();
         });
 
-        var postdata = "nick=" + encodeURIComponent(self.initialNickname);
+        var postdata = "nick=" + encodeURIComponent(self.options.initialNickname);
         if ($defined(self.options.serverPassword)) {
             postdata += "&password=" + encodeURIComponent(self.options.serverPassword);
         }
@@ -19845,7 +19476,7 @@ sound.SoundPlayer = new Class({
     source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
     source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
-    source.menuitem = "<a><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
+    source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
@@ -20104,7 +19735,6 @@ ui.BaseUI = new Class({
         ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
     },
     focusChange: function(newValue) {
-        window.ctrl = 0;
         var win = this.getActiveWindow();
         if ($defined(win))
             win.focusChange(newValue);
@@ -20876,9 +20506,7 @@ ui.QUI = new Class({
 
 
         //append menu and tabbar
-        self.outerTabs.adopt(self.__createDropdownMenu(),
-                            tabs,
-                            tabbtns);
+        self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns);
 
         var origWin = qjsui.createWindow();
         self.origtopic = self.topic = origWin.topic;
@@ -20905,49 +20533,17 @@ ui.QUI = new Class({
         var self = this,
 
             dropdownMenu = Element.from(templates.menudrop());
-
-        //     hidemenu = dropdownMenu.hideMenu = function(e) {
-        //         if(e)
-        //             e.stop();
-        //         dropdownMenu.hide();
-        //         document.removeEvent("mousedown", hidemenu);
-        //     },
-        //     showMenu = dropdownMenu.showMenu = function(e) {
-        //         e.stop();
-        //         self.hideHint();
-
-        //         if (dropdownMenu.isDisplayed()) {
-        //            hidemenu();
-        //         } else {
-        //             dropdownMenu.show()
-        //             document.addEvent("mousedown", hidemenu);
-        //         }
-        //     };
-
-        // hidemenu();
-
-        // dropdownMenu.position.delay(500, dropdownMenu, {
-        //             relativeTo: self.outerTabs,
-        //             position: {x: 'left', y: 'bottom'},
-        //             edge: {x: 'left', y: 'top'}
-        //         }
-
         dropdownMenu.inject(self.parentElement);
 
         var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
         dropdown.setStyle("opacity", 1);
-                // .addEvent("mousedown", Event.stop)
-                // .addEvent("click", showMenu);
 
 
         self.UICommands.each(function(cmd) {
             var text = cmd[0];
             var fn = self[cmd[1] + "Window"].bind(self);
             var ele = Element.from(templates.menuitem({text:text}));
-            ele.addEvent("mousedown", function(e) {
-                    e.stop();
-                })
-                .addEvent("click", function() {
+            ele.addEvent("click", function(e) {
                     dropdownMenu.hideMenu();
                     fn();
                 });
@@ -20972,7 +20568,6 @@ ui.QUI = new Class({
                     .start(1)
                     .start(0.33)
                     .start(1);
-
 
         ui.decorateDropdown(dropdown,dropdownMenu, {
             onShow: function() {
@@ -21021,39 +20616,51 @@ ui.QUI = new Class({
 
         hider2.delay(4000);
 
-        var hider3 = function(e) {
-                if (e.code === 17) {
-                    window.ctrl = 0;
-                }
-            };
-
-        document.addEvent("mousedown", hider2)
-                .addEvent("keydown", hider2)
-                .addEvent("keyup", hider3);
+        document.addEvents({
+                "mousedown": hider2,
+                "keydown": hider2
+            });
     },
 
     //todo use other dropdown menu code
     __createChannelMenu: function() {
-        var client = this.getActiveIRCWindow().client,
-            chans = client.getPopularChannels().map(function(chan) {
-                return {
-                    text: chan.channel,
-                    hint: chan.users
-                };
-            }),
-            menu = Element.from(templates.chanmenu({
-                channels: chans
-            }));
+        var self = this,
+            client = self.getActiveIRCWindow().client;
 
-        menu.inject(this.parentElement);
+        client.getPopularChannels(function(chans) {
+            chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                        .map(function(chan) {
+                            return {
+                                text: chan.channel,
+                                value: chan.channel,
+                                hint: chan.users
+                            };
+                        });
+            var menu = Element.from(templates.chanmenu({
+                    channels: chans
+                })),
+                btn = self.outerTabs.getElement('.add-chan'),
+                btnmenu = btn.retrieve('menu');
 
-        ui.decorateDropdown(this.addTab, menu);
-        menu.show();
+            if(btnmenu) {
+                menu.replaces(btnmenu);
+            }
+            else {
+                var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
+                ui.decorateDropdown(btn, wrapper);
+                wrapper.addEvent("click:relay(a)", function(e, target) {
+                    var chan = target.get('data-value');
+                    client.exec("/JOIN " + chan);
+                });
+            }
+            btn.store('menu', menu);
+
+            menu.parentElement.showMenu();
+        });
     },
 
     newClient: function(client) {
-        this.parentElement.removeClass('signed-out')
-                            .addClass('signed-in');
+        this.parentElement.swapClass('signed-out','signed-in');
         return this.parent(client);
     },
 
@@ -21949,17 +21556,12 @@ util.percentToPixel= function(data, par) {
 
 
 ui.decorateDropdown = function(btn, ddm, options) {
-    ddm.hideMenu = function(e) {
-        if(e)
-            e.stop();
+    ddm.hideMenu = function() {
         if(options && options.onHide)
             options.onHide.call(this, ddm);
-        ddm.hide();
-        document.removeEvent("mousedown", ddm.hideMenu);
+        return ddm.hide();
     };
-    ddm.showMenu = function(e) {
-        if(e)
-            e.stop();
+    ddm.showMenu = function() {
         if(options && options.onShow)
             options.onShow.call(this, ddm);
 
@@ -21967,11 +21569,10 @@ ui.decorateDropdown = function(btn, ddm, options) {
            ddm.hideMenu();
         } else {
             ddm.show();
-            document.addEvent("mousedown", ddm.hideMenu);
+            document.addEvent("click:once", ddm.hideMenu);
         }
+        return ddm;
     };
-
-    ddm.hideMenu();
 
     ddm.position.delay(50, ddm, {
         relativeTo: btn,
@@ -21979,10 +21580,11 @@ ui.decorateDropdown = function(btn, ddm, options) {
         edge: {x: 'left', y: 'top'}
     });
 
-    btn.addEvents({
-        "mousedown": Event.stop,
-        "click": ddm.showMenu
-    });
+    btn.addEvent("click", function(e) {
+            e.stop();
+            ddm.showMenu();
+        });
+    return ddm.hideMenu();
 };
 
 //dirty function please help with css :(
@@ -22141,7 +21743,7 @@ ui.RequestTransformHTML = function(options) {
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            theme = self.__theme = Object.clone(ui.themes.Default);
+            theme = self.__theme = Object.clone(ui.themes.Default2);
 
         if (themeDict) {
             // for (var k in themeDict) {
@@ -22160,7 +21762,7 @@ ui.Theme = new Class({
             }
         });
 
-        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap);
+        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
 
         self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
@@ -22170,28 +21772,30 @@ ui.Theme = new Class({
 
     //fuck that this is awful - use String.substitute with a regex
     __dollarSubstitute: function(x, h, mapper) {
-        if (x == '-${$($N$)$}:$c- $m' && h['c'] == BROUHAHA)
-            x = '-${$($N$)$}- $m';
-        var msg = [];
+        // if (x == '-${$($N$)$}:$c- $m' && h['c'] == BROUHAHA)
+        //     x = '-${$($N$)$}- $m';
+        // var msg = [];
 
-        var n = x.split("");
-        //loop of the devil
-        for (var i = 0; i < n.length; i++) {
-            var c = n[i];
-            if (c == "$" && (i <= n.length - 1)) {
-                var c2 = n[++i];
+        // var n = x.split("");
+        // //loop of the devil
+        // for (var i = 0; i < n.length; i++) {
+        //     var c = n[i];
+        //     if (c == "$" && (i <= n.length - 1)) {
+        //         var c2 = n[++i];
 
-                var o = mapper[c2];
-                if (!o)
-                    o = h[c2];
-                if (o)
-                    msg.push(o);
-            } else {
-                msg.push(c);
-            }
-        }
+        //         var o = mapper[c2];
+        //         if (!o)
+        //             o = h[c2];
+        //         if (o)
+        //             msg.push(o);
+        //     } else {
+        //         msg.push(c);
+        //     }
+        // }
 
-        return msg.join("");
+        // return msg.join("");
+
+        return x.substitute(Object.append(h||{}, mapper||{}))
     },
     message: function(type, data, hilight) {
         var map;
@@ -22987,7 +22591,7 @@ ui.Window = new Class({
     initialize: function(parentObject, client, type, name, identifier) {
         this.parentObject = parentObject;
         this.type = type;
-        this.name = name;
+        this.currentChannel = this.name = name;
         this.active = false;
         this.client = client;
         this.identifier = identifier;
@@ -23199,7 +22803,7 @@ ui.Window = new Class({
     nickListRemove: function(nick, stored) {},
     historyExec: function(line) {
         this.commandhistory.addLine(line);
-        this.client.exec(line);
+        this.client.exec(line, this.currentChannel);
     },
     focusChange: function(newValue) {
         if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))
@@ -23237,8 +22841,6 @@ ui.QUI.Window = new Class({
 
         var qwindow = self.window;
         qwindow.detached = self.detached = false;
-
-        self.currentChannel = self.name;
 
         var $tab = self.tab = Element.from(templates.ircTab({
                 'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
@@ -23437,8 +23039,9 @@ ui.QUI.Window = new Class({
                 "height": size.y
             })
             .wraps(win) //*** adds wrapper to dom
-            .appendChild(resizeWrapper);
-        win.show();
+            .adopt(resizeWrapper);
+        win.show()
+            .addEvent("mousedown", Event.stopPropagation);//prevent draggin occurring while clickin window
         setActive();
 
         self.resizable = wrapper.makeResizable({
@@ -23446,13 +23049,13 @@ ui.QUI.Window = new Class({
                                     x: [400, null],
                                     y: [200, null]
                                 },
-                                'handle': resizeHandle
+                                handle: resizeHandle,
+                                stopPropagation: true
                             });
         self.drag = wrapper.makeDraggable({
-                                            container: document,
-                                            handle: header,
-                                            includeMargins: false
-                                        });
+                                handle: wrapper,
+                                includeMargins: true
+                            });
 
         wrapper.addEvents({
             click: setActive
@@ -23613,7 +23216,7 @@ ui.QUI.Window = new Class({
                     resultfn = self.commandhistory.upLine;
                 } else if (e.key === "down") {
                     resultfn = self.commandhistory.downLine;
-                } else if (e.key === "tab" && window.ctrl != 1) {
+                } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
                     self.tabComplete($inputbox);
                     return;

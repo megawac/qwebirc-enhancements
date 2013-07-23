@@ -47,7 +47,7 @@ module.exports = function(grunt) {
                 // 'js/src/Templates.js',
                 'js/qwebirc.js'],
                 // the location of the resulting JS file
-                dest: 'js/hacks.js'
+                dest: 'js/qwebirc-0.93dev.js'
             }
         },
 
