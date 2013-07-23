@@ -1,7 +1,7 @@
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Extends: irc.BaseIRCClient,
-    Binds: ["writeMessages", "newTargetOrActiveLine"],
+    Binds: ["quit", "writeMessages", "newTargetOrActiveLine"],
     options: {
         nickname: "qwebirc",
         autojoin: "",
@@ -195,7 +195,7 @@ irc.IRCClient = new Class({
             win = client.getActiveWindow(),
             types = lang.TYPES;
 
-        $each(messages, function(message) {
+        function write(message) {
             var msg = args ? util.formatter(message.message, args) :
                             message.message; //replaces values like {replaceme} if args has a key like that
 
@@ -208,40 +208,13 @@ irc.IRCClient = new Class({
             case types.INFO:
                 return win.infoMessage(msg);
             }
-        });
+        }
+
+        if(Array.isArray(messages))
+            messages.each(write);
+        else
+            write(messages);
     },
-
-    // addPrefix: function(nickchanentry, prefix) {
-        // var ncp = nickchanentry.prefixes + prefix;
-        // var prefixes = [];
-        // /* O(n^2) */
-        // for (var i = 0; i < this.prefixes.length; i++) {
-        //     var pc = this.prefixes.charAt(i);
-        //     var index = ncp.indexOf(pc);
-        //     if (index != -1) {
-        //         prefixes.push(pc);
-        //     }
-        // }
-        // nickchanentry.prefixes = prefixes.join("");
-    //     nickchanentry.prefixes = util.validPrefix(this.prefixes, prefix) ? util.addPrefix(nickchanentry.prefixes, prefix) : "";
-    // },
-
-    //moved to util
-    // stripPrefix: function(nick) {
-    //     var l = nick.charAt(0);
-    //     if (!l) {
-    //         return nick;
-    //     }
-
-    //     if (this.prefixes.indexOf(l) != -1) {
-    //         return nick.substring(1);
-    //     }    
-    //     return nick;
-    // },
-
-    // removePrefix: function(nickchanentry, prefix) {
-    //     nickchanentry.prefixes = nickchanentry.prefixes.replaceAll(prefix, "");
-    // },
 
     /* from here down are events */
     rawNumeric: function(numeric, prefix, params) {
@@ -946,7 +919,7 @@ irc.IRCClient = new Class({
     },
 
     quit: function(message) {
-        this.send("QUIT :" + message, true);
+        this.send("QUIT :" + (message || lang.quit.message), true);
         this.disconnect();
     },
 
@@ -954,10 +927,9 @@ irc.IRCClient = new Class({
         // for (var k in this.activeTimers) {
         //     this.activeTimers[k].cancel();
         // }
-        Object.each(this.activeTimers, function(timer) {
-            timer.cancel();
-        });
+        Object.each(this.activeTimers, $clear);
         this.activeTimers = {};
+        this.writeMessages(lang.disconnected);
 
         this.parent();
     },
@@ -975,12 +947,10 @@ irc.IRCClient = new Class({
         };
         var mtype = type.toUpperCase();
 
-        var xsend = this.newTargetOrActiveLine.curry(nick, "WHOIS" + mtype, ndata);
-
         switch(type.toLowerCase()) {
             case "user":
                 ndata.h = data.ident + "@" + data.hostname;
-                xsend();
+                this.newTargetOrActiveLine(nick, "WHOISUSER", ndata); //whois user
                 mtype = "REALNAME";
                 ndata.m = data.realname;
             break;
@@ -1009,13 +979,11 @@ irc.IRCClient = new Class({
             case "generictext":
                 ndata.m = data.text;
             break;
-            // case "end": 
-            // break;
             default:
                 return false;
         }
 
-        xsend();
+        this.newTargetOrActiveLine(nick, "WHOIS" + mtype, ndata);;
         return true;
     },
 
@@ -1074,8 +1042,13 @@ irc.IRCClient = new Class({
         });
     },
 
-    getPopularChannels: function() {
-        this.exec('/list >75'); //request chans with more than 75 users
-        return [{channel:'ToDo', users: 300}, {channel:'show pop channels', users: 186}];
+    getPopularChannels: function(cb, minUsers) {
+        this.hidelistout = true;
+        this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
+        this.addEvent("listend:once", function() {
+            var chans = this.listedChans.clone().sort(function(a,b){return b.users-a.users});//max -> min sort
+            cb(chans);
+            this.hidelistout = false;
+        })
     }
 });

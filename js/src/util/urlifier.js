@@ -4,10 +4,10 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs qwebirc://whois/hi-#tf2mix/
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
-                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g)//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
                 if(res) {
                     res = res[0].slice(10);//remove qwebirc://

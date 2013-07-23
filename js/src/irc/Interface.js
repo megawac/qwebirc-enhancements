@@ -12,7 +12,7 @@ ui.Interface = new Class({
         networkServices: [],
 
         initialNickname: "newb1234",
-        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tf2hlscrim","#tftv"],
+        initialChannels: ["#gamesurge","#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         channels: new Storer("channels"),
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
@@ -33,16 +33,15 @@ ui.Interface = new Class({
     initialize: function(element, uitheme, options) {
         this.setOptions(options);
         var self = this,
-            win = window,
             opts = self.options;
 
-        win.steamlink = 0;
-        win.lastkick = {
+        window.steamlink = 0;
+        window.lastkick = {
             channel: '',
             last: 1
         };
-        win.hasfocus = true;
-        win.addEvent('focus', function() {
+        window.hasfocus = true;
+        window.addEvent('focus', function() {
                 this.hasfocus = true;
             })
             .addEvent('blur', function() {
@@ -82,7 +81,7 @@ ui.Interface = new Class({
             }
         ],
 
-        win.addEvent("domready", function() {
+        window.addEvent("domready", function() {
             var inick = opts.initialNickname,
                 ichans = opts.channels.get() || opts.initialChannels,
                 autoConnect = false;
@@ -105,20 +104,24 @@ ui.Interface = new Class({
 
                 var client = self.IRCClient = new irc.IRCClient(loginopts, self.ui_);
                 client.connect();
-                win.onbeforeunload = qwebirc_ui_onbeforeunload;
-                win.addEvent("unload", function() {
-                    client.quit(lang.quit.message);
-                });
+
+
+                window.onbeforeunload =  function(e) {
+                    if (!client.disconnected) {
+                        var message = "This action will close all active IRC connections.";
+                        if ((e = e || window.event)) {
+                            e.returnValue = message;
+                        }
+                        return message;
+                    }
+                };
+                window.addEvent('unload', client.quit);
+
                 if(!auth.enabled) {
                     self.ui_.beep();
                 }
 
-
-                var listener = function() {
-                    self.ui_.beep();
-                    client.removeEvent("auth", listener);
-                };
-                client.addEvent("auth", listener);
+                client.addEvent("auth:once", self.ui_.beep);
 
                 self.fireEvent("login", {
                     'IRCClient': client,

@@ -39,10 +39,17 @@ irc.BaseIRCClient = new Class({
         });
 
         self.send = conn.send;
-        self.connect = conn.connect;
-        self.disconnect = conn.disconnect;
 
         self.setupGenericErrors();
+    },
+
+    connect: function() {
+        return this.connection.connect();
+    },
+
+    disconnect: function() {
+        this.disconnected = true;
+        return this.connection.disconnect();
     },
 
     dispatch: function(data) {
@@ -64,9 +71,7 @@ irc.BaseIRCClient = new Class({
                     prefix = data[2],
                     sl = data[3],
 
-                    cmdName = "irc_".concat(irc.Numerics[command] || command),
-
-                    fn = this[cmdName];
+                    fn = this["irc_" + (irc.Numerics[command] || command)];
 
                 // //this block doesnt do anything?...
                 // var cmd = irc.Numerics[command];
@@ -636,6 +641,27 @@ irc.BaseIRCClient = new Class({
 
         this.channelModeIs(channel, modes);
         return true;
+    },
+
+
+    irc_RPL_LISTSTART: function() {
+        this.listedChans = [];
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LISTITEM: function(bot, args) {
+        this.listedChans.push({
+            channel: args[1],
+            users: args[2],
+            topic: args[3]
+        });
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LISTEND: function() {
+        this.fireEvent("listend", this.listedChans);
+        return !this.hidelistout;
     }
+
 });
 

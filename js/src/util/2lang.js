@@ -63,6 +63,7 @@
         partChan: message("Part", types.MESSAGE),
         logOut: message("Logged out", types.MESSAGE),
         quit: message("Page closed", types.MESSAGE),
+        disconnected: message("Client has been disconnected", types.INFO),
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),

@@ -2,7 +2,7 @@
 
 irc.IRCConnection = new Class({
     Implements: [Events, Options],
-    Binds: ["send", "disconnect", "connect", "__completeRequest"],
+    Binds: ["send","__completeRequest"],
     options: {
         initialNickname: "ircconnX",
         minTimeout: 45000,
@@ -12,7 +12,6 @@ irc.IRCConnection = new Class({
         floodInterval: 200,
         floodMax: 10,
         floodReset: 5000,
-        gamesurge: '',
         errorAlert: true,
         maxRetries: 5,
         password: '',
@@ -22,7 +21,6 @@ irc.IRCConnection = new Class({
     initialize: function(options) {
         var self = this;
         self.setOptions(options);
-        self.initialNickname = self.options.initialNickname;
         self.counter = 0;
         self.disconnected = false;
         self.__floodLastRequest = 0;
@@ -49,7 +47,7 @@ irc.IRCConnection = new Class({
                 self.__error(lang.connectionFail);
                 return;
             }
-            if (!stream[0]) {
+            else if (!stream[0]) {
                 self.disconnect();
                 self.__error(lang.connError, stream);
                 return;
@@ -58,7 +56,7 @@ irc.IRCConnection = new Class({
             self.recv();
         });
 
-        var postdata = "nick=" + encodeURIComponent(self.initialNickname);
+        var postdata = "nick=" + encodeURIComponent(self.options.initialNickname);
         if ($defined(self.options.serverPassword)) {
             postdata += "&password=" + encodeURIComponent(self.options.serverPassword);
         }
