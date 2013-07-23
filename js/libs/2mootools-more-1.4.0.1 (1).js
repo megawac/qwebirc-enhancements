@@ -2871,6 +2871,7 @@ Fx.Scroll = new Class({
 		return this.start.apply(this, this.calculateScroll(position.x, position.y));
 	},
 
+	//fix for issue #1205
 	toElementEdge: function(el, axes, offset){
 		axes = axes ? Array.from(axes) : ['x', 'y'];
 		el = document.id(el);
@@ -2882,21 +2883,14 @@ Fx.Scroll = new Class({
 				x: coords.right + scroll.x,
 				y: coords.bottom + scroll.y
 			};
-
 		['x', 'y'].each(function(axis){
-			if (axes.contains(axis)){
-				if (edge[axis] > scroll[axis] + containerSize[axis])
-					to[axis] = edge[axis] - containerSize[axis];
-				// if (edge[axis] < scroll[axis])
-				// 	to[axis] = edge[axis];
+			if (axes.contains(axis) && edge[axis] > scroll[axis] + containerSize[axis]){
+				to[axis] = edge[axis] - containerSize[axis];
 			}
 			if (to[axis] == null) to[axis] = scroll[axis];
 			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
-		}, this);
-
-		if (to.x != scroll.x || to.y != scroll.y)
-			this.start(to.x, to.y);
-		return this;
+		});
+		return (to.x != scroll.x || to.y != scroll.y) ? this.start(to.x, to.y) : this;
 	},
 
 	toElementCenter: function(el, axes, offset){
