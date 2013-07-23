@@ -436,12 +436,12 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     border-top: 0;
 }
 
-.qui .hyperlink-whois, .hyperlink-qwhois, .hyperlink-channel {
+.hyperlink-qwhois, .hyperlink-channel {
     cursor: pointer;
     cursor: hand;
 }
 
-.qui .hyperlink-whois:hover, .hyperlink-qwhois:hover, .hyperlink-channel:hover {
+.hyperlink-qwhois:hover, .hyperlink-channel:hover {
     text-decoration: underline;
 }
 
@@ -479,6 +479,16 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
   z-index: 10;
   white-space: nowrap;
   font-size: 0.7em;
+}
+
+.qui .chanmenu {
+    width: 150px;
+}
+
+.qui .chanmenu .hint {
+    float: right;
+    font-size: 75%;
+    color: grey;
 }
 
 .qui hr.lastpos {
