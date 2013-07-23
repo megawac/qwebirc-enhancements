@@ -39,7 +39,7 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     display: none;
 }
 
-.qui-center {
+/*.qui-center {
     display: -webkit-flex;
     display: -moz-flex;
     display: flex;
@@ -49,8 +49,7 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
 .qui-center > * {
     text-align: center;
     margin: auto;
- /*center in parent*/
-} 
+}*/
 
 .channel-name {
     background-color: rgb(255, 255, 191);
@@ -436,12 +435,12 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     border-top: 0;
 }
 
-.hyperlink-qwhois, .hyperlink-channel {
+.hyperlink-whois, .hyperlink-channel {
     cursor: pointer;
     cursor: hand;
 }
 
-.hyperlink-qwhois:hover, .hyperlink-channel:hover {
+.hyperlink-whois:hover, .hyperlink-channel:hover {
     text-decoration: underline;
 }
 
@@ -498,10 +497,10 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
   margin-right: 3em;
 }
 
-.qwebirc-init-channels span {
+.qwebirc-init-channels {
     font-size: 95%;
     color: #928D8D;
-    padding-right: 15px;
+    text-align: center;
 }
 
 #login {

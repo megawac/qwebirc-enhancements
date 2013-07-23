@@ -1543,6 +1543,8 @@ ui.Interface = new Class({
                     'IRCClient': client,
                     'parent': self
                 });
+
+                details.window.window.destroy();
             }
 
             if (opts.searchURL) {
@@ -5206,6 +5208,7 @@ ui.NewLoginUI = new Class({
                 callbackfn.apply(this, arguments);
             };
         ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
+        return win;
     }
 });
 
@@ -5219,13 +5222,8 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
 
-    // var outerbox = new Element("div");
-    // outerbox.addClass('tf-middle');
-    // parentElement.appendChild(outerbox);
-
-    parentElement.addClass('qui-center');
-    var content = new Element('div');
-    parentElement.appendChild(content);
+    var content = new Element('div').inject(parentElement),
+        recenter = content.position.bind(content);
 
     var nickname = cookies.nick.get() || initialNickname,
         account = util.B64.decode(cookies.user.get()),
@@ -5321,6 +5319,13 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         parentElement.empty();
 
         auth.loggedin = true;
+
+        window.removeEvent('resize', recenter);
+        parentElement.retrieve('window').removeEvents({
+            'attach': recenter,
+            'detach': recenter
+        });
+
         callback.call(this,data);
     }.bind(this));
 
@@ -5329,6 +5334,18 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
     if (window === window.top)
         nickBox.focus();
+
+
+    //center everything... 
+    recenter();
+    window.addEvent('resize', recenter);
+    parentElement.retrieve('window').addEvents({
+        'attach': recenter,
+        'detach': recenter
+    });
+
+
+    window.content = content;
 };
 
 
@@ -6645,15 +6662,22 @@ ui.decorateDropdown = function(btn, ddm, options) {
 //dir can be 'width' 'height'
 util.fillContainer = function ($ele, sty, offset) {
     offset = offset || 10;
-    sty = (sty || 'width').toLowerCase();
-    var method = 'get' + (sty.contains('width') ? 'Width' : 'Height');
-    (function() {//wait a sec for style recalcs
-        $ele.getSiblings().each(function(sib) {
-            offset += sib[method](sty);
-        });
 
-        $ele.setStyle(sty, "calc(100% - " + offset + "px)");
-    }).delay(20);
+    var filler = function() {
+        var size = $ele.getSize();
+
+        Array.from( (sty || 'width') ).each(function(style) {//wait a sec for potential style recalcs
+            var method = style.contains('width') ? 'x' : 'y';
+
+            $ele.getSiblings().each(function(sib) {
+                offset += sib.getSize()[method];
+            });
+
+            $ele.setStyle(style, "calc(100% - " + offset + "px)");
+        });
+    }
+
+    filler.delay(20);
     return $ele;
 };
 
@@ -7940,10 +7964,11 @@ ui.QUI.Window = new Class({
                     if (e.event.button === button)
                         close(e);
                 })
-                .appendChild($tabclose);
+                .adopt($tabclose);
         }
 
         var lines = self.lines = qwindow.middle;
+            lines.store("window", self);
         // self.parentObject.qjsui.applyClasses("middle", self.lines);
         if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
             qwindow.window.addClass('ircwindow');
@@ -8051,6 +8076,8 @@ ui.QUI.Window = new Class({
 
         this.tab.show();
         this.select();
+
+        this.fireEvent('attach');
     },
 
     detach: function(e) {
@@ -8125,6 +8152,8 @@ ui.QUI.Window = new Class({
 
         //keeps order
         self.tab.hide();
+
+        self.fireEvent('detach');
     },
 
     selectTab: function(e) {

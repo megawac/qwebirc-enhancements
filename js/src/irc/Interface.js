@@ -127,6 +127,8 @@ ui.Interface = new Class({
                     'IRCClient': client,
                     'parent': self
                 });
+
+                details.window.window.destroy();
             }
 
             if (opts.searchURL) {

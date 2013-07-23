@@ -111,15 +111,22 @@ ui.decorateDropdown = function(btn, ddm, options) {
 //dir can be 'width' 'height'
 util.fillContainer = function ($ele, sty, offset) {
     offset = offset || 10;
-    sty = (sty || 'width').toLowerCase();
-    var method = 'get' + (sty.contains('width') ? 'Width' : 'Height');
-    (function() {//wait a sec for style recalcs
-        $ele.getSiblings().each(function(sib) {
-            offset += sib[method](sty);
-        });
 
-        $ele.setStyle(sty, "calc(100% - " + offset + "px)");
-    }).delay(20);
+    var filler = function() {
+        var size = $ele.getSize();
+
+        Array.from( (sty || 'width') ).each(function(style) {//wait a sec for potential style recalcs
+            var method = style.contains('width') ? 'x' : 'y';
+
+            $ele.getSiblings().each(function(sib) {
+                offset += sib.getSize()[method];
+            });
+
+            $ele.setStyle(style, "calc(100% - " + offset + "px)");
+        });
+    }
+
+    filler.delay(20);
     return $ele;
 };
 

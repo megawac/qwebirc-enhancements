@@ -55,10 +55,11 @@ ui.QUI.Window = new Class({
                     if (e.event.button === button)
                         close(e);
                 })
-                .appendChild($tabclose);
+                .adopt($tabclose);
         }
 
         var lines = self.lines = qwindow.middle;
+            lines.store("window", self);
         // self.parentObject.qjsui.applyClasses("middle", self.lines);
         if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
             qwindow.window.addClass('ircwindow');
@@ -166,6 +167,8 @@ ui.QUI.Window = new Class({
 
         this.tab.show();
         this.select();
+
+        this.fireEvent('attach');
     },
 
     detach: function(e) {
@@ -240,6 +243,8 @@ ui.QUI.Window = new Class({
 
         //keeps order
         self.tab.hide();
+
+        self.fireEvent('detach');
     },
 
     selectTab: function(e) {

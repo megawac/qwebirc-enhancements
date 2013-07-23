@@ -10,6 +10,7 @@ ui.NewLoginUI = new Class({
                 callbackfn.apply(this, arguments);
             };
         ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
+        return win;
     }
 });
 
@@ -23,13 +24,8 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
 
-    // var outerbox = new Element("div");
-    // outerbox.addClass('tf-middle');
-    // parentElement.appendChild(outerbox);
-
-    parentElement.addClass('qui-center');
-    var content = new Element('div');
-    parentElement.appendChild(content);
+    var content = new Element('div').inject(parentElement),
+        recenter = content.position.bind(content);
 
     var nickname = cookies.nick.get() || initialNickname,
         account = util.B64.decode(cookies.user.get()),
@@ -125,6 +121,13 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         parentElement.empty();
 
         auth.loggedin = true;
+
+        window.removeEvent('resize', recenter);
+        parentElement.retrieve('window').removeEvents({
+            'attach': recenter,
+            'detach': recenter
+        });
+
         callback.call(this,data);
     }.bind(this));
 
@@ -133,6 +136,18 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
     if (window === window.top)
         nickBox.focus();
+
+
+    //center everything... 
+    recenter();
+    window.addEvent('resize', recenter);
+    parentElement.retrieve('window').addEvents({
+        'attach': recenter,
+        'detach': recenter
+    });
+
+
+    window.content = content;
 };
 
 
