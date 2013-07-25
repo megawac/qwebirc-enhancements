@@ -19,27 +19,26 @@ instances leaving a mention of the original author(s) and the
 project name and URL in the about dialog, thanks!*/
 
 
-; (function(par, undefined) {
+; (function(window, undefined) {
     "use strict";
 
     //init crap
     var DEBUG = true;
 
     //common globals
-    var window = par,
-        document = par.document,
+    var document = window.document,
         $ = document.id,
-        Functional = par.Functional,
-        prelude = par.prelude;
+        Functional = window.Functional,
+        prelude = window.prelude;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
-    par.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
+    window.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
 
     //global object
-    //var qwebirc = par.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
+    //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
 
-    var qwebirc = par.qwebirc = {},
+    var qwebirc = window.qwebirc = {},
 
         irc = qwebirc.irc = {},
 
@@ -1359,9 +1358,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
             var res = word;
 
-                if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                    res = templates.channellink({channel:util.formatChannel(word)});
-                }
+            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(word)});
+            }
 
             return res;
         })
@@ -1624,11 +1623,10 @@ ui.Interface = new Class({
         });
     },
     cleanUp: function() {
-        var cook = par.Cookie,
-            cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
-        if($defined(localStorage) && cookies.some(function(id) { return cook.read(id) !== null })) {
+        var cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
+        if($defined(localStorage) && cookies.some(function(id) { return Cookie.read(id) !== null })) {
             if(confirm('The old app installed cookies that are no longer used... Delete them?')) {
-                cookies.each(cook.dispose); //delete old cookies
+                cookies.each(Cookie.dispose); //delete old cookies
             }
         }
         storage.set('__clean', false);
@@ -4411,11 +4409,11 @@ sound.SoundPlayer = new Class({
         this.setOptions(options);
         this.loadingSWF = false;
 		this.sm = undefined; //sound manager
+        this.sounds = {};
     },
     load: function() {
-        window.addEvent("domready", function() {
-            this.loadSoundManager();
-        }.bind(this));
+        window.addEvent("domready", this.loadSoundManager.bind(this));
+        return this;
     },
     loadSoundManager: function() {
         var self = this,
@@ -4435,9 +4433,7 @@ sound.SoundPlayer = new Class({
 
             //load all sounds here
             self.register("beep", opts.sounds + opts.beepsrc);
-            sm.onLoadComplete = function() {
-                self.fireEvent("ready");
-            };
+            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
             self.loadingSWF = undefined;
         };
 
@@ -4446,12 +4442,15 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this[alias] = function(complete) {
-			return this.sm.play(alias);
-		}.bind(this);
+		this.sounds[alias] = this.sm.play.curry(alias);
 	},
     play: function(src) {
         this.sm.play(src);
+        return this;
+    },
+
+    isReady: function() {
+        return this.sm.isReady();
     }
 });
 
@@ -4630,7 +4629,7 @@ sound.SoundPlayer = new Class({
     engine.partials = compiled;
 })(Handlebars);
 
-var templates = par.Handlebars.templates;
+var templates = Handlebars.templates;
 
 
 ui.BaseUI = new Class({
@@ -5048,9 +5047,8 @@ ui.NotificationUI = new Class({
 
 
         if (this.uiOptions.BEEP_ON_MENTION) {
-            this.lastSound = 0;
-            this.soundReady = false;
             this.soundInit();
+            this.lastSound = 0;
         }
 
 
@@ -5075,27 +5073,18 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION && 
+        if (this.soundPlayer.isReady() && this.uiOptions.BEEP_ON_MENTION &&
                 (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
-            this.soundPlayer[alias]();
             this.lastSound = Date.now();
+            this.soundPlayer.sounds[alias]();
         }
     },
 
     soundInit: function() {
-        var self = this;
-
         //used to have a bunch of flash checks. going to let the sm handle it
-        if($defined(self.soundPlayer)) {
-            return;
+        if(!$defined(this.soundPlayer)) {
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
         }
-
-        self.soundPlayer = new sound.SoundPlayer(self.options.sounds);
-        self.soundPlayer.addEvent("ready", function() {
-            self.soundReady = true;
-        });
-
-        self.soundPlayer.load();
     }
 });
 
@@ -5124,9 +5113,10 @@ ui.Flasher = new Class({
             this.flashing = false;
 
             this.canFlash = true;
-            var cancel = this.cancelFlash;
-            document.addEvent("mousedown", cancel);
-            document.addEvent("keydown", cancel);
+            document.addEvents({
+                "mousedown:once": this.cancelFlash,
+                "keydown:once": this.cancelFlash
+            });
         } else {
             this.canFlash = false;
         }
@@ -5156,7 +5146,7 @@ ui.Flasher = new Class({
         self.flasher = flash.periodical(750);
     },
     cancelFlash: function() {
-        if (!this.canFlash || !$defined(this.flasher))
+        if (!$defined(this.flasher))
             return;
 
         this.flashing = false;
@@ -5698,37 +5688,38 @@ ui.QUI = new Class({
         var self = this,
             client = self.getActiveIRCWindow().client;
 
-        client.getPopularChannels(function(chans) {
-            chans = chans.slice(0, (self.options.maxChansMenu || 10))
-                        .map(function(chan) {
-                            return {
-                                text: chan.channel,
-                                value: chan.channel,
-                                hint: chan.users
-                            };
-                        });
-            var menu = Element.from(templates.chanmenu({
-                    channels: chans
-                })),
-                btn = self.outerTabs.getElement('.add-chan'),
-                btnmenu = btn.retrieve('menu');
+        client.getPopularChannels(
+            function(chans) {
+                chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                            .map(function(chan) {
+                                return {
+                                    text: chan.channel,
+                                    value: chan.channel,
+                                    hint: chan.users
+                                };
+                            });
+                var menu = Element.from(templates.chanmenu({
+                        channels: chans
+                    })),
+                    btn = self.outerTabs.getElement('.add-chan'),
+                    btnmenu = btn.retrieve('menu');
 
-            if(btnmenu) {
-                menu.replaces(btnmenu);
-            }
-            else {
-                var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
-                ui.decorateDropdown(btn, wrapper);
-                wrapper.addEvent("click:relay(a)", function(e, target) {
-                    var chan = target.get('data-value');
-                    client.exec("/JOIN " + chan);
-                });
-            }
-            btn.store('menu', menu);
+                if(btnmenu) {
+                    menu.replaces(btnmenu);
+                }
+                else {
+                    var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
+                    ui.decorateDropdown(btn, wrapper);
+                    wrapper.addEvent("click:relay(a)", function(e, target) {
+                        var chan = target.get('data-value');
+                        client.exec("/JOIN " + chan);
+                    });
+                }
+                btn.store('menu', menu);
 
-            menu.parentElement.showMenu();
-        });
-    },
+                menu.parentElement.showMenu();
+            });
+        },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');

@@ -10,7 +10,7 @@
             highlightClasses: ["highlight"], //array of classes to iterate
             maxHighlight: NaN,//max elements to highlight at anytime NaN/undef will be ignored
             selector: '> *',
-            filter: $lambda(false) // (f -> bool) whether to hl a element
+            filter: Function.from(false) // (f -> bool) whether to hl a element
         },
         index: 0,
         highlighted: [],

@@ -1,5 +1,6 @@
 //***************NOTE*****
-//removed all 1.2 compact code such as Function.prototype.bind and browser
+//removed all compatibility code for - possible cdn link
+// //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js or minified //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat-yc.js
 
 /*
 ---
@@ -178,7 +179,7 @@ var Type = this.Type = function(name, object){
 				return lower;
 			}).hide();
 			//<1.2compat>
-			object.type = typeCheck;
+			// object.type = typeCheck;
 			//</1.2compat>
 		}
 	}
@@ -446,56 +447,56 @@ String.extend('uniqueID', function(){
 
 // Hash.alias('each', 'forEach');
 
-Object.type = Type.isObject;
+// Object.type = Type.isObject;
 
-var Native = this.Native = function(properties){
-	return new Type(properties.name, properties.initialize);
-};
+// var Native = this.Native = function(properties){
+// 	return new Type(properties.name, properties.initialize);
+// };
 
-Native.type = Type.type;
+// Native.type = Type.type;
 
-Native.implement = function(objects, methods){
-	for (var i = 0; i < objects.length; i++) objects[i].implement(methods);
-	return Native;
-};
+// Native.implement = function(objects, methods){
+// 	for (var i = 0; i < objects.length; i++) objects[i].implement(methods);
+// 	return Native;
+// };
 
-var arrayType = Array.type;
-Array.type = function(item){
-	return instanceOf(item, Array) || arrayType(item);
-};
+// var arrayType = Array.type;
+// Array.type = function(item){
+// 	return instanceOf(item, Array) || arrayType(item);
+// };
 
-this.$A = Array.from;
+// this.$A = Array.from;
 
-this.$arguments = function(i){
-	return function(){
-		return arguments[i];
-	};
-};
+// this.$arguments = function(i){
+// 	return function(){
+// 		return arguments[i];
+// 	};
+// };
 
-this.$chk = function(obj){
-	return !!(obj || obj === 0);
-};
+// this.$chk = function(obj){
+// 	return !!(obj || obj === 0);
+// };
 
-this.$clear = function(timer){
-	clearTimeout(timer);
-	clearInterval(timer);
-	return null;
-};
+// this.$clear = function(timer){
+// 	clearTimeout(timer);
+// 	clearInterval(timer);
+// 	return null;
+// };
 
-this.$defined = function(obj){
-	return (obj != null);
-};
+// this.$defined = function(obj){
+// 	return (obj != null);
+// };
 
-this.$each = function(iterable, fn, bind){
-	var type = typeOf(iterable);
-	((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-};
+// this.$each = function(iterable, fn, bind){
+// 	var type = typeOf(iterable);
+// 	((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+// };
 
-this.$empty = function(){};
+// this.$empty = function(){};
 
-this.$extend = function(original, extended){
-	return Object.append(original, extended);
-};
+// this.$extend = function(original, extended){
+// 	return Object.append(original, extended);
+// };
 
 // this.$H = function(object){
 // 	return new Hash(object);
@@ -507,17 +508,17 @@ this.$extend = function(original, extended){
 // 	return Object.merge.apply(null, args);
 // };
 
-this.$lambda = Function.from;
+// this.$lambda = Function.from;
 // this.$mixin = Object.merge;
 // this.$random = Number.random;
 // this.$splat = Array.from;
 // this.$time = Date.now;
 
-this.$type = function(object){
-	var type = typeOf(object);
-	if (type == 'elements') return 'array';
-	return (type == 'null') ? false : type;
-};
+// this.$type = function(object){
+// 	var type = typeOf(object);
+// 	if (type == 'elements') return 'array';
+// 	return (type == 'null') ? false : type;
+// };
 
 // this.$unlink = function(object){
 // 	switch (typeOf(object)){
@@ -705,11 +706,11 @@ Array.implement({
 
 //<1.2compat>
 
-Array.alias('extend', 'append');
+// Array.alias('extend', 'append');
 
-var $pick = function(){
-	return Array.from(arguments).pick();
-};
+// var $pick = function(){
+// 	return Array.from(arguments).pick();
+// };
 
 //</1.2compat>
 
@@ -936,48 +937,48 @@ Function.implement({
 
 // Function.implement({
 
-	create: function(options){
-		var self = this;
-		options = options || {};
-		return function(event){
-			var args = options.arguments;
-			args = (args != null) ? Array.from(args) : Array.slice(arguments, (options.event) ? 1 : 0);
-			if (options.event) args = [event || window.event].extend(args);
-			var returns = function(){
-				return self.apply(options.bind || null, args);
-			};
-			if (options.delay) return setTimeout(returns, options.delay);
-			if (options.periodical) return setInterval(returns, options.periodical);
-			if (options.attempt) return Function.attempt(returns);
-			return returns();
-		};
-	},
-
-	// bind: function(bind, args){
+	// create: function(options){
 	// 	var self = this;
-	// 	if (args != null) args = Array.from(args);
-	// 	return function(){
-	// 		return self.apply(bind, args || arguments);
+	// 	options = options || {};
+	// 	return function(event){
+	// 		var args = options.arguments;
+	// 		args = (args != null) ? Array.from(args) : Array.slice(arguments, (options.event) ? 1 : 0);
+	// 		if (options.event) args = [event || window.event].extend(args);
+	// 		var returns = function(){
+	// 			return self.apply(options.bind || null, args);
+	// 		};
+	// 		if (options.delay) return setTimeout(returns, options.delay);
+	// 		if (options.periodical) return setInterval(returns, options.periodical);
+	// 		if (options.attempt) return Function.attempt(returns);
+	// 		return returns();
 	// 	};
 	// },
 
-	bindWithEvent: function(bind, args){
-		var self = this;
-		if (args != null) args = Array.from(args);
-		return function(event){
-			return self.apply(bind, (args == null) ? arguments : [event].concat(args));
-		};
-	},
+	// // bind: function(bind, args){
+	// // 	var self = this;
+	// // 	if (args != null) args = Array.from(args);
+	// // 	return function(){
+	// // 		return self.apply(bind, args || arguments);
+	// // 	};
+	// // },
 
-	run: function(args, bind){
-		return this.apply(bind, Array.from(args));
-	}
+	// bindWithEvent: function(bind, args){
+	// 	var self = this;
+	// 	if (args != null) args = Array.from(args);
+	// 	return function(event){
+	// 		return self.apply(bind, (args == null) ? arguments : [event].concat(args));
+	// 	};
+	// },
+
+	// run: function(args, bind){
+	// 	return this.apply(bind, Array.from(args));
+	// }
 
 });
 
-if (Object.create == Function.prototype.create) Object.create = null;
+// if (Object.create == Function.prototype.create) Object.create = null;
 
-var $try = Function.attempt;
+// var $try = Function.attempt;
 
 //</1.2compat>
 
@@ -1485,7 +1486,7 @@ var DOMEvent = this.DOMEvent = new Type('DOMEvent', function(event, win){
 
 	if (type.indexOf('key') == 0){
 		var code = this.code = (event.which || event.keyCode);
-		this.key = _keys[code]/*<1.3compat>*/ || Object.keyOf(Event.Keys, code)/*</1.3compat>*/;
+		this.key = _keys[code]/*<1.3compat>*/ /*|| Object.keyOf(Event.Keys, code)*//*</1.3compat>*/;
 		if (type == 'keydown'){
 			if (code > 111 && code < 124) this.key = 'f' + (code - 111);
 			else if (code > 95 && code < 106) this.key = code - 96;
@@ -1564,8 +1565,8 @@ DOMEvent.defineKeys({
 })();
 
 /*<1.3compat>*/
-var Event = DOMEvent;
-Event.Keys = {};
+// var Event = DOMEvent;
+// Event.Keys = {};
 /*</1.3compat>*/
 
 /*<1.2compat>*/
@@ -1744,7 +1745,7 @@ this.Events = new Class({
 		type = removeOn(type);
 
 		/*<1.2compat>*/
-		if (fn == $empty) return this;
+		// if (fn == $empty) return this;
 		/*</1.2compat>*/
 
 		this.$events[type] = (this.$events[type] || []).include(fn);

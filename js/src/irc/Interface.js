@@ -208,11 +208,10 @@ ui.Interface = new Class({
         });
     },
     cleanUp: function() {
-        var cook = par.Cookie,
-            cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
-        if($defined(localStorage) && cookies.some(function(id) { return cook.read(id) !== null })) {
+        var cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
+        if($defined(localStorage) && cookies.some(function(id) { return Cookie.read(id) !== null })) {
             if(confirm('The old app installed cookies that are no longer used... Delete them?')) {
-                cookies.each(cook.dispose); //delete old cookies
+                cookies.each(Cookie.dispose); //delete old cookies
             }
         }
         storage.set('__clean', false);

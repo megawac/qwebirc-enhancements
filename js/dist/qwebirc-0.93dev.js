@@ -1,5 +1,6 @@
 //***************NOTE*****
-//removed all 1.2 compact code such as Function.prototype.bind and browser
+//removed all compatibility code for - possible cdn link
+// //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js or minified //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat-yc.js
 
 /*
 ---
@@ -178,7 +179,7 @@ var Type = this.Type = function(name, object){
 				return lower;
 			}).hide();
 			//<1.2compat>
-			object.type = typeCheck;
+			// object.type = typeCheck;
 			//</1.2compat>
 		}
 	}
@@ -446,56 +447,56 @@ String.extend('uniqueID', function(){
 
 // Hash.alias('each', 'forEach');
 
-Object.type = Type.isObject;
+// Object.type = Type.isObject;
 
-var Native = this.Native = function(properties){
-	return new Type(properties.name, properties.initialize);
-};
+// var Native = this.Native = function(properties){
+// 	return new Type(properties.name, properties.initialize);
+// };
 
-Native.type = Type.type;
+// Native.type = Type.type;
 
-Native.implement = function(objects, methods){
-	for (var i = 0; i < objects.length; i++) objects[i].implement(methods);
-	return Native;
-};
+// Native.implement = function(objects, methods){
+// 	for (var i = 0; i < objects.length; i++) objects[i].implement(methods);
+// 	return Native;
+// };
 
-var arrayType = Array.type;
-Array.type = function(item){
-	return instanceOf(item, Array) || arrayType(item);
-};
+// var arrayType = Array.type;
+// Array.type = function(item){
+// 	return instanceOf(item, Array) || arrayType(item);
+// };
 
-this.$A = Array.from;
+// this.$A = Array.from;
 
-this.$arguments = function(i){
-	return function(){
-		return arguments[i];
-	};
-};
+// this.$arguments = function(i){
+// 	return function(){
+// 		return arguments[i];
+// 	};
+// };
 
-this.$chk = function(obj){
-	return !!(obj || obj === 0);
-};
+// this.$chk = function(obj){
+// 	return !!(obj || obj === 0);
+// };
 
-this.$clear = function(timer){
-	clearTimeout(timer);
-	clearInterval(timer);
-	return null;
-};
+// this.$clear = function(timer){
+// 	clearTimeout(timer);
+// 	clearInterval(timer);
+// 	return null;
+// };
 
-this.$defined = function(obj){
-	return (obj != null);
-};
+// this.$defined = function(obj){
+// 	return (obj != null);
+// };
 
-this.$each = function(iterable, fn, bind){
-	var type = typeOf(iterable);
-	((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-};
+// this.$each = function(iterable, fn, bind){
+// 	var type = typeOf(iterable);
+// 	((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+// };
 
-this.$empty = function(){};
+// this.$empty = function(){};
 
-this.$extend = function(original, extended){
-	return Object.append(original, extended);
-};
+// this.$extend = function(original, extended){
+// 	return Object.append(original, extended);
+// };
 
 // this.$H = function(object){
 // 	return new Hash(object);
@@ -507,17 +508,17 @@ this.$extend = function(original, extended){
 // 	return Object.merge.apply(null, args);
 // };
 
-this.$lambda = Function.from;
+// this.$lambda = Function.from;
 // this.$mixin = Object.merge;
 // this.$random = Number.random;
 // this.$splat = Array.from;
 // this.$time = Date.now;
 
-this.$type = function(object){
-	var type = typeOf(object);
-	if (type == 'elements') return 'array';
-	return (type == 'null') ? false : type;
-};
+// this.$type = function(object){
+// 	var type = typeOf(object);
+// 	if (type == 'elements') return 'array';
+// 	return (type == 'null') ? false : type;
+// };
 
 // this.$unlink = function(object){
 // 	switch (typeOf(object)){
@@ -705,11 +706,11 @@ Array.implement({
 
 //<1.2compat>
 
-Array.alias('extend', 'append');
+// Array.alias('extend', 'append');
 
-var $pick = function(){
-	return Array.from(arguments).pick();
-};
+// var $pick = function(){
+// 	return Array.from(arguments).pick();
+// };
 
 //</1.2compat>
 
@@ -936,48 +937,48 @@ Function.implement({
 
 // Function.implement({
 
-	create: function(options){
-		var self = this;
-		options = options || {};
-		return function(event){
-			var args = options.arguments;
-			args = (args != null) ? Array.from(args) : Array.slice(arguments, (options.event) ? 1 : 0);
-			if (options.event) args = [event || window.event].extend(args);
-			var returns = function(){
-				return self.apply(options.bind || null, args);
-			};
-			if (options.delay) return setTimeout(returns, options.delay);
-			if (options.periodical) return setInterval(returns, options.periodical);
-			if (options.attempt) return Function.attempt(returns);
-			return returns();
-		};
-	},
-
-	// bind: function(bind, args){
+	// create: function(options){
 	// 	var self = this;
-	// 	if (args != null) args = Array.from(args);
-	// 	return function(){
-	// 		return self.apply(bind, args || arguments);
+	// 	options = options || {};
+	// 	return function(event){
+	// 		var args = options.arguments;
+	// 		args = (args != null) ? Array.from(args) : Array.slice(arguments, (options.event) ? 1 : 0);
+	// 		if (options.event) args = [event || window.event].extend(args);
+	// 		var returns = function(){
+	// 			return self.apply(options.bind || null, args);
+	// 		};
+	// 		if (options.delay) return setTimeout(returns, options.delay);
+	// 		if (options.periodical) return setInterval(returns, options.periodical);
+	// 		if (options.attempt) return Function.attempt(returns);
+	// 		return returns();
 	// 	};
 	// },
 
-	bindWithEvent: function(bind, args){
-		var self = this;
-		if (args != null) args = Array.from(args);
-		return function(event){
-			return self.apply(bind, (args == null) ? arguments : [event].concat(args));
-		};
-	},
+	// // bind: function(bind, args){
+	// // 	var self = this;
+	// // 	if (args != null) args = Array.from(args);
+	// // 	return function(){
+	// // 		return self.apply(bind, args || arguments);
+	// // 	};
+	// // },
 
-	run: function(args, bind){
-		return this.apply(bind, Array.from(args));
-	}
+	// bindWithEvent: function(bind, args){
+	// 	var self = this;
+	// 	if (args != null) args = Array.from(args);
+	// 	return function(event){
+	// 		return self.apply(bind, (args == null) ? arguments : [event].concat(args));
+	// 	};
+	// },
+
+	// run: function(args, bind){
+	// 	return this.apply(bind, Array.from(args));
+	// }
 
 });
 
-if (Object.create == Function.prototype.create) Object.create = null;
+// if (Object.create == Function.prototype.create) Object.create = null;
 
-var $try = Function.attempt;
+// var $try = Function.attempt;
 
 //</1.2compat>
 
@@ -1485,7 +1486,7 @@ var DOMEvent = this.DOMEvent = new Type('DOMEvent', function(event, win){
 
 	if (type.indexOf('key') == 0){
 		var code = this.code = (event.which || event.keyCode);
-		this.key = _keys[code]/*<1.3compat>*/ || Object.keyOf(Event.Keys, code)/*</1.3compat>*/;
+		this.key = _keys[code]/*<1.3compat>*/ /*|| Object.keyOf(Event.Keys, code)*//*</1.3compat>*/;
 		if (type == 'keydown'){
 			if (code > 111 && code < 124) this.key = 'f' + (code - 111);
 			else if (code > 95 && code < 106) this.key = code - 96;
@@ -1564,8 +1565,8 @@ DOMEvent.defineKeys({
 })();
 
 /*<1.3compat>*/
-var Event = DOMEvent;
-Event.Keys = {};
+// var Event = DOMEvent;
+// Event.Keys = {};
 /*</1.3compat>*/
 
 /*<1.2compat>*/
@@ -1744,7 +1745,7 @@ this.Events = new Class({
 		type = removeOn(type);
 
 		/*<1.2compat>*/
-		if (fn == $empty) return this;
+		// if (fn == $empty) return this;
 		/*</1.2compat>*/
 
 		this.$events[type] = (this.$events[type] || []).include(fn);
@@ -6451,7 +6452,7 @@ Swiff.remote = function(obj, fn){
 
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
-// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Fx.SmoothScroll More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
+// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
 /*
 ---
 
@@ -9549,78 +9550,6 @@ Element.implement({
 /*
 ---
 
-script: Fx.SmoothScroll.js
-
-name: Fx.SmoothScroll
-
-description: Class for creating a smooth scrolling effect to all internal links on the page.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-
-requires:
-  - Core/Slick.Finder
-  - /Fx.Scroll
-
-provides: [Fx.SmoothScroll]
-
-...
-*/
-
-Fx.SmoothScroll = new Class({
-
-	Extends: Fx.Scroll,
-
-	options: {
-		axes: ['x', 'y']
-	},
-
-	initialize: function(options, context){
-		context = context || document;
-		this.doc = context.getDocument();
-		this.parent(this.doc, options);
-
-		var win = context.getWindow(),
-			location = win.location.href.match(/^[^#]*/)[0] + '#',
-			links = $$(this.options.links || this.doc.links);
-
-		links.each(function(link){
-			if (link.href.indexOf(location) != 0) return;
-			var anchor = link.href.substr(location.length);
-			if (anchor) this.useLink(link, anchor);
-		}, this);
-
-		this.addEvent('complete', function(){
-			win.location.hash = this.anchor;
-			this.element.scrollTo(this.to[0], this.to[1]);
-		}, true);
-	},
-
-	useLink: function(link, anchor){
-
-		link.addEvent('click', function(event){
-			var el = document.id(anchor) || this.doc.getElement('a[name=' + anchor + ']');
-			if (!el) return;
-
-			event.preventDefault();
-			this.toElement(el, this.options.axes).chain(function(){
-				this.fireEvent('scrolledTo', [link, el]);
-			}.bind(this));
-
-			this.anchor = anchor;
-
-		}.bind(this));
-
-		return this;
-	}
-});
-
-
-/*
----
-
 script: Drag.js
 
 name: Drag
@@ -10931,6 +10860,85 @@ Keyboard.getShortcuts = function(name, keyboard){
 };
 
 
+//adapted version to use native parser if available
+
+//Changes from Mootools spec: excludeScripts defaults to to false because fuck you
+
+//http://jsperf.com/dom-create-vs-jquery/5
+window.addEvent("domready", function(){
+
+function tableFix(match, text) {
+    var container = new Element('table');
+    var tag = match[1].toLowerCase();
+    if (['td', 'th', 'tr'].contains(tag)){
+        container = new Element('tbody').inject(container);
+        if (tag != 'tr') container = new Element('tr').inject(container);
+    }
+    return container.set('html', text).getChildren();
+}
+
+var range = document.createRange();
+if(range.createContextualFragment) {//not supported on ie<9
+
+    // make the parent of the first div in the document becomes the context node
+    var reference = document.getElement("div");
+    range.selectNode(reference);
+
+    Elements.from = function(text, excludeScripts) {
+        if (excludeScripts == true) text = text.stripScripts();
+
+        var match = text.match(/^\s*<(t[dhr]|tbody|tfoot|thead)/i);
+        if(match) return tableFix(match,text);
+
+        var elements = range.createContextualFragment(text).childNodes;
+        return new Elements(elements);
+    };
+
+} else {
+
+/*
+---
+
+script: Elements.From.js
+
+name: Elements.From
+
+description: Returns a collection of elements from a string of html.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/String
+  - Core/Element
+  - /MooTools.More
+
+provides: [Elements.from, Elements.From]
+
+...
+*/
+
+Elements.from = function(text, excludeScripts){
+    if (excludeScripts == true) text = text.stripScripts();
+
+    var match = text.match(/^\s*<(t[dhr]|tbody|tfoot|thead)/i);
+    if(match) return tableFix(match,text);
+
+    return new Element('div').set('html', text).getChildren();
+};
+
+}
+
+
+Element.extend({
+    from: function(text, rs) {
+        return Elements.from(text,rs)[0];
+    }
+});
+
+});
 /*
 
 Copyright (C) 2011 by Yehuda Katz
@@ -14098,7 +14106,7 @@ Fx.AutoScroll = new Class({
             highlightClasses: ["highlight"], //array of classes to iterate
             maxHighlight: NaN,//max elements to highlight at anytime NaN/undef will be ignored
             selector: '> *',
-            filter: $lambda(false) // (f -> bool) whether to hl a element
+            filter: Function.from(false) // (f -> bool) whether to hl a element
         },
         index: 0,
         highlighted: [],
@@ -14346,11 +14354,41 @@ Element.implement({
 
 });
 
-Element.extend({
-    from: function() {
-        return Elements.from.apply(this, arguments)[0];
-    }
-});
+
+this.$type = function(object){
+    var type = typeOf(object);
+    if (type == 'elements') return 'array';
+    return (type == 'null') ? false : type;
+};
+
+this.$lambda = Function.from;
+
+this.$chk = function(obj){
+    return !!(obj || obj === 0);
+};
+
+this.$clear = function(timer){
+    clearTimeout(timer);
+    clearInterval(timer);
+    return null;
+};
+
+this.$defined = function(obj){
+    return (obj != null);
+};
+
+this.$each = function(iterable, fn, bind){
+    var type = typeOf(iterable);
+    ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+};
+
+this.$empty = function(){};
+
+this.$extend = function(original, extended){
+    return Object.append(original, extended);
+};
+
+this.$A = Array.from;
 
 })();
 // /*
@@ -14964,27 +15002,26 @@ instances leaving a mention of the original author(s) and the
 project name and URL in the about dialog, thanks!*/
 
 
-; (function(par, undefined) {
+; (function(window, undefined) {
     "use strict";
 
     //init crap
     var DEBUG = true;
 
     //common globals
-    var window = par,
-        document = par.document,
+    var document = window.document,
         $ = document.id,
-        Functional = par.Functional,
-        prelude = par.prelude;
+        Functional = window.Functional,
+        prelude = window.prelude;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
-    par.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
+    window.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
 
     //global object
-    //var qwebirc = par.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
+    //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
 
-    var qwebirc = par.qwebirc = {},
+    var qwebirc = window.qwebirc = {},
 
         irc = qwebirc.irc = {},
 
@@ -16304,9 +16341,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
             var res = word;
 
-                if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                    res = templates.channellink({channel:util.formatChannel(word)});
-                }
+            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(word)});
+            }
 
             return res;
         })
@@ -16569,11 +16606,10 @@ ui.Interface = new Class({
         });
     },
     cleanUp: function() {
-        var cook = par.Cookie,
-            cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
-        if($defined(localStorage) && cookies.some(function(id) { return cook.read(id) !== null })) {
+        var cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
+        if($defined(localStorage) && cookies.some(function(id) { return Cookie.read(id) !== null })) {
             if(confirm('The old app installed cookies that are no longer used... Delete them?')) {
-                cookies.each(cook.dispose); //delete old cookies
+                cookies.each(Cookie.dispose); //delete old cookies
             }
         }
         storage.set('__clean', false);
@@ -19356,11 +19392,11 @@ sound.SoundPlayer = new Class({
         this.setOptions(options);
         this.loadingSWF = false;
 		this.sm = undefined; //sound manager
+        this.sounds = {};
     },
     load: function() {
-        window.addEvent("domready", function() {
-            this.loadSoundManager();
-        }.bind(this));
+        window.addEvent("domready", this.loadSoundManager.bind(this));
+        return this;
     },
     loadSoundManager: function() {
         var self = this,
@@ -19380,9 +19416,7 @@ sound.SoundPlayer = new Class({
 
             //load all sounds here
             self.register("beep", opts.sounds + opts.beepsrc);
-            sm.onLoadComplete = function() {
-                self.fireEvent("ready");
-            };
+            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
             self.loadingSWF = undefined;
         };
 
@@ -19391,12 +19425,15 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this[alias] = function(complete) {
-			return this.sm.play(alias);
-		}.bind(this);
+		this.sounds[alias] = this.sm.play.curry(alias);
 	},
     play: function(src) {
         this.sm.play(src);
+        return this;
+    },
+
+    isReady: function() {
+        return this.sm.isReady();
     }
 });
 
@@ -19575,7 +19612,7 @@ sound.SoundPlayer = new Class({
     engine.partials = compiled;
 })(Handlebars);
 
-var templates = par.Handlebars.templates;
+var templates = Handlebars.templates;
 
 
 ui.BaseUI = new Class({
@@ -19993,9 +20030,8 @@ ui.NotificationUI = new Class({
 
 
         if (this.uiOptions.BEEP_ON_MENTION) {
-            this.lastSound = 0;
-            this.soundReady = false;
             this.soundInit();
+            this.lastSound = 0;
         }
 
 
@@ -20020,27 +20056,18 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION && 
+        if (this.soundPlayer.isReady() && this.uiOptions.BEEP_ON_MENTION &&
                 (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
-            this.soundPlayer[alias]();
             this.lastSound = Date.now();
+            this.soundPlayer.sounds[alias]();
         }
     },
 
     soundInit: function() {
-        var self = this;
-
         //used to have a bunch of flash checks. going to let the sm handle it
-        if($defined(self.soundPlayer)) {
-            return;
+        if(!$defined(this.soundPlayer)) {
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
         }
-
-        self.soundPlayer = new sound.SoundPlayer(self.options.sounds);
-        self.soundPlayer.addEvent("ready", function() {
-            self.soundReady = true;
-        });
-
-        self.soundPlayer.load();
     }
 });
 
@@ -20069,9 +20096,10 @@ ui.Flasher = new Class({
             this.flashing = false;
 
             this.canFlash = true;
-            var cancel = this.cancelFlash;
-            document.addEvent("mousedown", cancel);
-            document.addEvent("keydown", cancel);
+            document.addEvents({
+                "mousedown:once": this.cancelFlash,
+                "keydown:once": this.cancelFlash
+            });
         } else {
             this.canFlash = false;
         }
@@ -20101,7 +20129,7 @@ ui.Flasher = new Class({
         self.flasher = flash.periodical(750);
     },
     cancelFlash: function() {
-        if (!this.canFlash || !$defined(this.flasher))
+        if (!$defined(this.flasher))
             return;
 
         this.flashing = false;
@@ -20643,37 +20671,38 @@ ui.QUI = new Class({
         var self = this,
             client = self.getActiveIRCWindow().client;
 
-        client.getPopularChannels(function(chans) {
-            chans = chans.slice(0, (self.options.maxChansMenu || 10))
-                        .map(function(chan) {
-                            return {
-                                text: chan.channel,
-                                value: chan.channel,
-                                hint: chan.users
-                            };
-                        });
-            var menu = Element.from(templates.chanmenu({
-                    channels: chans
-                })),
-                btn = self.outerTabs.getElement('.add-chan'),
-                btnmenu = btn.retrieve('menu');
+        client.getPopularChannels(
+            function(chans) {
+                chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                            .map(function(chan) {
+                                return {
+                                    text: chan.channel,
+                                    value: chan.channel,
+                                    hint: chan.users
+                                };
+                            });
+                var menu = Element.from(templates.chanmenu({
+                        channels: chans
+                    })),
+                    btn = self.outerTabs.getElement('.add-chan'),
+                    btnmenu = btn.retrieve('menu');
 
-            if(btnmenu) {
-                menu.replaces(btnmenu);
-            }
-            else {
-                var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
-                ui.decorateDropdown(btn, wrapper);
-                wrapper.addEvent("click:relay(a)", function(e, target) {
-                    var chan = target.get('data-value');
-                    client.exec("/JOIN " + chan);
-                });
-            }
-            btn.store('menu', menu);
+                if(btnmenu) {
+                    menu.replaces(btnmenu);
+                }
+                else {
+                    var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
+                    ui.decorateDropdown(btn, wrapper);
+                    wrapper.addEvent("click:relay(a)", function(e, target) {
+                        var chan = target.get('data-value');
+                        client.exec("/JOIN " + chan);
+                    });
+                }
+                btn.store('menu', menu);
 
-            menu.parentElement.showMenu();
-        });
-    },
+                menu.parentElement.showMenu();
+            });
+        },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');

@@ -14,11 +14,11 @@ sound.SoundPlayer = new Class({
         this.setOptions(options);
         this.loadingSWF = false;
 		this.sm = undefined; //sound manager
+        this.sounds = {};
     },
     load: function() {
-        window.addEvent("domready", function() {
-            this.loadSoundManager();
-        }.bind(this));
+        window.addEvent("domready", this.loadSoundManager.bind(this));
+        return this;
     },
     loadSoundManager: function() {
         var self = this,
@@ -38,9 +38,7 @@ sound.SoundPlayer = new Class({
 
             //load all sounds here
             self.register("beep", opts.sounds + opts.beepsrc);
-            sm.onLoadComplete = function() {
-                self.fireEvent("ready");
-            };
+            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
             self.loadingSWF = undefined;
         };
 
@@ -49,11 +47,14 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this[alias] = function(complete) {
-			return this.sm.play(alias);
-		}.bind(this);
+		this.sounds[alias] = this.sm.play.curry(alias);
 	},
     play: function(src) {
         this.sm.play(src);
+        return this;
+    },
+
+    isReady: function() {
+        return this.sm.isReady();
     }
 });

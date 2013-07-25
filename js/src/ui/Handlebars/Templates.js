@@ -173,4 +173,4 @@
     engine.partials = compiled;
 })(Handlebars);
 
-var templates = par.Handlebars.templates;
+var templates = Handlebars.templates;

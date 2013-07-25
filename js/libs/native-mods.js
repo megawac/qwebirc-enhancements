@@ -192,10 +192,40 @@ Element.implement({
 
 });
 
-Element.extend({
-    from: function() {
-        return Elements.from.apply(this, arguments)[0];
-    }
-});
+
+this.$type = function(object){
+    var type = typeOf(object);
+    if (type == 'elements') return 'array';
+    return (type == 'null') ? false : type;
+};
+
+this.$lambda = Function.from;
+
+this.$chk = function(obj){
+    return !!(obj || obj === 0);
+};
+
+this.$clear = function(timer){
+    clearTimeout(timer);
+    clearInterval(timer);
+    return null;
+};
+
+this.$defined = function(obj){
+    return (obj != null);
+};
+
+this.$each = function(iterable, fn, bind){
+    var type = typeOf(iterable);
+    ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+};
+
+this.$empty = function(){};
+
+this.$extend = function(original, extended){
+    return Object.append(original, extended);
+};
+
+this.$A = Array.from;
 
 })();

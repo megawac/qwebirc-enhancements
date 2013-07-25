@@ -222,37 +222,38 @@ ui.QUI = new Class({
         var self = this,
             client = self.getActiveIRCWindow().client;
 
-        client.getPopularChannels(function(chans) {
-            chans = chans.slice(0, (self.options.maxChansMenu || 10))
-                        .map(function(chan) {
-                            return {
-                                text: chan.channel,
-                                value: chan.channel,
-                                hint: chan.users
-                            };
-                        });
-            var menu = Element.from(templates.chanmenu({
-                    channels: chans
-                })),
-                btn = self.outerTabs.getElement('.add-chan'),
-                btnmenu = btn.retrieve('menu');
+        client.getPopularChannels(
+            function(chans) {
+                chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                            .map(function(chan) {
+                                return {
+                                    text: chan.channel,
+                                    value: chan.channel,
+                                    hint: chan.users
+                                };
+                            });
+                var menu = Element.from(templates.chanmenu({
+                        channels: chans
+                    })),
+                    btn = self.outerTabs.getElement('.add-chan'),
+                    btnmenu = btn.retrieve('menu');
 
-            if(btnmenu) {
-                menu.replaces(btnmenu);
-            }
-            else {
-                var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
-                ui.decorateDropdown(btn, wrapper);
-                wrapper.addEvent("click:relay(a)", function(e, target) {
-                    var chan = target.get('data-value');
-                    client.exec("/JOIN " + chan);
-                });
-            }
-            btn.store('menu', menu);
+                if(btnmenu) {
+                    menu.replaces(btnmenu);
+                }
+                else {
+                    var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
+                    ui.decorateDropdown(btn, wrapper);
+                    wrapper.addEvent("click:relay(a)", function(e, target) {
+                        var chan = target.get('data-value');
+                        client.exec("/JOIN " + chan);
+                    });
+                }
+                btn.store('menu', menu);
 
-            menu.parentElement.showMenu();
-        });
-    },
+                menu.parentElement.showMenu();
+            });
+        },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');

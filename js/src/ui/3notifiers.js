@@ -14,9 +14,8 @@ ui.NotificationUI = new Class({
 
 
         if (this.uiOptions.BEEP_ON_MENTION) {
-            this.lastSound = 0;
-            this.soundReady = false;
             this.soundInit();
+            this.lastSound = 0;
         }
 
 
@@ -41,27 +40,18 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundReady && this.uiOptions.BEEP_ON_MENTION && 
+        if (this.soundPlayer.isReady() && this.uiOptions.BEEP_ON_MENTION &&
                 (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
-            this.soundPlayer[alias]();
             this.lastSound = Date.now();
+            this.soundPlayer.sounds[alias]();
         }
     },
 
     soundInit: function() {
-        var self = this;
-
         //used to have a bunch of flash checks. going to let the sm handle it
-        if($defined(self.soundPlayer)) {
-            return;
+        if(!$defined(this.soundPlayer)) {
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
         }
-
-        self.soundPlayer = new sound.SoundPlayer(self.options.sounds);
-        self.soundPlayer.addEvent("ready", function() {
-            self.soundReady = true;
-        });
-
-        self.soundPlayer.load();
     }
 });
 
@@ -90,9 +80,10 @@ ui.Flasher = new Class({
             this.flashing = false;
 
             this.canFlash = true;
-            var cancel = this.cancelFlash;
-            document.addEvent("mousedown", cancel);
-            document.addEvent("keydown", cancel);
+            document.addEvents({
+                "mousedown:once": this.cancelFlash,
+                "keydown:once": this.cancelFlash
+            });
         } else {
             this.canFlash = false;
         }
@@ -122,7 +113,7 @@ ui.Flasher = new Class({
         self.flasher = flash.periodical(750);
     },
     cancelFlash: function() {
-        if (!this.canFlash || !$defined(this.flasher))
+        if (!$defined(this.flasher))
             return;
 
         this.flashing = false;

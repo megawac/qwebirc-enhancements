@@ -19,27 +19,26 @@ instances leaving a mention of the original author(s) and the
 project name and URL in the about dialog, thanks!*/
 
 
-; (function(par, undefined) {
+; (function(window, undefined) {
     "use strict";
 
     //init crap
     var DEBUG = true;
 
     //common globals
-    var window = par,
-        document = par.document,
+    var document = window.document,
         $ = document.id,
-        Functional = par.Functional,
-        prelude = par.prelude;
+        Functional = window.Functional,
+        prelude = window.prelude;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
-    par.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
+    window.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
 
     //global object
-    //var qwebirc = par.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
+    //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
 
-    var qwebirc = par.qwebirc = {},
+    var qwebirc = window.qwebirc = {},
 
         irc = qwebirc.irc = {},
 

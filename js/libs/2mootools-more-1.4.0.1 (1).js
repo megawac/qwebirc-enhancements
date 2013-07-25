@@ -2,7 +2,7 @@
 
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
-// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Fx.SmoothScroll More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
+// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
 /*
 ---
 
@@ -3094,78 +3094,6 @@ Element.implement({
 		return this;
 	}
 
-});
-
-
-/*
----
-
-script: Fx.SmoothScroll.js
-
-name: Fx.SmoothScroll
-
-description: Class for creating a smooth scrolling effect to all internal links on the page.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-
-requires:
-  - Core/Slick.Finder
-  - /Fx.Scroll
-
-provides: [Fx.SmoothScroll]
-
-...
-*/
-
-Fx.SmoothScroll = new Class({
-
-	Extends: Fx.Scroll,
-
-	options: {
-		axes: ['x', 'y']
-	},
-
-	initialize: function(options, context){
-		context = context || document;
-		this.doc = context.getDocument();
-		this.parent(this.doc, options);
-
-		var win = context.getWindow(),
-			location = win.location.href.match(/^[^#]*/)[0] + '#',
-			links = $$(this.options.links || this.doc.links);
-
-		links.each(function(link){
-			if (link.href.indexOf(location) != 0) return;
-			var anchor = link.href.substr(location.length);
-			if (anchor) this.useLink(link, anchor);
-		}, this);
-
-		this.addEvent('complete', function(){
-			win.location.hash = this.anchor;
-			this.element.scrollTo(this.to[0], this.to[1]);
-		}, true);
-	},
-
-	useLink: function(link, anchor){
-
-		link.addEvent('click', function(event){
-			var el = document.id(anchor) || this.doc.getElement('a[name=' + anchor + ']');
-			if (!el) return;
-
-			event.preventDefault();
-			this.toElement(el, this.options.axes).chain(function(){
-				this.fireEvent('scrolledTo', [link, el]);
-			}.bind(this));
-
-			this.anchor = anchor;
-
-		}.bind(this));
-
-		return this;
-	}
 });
 
 

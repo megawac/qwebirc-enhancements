@@ -32,9 +32,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
             var res = word;
 
-                if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                    res = templates.channellink({channel:util.formatChannel(word)});
-                }
+            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(word)});
+            }
 
             return res;
         })
