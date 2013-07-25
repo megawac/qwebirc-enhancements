@@ -75,7 +75,11 @@ ui.Flasher = new Class({
             // this.emptyFavIcon.rel = "shortcut icon";
             // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
             // this.emptyFavIcon.type = "image/x-icon";
-            this.emptyFavIcon = Element.from(templates.favicon({link: uiOptions.ui.options.icons.empty_favicon}));
+            this.emptyFavIcon = new Element("link", {
+                    rel: 'shortcut icon',
+                    type: 'image/x-icon',
+                    href: uiOptions.ui.options.icons.empty_favicon
+                });
 
             this.flashing = false;
 

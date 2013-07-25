@@ -1,3 +1,363 @@
+this["Handlebars"] = this["Handlebars"] || {};
+this["Handlebars"]["templates"] = this["Handlebars"]["templates"] || {};
+
+this["Handlebars"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+
+function program1(depth0,data) {
+  
+  
+  return "hidden";
+  }
+
+  buffer += "<form id='login'>\r\n<h1>Connect to ";
+  if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " IRC</h1>\r\n<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value=";
+  if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " /></div>\r\n<div class='username right ";
+  stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='";
+  if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'></div>\r\n<div class='password right ";
+  stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "'><span>Password:</span><input type='password' name='full' id='password' value='";
+  if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'></div>\r\n<div class='authenticate'>\r\n<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
+    + ">\r\n</div>\r\n<div><input type='submit' value='Connect' /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+  if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "</span></div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["chanmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this;
+
+function program1(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.menuitem, 'menuitem', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
+  buffer += "<div class='chanmenu dropdownmenu'>\r\n";
+  stack1 = helpers.each.call(depth0, depth0.channels, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["channelName"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function";
+
+
+  buffer += "<div id='channel-name-id' class='channel-name'>";
+  if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='hyperlink-channel' data-chan='";
+  if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'>";
+  if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
+
+function program1(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.tabClose, 'tabClose', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
+  buffer += "<div class='detached-window'>\r\n<div class='header'>\r\n<span class='title'>";
+  if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\r\n";
+  stack1 = helpers.unless.call(depth0, depth0.base, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n";
+  stack1 = self.invokePartial(partials.tabAttach, 'tabAttach', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n</div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<form class='input'>\r\n<div>\r\n<label class='nickname'><span class='status ";
+  if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'></span>";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</label>\r\n<input class='";
+  if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " input-field' type='text'>\r\n<input class='input-button' type='button' value='>' />\r\n</div>\r\n</form>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["ircMessage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<div class='";
+  if (stack1 = helpers['class']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0['class']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'></div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, functionType="function", self=this;
+
+
+  buffer += "<a href='#' class='tab'>";
+  if (stack1 = helpers.name) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "&nbsp;";
+  stack1 = self.invokePartial(partials.tabDetach, 'tabDetach', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</a>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<div class='dropdown-tab'>\r\n<img src='";
+  if (stack1 = helpers.icon) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.icon; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "' title='menu' alt='menu'>\r\n</div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["menuitem"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += " data-value='";
+  if (stack1 = helpers.value) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.value; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'";
+  return buffer;
+  }
+
+function program3(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\r\n<span class='hint'>";
+  if (stack1 = helpers.hint) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.hint; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\r\n";
+  return buffer;
+  }
+
+  buffer += "<a";
+  stack1 = helpers['if'].call(depth0, depth0.value, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += ">\r\n<span>";
+  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\r\n";
+  stack1 = helpers['if'].call(depth0, depth0.hint, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</a>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, stack2, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, functionType="function";
+
+
+  buffer += "<div class='message";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.pad || depth0.pad),stack1 ? stack1.call(depth0, depth0['class'], options) : helperMissing.call(depth0, "pad", depth0['class'], options)))
+    + "'><span>";
+  if (stack2 = helpers.message) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.message; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "</span></div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<a href='#' class='user'><span>";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span></a>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='hyperlink-channel'>";
+  if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='timestamp'>";
+  if (stack1 = helpers.time) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.time; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " </span>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["topicBar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\r\n";
+  stack1 = self.invokePartial(partials.topicText, 'topicText', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n";
+  return buffer;
+  }
+
+function program3(depth0,data) {
+  
+  
+  return "&nbsp;\r\n";
+  }
+
+  buffer += "<div class='topic tab-invisible qui colourline'>\r\n";
+  stack1 = helpers['if'].call(depth0, depth0.topic, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
+
+function program1(depth0,data) {
+  
+  
+  return "emptytopic";
+  }
+
+  buffer += "<span class='";
+  stack1 = helpers['if'].call(depth0, depth0.empty, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "'>";
+  if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='hyperlink-whois' data-user='";
+  if (stack1 = helpers.userid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.userid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'>&lt;";
+  if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "&gt;</span>\n";
+  return buffer;
+  });
 /*Copyright (c) 2008-2009 the qwebirc project.
 http://www.qwebirc.org/
 
@@ -4477,31 +4837,31 @@ sound.SoundPlayer = new Class({
 
     //Templates.compiled.authpage({nickname:'fred',username:'megawac',password:'secret', full:false}) (full shows all fields)
     //"<div id='login'><div><span>Nickname:</span><input type='text' name='basic' id='nickname' value=fred></div><div><span>Auth options</span><input type='checkbox' id='authenticate'></div><div><span>Gamesurge username:</span><input type='text' name='full' id='username' value='megawac'></div><div><span>Password:</span><input type='text' name='full' id='password' value='secret'></div></div>"
-    source.authpage = [
-    "<form id='login'>",
-        //"<div>",
-        "<h1>Connect to {{network}} IRC</h1>",
-        "<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value={{nickname}}></div>",
-        "<div class='username right {{#unless full}}hidden{{/unless}}'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='{{username}}'></div>",
-        "<div class='password right {{#unless full}}hidden{{/unless}}'><span>Password:</span><input type='password' name='full' id='password' value='{{password}}'></div>",
-        "<div class='authenticate'>",
-            "<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' {{check full}}>",
-        "</div>",
-        "<div><input type='submit' value='Connect' /></div>",
-        //"</div>",
-    "</form>",
-    "<div class='qwebirc-init-channels'><span>{{channels}}</span></div>"
-    ].join("");
+    // source.authpage = [
+    // "<form id='login'>",
+    //     //"<div>",
+    //     "<h1>Connect to {{network}} IRC</h1>",
+    //     "<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value={{nickname}}></div>",
+    //     "<div class='username right {{#unless full}}hidden{{/unless}}'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='{{username}}'></div>",
+    //     "<div class='password right {{#unless full}}hidden{{/unless}}'><span>Password:</span><input type='password' name='full' id='password' value='{{password}}'></div>",
+    //     "<div class='authenticate'>",
+    //         "<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' {{check full}}>",
+    //     "</div>",
+    //     "<div><input type='submit' value='Connect' /></div>",
+    //     //"</div>",
+    // "</form>",
+    // "<div class='qwebirc-init-channels'><span>{{channels}}</span></div>"
+    // ].join("");
 
-    source.spanURL = "<span class='hyperlink-channel'>{{message}}</span>";
+    // source.spanURL = "<span class='hyperlink-channel'>{{message}}</span>";
 
-    source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
-    source.timestamp = "<span class='timestamp'>{{time}} </span>";
-    source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
-    source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
+    // source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
+    // source.timestamp = "<span class='timestamp'>{{time}} </span>";
+    // source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
+    // source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
 
     source.messageLine = "<hr class='lastpos' />";
-    source.ircMessage = "<div class='{{styles}}'></div>";
+    // source.ircMessage = "<div class='{{styles}}'></div>";
 
 
     //portions:
@@ -4516,22 +4876,22 @@ sound.SoundPlayer = new Class({
     source.propertiesPane = "<div class='qui properties'></div>";
     source.inputPane = "<div class='qui bottompanel'></div>";
 
-    source.detachedWindow = [
-    "<div class='detached-window'>",
-        "<div class='header'>",
-            "<span class='title'>{{channel}}</span>",
-            "{{#unless base}}{{> tabClose}}{{/unless}}",//css bug
-            "{{> tabAttach}}",
-        "</div>",
-    "</div>"].join("");
+    // source.detachedWindow = [
+    // "<div class='detached-window'>",
+    //     "<div class='header'>",
+    //         "<span class='title'>{{channel}}</span>",
+    //         "{{#unless base}}{{> tabClose}}{{/unless}}",//css bug
+    //         "{{> tabAttach}}",
+    //     "</div>",
+    // "</div>"].join("");
 
     source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
 
     source.menuContainer = "<div class='menu'></div>";
-    source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
+    // source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
     source.menudrop = "<div class='main-menu dropdownmenu'></div>";
-    source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
-    source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
+    // source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
+    // source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
@@ -4541,29 +4901,29 @@ sound.SoundPlayer = new Class({
         "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
         "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
     "</div>"].join("");
-    source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
+    // source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
     source.tabDetach = "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>";
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
-    source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
+    // source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
 
-    source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
-                            "{{#if topic}}{{> topicText}}{{else}}&nbsp;{{/if}}",
-                        "</div>"].join("");
-    source.topicText = "<span class='{{#if empty}}emptytopic{{/if}}'>{{topic}}</span>";
+    // source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
+    //                         "{{#if topic}}{{> topicText}}{{else}}&nbsp;{{/if}}",
+    //                     "</div>"].join("");
+    // source.topicText = "<span class='{{#if empty}}emptytopic{{/if}}'>{{topic}}</span>";
 
-    source.nickbtn = "<a href='#' class='user'><span>{{nick}}</span></a>";
+    // source.nickbtn = "<a href='#' class='user'><span>{{nick}}</span></a>";
     // source.nicklist = "<div class='nicklist tab-invisible qwebirc-qui'></div>";
 
-    source.favicon = "<link rel='shortcut icon' type='image/x-icon' href='{{link}}'>";
+    // source.favicon = "<link rel='shortcut icon' type='image/x-icon' href='{{link}}'>";
 
-    source.ircInput = [
-    "<form class='input'><div>",
-        "<label class='nickname'><span class='status {{status}}'></span>{{nick}}</label>",
-        "<input class='{{type}} input-field' type='text'>",
-        "<input class='input-button' type='button' value='>' />",
-    "</div></form>"].join("");
+    // source.ircInput = [
+    // "<form class='input'><div>",
+    //     "<label class='nickname'><span class='status {{status}}'></span>{{nick}}</label>",
+    //     "<input class='{{type}} input-field' type='text'>",
+    //     "<input class='input-button' type='button' value='>' />",
+    // "</div></form>"].join("");
 
 
     source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -4573,12 +4933,12 @@ sound.SoundPlayer = new Class({
         HELPERS
     ***********************/
     //invert boolean helper
-    engine.registerHelper('not', prelude.negate);
+    // engine.registerHelper('not', prelude.negate);
 
     //returns hidden class name if it should be hidden
-    engine.registerHelper('hidden', function(hidden) {
-        return hidden ? 'hidden' : '';
-    });
+    // engine.registerHelper('hidden', function(hidden) {
+    //     return hidden ? 'hidden' : '';
+    // });
 
     engine.registerHelper('check', function(checked){
         return checked ? 'checked' : '';
@@ -4610,11 +4970,10 @@ sound.SoundPlayer = new Class({
     *********************/
 
     function compileAll(source,compiled) {
-        compiled = compiled || {};
-
         Object.each(source, function(item, key) {
             try {
-                compiled[key] = engine.compile(item);
+                // compiled[key] = engine.compile(item);
+                compiled[key] = Function.from(item)
             } catch(err) {
                 console.log(err);
             }
@@ -5108,7 +5467,11 @@ ui.Flasher = new Class({
             // this.emptyFavIcon.rel = "shortcut icon";
             // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
             // this.emptyFavIcon.type = "image/x-icon";
-            this.emptyFavIcon = Element.from(templates.favicon({link: uiOptions.ui.options.icons.empty_favicon}));
+            this.emptyFavIcon = new Element("link", {
+                    rel: 'shortcut icon',
+                    type: 'image/x-icon',
+                    href: uiOptions.ui.options.icons.empty_favicon
+                });
 
             this.flashing = false;
 
@@ -5508,7 +5871,7 @@ ui.QUI = new Class({
             addTab = tabbtns.getElement('.add-chan'),
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
-            resizeTabs = util.fillContainer.curry(tabs, 'max-width'),
+            resizeTabs = util.fillContainer.curry(tabs, {style: 'max-width'}),
             onResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();
@@ -6651,14 +7014,15 @@ ui.decorateDropdown = function(btn, ddm, options) {
 
 //dirty function please help with css :(
 //dir can be 'width' 'height'
-util.fillContainer = function ($ele, sty, offset) {
-    offset = offset || 10;
+util.fillContainer = function ($ele, options) {
+    options = Object.append({style: ['width'], offset: 20}, options);
 
     var filler = function() {
         var size = $ele.getSize();
 
-        Array.from( (sty || 'width') ).each(function(style) {//wait a sec for potential style recalcs
-            var method = style.contains('width') ? 'x' : 'y';
+        Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
+            var method = style.contains('width') ? 'x' : 'y',
+                offset = options.offset;
 
             $ele.getSiblings().each(function(sib) {
                 offset += sib.getSize()[method];
@@ -8468,7 +8832,7 @@ ui.QUI.Window = new Class({
         // var e = new Element("div");
         var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
-        var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
+        var msge = Element.from(templates.ircMessage({class: eclass}));
         this.lastcolour = !this.lastcolour;
 
         this.parent(type, line, colourClass, msge);

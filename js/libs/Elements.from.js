@@ -2,7 +2,7 @@
 
 //Changes from Mootools spec: excludeScripts defaults to to false because fuck you
 
-//http://jsperf.com/dom-create-vs-jquery/5
+//http://jsperf.com/dom-create-vs-jquery/6
 window.addEvent("domready", function(){
 
 function tableFix(match, text) {
@@ -69,11 +69,10 @@ Elements.from = function(text, excludeScripts){
 
 }
 
+});
 
 Element.extend({
     from: function(text, rs) {
         return Elements.from(text,rs)[0];
     }
-});
-
 });

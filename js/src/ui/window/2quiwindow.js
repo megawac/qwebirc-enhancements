@@ -568,7 +568,7 @@ ui.QUI.Window = new Class({
         // var e = new Element("div");
         var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
-        var msge = Element.from(templates.ircMessage({styles: eclass, message: line}));
+        var msge = Element.from(templates.ircMessage({class: eclass}));
         this.lastcolour = !this.lastcolour;
 
         this.parent(type, line, colourClass, msge);

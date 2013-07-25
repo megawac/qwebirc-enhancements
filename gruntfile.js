@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
     var concatfiles = [
+    'js/dist/templates.js',
     'js/src/qwebirc_start.js',
     'js/src/util/*.js',
     'js/src/qwebirc.js',
@@ -16,8 +17,9 @@ module.exports = function(grunt) {
             dist: {
                 options: {
                     namespace: "Handlebars.templates",
-                    knownHelpers: ['if', 'each', 'unless'],
-                    wrapped: "true",
+                    knownHelpers: ['if', 'each', 'unless', 'check', 'pad'],
+                    wrapped: true,
+                    node: false,
                     processContent: function(content) {//remove whitespace
                         content = content.replace(/^[\x20\t]+/mg, '').replace(/[\x20\t]+$/mg, '');
                         content = content.replace(/^[\r\n]+/, '').replace(/[\r\n]*$/, '\n');

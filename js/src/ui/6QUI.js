@@ -42,7 +42,7 @@ ui.QUI = new Class({
             addTab = tabbtns.getElement('.add-chan'),
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
-            resizeTabs = util.fillContainer.curry(tabs, 'max-width'),
+            resizeTabs = util.fillContainer.curry(tabs, {style: 'max-width'}),
             onResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();

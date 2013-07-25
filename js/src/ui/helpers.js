@@ -109,14 +109,15 @@ ui.decorateDropdown = function(btn, ddm, options) {
 
 //dirty function please help with css :(
 //dir can be 'width' 'height'
-util.fillContainer = function ($ele, sty, offset) {
-    offset = offset || 10;
+util.fillContainer = function ($ele, options) {
+    options = Object.append({style: ['width'], offset: 20}, options);
 
     var filler = function() {
         var size = $ele.getSize();
 
-        Array.from( (sty || 'width') ).each(function(style) {//wait a sec for potential style recalcs
-            var method = style.contains('width') ? 'x' : 'y';
+        Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
+            var method = style.contains('width') ? 'x' : 'y',
+                offset = options.offset;
 
             $ele.getSiblings().each(function(sib) {
                 offset += sib.getSize()[method];
