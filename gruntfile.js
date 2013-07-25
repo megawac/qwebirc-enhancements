@@ -1,5 +1,12 @@
 module.exports = function(grunt) {
-    var concatfiles = ['js/src/qwebirc_start.js', 'js/src/util/*.js', 'js/src/qwebirc.js', 'js/src/irc/*.js', 'js/src/ui/Handlebars/*.js', 'js/src/ui/*.js', 'js/src/ui/window/*.js', //ui +etc
+    var concatfiles = [
+    'js/src/qwebirc_start.js',
+    'js/src/util/*.js',
+    'js/src/qwebirc.js',
+    'js/src/irc/*.js',
+    'js/src/ui/Handlebars/*.js',
+    'js/src/ui/*.js',//ui +etc
+    'js/src/ui/window/*.js',
     'js/src/qwebirc_end.js'];
 
     grunt.initConfig({
@@ -48,6 +55,11 @@ module.exports = function(grunt) {
                 'js/dist/qwebirc.js'],
                 // the location of the resulting JS file
                 dest: 'js/dist/qwebirc-0.93dev.js'
+            },
+
+            democopy: { //cant have 2 output files for dest
+                src: 'js/dist/qwebirc-0.93dev.js',
+                dest: 'demo/static/js/dist/qwebirc-0.93dev.js'
             }
         },
 
@@ -86,7 +98,8 @@ module.exports = function(grunt) {
 
     'handlebars',
 
-    'concat:qweb', 'concat:full'
+    'concat:qweb', 'concat:full',
+    'concat:democopy',
     // , 'uglify:strip'
     //, 'uglify:min'
     ]);
