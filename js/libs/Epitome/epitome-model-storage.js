@@ -38,9 +38,18 @@
                     this.setupSync();
                 },
 
-                //revert changes
+                //revert or update changes to Model
                 sync: function(method, model) {
-                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    var oldattrs = Object.clone(this._attributes),
+                        attrs = this.properties.storage.get(this.options.key);
+
+                    this._attributes = {};
+                    Object.each(attrs, function(val, key) {
+                        if(oldattrs[key] !== val) {
+                            this.set(key, val);
+                        }
+                    }, this);
+
                     this.trigger('sync');
                     return this;
                 },

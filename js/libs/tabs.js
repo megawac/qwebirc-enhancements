@@ -108,6 +108,7 @@ MGFX.Rotater = new Class({
 				action[index.toString()] = {
 					opacity: 1
 				};
+				slide.getParent().setStyle('height', slide.getHeight());
 			} else {
 				action[index.toString()] = {
 					opacity:0

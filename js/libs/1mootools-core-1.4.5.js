@@ -1,5 +1,7 @@
 //***************NOTE*****
-//removed all compatibility code for - possible cdn link
+//removed all compatibility code for
+//also added some methods to perserve native code (see force)
+// closest cdn link (but it will make some native code be overwritten):
 // //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js or minified //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat-yc.js
 
 /*
@@ -285,7 +287,7 @@ force('String', String, [
 	'slice', 'split', 'substr', 'substring', 'trim', 'toLowerCase', 'toUpperCase'
 ])('Array', Array, [
 	'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'concat', 'join', 'slice',
-	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight'
+	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight', 'isArray'
 ])('Number', Number, [
 	'toExponential', 'toFixed', 'toLocaleString', 'toPrecision'
 ])('Function', Function, [

@@ -40,8 +40,9 @@ ui.Window = new Class({
         this.fireEvent("close", this);
     },
     subEvent: function(event) {
-        if ($defined(this.subWindow))
-            this.subWindow.fireEvent(event);
+        var sub = this.subWindow
+        if ($defined(sub))
+            (sub.fireEvent || sub.trigger).call(sub, event);
     },
     setSubWindow: function(win) {
         this.subWindow = win;

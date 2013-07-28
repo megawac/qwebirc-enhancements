@@ -1,5 +1,7 @@
 //***************NOTE*****
-//removed all compatibility code for - possible cdn link
+//removed all compatibility code for
+//also added some methods to perserve native code (see force)
+// closest cdn link (but it will make some native code be overwritten):
 // //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js or minified //cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat-yc.js
 
 /*
@@ -285,7 +287,7 @@ force('String', String, [
 	'slice', 'split', 'substr', 'substring', 'trim', 'toLowerCase', 'toUpperCase'
 ])('Array', Array, [
 	'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'concat', 'join', 'slice',
-	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight'
+	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight', 'isArray'
 ])('Number', Number, [
 	'toExponential', 'toFixed', 'toLocaleString', 'toPrecision'
 ])('Function', Function, [
@@ -11111,26 +11113,6 @@ Copyright (c) 2010 Arieh Glazer
         return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
-    var trailing_punctuation_django = ['.', ',', ':', ';'];
-    var trailing_punctuation_improved = ['.', ',', ':', ';', '.)'];
-    var wrapping_punctuation_django = [
-        ['(', ')'],
-        ['<', '>'],
-        ['&lt;', '&gt;']
-    ];
-    var wrapping_punctuation_improved = [
-        ['(', ')'],
-        ['<', '>'],
-        ['&lt;', '&gt;'],
-        ['“', '”'],
-        ['‘', '’']
-    ];
-    var word_split_re_django = /(\s+)/;
-    var word_split_re_improved = /([\s<>"]+)/;
-    var simple_url_re = /^https?:\/\/\w/;
-    var simple_url_2_re = /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/;
-    var simple_email_re = /^\S+@\S+\.\S+$/;
-
 
     self.Urlerizer = new Class({
         Implements: [Options],
@@ -11138,9 +11120,21 @@ Copyright (c) 2010 Arieh Glazer
             nofollow: false,
             autoescape: true,
             trim_url_limit: false, //length of a url before it is trimmed
-            target: false,
-            django_compatible: true
+            target: false
         },
+
+        trailing_punctuation: ['.', ',', ':', ';', '.)'],
+        wrapping_punctuation: [
+            ['(', ')'],
+            ['<', '>'],
+            ['&lt;', '&gt;'],
+            ['“', '”'],
+            ['‘', '’']
+        ],
+        word_split_re: /([\s<>"]+)/,
+        simple_url_re: /^https?:\/\/\w/,
+        simple_url_2_re: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
+        simple_email_re: /^\S+@\S+\.\S+$/,
 
         initialize: function(opts) {
             this.setOptions(opts);
@@ -11177,16 +11171,26 @@ Copyright (c) 2010 Arieh Glazer
             return x;
         },
 
+        parsePunctuation: function(text) {
+            var lead = '',
+                mid = text,
+                end = '';
+
+
+            return {
+                lead: lead,
+                mid: mid,
+                end: end
+            }
+        },
+
         patterns: [{
             pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
             wholeWord: false,
             parse: function (text) {
                 var options = this.options;
                 var safe_input = false;
-                var word_split_re = options.django_compatible ? word_split_re_django : word_split_re_improved;
-                var trailing_punctuation = options.django_compatible ? trailing_punctuation_django : trailing_punctuation_improved;
-                var wrapping_punctuation = options.django_compatible ? wrapping_punctuation_django : wrapping_punctuation_improved;
-                var words = text.split(word_split_re);
+                var words = text.split(this.word_split_re);
                 for (var i = 0; i < words.length; i++) {
                     var word = words[i];
                     var match = undefined;
@@ -11195,16 +11199,16 @@ Copyright (c) 2010 Arieh Glazer
                         var lead = '';
                         var middle = word;
                         var trail = '';
-                        for (var j = 0; j < trailing_punctuation.length; j++) {
-                            var punctuation = trailing_punctuation[j];
+                        for (var j = 0; j < this.trailing_punctuation.length; j++) {
+                            var punctuation = this.trailing_punctuation[j];
                             if (middle.endsWith(punctuation)) {
                                 middle = middle.substr(0, middle.length - punctuation.length);
                                 trail = punctuation + trail;
                             }
                         }
-                        for (var j = 0; j < wrapping_punctuation.length; j++) {
-                            var opening = wrapping_punctuation[j][0];
-                            var closing = wrapping_punctuation[j][1];
+                        for (var j = 0; j < this.wrapping_punctuation.length; j++) {
+                            var opening = this.wrapping_punctuation[j][0];
+                            var closing = this.wrapping_punctuation[j][1];
                             if (middle.startsWith(opening)) {
                                 middle = middle.substr(opening.length);
                                 lead = lead + opening;
@@ -11221,9 +11225,9 @@ Copyright (c) 2010 Arieh Glazer
                         var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                         var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                        if (middle.match(simple_url_re)) url = smart_urlquote(middle);
-                        else if (middle.match(simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                        else if (middle.indexOf(':') == -1 && middle.match(simple_email_re)) {
+                        if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                        else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                        else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
                             // XXX: Not handling IDN.
                             url = 'mailto:' + middle;
                             nofollow_attr = '';
@@ -12493,7 +12497,11 @@ Element.implement({
         return this;
     },
 
-    //https://gist.github.com/eligrey/1276030
+    hasClasses: function() {
+        Array.every(arguments, this.hasClass, this);
+    },
+
+    // https://gist.github.com/eligrey/1276030
     insertAdjacentHTML: function(position, html) {
         var self = this,
             el = Elements.from(foo);
@@ -12513,12 +12521,8 @@ Element.implement({
         }
     }
 
-    // hasClasses: function() {
-    //     Array.every(arguments, this.hasClass, this);
-    // }
 
 });
-
 
 this.$type = function(object){
     var type = typeOf(object);
@@ -12942,6 +12946,7 @@ MGFX.Rotater = new Class({
 				action[index.toString()] = {
 					opacity: 1
 				};
+				slide.getParent().setStyle('height', slide.getHeight());
 			} else {
 				action[index.toString()] = {
 					opacity:0
@@ -13950,7 +13955,16 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 
                 //revert changes
                 sync: function(method, model) {
-                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    var oldattrs = Object.clone(this._attributes),
+                        attrs = this.properties.storage.get(this.options.key);
+
+                    this._attributes = {};
+                    Object.each(attrs, function(val, key) {
+                        if(oldattrs[key] !== val) {
+                            this.set(key, val);
+                        }
+                    }, this);
+
                     this.trigger('sync');
                     return this;
                 },
@@ -14876,6 +14890,33 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
+this["Handlebars"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class=\"";
+  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.style) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.style; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span>"
+    + "\n";
+  return buffer;
+  });
+
 this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -15025,7 +15066,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n</form>\n";
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>\n";
   return buffer;
   });
 
@@ -15038,28 +15079,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += "<span class='hyperlink-channel'>";
   if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "</span>\n";
-  return buffer;
-  });
-
-this["Handlebars"]["templates"]["subcolour"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class=\"";
-  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " ";
-  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "\">";
-  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span>\n";
   return buffer;
@@ -15356,7 +15375,6 @@ irc.styles = [
         name: 'normal',
         style: '',
         key: '\x00'
-
     },
     {
         name: 'underline',
@@ -20198,7 +20216,7 @@ ui.StandardUI = new Class({
             type = ui.WINDOW_CUSTOM;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        win.addEvent("close", function(win) {
+        (win.on || win.addEvent).call(win, "close", function(win) {
             delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
         }.bind(this));
 
@@ -20227,7 +20245,7 @@ ui.StandardUI = new Class({
             win.lines.addClass("qwebirc-" + cssClass);
 
         var ew = new class_(win.lines, options);
-        ew.addEvent("close", win.close/*.bind(win)*/); //already bound
+        (ew.on || ew.addEvent).call(ew, "close", win.close);
 
         win.setSubWindow(ew);
     },
@@ -21459,7 +21477,7 @@ ui.Theme = new Class({
         return result;
     },
 
-    colourise: function(line) {//http://www.mirc.com/colors.html
+    colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
 
         // if($type(data) === "string")
@@ -21468,7 +21486,7 @@ ui.Theme = new Class({
 
         var result = line;
 
-        var parseArr = result.split("\x03").filter( function(x) { return x != "" } );
+        var parseArr = result.split("\x03").filter( $chk );
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
@@ -21485,10 +21503,10 @@ ui.Theme = new Class({
             colourarr.each(function(str) {
                 var colourMatch = str.match(/^(\d{1,2})/),
                     backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
-                    colour = util.getColourByKey(colourMatch[0]),
+                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
                     background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
 
-                var html = templates.subcolour({
+                var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
@@ -21497,6 +21515,24 @@ ui.Theme = new Class({
 
                 result = result.replace("\x03" + str, html);
             })
+        });
+
+        //matching styles (italics bold under)
+        irc.styles.each(function(style) {
+            parseArr = result.split(style.key);
+
+            if(parseArr.length % 2 != 0) {
+                console.log(parseArr);
+            }
+
+            //seems cleaner than filtering by index and then doing an each i think
+            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
+                html = templates.ircstyle({
+                    'style': style.style,
+                    'text': styled[0]
+                });
+                result.replace(style.key + styled[0] + style.key, html);
+            }
         });
 
         return result;
@@ -22995,7 +23031,7 @@ function render() {
 
 ui.OptionView = new Class({
     Extends: Epitome.View,
-    Binds: ['render'],
+    Binds: ['render', 'save', 'reset'],
     options: {
         template: templates.options,
         onReady: render,
@@ -23031,6 +23067,11 @@ ui.OptionView = new Class({
                 .set(data[id])
         });
 
+        this.element.getElement('#options').addEvents({ //default will fire before bubble
+            'submit': this.save,
+            'reset': this.reset
+        })
+
         this.parent();
         return this;
     },
@@ -23045,6 +23086,20 @@ ui.OptionView = new Class({
         if($defined(this.model.get(id))) {
             this.model.set(id, target.get('value'));
         }
+    },
+
+    save: function(e) {
+        e.stop();
+        this.model.save();
+        this.destroy();
+        this.trigger('close');
+    },
+
+    reset: function(e) {
+        e.stop();
+        this.model.sync();
+        this.destroy();
+        this.trigger('close');
     }
 });
 })()
@@ -23169,8 +23224,9 @@ ui.Window = new Class({
         this.fireEvent("close", this);
     },
     subEvent: function(event) {
-        if ($defined(this.subWindow))
-            this.subWindow.fireEvent(event);
+        var sub = this.subWindow
+        if ($defined(sub))
+            (sub.fireEvent || sub.trigger).call(sub, event);
     },
     setSubWindow: function(win) {
         this.subWindow = win;

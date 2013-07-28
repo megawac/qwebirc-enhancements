@@ -177,6 +177,33 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
+this["Handlebars"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class=\"";
+  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.style) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.style; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span>"
+    + "\n";
+  return buffer;
+  });
+
 this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -326,7 +353,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n</form>\n";
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>\n";
   return buffer;
   });
 
@@ -339,28 +366,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += "<span class='hyperlink-channel'>";
   if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "</span>\n";
-  return buffer;
-  });
-
-this["Handlebars"]["templates"]["subcolour"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class=\"";
-  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " ";
-  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "\">";
-  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span>\n";
   return buffer;

@@ -544,3 +544,8 @@ div.qwebirc-embeddedwizard {
 .mgfx-content > div {
     position: absolute;
 }
+
+#options .actions {
+    position: absolute;
+    margin-top: 30px;
+}

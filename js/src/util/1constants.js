@@ -146,7 +146,6 @@ irc.styles = [
         name: 'normal',
         style: '',
         key: '\x00'
-
     },
     {
         name: 'underline',

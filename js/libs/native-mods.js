@@ -186,7 +186,11 @@ Element.implement({
         return this;
     },
 
-    //https://gist.github.com/eligrey/1276030
+    hasClasses: function() {
+        Array.every(arguments, this.hasClass, this);
+    },
+
+    // https://gist.github.com/eligrey/1276030
     insertAdjacentHTML: function(position, html) {
         var self = this,
             el = Elements.from(foo);
@@ -206,12 +210,8 @@ Element.implement({
         }
     }
 
-    // hasClasses: function() {
-    //     Array.every(arguments, this.hasClass, this);
-    // }
 
 });
-
 
 this.$type = function(object){
     var type = typeOf(object);

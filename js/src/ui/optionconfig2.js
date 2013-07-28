@@ -34,7 +34,7 @@ function render() {
 
 ui.OptionView = new Class({
     Extends: Epitome.View,
-    Binds: ['render'],
+    Binds: ['render', 'save', 'reset'],
     options: {
         template: templates.options,
         onReady: render,
@@ -70,6 +70,11 @@ ui.OptionView = new Class({
                 .set(data[id])
         });
 
+        this.element.getElement('#options').addEvents({ //default will fire before bubble
+            'submit': this.save,
+            'reset': this.reset
+        })
+
         this.parent();
         return this;
     },
@@ -84,6 +89,20 @@ ui.OptionView = new Class({
         if($defined(this.model.get(id))) {
             this.model.set(id, target.get('value'));
         }
+    },
+
+    save: function(e) {
+        e.stop();
+        this.model.save();
+        this.destroy();
+        this.trigger('close');
+    },
+
+    reset: function(e) {
+        e.stop();
+        this.model.sync();
+        this.destroy();
+        this.trigger('close');
     }
 });
 })()

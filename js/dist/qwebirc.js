@@ -177,6 +177,33 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
+this["Handlebars"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class=\"";
+  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.style) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.style; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span>"
+    + "\n";
+  return buffer;
+  });
+
 this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -326,7 +353,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n</form>\n";
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>\n";
   return buffer;
   });
 
@@ -339,28 +366,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += "<span class='hyperlink-channel'>";
   if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "</span>\n";
-  return buffer;
-  });
-
-this["Handlebars"]["templates"]["subcolour"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class=\"";
-  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " ";
-  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "\">";
-  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span>\n";
   return buffer;
@@ -657,7 +662,6 @@ irc.styles = [
         name: 'normal',
         style: '',
         key: '\x00'
-
     },
     {
         name: 'underline',
@@ -5499,7 +5503,7 @@ ui.StandardUI = new Class({
             type = ui.WINDOW_CUSTOM;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        win.addEvent("close", function(win) {
+        (win.on || win.addEvent).call(win, "close", function(win) {
             delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
         }.bind(this));
 
@@ -5528,7 +5532,7 @@ ui.StandardUI = new Class({
             win.lines.addClass("qwebirc-" + cssClass);
 
         var ew = new class_(win.lines, options);
-        ew.addEvent("close", win.close/*.bind(win)*/); //already bound
+        (ew.on || ew.addEvent).call(ew, "close", win.close);
 
         win.setSubWindow(ew);
     },
@@ -6760,7 +6764,7 @@ ui.Theme = new Class({
         return result;
     },
 
-    colourise: function(line) {//http://www.mirc.com/colors.html
+    colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
 
         // if($type(data) === "string")
@@ -6769,7 +6773,7 @@ ui.Theme = new Class({
 
         var result = line;
 
-        var parseArr = result.split("\x03").filter( function(x) { return x != "" } );
+        var parseArr = result.split("\x03").filter( $chk );
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
@@ -6786,10 +6790,10 @@ ui.Theme = new Class({
             colourarr.each(function(str) {
                 var colourMatch = str.match(/^(\d{1,2})/),
                     backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
-                    colour = util.getColourByKey(colourMatch[0]),
+                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
                     background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
 
-                var html = templates.subcolour({
+                var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
@@ -6798,6 +6802,24 @@ ui.Theme = new Class({
 
                 result = result.replace("\x03" + str, html);
             })
+        });
+
+        //matching styles (italics bold under)
+        irc.styles.each(function(style) {
+            parseArr = result.split(style.key);
+
+            if(parseArr.length % 2 != 0) {
+                console.log(parseArr);
+            }
+
+            //seems cleaner than filtering by index and then doing an each i think
+            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
+                html = templates.ircstyle({
+                    'style': style.style,
+                    'text': styled[0]
+                });
+                result.replace(style.key + styled[0] + style.key, html);
+            }
         });
 
         return result;
@@ -8296,7 +8318,7 @@ function render() {
 
 ui.OptionView = new Class({
     Extends: Epitome.View,
-    Binds: ['render'],
+    Binds: ['render', 'save', 'reset'],
     options: {
         template: templates.options,
         onReady: render,
@@ -8332,6 +8354,11 @@ ui.OptionView = new Class({
                 .set(data[id])
         });
 
+        this.element.getElement('#options').addEvents({ //default will fire before bubble
+            'submit': this.save,
+            'reset': this.reset
+        })
+
         this.parent();
         return this;
     },
@@ -8346,6 +8373,20 @@ ui.OptionView = new Class({
         if($defined(this.model.get(id))) {
             this.model.set(id, target.get('value'));
         }
+    },
+
+    save: function(e) {
+        e.stop();
+        this.model.save();
+        this.destroy();
+        this.trigger('close');
+    },
+
+    reset: function(e) {
+        e.stop();
+        this.model.sync();
+        this.destroy();
+        this.trigger('close');
     }
 });
 })()
@@ -8470,8 +8511,9 @@ ui.Window = new Class({
         this.fireEvent("close", this);
     },
     subEvent: function(event) {
-        if ($defined(this.subWindow))
-            this.subWindow.fireEvent(event);
+        var sub = this.subWindow
+        if ($defined(sub))
+            (sub.fireEvent || sub.trigger).call(sub, event);
     },
     setSubWindow: function(win) {
         this.subWindow = win;

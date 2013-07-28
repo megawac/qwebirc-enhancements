@@ -78,7 +78,7 @@ ui.Theme = new Class({
         return result;
     },
 
-    colourise: function(line) {//http://www.mirc.com/colors.html
+    colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
 
         // if($type(data) === "string")
@@ -87,7 +87,7 @@ ui.Theme = new Class({
 
         var result = line;
 
-        var parseArr = result.split("\x03").filter( function(x) { return x != "" } );
+        var parseArr = result.split("\x03").filter( $chk );
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
@@ -104,10 +104,10 @@ ui.Theme = new Class({
             colourarr.each(function(str) {
                 var colourMatch = str.match(/^(\d{1,2})/),
                     backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
-                    colour = util.getColourByKey(colourMatch[0]),
+                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
                     background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
 
-                var html = templates.subcolour({
+                var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
@@ -116,6 +116,24 @@ ui.Theme = new Class({
 
                 result = result.replace("\x03" + str, html);
             })
+        });
+
+        //matching styles (italics bold under)
+        irc.styles.each(function(style) {
+            parseArr = result.split(style.key);
+
+            if(parseArr.length % 2 != 0) {
+                console.log(parseArr);
+            }
+
+            //seems cleaner than filtering by index and then doing an each i think
+            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
+                html = templates.ircstyle({
+                    'style': style.style,
+                    'text': styled[0]
+                });
+                result.replace(style.key + styled[0] + style.key, html);
+            }
         });
 
         return result;
