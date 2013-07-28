@@ -10,7 +10,7 @@ JS_BASE = ["mootools-1.2.1-core", "mootools-1.2-more"]
 JS_EXTRA = ["soundmanager2"]
 
 UIs = {
-  "qui": {
+  "qui-old": {
     "class": "QUI",
     "nocss": True,
     "uifiles": ["qui"],
