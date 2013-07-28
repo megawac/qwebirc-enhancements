@@ -1,0 +1,90 @@
+<form id="options" class="form-horizontal">
+    <fieldset>Options</fieldset>
+    <ul class="option-tabs">
+        <li class="ui-options">Interface</li>
+        <li class="alert-options">Notifications</li>
+        <li class="irc-options">Chat Preferences</li>
+    </ul>
+    <div class="tab-content">
+        <div class="ui-options control-group">
+            <div class="controls">
+                <label class="checkbox" for="nick_colours">
+                    {{lang.NICK_COLOURS}}
+                    <input type="checkbox" id="nick_colours" {{check nick_colours}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="nick_ov_status">
+                    {{lang.NICK_OV_STATUS}}
+                    <input type="checkbox" id="nick_ov_status" {{check nick_ov_status}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="show_timestamps">
+                    {{lang.SHOW_TIMESTAMPS}}
+                    <input type="checkbox" id="show_timestamps" {{check show_timestamps}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="show_nicklist">
+                    {{lang.SHOW_NICKLIST}}
+                    <input type="checkbox" id="show_nicklist" {{check show_nicklist}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="dedicated_notice_window">
+                    {{lang.DEDICATED_NOTICE_WINDOW}}
+                    <input type="checkbox" id="dedicated_notice_window" {{check dedicated_notice_window}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="dedicated_msg_window">
+                    {{lang.DEDICATED_MSG_WINDOW}}
+                    <input type="checkbox" id="dedicated_msg_window" {{check dedicated_msg_window}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="lastpos_line">
+                    {{lang.LASTPOS_LINE}}
+                    <input type="checkbox" id="lastpos_line" {{check lastpos_line}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="hide_joinparts">
+                    {{lang.HIDE_JOINPARTS}}
+                    <input type="checkbox" id="hide_joinparts" {{check hide_joinparts}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="query_on_nick_click">
+                    {{lang.QUERY_ON_NICK_CLICK}}
+                    <input type="checkbox" id="query_on_nick_click" {{check query_on_nick_click}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label for="style_hue">
+                    {{lang.STYLE_HUE}}
+                    <div id="style_hue" class="slider hue-slider"><div class="knob"></div></div>
+                </label>
+                
+            </div>
+        </div>
+        <div class="irc-options control-group">
+            <div class="controls">
+            <label class="checkbox" for="use_hiddenhost">
+                {{lang.USE_HIDDENHOST}}
+                <input type="checkbox" id="use_hiddenhost" {{check use_hiddenhost}}>
+            </label>
+            </div>
+            <div class="controls">
+                <label class="checkbox" for="accept_service_invites">
+                    {{lang.ACCEPT_SERVICE_INVITES}}
+                    <input type="checkbox" id="accept_service_invites" {{check accept_service_invites}}>
+                </label>
+            </div>
+        </div>
+        <div class="alert-options control-group">
+
+        </div>
+    </div>
+</form>
