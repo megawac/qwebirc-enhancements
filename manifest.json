@@ -14,7 +14,7 @@
    }],
 
    "web_accessible_resources": [
-      "css/tfircgui.css",
+      "css/bootstrap.css",
       "css/qwebirc.css",
       "css/jqueryui_icons.css",
       "css/modifiablecss.mcss",

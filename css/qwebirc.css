@@ -1,146 +1,292 @@
 /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
-
-
 html, body {
     margin: 0;
     height: 100%;
     overflow: hidden;
 }
 
-/*.qwebirc*/ .colourline .Xc0 {
+.windows {
+    /*height: calc(100% - 30px); /*tabbar*/
+    width: 100%;
+}
+
+.window {
+    /*height: 100%;*/
+    /*height: calc(100% - 25px);*/
+    position: absolute;
+    top: 25px;
+    bottom: 0;
+    width: 100%;
+}
+
+.window > * {
+    width: 100%;
+}
+
+.content {
+    top: 0;
+    bottom: 25px;
+    position: absolute;
+}
+
+.ircwindow .content {
+    bottom: 52px;
+}
+
+.content > * {
+    top: 0;
+    height:100%;
+}
+
+.channel .content {
+    top: 15px;
+}
+
+/*otherwise 100%*/
+.channel .leftpanel {
+    position: absolute;
+    left: 0;
+    right: 141px;
+}
+
+
+.ircwindow .rightpanel {
+    position: absolute;
+    right: 0;
+}
+
+.qui .properties {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.ircwindow .properties {
+    bottom: 27px;
+}
+
+.bottompanel {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+}
+
+/* .detached.windows {
+    position:absolute;
+} */
+
+
+.attach, .detach, .tab-close {
+    cursor: pointer;
+}
+
+
+.detached-window {
+    border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px; 
+    border: 5px solid #800000;
+    z-index: 2;
+}
+
+.detached-window.active {
+    z-index: 10;
+}
+
+
+.header {
+    padding: 4px 0;
+    background-color: #FAFAFA;
+}
+
+.header .attach, .header .tab-close {
+    float:right;
+}
+
+.header .title {
+    padding-left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.resize-handle {
+    margin: -35px -5px 0 0;
+    padding: 0 5px 5px 0;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor:se-resize;
+}
+
+.tabbar .detach, .tabbar .tab-close {
+    vertical-align: middle;
+    padding-bottom: 3px;
+    display: inline-block;
+}
+
+.handle {
+    z-index: 2;
+    position: absolute;
+    background-repeat: no-repeat;
+    margin: auto;
+}
+
+.handle.vertical {
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: col-resize;
+    z-index: 10;
+}
+
+.handle.horizontal {
+    height: 10px;
+    cursor: row-resize;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+/*Highlighting*/
+
+/*.qwebirc*/ .colourline .col0 {
     color: white;
 }
 
-/*.qwebirc*/ .colourline .Xc1 {
+/*.qwebirc*/ .colourline .col1 {
     color: black;
 }
 
-/*.qwebirc*/ .colourline .Xc2 {
+/*.qwebirc*/ .colourline .col2 {
     color: darkBlue;
 }
 
-/*.qwebirc*/ .colourline .Xc3 {
+/*.qwebirc*/ .colourline .col3 {
     color: darkGreen;
 }
 
-/*.qwebirc*/ .colourline .Xc4 {
+/*.qwebirc*/ .colourline .col4 {
     color: red;
 }
 
-/*.qwebirc*/ .colourline .Xc5 {
+/*.qwebirc*/ .colourline .col5 {
     color: darkRed;
 }
 
-/*.qwebirc*/ .colourline .Xc6 {
+/*.qwebirc*/ .colourline .col6 {
     color: purple;
 }
 
-/*.qwebirc*/ .colourline .Xc7 {
+/*.qwebirc*/ .colourline .col7 {
     color: orange;
 }
 
-/*.qwebirc*/ .colourline .Xc8 {
+/*.qwebirc*/ .colourline .col8 {
     color: yellow;
 }
 
-/*.qwebirc*/ .colourline .Xc9 {
+/*.qwebirc*/ .colourline .col9 {
     color: green;
 }
 
-/*.qwebirc*/ .colourline .Xc10 {
+/*.qwebirc*/ .colourline .col10 {
     color: teal;
 }
 
-/*.qwebirc*/ .colourline .Xc11 {
+/*.qwebirc*/ .colourline .col11 {
     color: cyan;
 }
 
-/*.qwebirc*/ .colourline .Xc12 {
+/*.qwebirc*/ .colourline .col12 {
     color: blue;
 }
 
-/*.qwebirc*/ .colourline .Xc13 {
+/*.qwebirc*/ .colourline .col13 {
     color: fuchsia;
 }
 
-/*.qwebirc*/ .colourline .Xc14 {
+/*.qwebirc*/ .colourline .col14 {
     color: dimGray;
 }
 
-/*.qwebirc*/ .colourline .Xc15 {
+/*.qwebirc*/ .colourline .col15 {
     color: lightGray;
 }
 
-/*.qwebirc*/ .colourline .Xbc0 {
+/*.qwebirc*/ .colourline .back0 {
     background-color: white;
 }
 
-/*.qwebirc*/ .colourline .Xbc1 {
+/*.qwebirc*/ .colourline .back1 {
     background-color: black;
 }
 
-/*.qwebirc*/ .colourline .Xbc2 {
+/*.qwebirc*/ .colourline .back2 {
     background-color: darkBlue;
 }
 
-/*.qwebirc*/ .colourline .Xbc3 {
+/*.qwebirc*/ .colourline .back3 {
     background-color: darkGreen;
 }
 
-/*.qwebirc*/ .colourline .Xbc4 {
+/*.qwebirc*/ .colourline .back4 {
     background-color: red;
 }
 
-/*.qwebirc*/ .colourline .Xbc5 {
+/*.qwebirc*/ .colourline .back5 {
     background-color: darkRed;
 }
 
-/*.qwebirc*/ .colourline .Xbc6 {
+/*.qwebirc*/ .colourline .back6 {
     background-color: purple;
 }
 
-/*.qwebirc*/ .colourline .Xbc7 {
+/*.qwebirc*/ .colourline .back7 {
     background-color: orange;
 }
 
-/*.qwebirc*/ .colourline .Xbc8 {
+/*.qwebirc*/ .colourline .back8 {
     background-color: yellow;
 }
 
-/*.qwebirc*/ .colourline .Xbc9 {
+/*.qwebirc*/ .colourline .back9 {
     background-color: green;
 }
 
-/*.qwebirc*/ .colourline .Xbc10 {
+/*.qwebirc*/ .colourline .back10 {
     background-color: teal;
 }
 
-/*.qwebirc*/ .colourline .Xbc11 {
+/*.qwebirc*/ .colourline .back11 {
     background-color: cyan;
 }
 
-/*.qwebirc*/ .colourline .Xbc12 {
+/*.qwebirc*/ .colourline .back12 {
     background-color: blue;
 }
 
-/*.qwebirc*/ .colourline .Xbc13 {
+/*.qwebirc*/ .colourline .back13 {
     background-color: fuchsia;
 }
 
-/*.qwebirc*/ .colourline .Xbc14 {
+/*.qwebirc*/ .colourline .back14 {
     background-color: dimGray;
 }
 
-/*.qwebirc*/ .colourline .Xbc15 {
+/*.qwebirc*/ .colourline .back15 {
     background-color: lightGray;
 }
 
-/*.qwebirc*/ .colourline .Xb {
+/*.qwebirc*/ .colourline .bold {
     font-weight: bold;
 }
 
-/*.qwebirc*/ .colourline .Xu {
+/*.qwebirc*/ .colourline .underline {
     text-decoration: underline;
+}
+
+.colourline .italic {
+    font-style:italic
 }
 
 /*.qwebirc*/ .warncolour {
@@ -385,4 +531,16 @@ div.qwebirc-embeddedwizard {
     padding-left: 4px;
     padding-top: 3px;
     font-size: 0.8em;
+}
+
+
+/*MGFX custom tabbar stuff*/
+.mgfx-tab .tab-content {background-color:#ddd; position:relative; height:160px; width:350px; margin-bottom:10px; }
+.mgfx-tab { margin-left:0;margin-bottom:0;}
+.mgfx-tab li {background-color:transparent;display:inline;float:none;list-style:none; }
+.mgfx-tab li a {background-color:#edd; color:#333; display:inline; height:auto;padding:5px 20px;text-decoration:none;width:auto;}
+.mgfx-tab li a.active { background-color:#ddd;color:#000; }
+
+.mgfx-content > div {
+    position: absolute;
 }

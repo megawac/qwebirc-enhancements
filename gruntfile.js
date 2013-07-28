@@ -50,7 +50,10 @@ module.exports = function(grunt) {
 
             full: {
                 // the files to concatenate
-                src: ['js/libs/*.js', 'js/src/prelude.js',
+                src: [
+                'js/libs/*.js',
+                'js/libs/Epitome/*.js',
+                'js/src/prelude.js',
                 //'js/functional+.js',
                 // //'js/to-function.js',
                 // 'js/src/Templates.js',
