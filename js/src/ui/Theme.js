@@ -83,7 +83,6 @@ ui.Theme = new Class({
 
         // if($type(data) === "string")
         //     return line;
-        console.log(line);
 
         var result = line;
 
@@ -135,6 +134,8 @@ ui.Theme = new Class({
                 result.replace(style.key + styled[0] + style.key, html);
             }
         });
+
+        console.log(result);
 
         return result;
     },

@@ -9,7 +9,7 @@ import re
 class RootResource(resource.Resource):
   def getChild(self, name, request):
     if name == "":
-      name = "qui.html"
+      name = "qui-enhanced.html"
     return self.primaryChild.getChild(name, request)
 
 # we do NOT use the built-in timeOut mixin as it's very very buggy!
