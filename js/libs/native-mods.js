@@ -184,6 +184,26 @@ Element.implement({
     removeClasses: function() {
         Array.each(arguments, this.removeClass, this);
         return this;
+    },
+
+    //https://gist.github.com/eligrey/1276030
+    insertAdjacentHTML: function(position, html) {
+        var self = this,
+            el = Elements.from(foo);
+        switch (position.toLowerCase()) {
+            case "beforebegin":
+                el.inject(self, 'before');
+                break;
+            case "afterbegin":
+                el.inject(self, 'top');
+                break;
+            case "beforeend":
+                el.inject(self, 'bottom');
+                break;
+            case "afterend":
+                el.inject(self, 'after');
+                break;
+        }
     }
 
     // hasClasses: function() {

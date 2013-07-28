@@ -41,12 +41,14 @@ ui.Interface = new Class({
             last: 1
         };
         window.hasfocus = true;
-        window.addEvent('focus', function() {
+        window.addEvents({
+            'focus': function() {
                 this.hasfocus = true;
-            })
-            .addEvent('blur', function() {
+            },
+            'blur': function() {
                 this.hasfocus = false;
-            });
+            }
+        });
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
@@ -98,38 +100,6 @@ ui.Interface = new Class({
                 pass: new Storer("password"),//auth password
                 auth: new Storer("enableAuth")//enable full auth
             };
-
-            function callback(loginopts) {
-                $extend(loginopts, Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime']));
-
-                var client = self.IRCClient = new irc.IRCClient(loginopts, self.ui_);
-                client.connect();
-
-
-                window.onbeforeunload =  function(e) {
-                    if (!client.disconnected) {
-                        var message = "This action will close all active IRC connections.";
-                        if ((e = e || window.event)) {
-                            e.returnValue = message;
-                        }
-                        return message;
-                    }
-                };
-                window.addEvent('unload', client.quit);
-
-                if(!auth.enabled) {
-                    self.ui_.beep();
-                }
-
-                client.addEvent("auth:once", self.ui_.beep);
-
-                self.fireEvent("login", {
-                    'IRCClient': client,
-                    'parent': self
-                });
-
-                details.window.window.destroy();
-            }
 
             if (opts.searchURL) {
                 var args = util.parseURI(document.location.toString()),
@@ -204,7 +174,37 @@ ui.Interface = new Class({
             inick = opts.initialNickname;
             //}
 
-            var details = self.ui_.loginBox(callback, inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+
+            self.ui_.addEvent("login:once", function(loginopts) {
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime']), loginopts);
+
+                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
+                client.connect();
+
+
+                window.onbeforeunload =  function(e) {
+                    if (!client.disconnected) {
+                        var message = "This action will close all active IRC connections.";
+                        if ((e = e || window.event)) {
+                            e.returnValue = message;
+                        }
+                        return message;
+                    }
+                };
+                window.addEvent('unload', client.quit);
+
+                if(!auth.enabled) {
+                    self.ui_.beep();
+                }
+
+                client.addEvent("auth:once", self.ui_.beep);
+
+                self.fireEvent("login", {
+                    'IRCClient': client,
+                    'parent': self
+                });
+            });
         });
     },
     cleanUp: function() {

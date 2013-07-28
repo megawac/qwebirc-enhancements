@@ -6041,10 +6041,10 @@ if (typeof JSON == 'undefined') this.JSON = {};
 
 //<1.2compat>
 
-JSON = {
-	stringify: JSON.stringify,
-	parse: JSON.parse
-};
+// JSON = {
+// 	stringify: JSON.stringify,
+// 	parse: JSON.parse
+// };
 
 //</1.2compat>
 
@@ -11388,28 +11388,17 @@ Fx.AutoScroll = new Class({
     //- _ :: used for partial() function
     var _ = parent._ = Function._ = {},
 
-        //+ slice :: create local reference for faster look-up
-        slice = Array.prototype.slice,
-        _unshift = Array.prototype.unshift,
-
-        //minor optimizaton 
-        //instead of [item].concat(xs)
-        unshift = function(xs, item) {
-            _unshift.call(xs, item);
+        unshift = function(xs, i) {
+            Array.unshift(xs, i);
             return xs;
-        },
-
-        //+ toArray :: a -> [b]
-        toArray = function(x) {
-            return slice.call(x);
         },
 
         //- from wu.js <http://fitzgen.github.com/wu.js/>
         //+ curry :: f -> ? -> g
         curry = function(fn /* variadic number of args */ ) {
-            var args = slice.call(arguments, 1);
+            var args = Array.slice(arguments, 1);
             curried = function() {
-                return fn.apply(this, args.concat(toArray(arguments)));
+                return fn.apply(this, args.concat(Array.from(arguments)));
             };
             ////sugar for console
             // curried.toString = function() {
@@ -11426,7 +11415,8 @@ Fx.AutoScroll = new Class({
             curried = function() {
                 bind = bind || this;
                 if (arguments.length < numArgs) {
-                    return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(toArray(arguments), fn)), numArgs - arguments.length) : curry.apply(bind, unshift(toArray(arguments), fn));
+                    return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(arguments, fn)), numArgs - arguments.length) : 
+                                                                    curry.apply(bind, unshift(arguments, fn));
                 } else {
                     return fn.apply(bind, arguments);
                 }
@@ -11446,22 +11436,16 @@ Fx.AutoScroll = new Class({
             }
 
             Function.prototype.curry = function( /*args...*/ ) {
-                return curry.apply(this, unshift(toArray(arguments), this)); //[this].concat(toArray(arguments)));
+                return curry.apply(this, unshift(arguments, this)); //[this].concat(Array.from(arguments)));
             }
 
         })(),
 
         //+ map :: f -> [a] -> [b]
-        map = function(fn, sequence) {
-            var length = sequence.length,
-                result = new Array(length),
-                i;
+        map = function(fn, sequence, bind) {
             fn = Function.toFunction(fn);
-            for (i = 0; i < length; i++) {
-                result[i] = fn.apply(null, [sequence[i], i]);
-            }
-            return result;
-        }.autoCurry(),
+            return Array.map(sequence, fn, bind);
+        }.autoCurry(2),
 
         //+ compose :: f -> g -> h 
         compose = function() {
@@ -11492,7 +11476,7 @@ Fx.AutoScroll = new Class({
         //good shit :D http://jsperf.com/comparison-of-memoization-implementations/28
         memoize = function(fn) {
             return function() {
-                var args = toArray(arguments),
+                var args = Array.from(arguments),
                     //Array.prototype.slice.call(arguments),
                     hash = "",
                     i = args.length;
@@ -11506,30 +11490,31 @@ Fx.AutoScroll = new Class({
             };
         },
 
-        //+ reduce :: f -> a -> [a] -> a
-        reduce = function(fn, init, sequence) {
-            var len = sequence.length,
-                result = init,
-                i;
-            fn = Function.toFunction(fn);
-            for (i = 0; i < len; i++) {
-                result = fn.apply(null, [result, sequence[i]]);
-            }
-            return result;
-        }.autoCurry(),
+        // //+ reduce :: f -> a -> [a] -> a
+        // reduce = function(fn, init, sequence) {
+        //     var len = sequence.length,
+        //         result = init,
+        //         i;
+        //     fn = Function.toFunction(fn);
+        //     for (i = 0; i < len; i++) {
+        //         result = fn.apply(null, [result, sequence[i]]);
+        //     }
+        //     return result;
+        // }.autoCurry(),
 
         //+ select :: f -> [a] -> [a]
-        select = function(fn, sequence) {
-            var len = sequence.length,
-                result = [],
-                i, x;
-            fn = Function.toFunction(fn);
-            for (i = 0; i < len; i++) {
-                x = sequence[i];
-                fn.apply(null, [x, i]) && result.push(x);
-            }
-            return result;
-        }.autoCurry(),
+        select = function(fn, sequence, bind) {
+            // var len = sequence.length,
+            //     result = [],
+            //     i, x;
+            // fn = Function.toFunction(fn);
+            // for (i = 0; i < len; i++) {
+            //     x = sequence[i];
+            //     fn.apply(null, [x, i]) && result.push(x);
+            // }
+            // return result;
+            return Array.filter(sequence, fn, bind);
+        }.autoCurry(2),
 
         //+ guard :: (_ -> Bool) -> f -> g -> h
         guard = function(guard, fn, otherwise) {
@@ -11544,23 +11529,23 @@ Fx.AutoScroll = new Class({
         //+ flip :: f -> g 
         flip = function(f) {
             return function() {
-                var args = toArray(arguments);
+                var args = Array.from(arguments);
                 args = args.slice(1, 2).concat(args.slice(0, 1)).concat(args.slice(2));
                 return f.apply(null, args);
             };
         },
 
-        //+ foldr :: f -> a -> [a] -> a
-        foldr = function(fn, init, sequence) {
-            var len = sequence.length,
-                result = init,
-                i;
-            fn = Function.toFunction(fn);
-            for (i = len; --i >= 0;) {
-                result = fn.apply(null, [sequence[i], result]);
-            }
-            return result;
-        }.autoCurry(),
+        // //+ foldr :: f -> a -> [a] -> a
+        // foldr = function(fn, init, sequence) {
+        //     var len = sequence.length,
+        //         result = init,
+        //         i;
+        //     fn = Function.toFunction(fn);
+        //     for (i = len; --i >= 0;) {
+        //         result = fn.apply(null, [sequence[i], result]);
+        //     }
+        //     return result;
+        // }.autoCurry(),
 
         //+ and :: _ -> (_ -> Bool)
         and = function() {
@@ -11590,29 +11575,29 @@ Fx.AutoScroll = new Class({
             };
         },
 
-        //+ some :: f -> [a] -> Bool
-        some = function(fn, sequence) {
-            fn = Function.toFunction(fn);
-            var len = sequence.length,
-                value = false,
-                i;
-            for (i = 0; i < len; i++) {
-                if ((value = fn.call(this, sequence[i]))) break;
-            }
-            return value;
-        }.autoCurry(),
+        // //+ some :: f -> [a] -> Bool
+        // some = function(fn, sequence) {
+        //     fn = Function.toFunction(fn);
+        //     var len = sequence.length,
+        //         value = false,
+        //         i;
+        //     for (i = 0; i < len; i++) {
+        //         if ((value = fn.call(this, sequence[i]))) break;
+        //     }
+        //     return value;
+        // }.autoCurry(),
 
-        //+ every :: f -> [a] -> Bool
-        every = function(fn, sequence) {
-            fn = Function.toFunction(fn);
-            var len = sequence.length,
-                value = true,
-                i;
-            for (i = 0; i < len; i++) {
-                if (!(value = fn.call(this, sequence[i]))) break;
-            }
-            return value;
-        }.autoCurry(),
+        // //+ every :: f -> [a] -> Bool
+        // every = function(fn, sequence) {
+        //     fn = Function.toFunction(fn);
+        //     var len = sequence.length,
+        //         value = true,
+        //         i;
+        //     for (i = 0; i < len; i++) {
+        //         if (!(value = fn.call(this, sequence[i]))) break;
+        //     }
+        //     return value;
+        // }.autoCurry(),
 
         //+ not :: f -> (_ -> Bool)
         not = function(fn) {
@@ -11626,14 +11611,14 @@ Fx.AutoScroll = new Class({
         //eq(1)(1,2,3) => false
         //eq(1)(1,1,1) => true
         //eq(1,1,1,1,2)=>false
-        eq = function(x) {
-            var equal = function() {
-                    return every(function(t) {
-                        return x === t;
-                    }, arguments);
-                };
-            return arguments.length === 1 ? equal : equal.apply(this, arguments); //if 1 arg returns curried function otherwise compares immediately
-        },
+        // eq = function(x) {
+        //     var equal = function() {
+        //             return every(function(t) {
+        //                 return x === t;
+        //             }, arguments);
+        //         };
+        //     return arguments.length === 1 ? equal : equal.apply(this, arguments); //if 1 arg returns curried function otherwise compares immediately
+        // },
 
         //+ equal :: _ -> (_ -> Bool)
         equal = function() {
@@ -11659,9 +11644,9 @@ Fx.AutoScroll = new Class({
 
         //+ invoke :: String -> (a -> b)
         invoke = function(methodName) {
-            var args = slice.call(arguments, 1);
+            var args = Array.slice(arguments, 1);
             return function(object) {
-                return object[methodName].apply(object, slice.call(arguments, 1).concat(args));
+                return object[methodName].apply(object, Array.slice(arguments, 1).concat(args));
             };
         },
 
@@ -11706,23 +11691,23 @@ Fx.AutoScroll = new Class({
             }
         },
 
-        //+ S :: f -> g -> (_ -> b)
-        S = function(f, g) {
-            var toFunction = Function.toFunction;
-            f = toFunction(f);
-            g = toFunction(g);
-            return function() {
-                var return_value_of_g = g.apply(this, arguments),
-                    original_args = slice.call(arguments, 0),
-                    all_args = unshift(original_args, return_value_of_g);
-                return f.apply(this, all_args);
-            };
-        },
+        // //+ S :: f -> g -> (_ -> b)
+        // S = function(f, g) {
+        //     var toFunction = Function.toFunction;
+        //     f = toFunction(f);
+        //     g = toFunction(g);
+        //     return function() {
+        //         var return_value_of_g = g.apply(this, arguments),
+        //             original_args = Array.slice(arguments, 0),
+        //             all_args = unshift(original_args, return_value_of_g);
+        //         return f.apply(this, all_args);
+        //     };
+        // },
 
         //+ partial :: _ -> f
         partial = function() {
             var fn = this,
-                args = toArray(arguments),
+                args = Array.from(arguments),
                 subpos = [],
                 i, value;
 
@@ -11731,7 +11716,7 @@ Fx.AutoScroll = new Class({
             }
 
             return function() {
-                var specialized = args.concat(slice.call(arguments, subpos.length)),
+                var specialized = args.concat(Array.slice(arguments, subpos.length)),
                     i;
                 for (i = 0; i < Math.min(subpos.length, arguments.length); i++) {
                     specialized[subpos[i]] = arguments[i];
@@ -11830,7 +11815,7 @@ Fx.AutoScroll = new Class({
     Function.prototype.partial = partial;
 
     Function.prototype.flip = function( /*args...*/ ) {
-        return flip.apply(this, unshift(toArray(arguments), this));
+        return flip.apply(this, unshift(arguments, this));
     }
 
     //+ decorateFunctionWithToFunction :: IO
@@ -11854,11 +11839,11 @@ Fx.AutoScroll = new Class({
         sequence: sequence,
         memoize: memoize,
 
-        reduce: reduce,
-        foldl: reduce,
-        foldr: foldr,
+        // reduce: reduce,
+        // foldl: reduce,
+        // foldr: foldr,
 
-        select: select,
+        // select: select,
         filter: select,
         guard: guard,
         flip: flip,
@@ -11866,9 +11851,9 @@ Fx.AutoScroll = new Class({
         // and_: and, // alias reserved word for coffeescript
         or: or,
         // or_: or, // alias reserved word for coffeescript
-        some: some,
-        every: every,
-        eq: eq,
+        // some: some,
+        // every: every,
+        // eq: eq,
         not: not,
         // not_: not, // alias reserved word for coffeescript
         equal: equal,
@@ -11882,7 +11867,7 @@ Fx.AutoScroll = new Class({
         // id: I,
         K: K,
         // konst: K,
-        S: S//,
+        // S: S//,
 
         // install: function(except) {
         //     var source = functional,
@@ -12506,6 +12491,26 @@ Element.implement({
     removeClasses: function() {
         Array.each(arguments, this.removeClass, this);
         return this;
+    },
+
+    //https://gist.github.com/eligrey/1276030
+    insertAdjacentHTML: function(position, html) {
+        var self = this,
+            el = Elements.from(foo);
+        switch (position.toLowerCase()) {
+            case "beforebegin":
+                el.inject(self, 'before');
+                break;
+            case "afterbegin":
+                el.inject(self, 'top');
+                break;
+            case "beforeend":
+                el.inject(self, 'bottom');
+                break;
+            case "afterend":
+                el.inject(self, 'after');
+                break;
+        }
     }
 
     // hasClasses: function() {
@@ -12827,6 +12832,1556 @@ Drag.SplitPane = new Class({
     }
 });
 
+/*
+---
+script: rotater.js
+description: MGFX.Rotater, the base class that provides slides and transitions. 
+authors: Sean McArthur (http://seanmonstar.com) 
+license: MIT-style license 
+requires:
+ core/1.3.0: [Event, Element.Event, Fx.CSS]
+ more/1.3.0.1: [Fx.Elements]
+provides: [MGFX.Rotater]
+...
+*/
+
+//MGFX.Rotater. Copyright (c) 2008-2010 Sean McArthur <http://seanmonstar.com/>, MIT Style License.
+
+if(!window.MGFX) MGFX = {};
+
+MGFX.Rotater = new Class({
+	
+	Implements: [Options, Events],
+	
+	options: {
+		slideInterval: 5000,
+		transitionDuration: 250,
+		startIndex: 0,
+		// autoplay: true,
+		hover:true,
+		hash: true
+		/*onAutoPlay: function() {},
+		onRotate: function() {},
+		onShowSlide: function() {},
+		onStop: function() {},
+		onPause: function() {},
+		onResume: function() {}*/
+		//slides
+	},
+	
+	initialize: function(container,options){
+		this.setOptions(options);
+		this.container = container;
+		this.slides = container.getElements(this.options.content);
+		this.createFx();
+		this.showSlide(this.options.startIndex);
+		if(this.slides.length < 2) this.options.autoplay = false;
+		// if(this.options.autoplay) this.autoplay();
+	},
+	
+	createFx: function(){
+		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {duration: this.options.transitionDuration, link: 'cancel'});
+		this.slides.setStyle('opacity', 0);
+	}.protect(),
+	
+	// setupHover: function() {
+	// 	var _timeLastRotate = new Date(),
+	// 		_timeLastPause,
+	// 		_timeTillRotate = this.options.slideInterval;
+
+	// 	this._resumeDelay = null;
+			
+	// 	var onRotate = this._onRotate = function() {
+	// 		if(this.slideshowInt) {
+	// 			_timeLastRotate = new Date();
+	// 			_timeTillRotate = this.options.slideInterval;
+	// 		}
+	// 	};
+	// 	var onMouseEnter = this._onMouseEnter = function() {
+	// 		this.stop();
+	// 		_timeLastPause = new Date();
+	// 		clearTimeout(this._resumeDelay);
+	// 		this.fireEvent('onPause');
+	// 	}.bind(this);
+		
+	// 	var onMouseLeave = this._onMouseLeave = function() {
+	// 		var timePassed = (_timeLastPause - _timeLastRotate);
+	// 		_timeLastRotate = new Date() - timePassed;
+	// 		this._resumeDelay = (function() {
+	// 			this.autoplay();
+	// 			this.rotate();
+	// 			this.fireEvent('onResume');
+	// 		}).delay(_timeTillRotate - timePassed, this);			
+	// 	}.bind(this);
+		
+	// 	this.addEvent('onRotate', onRotate);
+	// 	this.slides.addEvents({
+	// 		'mouseenter': onMouseEnter,
+	// 		'mouseleave': onMouseLeave
+	// 	});
+		
+	// 	this._hoverSet = true;
+	// }.protect(),
+	
+	removeHover: function() {
+		this.removeEvent('onRotate', this._onRotate);
+		this.slides.removeEvents({
+			'mouseenter': this._onMouseEnter,
+			'mouseleave': this._onMouseLeave
+		});
+		clearTimeout(this._resumeDelay);
+		this._hoverSet = false;
+	},
+	
+	showSlide: function(slideIndex){
+		if(slideIndex == this.currentSlide) return this;
+		var action = {},
+			curSlide = this.currentSlide;
+		this.slides.each(function(slide, index){
+			if(index == slideIndex && index != curSlide){ //show
+				action[index.toString()] = {
+					opacity: 1
+				};
+			} else {
+				action[index.toString()] = {
+					opacity:0
+				};
+			}
+		});
+		this.fireEvent('showSlide', slideIndex);
+		this.currentSlide = slideIndex;
+		this.slideFx.start(action);
+		return this;
+	},
+	
+	// autoplay: function(){
+	// 	if(this.slideshowInt) return this;
+	// 	if(this.options.hover && !this._hoverSet) this.setupHover();
+	// 	this.slideshowInt = this.rotate.periodical(this.options.slideInterval, this);
+	// 	this.fireEvent('autoPlay');
+	// 	return this;
+	// },
+	
+	stop: function(not_pause){
+		clearInterval(this.slideshowInt);
+		this.slideshowInt = null;
+		this.fireEvent('stop');
+		if(not_pause && this.options.hover) this.removeHover();
+		return this;
+	},
+	
+	rotate: function(){
+		var next = this.getNext();
+		this.showSlide(next);
+		this.fireEvent('rotate', next);
+		return this;
+	},
+	
+	random: function() {
+		var index = Number.random(0, this.slides.length);
+		index = index == this.currentSlide ? this.getNext() : index;
+		this.showSlide(index);
+		this.fireEvent('random', index);
+		return this;
+	},
+	getNext: function() {
+		var current = this.currentSlide;
+		return (current+1 >= this.slides.length) ? 0 : current+1
+	}.protect()
+	
+});
+
+/*
+---
+script: tabs.js
+description: MGFX.Tabs, extension of base class that adds tabs to control the rotater. 
+authors: Sean McArthur (http://seanmonstar.com) 
+license: MIT-style license 
+requires:
+ core/1.3.0: [Event, Element.Event, Fx.CSS]
+ more/1.3.0.1: [Fx.Elements]
+provides: [MGFX.Tabs]
+...
+*/
+
+//MGFX.Tabs. Copyright (c) 2008-2011 Sean McArthur <http://seanmonstar.com/>, MIT Style License.
+
+// if(!window.MGFX) MGFX = {};
+
+MGFX.Tabs = new Class({
+	
+	Extends: MGFX.Rotater,
+	
+	options: {
+		autoplay: false,
+		onShowSlide: function(slideIndex) {
+			this.tabs.removeClass('active');
+			this.tabs[slideIndex].addClass('active');
+		},
+		tabsClass: 'mgfx-tab',
+		contentClass: 'mgfx-content'
+		// tabs: ... selector
+	},
+	
+	initialize: function(container, options){
+		this.setOptions(options);
+		this.container = container;
+		this.tabs = container.getElements(this.options.tabs);
+		this.tabs.getParent().addClass(this.options.tabsClass);
+		this.createTabs(container);
+		if(options.hash && window.location.hash) {
+			this.getHashIndex(options);
+		}
+		this.parent(container);
+		this.slides.getParent().addClass(this.options.contentClass);
+	},
+	
+	createTabs: function() {
+		var that = this;
+		this.container.addEvent('click:relay(' + this.options.tabs +')', function(event, target) {
+			event.preventDefault();
+			var index = that.tabs.indexOf(target);
+			that.showSlide(index);
+			that.stop(true);
+		});
+	}.protect(),
+	
+	getHashIndex: function(options) {
+		var hash = window.location.hash.substring(1);
+		this.tabs.each(function(el, index) {
+			if(el.get('id') == hash) {
+				options.startIndex = index;
+			}
+		});
+	}.protect()
+	
+});
+
+if(!window.Tabs) var Tabs = MGFX.Tabs;
+;(function(){
+	'use strict';
+
+	// wrapper function for requirejs or normal object
+	var removeOn = function(string){
+			return string.replace(/^on([A-Z])/, function(full, first){
+				return first.toLowerCase();
+			});
+		},
+
+		addEvent = function(type, fn){
+			type = removeOn(type);
+
+			var types = type.split(/\s+/),
+				self = this;
+
+			types.each(function(type){
+				self.$events[type] = (self.$events[type] || []).include(fn);
+			});
+
+			return this;
+		}.overloadSetter(),
+
+		removeEvent = function(type, fn){
+			// does not remove remote subscribers. careful, can cause memory issues if you don't clean up
+			type = removeOn(type);
+			var events = this.$events[type];
+			if (events){
+				if (fn){
+					var index = events.indexOf(fn);
+					if (index !== -1) delete events[index]; // sparses array, keeping index
+				}
+				else {
+					delete this.$events[type];
+				}
+			}
+			return this;
+		}.overloadSetter(),
+
+		all = '*',
+
+		func = 'function',
+
+		EpitomeEvents = new Class({
+			// custom event implementation
+
+			$events: {},
+
+			$subscribers: {},
+
+			on: addEvent,
+
+			off: removeEvent,
+
+			trigger: function(type, args){
+				type = removeOn(type);
+				var events = this.$events[type] || [],
+					subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
+					self = this;
+
+				if (!events && !subs) return this;
+				args = Array.from(args);
+
+				events.each(function(fn){
+					// local events
+					fn.apply(self, args);
+				});
+
+				subs.each(function(sub){
+					// if event was added towards a specific callback, fire that
+					if (sub.fn){
+						sub.fn.apply(sub.context, args);
+					}
+					else {
+						// runs on subscriber, shifting arguments to pass on instance with a fake event object.
+
+						// this use is not recommended as it can cause event storms, use with caution and
+						// argument shift, arg1 = context. result of .listenTo(obj) with no other args or with type but no callback.
+						sub.subscriber.trigger(type, Array.flatten([self, args]));
+					}
+				});
+
+				return this;
+			},
+
+			listenTo: function(obj, type, fn){
+				// obj: instance to subscribe to
+				// type: particular event type or all events, defaults to '*'
+				// last argument is the function to call, can shift to 2nd argument.
+
+				// not using type and callbacks can subscribe locally but use with caution.
+				var t = typeof type,
+					event = {
+						context: obj,
+						subscriber: this
+					};
+
+				if (t === func){
+					fn = type;
+					type = all;
+				}
+				else if (t === 'undefined'){
+					type = all;
+				}
+
+				fn && (event.fn = fn);
+				obj.$subscribers[type] = (obj.$subscribers[type] || []).include(event);
+
+				return this;
+			},
+
+			stopListening: function(obj, type, fn){
+				// obj: instance to stop listening to
+				// type: particular event to unsubscribe from, or all events by default. '*' for wildcard events only
+				// fn: particular callback fn to unsubscribe from
+				var len;
+				Object.each(obj.$subscribers, function(value, key){
+					len = value.length;
+					if (typeof type !== 'undefined'){
+						if (key === type) while (len--)
+							(((fn && fn === value[len].fn) || !fn) && value[len].context === obj) && value.splice(len, 1);
+					}
+					else {
+						// no type, unsubscribe from all for that context object
+						while (len--) value[len].context === obj && value.splice(len, 1);
+					}
+				});
+
+				return this;
+			},
+
+			setOptions: function(){
+				//refactored setOptions to use .on and not addEvent. auto-mixed in.
+				var options = this.options = Object.merge.apply(null, [
+						{},
+						this.options
+					].append(arguments)),
+					option;
+				for (option in options){
+					if (typeOf(options[option]) !== func || !(/^on[A-Z]/).test(option)) continue;
+					this.on(option, options[option]);
+					delete options[option];
+				}
+				return this;
+			}
+		});
+
+	if (typeof define === 'function' && define.amd){
+		define(function(){
+			return EpitomeEvents;
+		});
+	}
+	else if (typeof module !== 'undefined' && module.exports){
+		module.exports = EpitomeEvents;
+	}
+	else {
+		this.Epitome || (this.Epitome = {});
+		this.Epitome.Events = EpitomeEvents;
+	}
+}.call(this));
+
+;(function(){
+	'use strict';
+
+	var obj,
+		wrap = function(Events){
+			var e = new Events();
+			e.Events = Events;
+			return e;
+		};
+
+	// by default, requiring Epitome returns an Epitome.Events instance as a mediator
+	if (typeof define === 'function' && define.amd){
+		// returns an empty module
+		define(['./epitome-events'], wrap);
+	}
+	else if (typeof module !== 'undefined' && module.exports){
+		// CommonJS module is defined
+		// load mootools-core npm
+		require('mootools');
+
+		obj = wrap(require('./epitome-events'));
+
+		// export all sub modules that work w/o a browser.
+		obj.Model = require('./epitome-model');
+		obj.Collection = require('./epitome-collection');
+		obj.isEqual = require('./epitome-isequal');
+		obj.Template = require('./epitome-template');
+
+		module.exports = obj;
+	}
+	else {
+		this.Epitome = wrap(this.Epitome.Events);
+	}
+}.call(this));
+;(function(){
+	'use strict';
+
+	// wrapper function for requirejs or normal object
+	var wrap = function(){
+
+		var eq = function(a, b, stack){
+			// this is a modified version of eq func from _.js
+
+			// Identical objects are equal. `0 === -0`, but they aren't identical.
+			// See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+			stack = stack || [];
+
+			if (a === b) return a !== 0 || 1 / a == 1 / b;
+
+			// A strict comparison is necessary because `null == undefined`.
+			if (a == null || b == null) return a === b;
+
+			// use MooTools types instead of toString.call(a),
+			// this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
+			var typeA = typeOf(a),
+				typeB = typeOf(b);
+
+			if (typeA != typeB) return false;
+
+			switch (typeA){
+				// Strings, numbers, dates, and booleans are compared by value.
+				case 'string':
+					// Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+					// equivalent to `new String("5")`.
+					return a == String(b);
+				case 'number':
+					// `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+					// other numeric values.
+					return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
+				case 'date':
+				case 'boolean':
+					// Coerce dates and booleans to numeric primitive values. Dates are compared by their
+					// millisecond representations. Note that invalid dates with millisecond representations
+					// of `NaN` are not equivalent.
+					return +a == +b;
+				// RegExps are compared by their source patterns and flags.
+				case 'regexp':
+					return a.source == b.source &&
+						a.global == b.global &&
+						a.multiline == b.multiline &&
+						a.ignoreCase == b.ignoreCase;
+			}
+
+			if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+			// Assume equality for cyclic structures. The algorithm for detecting cyclic
+			// structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+			var length = stack.length;
+			while (length--){
+				// Linear search. Performance is inversely proportional to the number of
+				// unique nested structures.
+				if (stack[length] == a) return true;
+			}
+
+			// Add the first object to the stack of traversed objects.
+			stack.push(a);
+			var size = 0, result = true;
+			// Recursively compare objects and arrays.
+			if (typeA == 'array'){
+				// Compare array lengths to determine if a deep comparison is necessary.
+				size = a.length;
+				result = size == b.length;
+				if (result){
+					// Deep compare the contents, ignoring non-numeric properties.
+					while (size--){
+						// Ensure commutative equality for sparse arrays.
+						if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
+					}
+				}
+			} else {
+				// Objects with different constructors are not equivalent.
+				if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
+				// Deep compare objects.
+				for (var key in a){
+					if (a.hasOwnProperty(key)){
+						// Count the expected number of properties.
+						size++;
+						// Deep compare each member.
+						if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
+					}
+				}
+				// Ensure that both objects contain the same number of properties.
+				if (result){
+					for (key in b){
+						if (b.hasOwnProperty(key) && !(size--)) break;
+					}
+					result = !size;
+				}
+			}
+
+			// Remove the first object from the stack of traversed objects.
+			stack.pop();
+			return result;
+		};
+
+		return eq;
+	}; // end wrap
+
+	if (typeof define === 'function' && define.amd){
+		define(['./epitome'], wrap);
+	}
+	else if (typeof module !== 'undefined' && module.exports){
+		require('mootools');
+		module.exports = wrap();
+	}
+	else {
+		this.Epitome || (this.Epitome = {});
+		this.Epitome.isEqual = wrap(this.Epitome);
+	}
+}.call(this));
+;(function(){
+	'use strict';
+
+	// wrapper function for requirejs or normal object
+	var wrap = function(isEqual, Events){
+
+		return new Class({
+
+			Implements: [Events],
+
+			_attributes: {},
+
+			// custom accessors.
+			properties: {
+				id: {
+					get: function(){
+						// need a cid to identify model.
+						var id = this._attributes.id || String.uniqueID();
+						// always need a collection id.
+						this.cid || (this.cid = id);
+
+						return this._attributes.id;
+					}
+				}
+			},
+
+			// validators per property, should return true or error message
+			validators: {},
+
+			// initial `private` object
+			options: {
+				defaults: {}
+			},
+
+			collections: [],
+
+			initialize: function(obj, options){
+				// constructor for Model class.
+
+				// are there any defaults passed? better to have them on the proto.
+				options && options.defaults && (Object.merge(this.options.defaults, options.defaults));
+
+				// initial obj should pass on to the setter.
+				obj = obj && typeOf(obj) === 'object' ? obj : {};
+				this.set(Object.merge(this.options.defaults, obj));
+
+				// merge options overload, will now add the events.
+				this.setOptions(options);
+
+				return this.trigger('ready');
+			},
+
+			set: function(){
+				// call the real getter. we proxy this because we want
+				// a single event after all properties are updated and the ability to work with
+				// either a single key, value pair or an object
+				this.propertiesChanged = [];
+				this.validationFailed = [];
+
+				this._set.apply(this, arguments);
+				// if any properties did change, fire a change event with the array.
+				this.propertiesChanged.length && this.trigger('change', this.get(this.propertiesChanged));
+				this.validationFailed.length && this.trigger('error', [this.validationFailed]);
+			},
+
+			// private, real setter functions, not on prototype, see note above
+			_set: function(key, value){
+				// needs to be bound the the instance.
+				if (!key || typeof value === 'undefined') return this;
+
+				// custom setter - see bit further down
+				if (this.properties[key] && this.properties[key]['set'])
+					return this.properties[key]['set'].call(this, value);
+
+				// no change? this is crude and works for primitives.
+				if (this._attributes[key] && isEqual(this._attributes[key], value))
+					return this;
+
+				// basic validator support
+				var validator = this.validate(key, value);
+				if (this.validators[key] && validator !== true){
+					var obj = {};
+					obj[key] = {
+						key: key,
+						value: value,
+						error: validator
+					};
+					this.validationFailed.push(obj);
+					this.trigger('error:' + key, obj[key]);
+					return this;
+				}
+
+				if (value === null){
+					delete this._attributes[key]; // delete = null.
+				}
+				else {
+					this._attributes[key] = value;
+				}
+
+				// fire an event.
+				this.trigger('change:' + key, value);
+
+				// store changed keys...
+				this.propertiesChanged.push(key);
+
+				return this;
+			}.overloadSetter(),   // mootools abstracts overloading to allow object iteration
+
+			get: function(key){
+				// overload getter, 2 paths...
+
+				// custom accessors take precedence and have no reliance on item being in attributes
+				if (key && this.properties[key] && this.properties[key]['get']){
+					return this.properties[key]['get'].call(this);
+				}
+
+				// else, return from attributes or return null when undefined.
+				return (key && typeof this._attributes[key] !== 'undefined') ? this._attributes[key] : null;
+			}.overloadGetter(),
+
+			unset: function(){
+				// can remove keys from model, passed on as multiple string arguments or an array of string keys
+				var keys = Array.prototype.slice.apply(arguments),
+					obj = {},
+					len = keys.length;
+
+				if (!len)
+					return this;
+
+				Array.each(Array.flatten(keys), function(key){
+					obj[key] = null;
+				});
+
+				this.set(obj);
+
+				return this;
+			},
+
+			toJSON: function(){
+				return Object.clone(this._attributes);
+			},
+
+			empty: function(){
+				// empty the model and fire change event
+				var keys = Object.keys(this.toJSON()),
+					self = this;
+
+				// let the instance know.
+				this.trigger('change', [keys]);
+
+				// fire change for all keys in the model.
+				Array.each(keys, function(key){
+					self.trigger('change:' + key, null);
+				}, this);
+
+				this._attributes = {};
+				this.trigger('empty');
+			},
+
+			destroy: function(){
+				// destroy the model, send delete to server
+				this._attributes = {};
+				this.trigger('destroy');
+			},
+
+			validate: function(key, value){
+				// run validation, return true (validated) if no validator found
+				return (key in this.validators) ? this.validators[key].call(this, value) : true;
+			}
+		});
+	}; // end wrap
+
+	if (typeof define === 'function' && define.amd){
+		define(['./epitome-isequal', './epitome-events'], wrap);
+	}
+	else if (typeof module !== 'undefined' && module.exports){
+		require('mootools');
+		module.exports = wrap(require('./epitome-isequal'), require('./epitome-events'));
+	}
+	else {
+		this.Epitome || (this.Epitome = {isEqual: {}, Events: {}});
+		this.Epitome.Model = wrap(this.Epitome.isEqual, this.Epitome.Events);
+	}
+}.call(this));
+;(function(){
+	'use strict';
+
+	// wrapper function for requirejs or normal object
+	var wrap = function(Model, Events, Slick){
+		var methodMap = ['forEach', 'each', 'invoke', 'filter', 'map', 'some', 'indexOf', 'contains', 'getRandom', 'getLast'];
+
+		// compat for nodejs, Slick gets passed separately
+		Slick || (Slick = this.Slick);
+
+		// decorator type, only not on the proto. exports.Function in a distant future? It's a Type...
+		var collection = new Class({
+
+			Implements: [Events],
+
+			// base model is just Epitome.Model
+			model: Model,
+
+			_models: [],
+
+			length: 0,
+
+			initialize: function(models, options){
+				this.setOptions(options);
+				models && this.reset(models);
+				// collections should have an id for storage
+				this.id = this.options.id || String.uniqueID();
+
+				return this.trigger('ready');
+			},
+
+			reset: function(models, quiet){
+				// adds model(s) to collection, typically initially.
+
+				// empty models first, quietly.
+				this.removeModel(this._models, true);
+
+				models = Array.from(models);
+				Array.each(models, this.addModel.bind(this));
+
+				// if a model is destroyed, remove from the collection
+				this.on('destroy', this.removeModel.bind(this));
+
+				quiet || this.trigger('reset');
+
+				return this;
+			},
+
+			addModel: function(model, replace){
+				// add a new model to collection
+				var exists;
+
+				// if it's just an object, make it a model first
+				if (typeOf(model) === 'object' && !instanceOf(model, this.model)){
+					model = new this.model(model);
+				}
+
+				// assign a cid.
+				model.cid = model.cid || model.get('id') || String.uniqueID();
+
+				// already in the collection?
+				exists = this.getModelByCID(model.cid);
+
+				// if not asked to replace, bail out.
+				if (exists && replace !== true)
+					return this.trigger('add:error', model);
+
+				// replace an existing model when requested
+				exists && replace === true && (this._models[this._models.indexOf(model)] = model);
+
+				// subscribe to all model events and bubble them locally.
+				this.listenTo(model);
+
+				// add to models array.
+				this._models.push(model);
+
+				model.collections.include(this);
+
+				this.length = this._models.length;
+
+				// let somebody know.
+				return this.trigger('add', [model, model.cid]).trigger('reset', [model, model.cid]);
+			},
+
+			removeModel: function(models, quiet){
+				// supports a single model or an array of models
+				var self = this;
+
+				models = Array.from(models).slice(); // need to dereference or loop will fail
+
+				Array.each(models, function(model){
+					model.collections.erase(self);
+					// restore `fireEvent` to one from prototype, aka, `Event.prototype.fireEvent`
+					// only if there are no collections left that are interested in this model's events
+					model.collections.length || delete model.fireEvent;
+
+					// remove from collection of managed models
+					Array.erase(self._models, model);
+
+					self.length = self._models.length;
+
+					// let somebody know we lost some.
+					quiet || self.trigger('remove', [model, model.cid]);
+				});
+
+				return this.trigger('reset', [models]);
+			},
+
+			get: function(what){
+				// compat for storage
+				return this[what];
+			},
+
+			getModelByCID: function(cid){
+				// return a model based upon a cid search
+				var last = null;
+
+				this.some(function(el){
+					return el.cid === cid && (last = el);
+				});
+
+				return last;
+			},
+
+			getModelById: function(id){
+				// return a model based upon an id search
+				var last = null;
+
+				this.some(function(el){
+					return el.get('id') === id && (last = el);
+				});
+
+				return last;
+			},
+
+			getModel: function(index){
+				// return a model based upon the index in the array
+				return this._models[index];
+			},
+
+			toJSON: function(){
+				// get the toJSON of all models.
+				var getJSON = function(model){
+					return model.toJSON();
+				};
+				return Array.map(this._models, getJSON);
+			},
+
+			empty: function(quiet){
+				this.removeModel(this._models, quiet);
+				return this.trigger('empty');
+			},
+
+			sort: function(how){
+				// no arg. natural sort
+				if (!how){
+					this._models.sort();
+					return this.trigger('sort');
+				}
+
+				// callback function
+				if (typeof how === 'function'){
+					this.model.sort(how);
+					return this.trigger('sort');
+				}
+
+				// string keys, supports `:asc` (default) and `:desc` order
+				var type = 'asc',
+				// multiple conds are split by ,
+					conds = how.split(','),
+					c = function(a, b){
+						if (a < b)
+							return -1;
+						if (a > b)
+							return 1;
+						return 0;
+					};
+
+
+				this._models.sort(function(a, b){
+					var ret = 0;
+					Array.some(conds, function(cond){
+						// run for as long as there is no clear distinction
+						cond = cond.trim();
+
+						var pseudos = cond.split(':'),
+							key = pseudos[0],
+							sortType = (pseudos[1]) ? pseudos[1] : type,
+							ak = a.get(key),
+							bk = b.get(key),
+							cm = c(ak, bk),
+							map = {
+								asc: cm,
+								desc: -(cm)
+							};
+
+						// unknown types are ascending
+						if (typeof map[sortType] === 'undefined'){
+							sortType = type;
+						}
+
+						// assign ret value
+						ret = map[sortType];
+
+						// if we have a winner, break .some loop
+						return ret !== 0;
+					});
+
+					// return last good comp
+					return ret;
+				});
+
+				return this.trigger('sort');
+			},
+
+			reverse: function(){
+				// reversing is just sorting in reverse.
+				Array.reverse(this._models);
+
+				return this.trigger('sort');
+			},
+
+			find: function(expression){
+				/*jshint eqeqeq:false */
+				// experimental model search engine, powered by MooTools Slick.parse
+				var parsed = Slick.parse(expression),
+					exported = [],
+					found = this,
+					map = {
+						'=': function(a, b){
+							return a == b;
+						},
+						'!=': function(a, b){
+							return a != b;
+						},
+						'^=': function(a, b){
+							return a.indexOf(b) === 0;
+						},
+						'*=': function(a, b){
+							return a.indexOf(b) !== -1;
+						},
+						'$=': function(a, b){
+							return a.indexOf(b) == a.length - b.length;
+						},
+						'*': function(a){
+							return typeof a !== 'undefined';
+						}
+					},
+					fixOperator = function(operator){
+						return (!operator || !map[operator]) ? null : map[operator];
+					},
+					finder = function(attributes){
+						var attr = attributes.key,
+							value = attributes.value || null,
+							tag = attributes.tag || null,
+							operator = fixOperator(attributes.operator);
+
+						found = found.filter(function(el){
+							var t, a;
+							if (tag && attr){
+								t = el.get(tag);
+								a = t ? t[attr] : null;
+							}
+							else if (tag){
+								a = el.get(tag);
+							}
+							else {
+								a = el.get(attr);
+							}
+
+							if (a !== null && value !== null && operator !== null)
+								return operator(a, value);
+
+							return a != null;
+						});
+
+					};
+
+				if (parsed.expressions.length){
+					var j, i;
+					var attributes;
+					var currentExpression, currentBit, expressions = parsed.expressions, id, t, tag;
+					var cb = function(a){
+						a.tag = tag;
+						return a;
+					};
+
+					search: for (i = 0; (currentExpression = expressions[i]); i++){
+						for (j = 0; (currentBit = currentExpression[j]); j++){
+							attributes = currentBit.attributes;
+							// support by id
+							id = currentBit.id;
+							if (id){
+								t = {
+									key: 'id',
+									value: id,
+									operator: '='
+								};
+								attributes || (attributes = []);
+								attributes.push(t);
+							}
+							// by tag
+							tag = currentBit.tag;
+							if (tag && tag != '*'){
+								attributes || (attributes = [
+									{
+										key: null,
+										value: '',
+										operator: '*'
+									}
+								]);
+
+								attributes = Array.map(attributes, cb);
+							}
+
+							if (!attributes) continue search;
+
+							Array.each(attributes, finder);
+						}
+						exported[i] = found;
+						found = this;
+					}
+
+				}
+
+				return [].combine(Array.flatten(exported));
+			},
+
+			findOne: function(expression){
+				var results = this.find(expression);
+				return results.length ? results[0] : null;
+			}
+
+		});
+
+		Array.each(methodMap, function(method){
+			collection.implement(method, function(){
+				return Array.prototype[method].apply(this._models, arguments);
+			});
+		});
+
+		return collection;
+	}; // end wrap
+
+	if (typeof define === 'function' && define.amd){
+		define(['./epitome-model', './epitome-events'], wrap);
+	}
+	else if (typeof module !== 'undefined' && module.exports){
+		module.exports = wrap(require('./epitome-model'), require('./epitome-events'), require('slicker'));
+	}
+	else {
+		this.Epitome || (this.Epitome = {Model: {}, Events: {}});
+		this.Epitome.Collection = wrap.call(this, this.Epitome.Model, this.Epitome.Events, this.Slick);
+	}
+}.call(this));
+; (function() {
+    'use strict';
+
+
+    // wrapper function for requirejs or normal object
+    var wrap = function(Model) {
+
+            var syncPseudo = 'sync:';
+
+            // decorate the original object by adding a new property Sync
+            return new Class({
+                Extends: Model,
+
+                properties: {
+                    //storage///
+                },
+
+                options: {
+                    storage: {
+                        duration: 365,
+                        domain: '/',
+                        fallback: true,
+                        storageType: "localStorage"
+                    },
+                    key: undefined,
+                    minimize: false
+                },
+
+                initialize: function(obj, options) {
+                    // needs to happen first before events are added,
+                    // in case we have custom accessors in the model object.
+                    this.setOptions(options);
+                    if(!this.options.key)
+                        throw('Initiated without storage key (options.key)');
+                    if(!this.properties.storage)
+                        this.properties.storage = new Storage(this.options.storage);
+                    this.parent(obj, this.options);
+                    this.setupSync();
+                },
+
+                //revert changes
+                sync: function(method, model) {
+                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    this.trigger('sync');
+                    return this;
+                },
+
+                setupSync: function() {
+                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    return this;
+                },
+
+                save: function(val) {
+                    if(this.validate()) {
+                        var defaults = this.options.defaults,
+                            data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
+                                return val !== defaults[key];//dont store defaults if minimize is true
+                            }) : this._attributes;
+                        this.properties.storage.set(this.options.key, data);
+                        this.trigger('save');
+                    }
+                    return this;
+                },
+
+                destroy: function() {
+                    // destroy the model, send delete to server
+                    this.properties.storage.remove(this.options.key);
+                    return this.parent();
+                }
+            });
+        }; // end wrap
+    if (typeof define === 'function' && define.amd) {
+        define(['./epitome-model'], wrap);
+    } else {
+        this.Epitome || (this.Epitome = {
+            Model: {}
+        });
+        this.Epitome.Model.Storage = wrap(this.Epitome.Model);
+    }
+}.call(this));
+;(function(){
+	'use strict';
+
+	// wrapper function for requirejs or normal object
+	var wrap = function(Events){
+
+		var hc = 'hashchange',
+			hcSupported = ('on' + hc) in window,
+			eventHosts = [window, document],
+			timer,
+			getQueryString = function(queryString){
+				var result = {},
+					re = /([^&=]+)=([^&]*)/g,
+					m;
+
+				while (m = re.exec(queryString)){
+					result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+				}
+
+				return result;
+			};
+
+		Element.Events.hashchange = {
+			// Cross browser support for onHashChange event - http://github.com/greggoryhz/MooTools-onHashChange-Event/
+			onAdd: function(){
+				var hash = location.hash,
+					check = function(){
+						if (hash === location.hash)
+							return;
+
+						hash = location.hash;
+						eventHosts.invoke('fireEvent', hc, hash.indexOf('#') === 0 ? hash.substr(1) : hash);
+					};
+
+				(hcSupported && (window.onhashchange = check)) || (timer = check.periodical(100));
+			},
+			onRemove: function(){
+				(hcSupported && (window.onhashchange = null)) || clearInterval(timer);
+			}
+		};
+
+
+		// Router, has its own repo https://github.com/DimitarChristoff/Router
+		return new Class({
+
+			Implements: [Events],
+
+			options: {
+				triggerOnLoad: true // check route on load
+			},
+
+			routes: {
+				// '#!path/:query/:id?': 'eventname',
+			},
+
+			boundEvents: {},
+
+			initialize: function(options){
+				var self = this;
+
+				this.setOptions(options);
+				this.options.routes && (this.routes = this.options.routes);
+
+				window.addEvent(hc, function(){
+					/*jshint loopfunc:true */
+					var hash = location.hash,
+						path = hash.split('?')[0],
+						query = hash.split('?')[1] || '',
+						notfound = true,
+						route;
+
+					for (route in self.routes){
+						var keys = [],
+							regex = self.normalize(route, keys, true, false),
+							found = regex.exec(path),
+							routeEvent = false;
+
+						if (found){
+							notfound = false;
+							self.req = found[0];
+
+							var args = found.slice(1),
+								param = {};
+
+							Array.each(args, function(a, i){
+								typeof keys[i] !== 'undefined' && (param[keys[i].name] = a);
+							});
+
+							self.route = route;
+							self.param = param || {};
+							self.query = query && getQueryString(query);
+
+							// find referenced events
+							routeEvent = self.routes[route];
+
+							// generic before route, pass route id, if avail
+							self.trigger('before', routeEvent);
+
+							// if there is an identifier and an event added
+							if (routeEvent && self.$events[routeEvent]){
+								// route event was defined, fire specific before pseudo
+								self.trigger(routeEvent + ':before');
+								// call the route event handler itself, pass params as arguments
+								self.trigger(routeEvent, Object.values(self.param));
+							}
+							else {
+								// requested route was expected but not found or event is missing
+								self.trigger('error', ['Route', routeEvent, 'is undefined'].join(' '));
+							}
+
+							// fire a generic after event
+							self.trigger('after', routeEvent);
+
+							// if route is defined, also fire a specific after pseudo
+							routeEvent && self.trigger(routeEvent + ':after');
+							break;
+						}
+					}
+
+					notfound && self.trigger('undefined');
+					/*jshint loopfunc:false */
+				});
+
+				this.trigger('ready');
+				this.options.triggerOnLoad && window.fireEvent(hc);
+			},
+
+			navigate: function(route, trigger){
+				if (location.hash === route && trigger){
+					window.fireEvent(hc);
+				}
+				else {
+					location.hash = route;
+				}
+			},
+
+			normalize: function(path, keys, sensitive, strict){
+				// normalize by https://github.com/visionmedia/express
+				if (path instanceof RegExp) return path;
+
+				path = path.concat(strict ? '' : '/?').replace(/\/\(/g, '(?:/').replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g,function(_, slash, format, key, capture, optional){
+
+					keys.push({
+						name: key,
+						optional: !!optional
+					});
+
+					slash = slash || '';
+
+					return [
+						(optional ? '' : slash),
+						'(?:',
+						(optional ? slash : ''),
+						(format || '') + (capture || (format && '([^/.]+?)' || '([^/]+?)')) + ')',
+						(optional || '')
+					].join('');
+				}).replace(/([\/.])/g, '\\$1').replace(/\*/g, '(.*)');
+
+				return new RegExp('^' + path + '$', sensitive ? '' : 'i');
+			},
+
+			addRoute: function(obj){
+				// adds a new route, expects keys @route (string), @id (string), @events (object)
+				if (!obj || !obj.route || !obj.id || !obj.events)
+					return this.trigger('error', 'Please include route, id and events in the argument object when adding a route');
+
+				if (!obj.id.length)
+					return this.trigger('error', 'Route id cannot be empty, aborting');
+
+				if (this.routes[obj.route])
+					return this.trigger('error', 'Route "{route}" or id "{id}" already exists, aborting'.substitute(obj));
+
+
+				this.routes[obj.route] = obj.id;
+				this.on(this.boundEvents[obj.route] = obj.events);
+
+				return this.trigger('route:add', obj);
+			},
+
+			removeRoute: function(route){
+				if (!route || !this.routes[route] || !this.boundEvents[route])
+					return this.trigger('error', 'Could not find route or route is not removable');
+
+				this.off(this.boundEvents[route]);
+
+				delete this.routes[route];
+				delete this.boundEvents[route];
+
+				return this.trigger('route:remove', route);
+			}
+
+		});
+	}; // end wrap
+
+	if (typeof define === 'function' && define.amd){
+		define(['./epitome-events'], wrap);
+	}
+	else {
+		this.Epitome || (this.Epitome = {Events:{}});
+		this.Epitome.Router = wrap(this.Epitome.Events);
+	}
+}.call(this));
+/*jshint strict:false */
+;(function(){
+	// 'use strict';  // breaks tests due to mootools reliance on args.callee and fireEvent
+
+	// wrapper function for requirejs or normal object
+	var wrap = function(Template, Model, Collection, Events){
+
+		return new Class({
+
+			Implements: [Events],
+
+			// a string or element to render to and bind events on
+			element: null,
+
+			// optional, a collection may be bound to the view
+			collection: null,
+
+			// optional, a model may be bound to the view
+			model: null,
+
+			// preset stuff like template and the event map
+			options: {
+				template: '',
+				// the event map should be like `elementEvent`: `instanceEvent`
+				// for example: '{click:relay(a.task-remove)': 'removeTask'}
+				// will fire instance's onRemoveTask handler when a.task-remove is pressed within the element.
+				events: {}
+			},
+
+			initialize: function(options){
+				// constructor like function.
+
+				// deal with collection first to avoid reference errors with object.clone / merge for setOptions
+				if (options && options.collection){
+					this.setCollection(options.collection);
+					delete options.collection;
+				}
+
+				// deal with model as well
+				if (options && options.model){
+					this.setModel(options.model);
+					delete options.model;
+				}
+
+				// now we can hopefully setOptions safely.
+				this.setOptions(options);
+
+				// define the element.
+				if (this.options.element){
+					this.setElement(this.options.element, this.options.events);
+					delete this.options.element;
+				}
+
+				// let the instance know
+				return this.trigger('ready');
+			},
+
+			setElement: function(el, events){
+				// set the element and clean-up old one
+				this.element && this.detachEvents() && this.destroy();
+				this.element = document.id(el);
+				events && this.attachEvents(events);
+
+				return this;
+			},
+
+			setCollection: function(collection){
+				// a collection should be a real collection.
+				var self = this,
+					eventProxy = function(type){
+						return function(){
+							self.trigger(type + ':collection', arguments);
+						};
+					};
+
+				if (instanceOf(collection, Collection)){
+					this.collection = collection;
+					// listen in for changes.
+					this.collection.on({
+						'change': eventProxy('change'),
+						'fetch': eventProxy('fetch'),
+						'add': eventProxy('add'),
+						'remove': eventProxy('remove'),
+						'sort': eventProxy('sort'),
+						'reset': eventProxy('reset'),
+						'error': eventProxy('error')
+					});
+				}
+
+				return this;
+			},
+
+			setModel: function(model){
+				// a model should be an Epitome model
+				var self = this,
+					eventProxy = function(type){
+						return function(){
+							self.trigger(type + ':model', arguments);
+						};
+					};
+
+				if (instanceOf(model, Model)){
+					this.model = model;
+					// listen in for changes.
+					this.model.on({
+						'change': eventProxy('change'),
+						'destroy': eventProxy('destroy'),
+						'empty': eventProxy('empty'),
+						'error': eventProxy('error')
+					});
+				}
+
+				return this;
+			},
+
+			attachEvents: function(events){
+				// add events to main element.
+				var self = this;
+				Object.each(events, function(method, type){
+					self.element.addEvent(type, function(){
+						self.trigger(method, arguments);
+					});
+				});
+
+				this.element.store('attachedEvents', events);
+
+				return this;
+			},
+
+			detachEvents: function(){
+				// remove attached events from an element
+				var events = this.element.retrieve('attachedEvents');
+				events && this.element.removeEvents(events).eliminate('attachedEvents');
+
+				return this;
+			},
+
+			template: function(data, template){
+				// refactor this to work with any other template engine in your constructor
+				template = template || this.options.template;
+
+				// instantiate a template engine when needed
+				// var compiler = this.Template || (this.Template = new Template());
+
+				// return compiler.template(template, data);
+				return template(data);
+			},
+
+			render: function(){
+				// refactor this in your constructor object. for example:
+				// this.element.set('html', this.template(this.options.data));
+				// this.parent(); // fires the render event.
+				return this.trigger('render');
+			},
+
+			empty: function(soft){
+				// with soft flag it does not destroy child elements but detaches from dom
+				if (soft){
+					this.element.empty();
+				}
+				else {
+					this.element.set('html', '');
+				}
+
+				return this.trigger('empty');
+			},
+
+			dispose: function(){
+				// detach the element from the dom.
+				this.element.dispose();
+
+				return this.trigger('dispose');
+			},
+
+			destroy: function(){
+				// remove element from dom and memory.
+				this.element.destroy();
+
+				return this.trigger('destroy');
+			}
+
+		});
+	}; // end wrap
+
+	if (typeof define === 'function' && define.amd){
+		define(['./epitome-template', './epitome-model', './epitome-collection', './epitome-events'], wrap);
+	}
+	else {
+		this.Epitome || (this.Epitome = {Template: {}, Model: {}, Collection: {}, Events: {}});
+		this.Epitome.View = wrap(this.Epitome.Template, this.Epitome.Model, this.Epitome.Collection, this.Epitome.Events);
+	}
+}.call(this));
 //small generic functional helper library
 ; var prelude = (function(undefined) {
 
@@ -12963,6 +14518,7 @@ Drag.SplitPane = new Class({
         //         return result.concat(f(x, ys[i]));
         //     }, []);
         // }.autoCurry(),
+
         //+ uniq :: [a] -> [a] 
         uniq = ret.uniq = function(xs) {
             var result = [];
@@ -13155,32 +14711,32 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<form id='login'>\r\n<h1>Connect to ";
+  buffer += "<form id='login'>\r\n<h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " IRC</h1>\r\n<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value=";
+    + " IRC</h2>\r\n<div class='nick right'>\r\n<label class=\"control-label\" for=\"nickname\">Nickname:<input type='text' name='basic' id='nickname' value=";
   if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " /></div>\r\n<div class='username right ";
+    + " /></label>\r\n</div>\r\n<div class='username right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='";
+  buffer += "'>\r\n<label class=\"control-label\" for=\"username\">Gamesurge username:<input type='text' name='full' id='username' value='";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></div>\r\n<div class='password right ";
+    + "'></label>\r\n</div>\r\n<div class='password right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'><span>Password:</span><input type='password' name='full' id='password' value='";
+  buffer += "'>\r\n<label class=\"control-label\" for=\"password\">Password:<input type='password' name='full' id='password' value='";
   if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></div>\r\n<div class='authenticate'>\r\n<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' ";
+    + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + ">\r\n</div>\r\n<div><input type='submit' value='Connect' /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
@@ -13273,7 +14829,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<form class='input'>\r\n<div>\r\n<label class='nickname'><span class='status ";
+  buffer += "<form class='input'>\r\n<div class=\"input-group\">\r\n<span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -13281,11 +14837,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</label>\r\n<input class='";
+    + "</span>\r\n<input class='";
   if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " input-field' type='text'>\r\n<input class='input-button' type='button' value='>' />\r\n</div>\r\n</form>\n";
+    + " input-field form-control' type='text'>\r\n<span class=\"input-group-btn\">\r\n<button class=\"btn btn-default send\" type=\"button\">&gt;</button>\r\n</span>\r\n</div>\r\n</form>\n";
   return buffer;
   });
 
@@ -13406,6 +14962,73 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
+this["Handlebars"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+
+
+  buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<fieldset>Options</fieldset>\r\n<ul class=\"option-tabs\">\r\n<li class=\"ui-options\">Interface</li>\r\n<li class=\"alert-options\">Notifications</li>\r\n<li class=\"irc-options\">Chat Preferences</li>\r\n</ul>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_COLOURS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"nick_colours\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.nick_colours, options) : helperMissing.call(depth0, "check", depth0.nick_colours, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_ov_status\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_OV_STATUS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"nick_ov_status\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.nick_ov_status, options) : helperMissing.call(depth0, "check", depth0.nick_ov_status, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"show_timestamps\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.SHOW_TIMESTAMPS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"show_timestamps\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.show_timestamps, options) : helperMissing.call(depth0, "check", depth0.show_timestamps, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"show_nicklist\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.SHOW_NICKLIST)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"show_nicklist\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.show_nicklist, options) : helperMissing.call(depth0, "check", depth0.show_nicklist, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"dedicated_notice_window\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DEDICATED_NOTICE_WINDOW)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"dedicated_notice_window\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.dedicated_notice_window, options) : helperMissing.call(depth0, "check", depth0.dedicated_notice_window, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"dedicated_msg_window\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DEDICATED_MSG_WINDOW)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"dedicated_msg_window\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.dedicated_msg_window, options) : helperMissing.call(depth0, "check", depth0.dedicated_msg_window, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"lastpos_line\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.LASTPOS_LINE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"lastpos_line\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.lastpos_line, options) : helperMissing.call(depth0, "check", depth0.lastpos_line, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"hide_joinparts\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.HIDE_JOINPARTS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"hide_joinparts\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.hide_joinparts, options) : helperMissing.call(depth0, "check", depth0.hide_joinparts, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"query_on_nick_click\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.QUERY_ON_NICK_CLICK)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"query_on_nick_click\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.query_on_nick_click, options) : helperMissing.call(depth0, "check", depth0.query_on_nick_click, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label for=\"style_hue\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.STYLE_HUE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<div id=\"style_hue\" class=\"slider hue-slider\"><div class=\"knob\"></div></div>\r\n</label>\r\n\r\n</div>\r\n</div>\r\n<div class=\"irc-options control-group\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"use_hiddenhost\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USE_HIDDENHOST)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"use_hiddenhost\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.use_hiddenhost, options) : helperMissing.call(depth0, "check", depth0.use_hiddenhost, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"accept_service_invites\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ACCEPT_SERVICE_INVITES)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n</form>\n";
+  return buffer;
+  });
+
 this["Handlebars"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -13415,6 +15038,28 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += "<span class='hyperlink-channel'>";
   if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>\n";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["subcolour"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class=\"";
+  if (stack1 = helpers.background) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.background; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.colour) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.colour; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span>\n";
   return buffer;
@@ -13563,7 +15208,6 @@ project name and URL in the about dialog, thanks!*/
     qwebirc.FILE_SUFFIX = "-" + QWEBIRC_BUILD;
     qwebirc.VERSION = "0.93-dev";
 
-
 ui.WINDOW_STATUS = 1;
 ui.WINDOW_QUERY = 2;
 ui.WINDOW_CHANNEL = 4;
@@ -13601,37 +15245,69 @@ var OPED = "+",
     VOICESTATUS = "+";
 
 irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07',
-    /* x08-x0f */ '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
-    /* x10-x17 */ '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17',
-    /* x18-x1f */ '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
-    /* ' '-x27 */ ' ', '!', '"', '#', '$', '%', '&', '\x27',
-    /* '('-'/' */ '(', ')', '*', '+', ',', '-', '.', '/',
-    /* '0'-'7' */ '0', '1', '2', '3', '4', '5', '6', '7',
-    /* '8'-'?' */ '8', '9', ':', ';', '<', '=', '>', '?',
-    /* '@'-'G' */ '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    /* 'H'-'O' */ 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    /* 'P'-'W' */ 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-    /* 'X'-'_' */ 'x', 'y', 'z', '{', '|', '}', '~', '_',
-    /* '`'-'g' */ '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    /* 'h'-'o' */ 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    /* 'p'-'w' */ 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-    /* 'x'-x7f */ 'x', 'y', 'z', '{', '|', '}', '~', '\x7f',
-    /* x80-x87 */ '\x80', '\x81', '\x82', '\x83', '\x84', '\x85', '\x86', '\x87',
-    /* x88-x8f */ '\x88', '\x89', '\x8a', '\x8b', '\x8c', '\x8d', '\x8e', '\x8f',
-    /* x90-x97 */ '\x90', '\x91', '\x92', '\x93', '\x94', '\x95', '\x96', '\x97',
-    /* x98-x9f */ '\x98', '\x99', '\x9a', '\x9b', '\x9c', '\x9d', '\x9e', '\x9f',
-    /* xa0-xa7 */ '\xa0', '\xa1', '\xa2', '\xa3', '\xa4', '\xa5', '\xa6', '\xa7',
-    /* xa8-xaf */ '\xa8', '\xa9', '\xaa', '\xab', '\xac', '\xad', '\xae', '\xaf',
-    /* xb0-xb7 */ '\xb0', '\xb1', '\xb2', '\xb3', '\xb4', '\xb5', '\xb6', '\xb7',
-    /* xb8-xbf */ '\xb8', '\xb9', '\xba', '\xbb', '\xbc', '\xbd', '\xbe', '\xbf',
-    /* xc0-xc7 */ '\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7',
-    /* xc8-xcf */ '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',
-    /* xd0-xd7 */ '\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xd7',
-    /* xd8-xdf */ '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xdf',
-    /* xe0-xe7 */ '\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7',
-    /* xe8-xef */ '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',
-    /* xf0-xf7 */ '\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7',
-    /* xf8-xff */ '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'];
+    /* x08-x0f */
+    '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
+    /* x10-x17 */
+    '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17',
+    /* x18-x1f */
+    '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
+    /* ' '-x27 */
+    ' ', '!', '"', '#', '$', '%', '&', '\x27',
+    /* '('-'/' */
+    '(', ')', '*', '+', ',', '-', '.', '/',
+    /* '0'-'7' */
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    /* '8'-'?' */
+    '8', '9', ':', ';', '<', '=', '>', '?',
+    /* '@'-'G' */
+    '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+    /* 'H'-'O' */
+    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    /* 'P'-'W' */
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+    /* 'X'-'_' */
+    'x', 'y', 'z', '{', '|', '}', '~', '_',
+    /* '`'-'g' */
+    '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+    /* 'h'-'o' */
+    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    /* 'p'-'w' */
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+    /* 'x'-x7f */
+    'x', 'y', 'z', '{', '|', '}', '~', '\x7f',
+    /* x80-x87 */
+    '\x80', '\x81', '\x82', '\x83', '\x84', '\x85', '\x86', '\x87',
+    /* x88-x8f */
+    '\x88', '\x89', '\x8a', '\x8b', '\x8c', '\x8d', '\x8e', '\x8f',
+    /* x90-x97 */
+    '\x90', '\x91', '\x92', '\x93', '\x94', '\x95', '\x96', '\x97',
+    /* x98-x9f */
+    '\x98', '\x99', '\x9a', '\x9b', '\x9c', '\x9d', '\x9e', '\x9f',
+    /* xa0-xa7 */
+    '\xa0', '\xa1', '\xa2', '\xa3', '\xa4', '\xa5', '\xa6', '\xa7',
+    /* xa8-xaf */
+    '\xa8', '\xa9', '\xaa', '\xab', '\xac', '\xad', '\xae', '\xaf',
+    /* xb0-xb7 */
+    '\xb0', '\xb1', '\xb2', '\xb3', '\xb4', '\xb5', '\xb6', '\xb7',
+    /* xb8-xbf */
+    '\xb8', '\xb9', '\xba', '\xbb', '\xbc', '\xbd', '\xbe', '\xbf',
+    /* xc0-xc7 */
+    '\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7',
+    /* xc8-xcf */
+    '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',
+    /* xd0-xd7 */
+    '\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xd7',
+    /* xd8-xdf */
+    '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xdf',
+    /* xe0-xe7 */
+    '\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7',
+    /* xe8-xef */
+    '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',
+    /* xf0-xf7 */
+    '\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7',
+    /* xf8-xff */
+    '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
+];
 
 
 irc.Numerics = {
@@ -13674,6 +15350,130 @@ irc.Numerics = {
     "322": "RPL_LISTITEM",
     "323": "RPL_LISTEND"
 };
+
+irc.styles = [
+    {
+        name: 'normal',
+        style: '',
+        key: '\x00'
+
+    },
+    {
+        name: 'underline',
+        style: 'underline',
+        key: '\x1F'
+    },
+    {
+        name: 'bold',
+        style: 'bold',
+        key: '\x02'
+    },
+    {
+        name: 'italic',
+        style: 'italic',
+        key: '\x16'
+    }
+]
+
+irc.colours = [//http://www.mirc.com/colors.html
+    {
+        name: 'white',
+        fore: 'col0',
+        back: 'back0',
+        key: 0
+    },
+    {
+        name: 'black',
+        fore: 'col1',
+        back: 'back1',
+        key: 1
+    },
+    {
+        name: 'navy',
+        fore: 'col2',
+        back: 'back2',
+        key: 2
+    },
+    {
+        name: 'green',
+        fore: 'col3',
+        back: 'back3',
+        key: 3
+    },
+    {
+        name: 'red',
+        fore: 'col4',
+        back: 'back4',
+        key: 4
+    },
+    {
+        name: 'brown',
+        fore: 'col5',
+        back: 'back5',
+        key: 5
+    },
+    {
+        name: 'purple',
+        fore: 'col6',
+        back: 'back6',
+        key: 6
+    },
+    {
+        name: 'olive',
+        fore: 'col7',
+        back: 'back7',
+        key: 7
+    },
+    {
+        name: 'yellow',
+        fore: 'col8',
+        back: 'back8',
+        key: 8,
+
+    },
+    {
+        name: 'lightgreen',
+        fore: 'col9',
+        back: 'back9',
+        key: 9
+    },
+    {
+        name: 'teal',
+        fore: 'col10',
+        back: 'back10',
+        key: 10
+    },
+    {
+        name: 'cyan',
+        fore: 'col11',
+        back: 'back11',
+        key: 11
+    },
+    {
+        name: 'blue',
+        fore: 'col12',
+        back: 'back12',
+        key: 12
+    },
+    {
+        name: 'pink',
+        fore: 'col13',
+        back: 'back13',
+        key: 13
+    },
+    {
+        name: 'gray',
+        fore: 'col14',
+        back: 'back14',
+        key: 14
+    },
+    {
+        name: 'lightgrey',
+        fore: 'col15',
+        back: 'back15',
+        key: 15
+    }
+];
 
 
 (function() {
@@ -13748,47 +15548,39 @@ irc.Numerics = {
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 
         closeTab: "Close tab",
-        detachWindow: "Detach Window"
+        detachWindow: "Detach Window",
 
+        //options
+        BEEP_ON_MENTION: "Beep when nick mentioned or on query activity (requires Flash or html5)",
+        FLASH_ON_MENTION: "Flash titlebar when nick mentioned or on query activity",
+        DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
+        DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
+        NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
+        ACCEPT_SERVICE_INVITES: "Automatically join channels when invited",
+        USE_HIDDENHOST: "Hide your hostmask when authed (+x)",
+        LASTPOS_LINE: "Show a last position indicator for each window",
+        NICK_COLOURS: "Automatically colour nicknames",
+        HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
+        STYLE_HUE: "Adjust user interface hue",
+        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
+        SHOW_NICKLIST: "Show nickname list in channels",
+        SHOW_TIMESTAMPS: "Show timestamps"
     };
 
 
-    lang.IRC_COMMAND_HELPERS = {
-        "JOIN": "/JOIN <channel>",
-        "NICK": "/NICK <new nickname>",
-        "PART": "/PART <channel>",
-        "QUIT": "/QUIT <message>",
-        "TOPIC": "/TOPIC <channel> <topic>",
-        "AWAY": "/AWAY <message>",
-        "ME": "/ME <message>",
-        "NOTICE": "/NOTICE <message>",
-        "MODE": "/MODE <target(chan/user)> <mode>",
-        "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
-    };
+    // lang.IRC_COMMAND_HELPERS = {
+    //     "JOIN": "/JOIN <channel>",
+    //     "NICK": "/NICK <new nickname>",
+    //     "PART": "/PART <channel>",
+    //     "QUIT": "/QUIT <message>",
+    //     "TOPIC": "/TOPIC <channel> <topic>",
+    //     "AWAY": "/AWAY <message>",
+    //     "ME": "/ME <message>",
+    //     "NOTICE": "/NOTICE <message>",
+    //     "MODE": "/MODE <target(chan/user)> <mode>",
+    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
+    // };
 
-    // lang.DaysOfWeek = [
-    //     "Sun",
-    //     "Mon",
-    //     "Tue",
-    //     "Wed",
-    //     "Thu",
-    //     "Fri",
-    //     "Sat"
-    // ];
-
-    // lang.MonthsOfYear = [
-    //     "Jan",
-    //     "Feb",
-    //     "Mar",
-    //     "Apr",
-    //     "May",
-    //     "Jun",
-    //     "Jul",
-    //     "Aug",
-    //     "Sep",
-    //     "Oct",
-    //     "Nov",
-    //     "Dec"];
 
 
 ui.themes.ThemeControlCodeMap2 = {
@@ -13802,7 +15594,6 @@ ui.themes.ThemeControlCodeMap2 = {
     "$": "$"
 };
 
-//todo make this stuff more clear
 ui.themes.Default2 = {
     "SIGNON": ["Signed on!", true],
     "CONNECT": ["Connected to server.", true],
@@ -13827,13 +15618,13 @@ ui.themes.Default2 = {
     "HILIGHT": ["{C}4"],
     "HILIGHTEND": ["{O}"],
 
-    "CHANMSG": ["<{D}{@}{(}{N}{)}{D}> {m}"],
-    "PRIVMSG": ["<{(}{N}{)}> {m}"],
+    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
+    "PRIVMSG": ["{(}{N}{)} {m}"],
     "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
     "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
 
-    "OURCHANMSG": ["<{@}{N}> {m}"],
-    "OURPRIVMSG": ["<{N}> {m}"],
+    "OURCHANMSG": ["{@}{N} {m}"],
+    "OURPRIVMSG": ["{N} {m}"],
     "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
     "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
     "OURCHANNOTICE": ["-{N}:{t}- {m}"],
@@ -14107,6 +15898,29 @@ irc.toIRCCompletion = Functional.compose(prelude.replace(/[^\w]+/g, ""), Functio
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
+util.getStyleByName = function(name) {
+    return irc.styles.filter(function(style) {
+        return style.name === name;
+    })[0];
+}
+
+util.getStyleByKey = function(key) {
+    return irc.styles.filter(function(style) {
+        return style.key === key;
+    })[0];
+}
+
+util.getColourByName = function(name) {
+    return irc.colours.filter(function(colour) {
+        return colour.name == name;
+    })[0];
+}
+
+util.getColourByKey = function(key) {
+    return irc.colours.filter(function(colour) {
+        return colour.key == key;
+    })[0];
+}
 
 // returns the arguments 
 util.parseURI = function(uri) {
@@ -14658,138 +16472,138 @@ util.crypto.getARC4Stream = function(key, length) {
 };
 
 
-//TODO cleanup
-ui.urlificate = function(element, text, execfn, cmdfn, window, urlregex) {
+// //TODO cleanup
+// ui.urlificate = function(element, text) {
 
-    // var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
-    // var urlregex = /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i; //matches links, qwebirc handlers, and steam connect info - sorry
-    // var addedText = [];
+//     // var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
+//     // var urlregex = /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i; //matches links, qwebirc handlers, and steam connect info - sorry
+//     // var addedText = [];
 
-    // var txtprocess = function(text, regex, appendfn, matchfn) {
-    //     var processed = text;
-    //     for (var index;(index = processed.search(regex)) !== -1;) {
-    //         var match = processed.match(regex);
+//     // var txtprocess = function(text, regex, appendfn, matchfn) {
+//     //     var processed = text;
+//     //     for (var index;(index = processed.search(regex)) !== -1;) {
+//     //         var match = processed.match(regex);
 
-    //         var before = processed.slice(0, index);
-    //         var matched = match[0];
-    //         var after = processed.slice(index + matched.length);
+//     //         var before = processed.slice(0, index);
+//     //         var matched = match[0];
+//     //         var after = processed.slice(index + matched.length);
 
-    //         appendfn(before);
-    //         var more = matchfn(matched, appendfn) || "";
-    //         processed = more + after;
-    //     }
-    //     appendfn(processed);
-    // };
+//     //         appendfn(before);
+//     //         var more = matchfn(matched, appendfn) || "";
+//     //         processed = more + after;
+//     //     }
+//     //     appendfn(processed);
+//     // };
 
-    // var appendText = function(text) {
-    //     addedText.push(text);
-    //     util.NBSPCreate(text, element);
-    // };
+//     // var appendText = function(text) {
+//     //     addedText.push(text);
+//     //     util.NBSPCreate(text, element);
+//     // };
 
-    // var appendChan = function(text) {
-    //     var newtext = text.replace(punct_re, "");
-    //     addedText.push(newtext);
-    //     var punct = text.substring(newtext.length);
+//     // var appendChan = function(text) {
+//     //     var newtext = text.replace(punct_re, "");
+//     //     addedText.push(newtext);
+//     //     var punct = text.substring(newtext.length);
 
-    //     var a = new Element("span");
-    //     a.href = "#";
-    //     a.addClass("hyperlink-channel")
-    //         .addEvent("click", function(e) {
-    //             new Event(e).stop();
-    //             execfn("/JOIN " + newtext); //be more efficent and semantic to add this as a prop and have a listener on the element for the event
-    //         })
-    //         .appendText(newtext);
-    //     element.appendChild(a);
+//     //     var a = new Element("span");
+//     //     a.href = "#";
+//     //     a.addClass("hyperlink-channel")
+//     //         .addEvent("click", function(e) {
+//     //             new Event(e).stop();
+//     //             execfn("/JOIN " + newtext); //be more efficent and semantic to add this as a prop and have a listener on the element for the event
+//     //         })
+//     //         .appendText(newtext);
+//     //     element.appendChild(a);
 
-    //     return punct;
-    // };
+//     //     return punct;
+//     // };
 
-    // var appendURL = function(text, appendfn, regex) {
-    //     var url = text.replace(punct_re, "");
-    //     var punct = text.substring(url.length);
+//     // var appendURL = function(text, appendfn, regex) {
+//     //     var url = text.replace(punct_re, "");
+//     //     var punct = text.substring(url.length);
 
-    //     var href = "";
-    //     var fn = null;
-    //     var target = "_blank";
-    //     var disptext = url;
-    //     var elementType = "a";
-    //     var addClass;
+//     //     var href = "";
+//     //     var fn = null;
+//     //     var target = "_blank";
+//     //     var disptext = url;
+//     //     var elementType = "a";
+//     //     var addClass;
 
-    //     var ma = url.match(/^qwebirc:\/\/(.*)$/);
-    //     if (ma) {
-    //         var m = ma[1].match(/^([^\/]+)\/([^\/]+)\/?(.*)$/);
-    //         if (!m) {
-    //             appendfn(text);
-    //             return;
-    //         }
+//     //     var ma = url.match(/^qwebirc:\/\/(.*)$/);
+//     //     if (ma) {
+//     //         var m = ma[1].match(/^([^\/]+)\/([^\/]+)\/?(.*)$/);
+//     //         if (!m) {
+//     //             appendfn(text);
+//     //             return;
+//     //         }
 
-    //         var cmd = cmdfn(m[1], window);
-    //         if (cmd) {
-    //             addClass = m[1];
-    //             elementType = cmd[0];
-    //             if (cmd[0] != "a") {
-    //                 url = null;
-    //             } else {
-    //                 url = "#";
-    //             }
-    //             fn = cmd[1];
-    //             disptext = unescape(m[2]);
-    //             target = null;
-    //         } else {
-    //             appendfn(text);
-    //             return;
-    //         }
-    //         if (m[3])
-    //             punct = m[3] + punct;
-    //     } 
-    //     else if (url.match(/^www\./))
-    //         url = "http://" + url;
-    //     else if (url.match(/^connect/)) {
-    //         target = null;
-    //         var info = url.split(';'),
-    //             server = info[0].split(' ')[1],
-    //             password = info[1].split(' ').getLast();
-    //         url = 'steam://connect/' + server + '/' + password;
-    //     }
+//     //         var cmd = cmdfn(m[1], window);
+//     //         if (cmd) {
+//     //             addClass = m[1];
+//     //             elementType = cmd[0];
+//     //             if (cmd[0] != "a") {
+//     //                 url = null;
+//     //             } else {
+//     //                 url = "#";
+//     //             }
+//     //             fn = cmd[1];
+//     //             disptext = unescape(m[2]);
+//     //             target = null;
+//     //         } else {
+//     //             appendfn(text);
+//     //             return;
+//     //         }
+//     //         if (m[3])
+//     //             punct = m[3] + punct;
+//     //     } 
+//     //     else if (url.match(/^www\./))
+//     //         url = "http://" + url;
+//     //     else if (url.match(/^connect/)) {
+//     //         target = null;
+//     //         var info = url.split(';'),
+//     //             server = info[0].split(' ')[1],
+//     //             password = info[1].split(' ').getLast();
+//     //         url = 'steam://connect/' + server + '/' + password;
+//     //     }
 
-    //     var a = new Element(elementType);
-    //     if (addClass)
-    //         a.addClass("hyperlink-" + addClass);
+//     //     var a = new Element(elementType);
+//     //     if (addClass)
+//     //         a.addClass("hyperlink-" + addClass);
 
-    //     if (url) {
-    //         a.href = url;
-    //         a.onclick = function() {
-    //             par.steamlink = Date.now();
-    //         };
+//     //     if (url) {
+//     //         a.href = url;
+//     //         a.onclick = function() {
+//     //             par.steamlink = Date.now();
+//     //         };
 
-    //         if (target) {
-    //             a.target = target;
-    //         }
-    //     }
-    //     addedText.push(disptext);
-    //     a.appendText(disptext);
+//     //         if (target) {
+//     //             a.target = target;
+//     //         }
+//     //     }
+//     //     addedText.push(disptext);
+//     //     a.appendText(disptext);
 
-    //     element.appendChild(a);
-    //     if ($defined(fn)){
-    //         a.addEvent("click", function(e) {// Functional.compose(fn.bind(disptext), Event.stop)
-    //             // e.stop();
-    //             fn(disptext);
-    //         });
-    //     }
-    //     return punct;
-    // };
+//     //     element.appendChild(a);
+//     //     if ($defined(fn)){
+//     //         a.addEvent("click", function(e) {// Functional.compose(fn.bind(disptext), Event.stop)
+//     //             // e.stop();
+//     //             fn(disptext);
+//     //         });
+//     //     }
+//     //     return punct;
+//     // };
 
-    // txtprocess(text, urlregex, function(text) {
-    //     txtprocess(text, /\B#[^ ,]+/, appendText, appendChan);
-    // }, appendURL);
+//     // txtprocess(text, urlregex, function(text) {
+//     //     txtprocess(text, /\B#[^ ,]+/, appendText, appendChan);
+//     // }, appendURL);
 
 
 
-    var result = urlifier.urlerize(text);
-    element.insertAdjacentHTML("BeforeEnd", result);
+//     var result = urlifier.urlerize(text);
+//     element.insertAdjacentHTML("BeforeEnd", result);
 
-    // return addedText.join("");
-};
+//     // return addedText.join("");
+// };
 
 
 var storage = util.storage = new Storage({
@@ -14959,12 +16773,14 @@ ui.Interface = new Class({
             last: 1
         };
         window.hasfocus = true;
-        window.addEvent('focus', function() {
+        window.addEvents({
+            'focus': function() {
                 this.hasfocus = true;
-            })
-            .addEvent('blur', function() {
+            },
+            'blur': function() {
                 this.hasfocus = false;
-            });
+            }
+        });
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
@@ -15016,38 +16832,6 @@ ui.Interface = new Class({
                 pass: new Storer("password"),//auth password
                 auth: new Storer("enableAuth")//enable full auth
             };
-
-            function callback(loginopts) {
-                $extend(loginopts, Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime']));
-
-                var client = self.IRCClient = new irc.IRCClient(loginopts, self.ui_);
-                client.connect();
-
-
-                window.onbeforeunload =  function(e) {
-                    if (!client.disconnected) {
-                        var message = "This action will close all active IRC connections.";
-                        if ((e = e || window.event)) {
-                            e.returnValue = message;
-                        }
-                        return message;
-                    }
-                };
-                window.addEvent('unload', client.quit);
-
-                if(!auth.enabled) {
-                    self.ui_.beep();
-                }
-
-                client.addEvent("auth:once", self.ui_.beep);
-
-                self.fireEvent("login", {
-                    'IRCClient': client,
-                    'parent': self
-                });
-
-                details.window.window.destroy();
-            }
 
             if (opts.searchURL) {
                 var args = util.parseURI(document.location.toString()),
@@ -15122,7 +16906,37 @@ ui.Interface = new Class({
             inick = opts.initialNickname;
             //}
 
-            var details = self.ui_.loginBox(callback, inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+
+            self.ui_.addEvent("login:once", function(loginopts) {
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime']), loginopts);
+
+                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
+                client.connect();
+
+
+                window.onbeforeunload =  function(e) {
+                    if (!client.disconnected) {
+                        var message = "This action will close all active IRC connections.";
+                        if ((e = e || window.event)) {
+                            e.returnValue = message;
+                        }
+                        return message;
+                    }
+                };
+                window.addEvent('unload', client.quit);
+
+                if(!auth.enabled) {
+                    self.ui_.beep();
+                }
+
+                client.addEvent("auth:once", self.ui_.beep);
+
+                self.fireEvent("login", {
+                    'IRCClient': client,
+                    'parent': self
+                });
+            });
         });
     },
     cleanUp: function() {
@@ -15288,11 +17102,11 @@ irc.BaseIRCClient = new Class({
         self.nextctcp = 0;
 
         var conn = self.connection = new irc.IRCConnection({
-            gamesurge: options.gamesurge,
+            gamesurge: opts.gamesurge,
             initialNickname: self.nickname,
             onRecv: self.dispatch,
-            password: options.password,
-            serverPassword: options.serverPassword
+            password: opts.password,
+            serverPassword: opts.serverPassword
         });
 
         self.send = conn.send;
@@ -15962,7 +17776,7 @@ irc.BaseCommandParser = new Class({
     newQueryLine: function(target, type, message, extra) {
         extra = this.buildExtra(extra, target, message);
 
-        if (this.parentObject.ui.uiOptions.DEDICATED_MSG_WINDOW) {
+        if (this.parentObject.ui.uiOptions2.get("dedicated_msg_window")) {
             var win = this.parentObject.getWindow(target);
             if (!win) {
                 var win = this.parentObject.ui.newWindow(this.parentObject, ui.WINDOW_MESSAGES, "Messages");
@@ -16427,18 +18241,17 @@ irc.IRCClient = new Class({
                     if (extra["f"] === BROUHAHA) {
                         extra['f'] = '';
 
-                        var chanName = $('channel-name-id').innerHTML;
                         if (!util.isChannel(chanName)) {
                             extra['f'] = '>';
                         }
-                        extra["f"] = extra['f'] + irc.activeChannel; //hack active chan is on qwebirc.irc object
+                        extra["f"] += irc.activeChannel; //hack active chan is on qwebirc.irc object
                     }
-                    extra["n"] = util.hostToNick(user) + extra["f"];
+                    extra["n"] += extra["f"];
                 } else {
-                    if (util.hostToNick(user) == this.nickname) {
+                    if (extra['n'] == this.nickname) {
                         extra['n'] = this.nickname + '>' + extra['f'];
                     } else {
-                        extra['n'] = util.hostToNick(user) + '>' + extra['f'];
+                        extra['n'] += '>' + extra['f'];
                     }
                 }
             }
@@ -16446,9 +18259,9 @@ irc.IRCClient = new Class({
         extra["c"] = channel;
         extra["-"] = this.nickname;
 
-        if (!(this.ui.uiOptions.NICK_OV_STATUS))
+        if (!(this.ui.uiOptions2.get("nick_ov_status"))){
             delete extra["@"];
-
+        }
         this.newLine(channel, type, extra);
     },
 
@@ -16521,7 +18334,7 @@ irc.IRCClient = new Class({
     },
 
     newPrivmsgQueryWindow: function(name) {
-        if (this.ui.uiOptions.DEDICATED_MSG_WINDOW) {
+        if (this.ui.uiOptions2.get("dedicated_msg_window")) {
             if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
                 return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
         } else {
@@ -16530,7 +18343,7 @@ irc.IRCClient = new Class({
     },
 
     newNoticeQueryWindow: function(name) {
-        if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW)
+        if (this.ui.uiOptions2.get("dedicated_notice_window"))
             if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
                 return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
     },
@@ -16543,9 +18356,9 @@ irc.IRCClient = new Class({
 
         var e;
         if (privmsg) {
-            e = this.ui.uiOptions.DEDICATED_MSG_WINDOW;
+            e = this.ui.uiOptions2.get("dedicated_msg_window");
         } else {
-            e = this.ui.uiOptions.DEDICATED_NOTICE_WINDOW;
+            e = this.ui.uiOptions2.get("dedicated_notice_window");
         }
         if (e && win) {
             return win.addLine(type, data);
@@ -16686,7 +18499,7 @@ irc.IRCClient = new Class({
         this.updateNickList(channel);
 
         //dont display login message if join msgs disabled or window is brouhaha or something
-        if (!(this.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(channel))) {
+        if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
             this.newChanLine(channel, type, user);
         }
 
@@ -16720,7 +18533,7 @@ irc.IRCClient = new Class({
             this.updateNickList(channel);
 
             //hide disconnects in base windows or if option set
-            if (!(this.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(channel))) {
+            if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
                 this.newChanLine(channel, "PART", user, {
                     "m": message
                 });
@@ -16780,7 +18593,7 @@ irc.IRCClient = new Class({
     userInvite: function(user, channel) {
         var nick = util.hostToNick(user),
             host = util.hostToHost(user),
-            accept = this.ui.uiOptions.ACCEPT_SERVICE_INVITES && this.isNetworkService(user);
+            accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(user);
 
         this.newServerLine("INVITE", {
             "c": channel,
@@ -16808,7 +18621,7 @@ irc.IRCClient = new Class({
         var nick = util.hostToNick(user),
             host = util.hostToHost(user);
 
-        if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW) {
+        if (this.ui.uiOptions2.get("dedicated_notice_window")) {
             this.newQueryWindow(nick, false);
             this.newQueryOrActiveLine(nick, "PRIVNOTICE", {
                 "m": message,
@@ -16837,7 +18650,7 @@ irc.IRCClient = new Class({
         self.tracker.removeNick(nick);
 
         Object.keys(channels).each(function(chan) {
-            if (!(self.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(chan))) {
+            if (!(self.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(chan))) {
                 self.newChanLine(chan, "QUIT", user, {
                     "m": message
                 });
@@ -17904,7 +19717,7 @@ irc.IRCTracker = new Class({
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
+        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
         sounds: "/sound/",
         beepsrc: "beep.mp3"
     },
@@ -18308,27 +20121,27 @@ ui.StandardUI = new Class({
         this.parent(parentElement, windowClass, uiName, options);
 
         this.tabCompleter = new ui.TabCompleterFactory(this);
-        this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
+        // this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
+        this.uiOptions2 = new config.OptionModel({
+            defaults: options.uiOptionsArg
+        });
+        this.uiOptions2.on("change:style_hue", function(hue) {
+            this.setModifiableStylesheetValues({
+                hue: hue
+            });
+        }.bind(this));
+
+
+
         this.customWindows = {};
 
         this.__styleValues = {
-            hue: this.uiOptions.STYLE_HUE,
-            saturation: 0,
-            lightness: 0
+            hue: this.options.hue || this.uiOptions2.get("style_hue"),
+            saturation: this.options.saturation || this.uiOptions2.get("style_saturation"),
+            lightness: this.options.lightness || this.uiOptions2.get("style_brightness")
         };
-        if ($defined(this.options.hue))
-            this.__styleValues.hue = this.options.hue;
-        if ($defined(this.options.saturation))
-            this.__styleValues.saturation = this.options.saturation;
-        if ($defined(this.options.lightness))
-            this.__styleValues.lightness = this.options.lightness;
 
-        var ev;
-        if (Browser.Engine.trident) {
-            ev = "keydown";
-        } else {
-            ev = "keypress";
-        }
+        var ev = Browser.Engine.trident ? "keydown" : "keypress";
         document.addEvent(ev, this.__handleHotkey);
     },
     __handleHotkey: function(x) {
@@ -18421,24 +20234,30 @@ ui.StandardUI = new Class({
     embeddedWindow: function() {
         this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
             baseURL: this.options.baseURL,
-            uiOptions: this.uiOptions,
+            uiOptions: this.uiOptions2,
             optionsCallback: this.optionsWindow
         });
     },
     optionsWindow: function() {
-        this.addCustomWindow("Options", ui.OptionsPane, "optionspane", this.uiOptions);
+        var constructor = function(element, data) {
+            return new ui.OptionView({
+                element: element,
+                model: data
+            });
+        }
+        this.addCustomWindow("Options", constructor, "optionspane", this.uiOptions2);
     },
     aboutWindow: function() {
-        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions);
+        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions2);
     },
     privacyWindow: function() {
-        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions);
+        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions2);
     },
     feedbackWindow: function() {
-        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions);
+        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions2);
     },
     faqWindow: function() {
-        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions);
+        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions2);
     },
     urlDispatcher: function(name, window) {
         if (name == "embedded") {
@@ -18449,10 +20268,10 @@ ui.StandardUI = new Class({
         }
         /* doesn't really belong here */
         else if (name === "whois") {
-            var uiOptions = this.uiOptions;
+            var uiOptions2 = this.uiOptions2;
             ///this method is dumb
             return ["span", function(nick) {
-                if (uiOptions.QUERY_ON_NICK_CLICK) {
+                if (uiOptions2.QUERY_ON_NICK_CLICK) {
                     window.client.exec("/QUERY " + nick);
                 } else {
                     if (isChannel(nick)) {
@@ -18476,7 +20295,7 @@ ui.StandardUI = new Class({
     whoisURL: function(e, target) {
         var client = target.getParent('.lines').retrieve('client'),
             nick = target.get('data-user');
-        if (this.uiOptions.QUERY_ON_NICK_CLICK) {
+        if (this.uiOptions2.QUERY_ON_NICK_CLICK) {
             client.exec("/QUERY " + nick);
         } else {
             if (isChannel(nick)) {
@@ -18516,7 +20335,7 @@ ui.StandardUI = new Class({
         var hue = this.__styleValues.hue,
             lightness = this.__styleValues.lightness,
             saturation = this.__styleValues.saturation,
-            uiOptions = this.uiOptions;
+            uiOptions = this.uiOptions2;
 
         this.__styleSheet.set(function(mode, col) {
             if (mode == "c") {
@@ -18527,7 +20346,7 @@ ui.StandardUI = new Class({
 
                 return "rgb(" + c + ")";
             } else if (mode == "o") {
-                return uiOptions[arguments[1]] ? arguments[2] : arguments[3];
+                return uiOptions.get([arguments[1]] ? arguments[2] : arguments[3]);
             }
         });
     }
@@ -18548,13 +20367,13 @@ ui.NotificationUI = new Class({
         this.parent.apply(this, arguments);
 
 
-        if (this.uiOptions.BEEP_ON_MENTION) {
+        if (this.uiOptions2.get("beep_on_mention")) {
             this.soundInit();
             this.lastSound = 0;
         }
 
 
-        var flasher = this.__flasher = new ui.Flasher(this.uiOptions);
+        var flasher = this.__flasher = new ui.Flasher(this.options, this.uiOptions2);
 
         this.flash = flasher.flash;
         this.cancelFlash = flasher.cancelFlash;
@@ -18575,7 +20394,7 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundPlayer.isReady() && this.uiOptions.BEEP_ON_MENTION &&
+        if (this.soundPlayer.isReady() && this.uiOptions2.get("beep_on_mention") &&
                 (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.sounds[alias]();
@@ -18593,7 +20412,7 @@ ui.NotificationUI = new Class({
 ui.Flasher = new Class({
     Binds: ["flash", "cancelFlash"],
 
-    initialize: function(uiOptions) {
+    initialize: function(opts, uiOptions) {
         this.uiOptions = uiOptions;
 
         this.windowFocused = false;
@@ -18613,7 +20432,7 @@ ui.Flasher = new Class({
             this.emptyFavIcon = new Element("link", {
                     rel: 'shortcut icon',
                     type: 'image/x-icon',
-                    href: uiOptions.ui.options.icons.empty_favicon
+                    href: opts.icons.empty_favicon
                 });
 
             this.flashing = false;
@@ -18629,7 +20448,7 @@ ui.Flasher = new Class({
     },
     flash: function() {
         var self = this;
-        if (!self.uiOptions.FLASH_ON_MENTION || self.windowFocused || !self.canFlash || self.flashing)
+        if (!self.uiOptions.get("flash_on_mention") || self.windowFocused || !self.canFlash || self.flashing)
             return;
 
         self.titleText = document.title; /* just in case */
@@ -18695,13 +20514,14 @@ ui.Flasher = new Class({
 
 ui.NewLoginUI = new Class({
     Extends: ui.NotificationUI,
-    loginBox: function(callbackfn, initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
+    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
         this.postInitialize();
 
+        var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
-        var callback = function() {
+        var callback = function(data) {
                 win.close();
-                callbackfn.apply(this, arguments);
+                self.fireEvent("login", data)
             };
         ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
         return win;
@@ -18822,7 +20642,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
             'detach': recenter
         });
 
-        callback.call(this,data);
+        callback(data);
     }.bind(this));
 
     // nickBox.set("value", initialNickname);
@@ -19423,141 +21243,269 @@ ui.QUI.JSUI = new Class({
 
 
 // hacky... todo simplify
-ui.Colourise = function(line, entity, execfn, cmdfn, win) {
-    var fg;
-    var bg;
-    var underline = false;
-    var bold = false;
-    var autoNickColour = false;
+// ui.Colourise = function(line, entity, execfn, cmdfn, win) {
+//     var fg;
+//     var bg;
+//     var underline = false;
+//     var bold = false;
+//     var autoNickColour = false;
 
-    var out = [];
-    var xline = line.split("");
-    var element = new Element("span");
+//     var out = [];
+//     var xline = line.split("");
+//     var element = new Element("span");
 
-    entity.addClass("colourline");
+//     entity.addClass("colourline");
 
-    function parseColours(xline, i) {
-        if(isNaN(xline[i + 1])) {
-            fg = undefined;
-            bg = undefined;
-            return i;
+//     function parseColours(xline, i) {
+//         if(isNaN(xline[i + 1])) {
+//             fg = undefined;
+//             bg = undefined;
+//             return i;
+//         }
+//         i++;
+//         if(prelude.isNumber(xline[i + 1])) {
+//             fg = parseInt(xline[i] + xline[i + 1]);
+//             i++;
+//         } else {
+//             fg = parseInt(xline[i]);
+//         }
+//         if(xline[i + 1] != ",")
+//             return i;
+//         else if(isNaN(xline[i + 2]))
+//             return i;
+//         i+=2;
+
+//         if(prelude.isNumber(xline[i + 1])) {
+//             bg = parseInt(xline[i] + xline[i + 1]);
+//             i++;
+//         } else {
+//             bg = parseInt(xline[i]);
+//         }
+//         return i;
+//     }
+
+//     function emitEndToken() {
+//         var data = "";
+//         if (out.length > 0) {
+//             data = ui.urlificate(element, out.join(""), execfn, cmdfn, win);
+//             entity.appendChild(element);
+//             out.empty();
+//         }
+//         element = document.createElement("span"); //?
+//         return data;
+//     }
+
+//     function emitStartToken() {
+//         if(autoNickColour)
+//             return element;
+
+//         var classes = "";
+//         if(fg !== undefined)
+//             classes = concatSpace(classes, "Xc" + fg); //text colour
+//         if(bg !== undefined)
+//             classes = concatSpace(classes, "Xbc" + bg); //background
+//         if(bold)
+//             classes = concatSpace(classes, "Xb"); //style
+//         if(underline)
+//             classes = concatSpace(classes, "Xu");
+//         element.className = classes;
+//         // element.className = classes.join(" ");
+//   }
+
+//     var nickColouring = win.parentObject.uiOptions2.get("nick_colours"); /* HACK */
+//     var capturingNick = false;
+
+//     //evil confusing loop
+//     for (var i = 0; i < xline.length; i++) {
+//         var lc = xline[i];
+
+//         if (nickColouring) {
+//             if (!capturingNick) {
+//                 if (lc == "\x00") {
+//                     capturingNick = true;
+//                     emitEndToken();
+//                     continue;
+//                 }
+//             } else {
+//                 if (lc != "\x00") {
+//                     out.push(lc);
+//                 } else {
+//                     autoNickColour = true;
+//                     var e = emitStartToken();
+//                     var text = emitEndToken();
+
+//                     var c = util.toHSBColour(text, win.client);
+//                     if ($defined(c)) e.style.color = c.rgbToHex();
+//                     capturingNick = autoNickColour = false;
+//                 }
+//                 continue;
+//             }
+//         } else if (lc == "\x00") {
+//             continue;
+//         }
+
+//         if (lc == "\x02") {
+//             emitEndToken();
+
+//             bold = !bold;
+
+//             emitStartToken();
+//         } else if (lc == "\x1F") {
+//             emitEndToken();
+
+//             underline = !underline;
+
+//             emitStartToken();
+//         } else if (lc == "\x0F") {
+//             emitEndToken();
+
+//             fg = undefined;
+//             bg = undefined;
+//             underline = false;
+//             bold = false;
+//         } else if (lc == "\x03") {
+//             emitEndToken();
+
+//             i = parseColours(xline, i);
+//             if (bg > 15) bg = undefined;
+//             if (fg > 15) fg = undefined;
+
+//             emitStartToken();
+//         } else {
+//             out.push(lc);
+//         }
+//     }
+
+//     emitEndToken();
+// };
+
+
+ui.Theme = new Class({
+    initialize: function(themeDict) {
+        var self = this,
+            theme = self.__theme = Object.clone(ui.themes.Default2);
+
+        if (themeDict) {
+            // for (var k in themeDict) {
+            //     theme[k] = themeDict[k];
+            // }
+            $extend(theme, themeDict);
         }
-        i++;
-        if(prelude.isNumber(xline[i + 1])) {
-            fg = parseInt(xline[i] + xline[i + 1]);
-            i++;
-        } else {
-            fg = parseInt(xline[i]);
-        }
-        if(xline[i + 1] != ",")
-            return i;
-        else if(isNaN(xline[i + 2]))
-            return i;
-        i+=2;
+        Object.each(theme, function(data, key) {
+            if (key === "PREFIX")
+                return;
 
-        if(prelude.isNumber(xline[i + 1])) {
-            bg = parseInt(xline[i] + xline[i + 1]);
-            i++;
-        } else {
-            bg = parseInt(xline[i]);
-        }
-        return i;
-    }
-
-    function emitEndToken() {
-        var data = "";
-        if (out.length > 0) {
-            data = ui.urlificate(element, out.join(""), execfn, cmdfn, win);
-            entity.appendChild(element);
-            out.empty();
-        }
-        element = document.createElement("span"); //?
-        return data;
-    }
-
-    function emitStartToken() {
-        if(autoNickColour)
-            return element;
-
-        var classes = "";
-        if(fg !== undefined)
-            classes = concatSpace(classes, "Xc" + fg); //text colour
-        if(bg !== undefined)
-            classes = concatSpace(classes, "Xbc" + bg); //background
-        if(bold)
-            classes = concatSpace(classes, "Xb"); //style
-        if(underline)
-            classes = concatSpace(classes, "Xu");
-        element.className = classes;
-        // element.className = classes.join(" ");
-  }
-
-    var nickColouring = win.parentObject.uiOptions.NICK_COLOURS; /* HACK */
-    var capturingNick = false;
-
-    //evil confusing loop
-    for (var i = 0; i < xline.length; i++) {
-        var lc = xline[i];
-
-        if (nickColouring) {
-            if (!capturingNick) {
-                if (lc == "\x00") {
-                    capturingNick = true;
-                    emitEndToken();
-                    continue;
-                }
+            if (data[1]) {
+                theme[key] = theme.PREFIX + data[0];
             } else {
-                if (lc != "\x00") {
-                    out.push(lc);
-                } else {
-                    autoNickColour = true;
-                    var e = emitStartToken();
-                    var text = emitEndToken();
-
-                    var c = util.toHSBColour(text, win.client);
-                    if ($defined(c)) e.style.color = c.rgbToHex();
-                    capturingNick = autoNickColour = false;
-                }
-                continue;
+                theme[key] = data[0];
             }
-        } else if (lc == "\x00") {
-            continue;
+        });
+
+        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
+        self.__ccmaph = Object.clone(self.__ccmap);
+
+        self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
+        self.__ccmaph[")"] = self.message("HILIGHTEND", {}, self.__ccmap);
+        self.__ccmaph["{"] = self.__ccmaph["}"] = "";
+    },
+
+    __dollarSubstitute: function(x, h, mapper) {
+        return x.substitute(Object.append(h||{}, mapper||{}))
+    },
+
+    formatMessage: function($ele, type, _data, highlight) {
+        var self = this,
+            isobj = $type(_data) == "object",
+            data = isobj ? Object.clone(_data) : _data,
+            val;
+
+        if(isobj) {
+
+            if (data["n"]){
+                data["N"] = "qwebirc://whois/" + data.n + "/";
+            }
+            //now all we have to do is format the data as desired and pass to theme
+            ["N", "m"].each(function(key) {//urlerize message and nick
+                val = data[key];
+                if(val) {
+                    if(Array.isArray(val)) { //modes are given as an array so we need to fold
+                        val = val.join("");
+                    }
+                    data[key] = self.urlerize(val);
+                }
+            });
         }
 
-        if (lc == "\x02") {
-            emitEndToken();
 
-            bold = !bold;
+        var themed = type ? self.message(type, data, highlight) : data;
+        
+        var result = self.colourise(themed);
+        $ele.addClass('colourline')
+            .insertAdjacentHTML('beforeend', result);
+        return result;
+    },
 
-            emitStartToken();
-        } else if (lc == "\x1F") {
-            emitEndToken();
+    message: function(type, data, highlight) {
+        var map = highlight ? this.__ccmaph : this.__ccmap;
 
-            underline = !underline;
+        return this.__dollarSubstitute(this.__theme[type], data, map);
+    },
 
-            emitStartToken();
-        } else if (lc == "\x0F") {
-            emitEndToken();
+    formatElement: function(line, $ele) {
+        var result = this.colourise(this.urlerize(line))
+        $ele.addClass('colourline')
+            .insertAdjacentHTML('beforeend', result);
+        return result;
+    },
 
-            fg = undefined;
-            bg = undefined;
-            underline = false;
-            bold = false;
-        } else if (lc == "\x03") {
-            emitEndToken();
+    colourise: function(line) {//http://www.mirc.com/colors.html
+        //regexs are cruel to parse this thing
 
-            i = parseColours(xline, i);
-            if (bg > 15) bg = undefined;
-            if (fg > 15) fg = undefined;
+        // if($type(data) === "string")
+        //     return line;
+        console.log(line);
 
-            emitStartToken();
-        } else {
-            out.push(lc);
-        }
+        var result = line;
+
+        var parseArr = result.split("\x03").filter( function(x) { return x != "" } );
+
+        //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
+        var colouredarr = [[]]; //will be an array of subarrays for each coloured string
+
+        parseArr.each(function(str) {
+            if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
+                colouredarr.push([]);
+            } else { //^C1***
+                colouredarr.getLast().push(str);
+            }
+        });
+
+        colouredarr.each(function(colourarr) {
+            colourarr.each(function(str) {
+                var colourMatch = str.match(/^(\d{1,2})/),
+                    backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
+                    colour = util.getColourByKey(colourMatch[0]),
+                    background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
+
+                var html = templates.subcolour({
+                    'colour': (colour ? colour.fore : ""),
+                    'background': (background ? background.back : ""),
+                    'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
+                })
+
+
+                result = result.replace("\x03" + str, html);
+            })
+        });
+
+        return result;
+    },
+
+    urlerize: function(text) {
+        return urlifier.urlerize(text);
     }
-
-    emitEndToken();
-};
+});
 
 
 ui.AboutPane = new Class({
@@ -20316,77 +22264,6 @@ ui.RequestTransformHTML = function(options) {
 };
 
 
-ui.Theme = new Class({
-    initialize: function(themeDict) {
-        var self = this,
-            theme = self.__theme = Object.clone(ui.themes.Default2);
-
-        if (themeDict) {
-            // for (var k in themeDict) {
-            //     theme[k] = themeDict[k];
-            // }
-            $extend(theme, themeDict);
-        }
-        Object.each(theme, function(data, key) {
-            if (key === "PREFIX")
-                return;
-
-            if (data[1]) {
-                theme[key] = theme.PREFIX + data[0];
-            } else {
-                theme[key] = data[0];
-            }
-        });
-
-        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
-        self.__ccmaph = Object.clone(self.__ccmap);
-
-        self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
-        self.__ccmaph[")"] = self.message("HILIGHTEND", {}, self.__ccmap);
-        self.__ccmaph["{"] = self.__ccmaph["}"] = "";
-    },
-
-    //fuck that this is awful - use String.substitute with a regex
-    __dollarSubstitute: function(x, h, mapper) {
-        // if (x == '-${$($N$)$}:$c- $m' && h['c'] == BROUHAHA)
-        //     x = '-${$($N$)$}- $m';
-        // var msg = [];
-
-        // var n = x.split("");
-        // //loop of the devil
-        // for (var i = 0; i < n.length; i++) {
-        //     var c = n[i];
-        //     if (c == "$" && (i <= n.length - 1)) {
-        //         var c2 = n[++i];
-
-        //         var o = mapper[c2];
-        //         if (!o)
-        //             o = h[c2];
-        //         if (o)
-        //             msg.push(o);
-        //     } else {
-        //         msg.push(c);
-        //     }
-        // }
-
-        // return msg.join("");
-
-        return x.substitute(Object.append(h||{}, mapper||{}))
-    },
-    message: function(type, data, hilight) {
-        var map;
-        if (hilight) {
-            map = this.__ccmaph;
-        } else {
-            map = this.__ccmap;
-        }
-
-        if (data && data["n"])
-            data["N"] = "qwebirc://whois/" + data.n + "/";
-        return this.__dollarSubstitute(this.__theme[type], data, map);
-    }
-});
-
 // ui.HilightController = new Class({
 //     initialize: function(parent) {
 //         this.parent = parent;
@@ -20579,508 +22456,598 @@ ui.ChannelUsersTabCompleter = new Class({
 
 
 
-/*
-    TODO: Options:
-    - templating get rid of tables
-    - beep/flash/highligh on text infinite regexp list
-    - custom sounds?
+// /*
+//     TODO: Options:
+//     - templating get rid of tables
+//     - beep/flash/highligh on text infinite regexp list
+//     - custom sounds?
 
-*/
+// */
 
 
-/**
- * Note that options are settable by the uioptions url arg by default unless you specifiy
- * settableByURL...
- */
-config.DEFAULT_OPTIONS = [
-    //option is a structure:
-    // 0: id
-    // 1: alias
-    // 2: description of option
-    // 3: default val
-    // 4: setter
-    [1, "BEEP_ON_MENTION", "Beep when nick mentioned or on query activity (requires Flash or html5)", true,
-    {
-        enabled: $lambda([true]),
-        applyChanges: function(value, ui) {
-            if ($defined(ui.setBeepOnMention))
-                ui.setBeepOnMention(value);
-        }
-    }],
-    [7, "FLASH_ON_MENTION", "Flash titlebar when nick mentioned or on query activity", true,
-    {
-        enabled: ui.supportsFocus
-    }],
-    [2, "DEDICATED_MSG_WINDOW", "Send privmsgs to dedicated messages window", false],
-    [4, "DEDICATED_NOTICE_WINDOW", "Send notices to dedicated message window", false],
-    [3, "NICK_OV_STATUS", "Show status (@/+) before nicknames in channel lines", true],
-    [5, "ACCEPT_SERVICE_INVITES", "Automatically join channels when invited by Q", true,
-    {
-        settableByURL: false
-    }],
-    [6, "USE_HIDDENHOST", "Hide your hostmask when authed to Q (+x)", true,
-    {
-        settableByURL: false
-    }],
-    [8, "LASTPOS_LINE", "Show a last position indicator for each window", true,
-    {
-        enabled: ui.supportsFocus
-    }],
-    [9, "NICK_COLOURS", "Automatically colour nicknames", false],
-    [10, "HIDE_JOINPARTS", "Hide JOINS/PARTS/QUITS", false],
-    [11, "STYLE_HUE", "Adjust user interface hue", function() {
-        return {
-            class_: config.HueOption,
-            default_: 210
-        };
-    }, {
-        applyChanges: function(value, ui) {
-            ui.setModifiableStylesheetValues({
-                hue: value
-            });
-        }
-    }],
-    [12, "QUERY_ON_NICK_CLICK", "Query on nickname click in channel", false],
-    [13, "SHOW_NICKLIST", "Show nickname list in channels", true],
-    [14, "SHOW_TIMESTAMPS", "Show timestamps", true] /* we rely on the hue update */ ];
+// /**
+//  * Note that options are settable by the uioptions url arg by default unless you specifiy
+//  * settableByURL...
+//  */
+// config.DEFAULT_OPTIONS = [
+//     //option is a structure:
+//     // 0: id
+//     // 1: alias
+//     // 2: description of option
+//     // 3: default val
+//     // 4: setter
+//     [1, "BEEP_ON_MENTION", "Beep when nick mentioned or on query activity (requires Flash or html5)", true,
+//     {
+//         enabled: $lambda([true]),
+//         applyChanges: function(value, ui) {
+//             if ($defined(ui.setBeepOnMention))
+//                 ui.setBeepOnMention(value);
+//         }
+//     }],
+//     [7, "FLASH_ON_MENTION", "Flash titlebar when nick mentioned or on query activity", true,
+//     {
+//         enabled: ui.supportsFocus
+//     }],
+//     [2, "DEDICATED_MSG_WINDOW", "Send privmsgs to dedicated messages window", false],
+//     [4, "DEDICATED_NOTICE_WINDOW", "Send notices to dedicated message window", false],
+//     [3, "NICK_OV_STATUS", "Show status (@/+) before nicknames in channel lines", true],
+//     [5, "ACCEPT_SERVICE_INVITES", "Automatically join channels when invited by Q", true,
+//     {
+//         settableByURL: false
+//     }],
+//     [6, "USE_HIDDENHOST", "Hide your hostmask when authed to Q (+x)", true,
+//     {
+//         settableByURL: false
+//     }],
+//     [8, "LASTPOS_LINE", "Show a last position indicator for each window", true,
+//     {
+//         enabled: ui.supportsFocus
+//     }],
+//     [9, "NICK_COLOURS", "Automatically colour nicknames", false],
+//     [10, "HIDE_JOINPARTS", "Hide JOINS/PARTS/QUITS", false],
+//     [11, "STYLE_HUE", "Adjust user interface hue", function() {
+//         return {
+//             class_: config.HueOption,
+//             default_: 210
+//         };
+//     }, {
+//         applyChanges: function(value, ui) {
+//             ui.setModifiableStylesheetValues({
+//                 hue: value
+//             });
+//         }
+//     }],
+//     [12, "QUERY_ON_NICK_CLICK", "Query on nickname click in channel", false],
+//     [13, "SHOW_NICKLIST", "Show nickname list in channels", true],
+//     [14, "SHOW_TIMESTAMPS", "Show timestamps", true] /* we rely on the hue update */ ];
 
-config.DefaultOptions = null;
+// config.DefaultOptions = null;
 
-config.Input = new Class({
-    initialize: function(parent, option, position, parentObject) {
-        this.option = option;
-        this.value = option.value;
-        this.enabled = this.option.enabled;
-        this.position = position;
-        this.parentElement = parent;
-        this.parentObject = parentObject;
-        this.render();
-    },
+// config.Input = new Class({
+//     initialize: function(parent, option, position, parentObject) {
+//         this.option = option;
+//         this.value = option.value;
+//         this.enabled = this.option.enabled;
+//         this.position = position;
+//         this.parentElement = parent;
+//         this.parentObject = parentObject;
+//         this.render();
+//     },
 
-    createInput: function(type, parent, name, selected, id) {
-        if (!$defined(parent))
-            parent = this.parentElement;
+//     createInput: function(type, parent, name, selected, id) {
+//         if (!$defined(parent))
+//             parent = this.parentElement;
 
-        return util.createInput(type, parent, name, selected, this.option.id);
-    },
+//         return util.createInput(type, parent, name, selected, this.option.id);
+//     },
 
-    FE: function(element, parent) {
-        var n = new Element(element);
-        if (!$defined(parent)) parent = this.parentElement;
+//     FE: function(element, parent) {
+//         var n = new Element(element);
+//         if (!$defined(parent)) parent = this.parentElement;
 
-        parent.adopt(n);
-        return n;
-    },
+//         parent.adopt(n);
+//         return n;
+//     },
 
-    focus: function() {
-        this.mainElement.focus();
-    },
+//     focus: function() {
+//         this.mainElement.focus();
+//     },
 
-    render: function() {
-        this.event("render", this.mainElement);
-    },
+//     render: function() {
+//         this.event("render", this.mainElement);
+//     },
 
-    applyChanges: function() {
-        this.event("applyChanges", [this.get(), this.parentObject.optionObject.ui]);
-    },
+//     applyChanges: function() {
+//         this.event("applyChanges", [this.get(), this.parentObject.optionObject.ui]);
+//     },
 
-    event: function(name, x) {
-        if (!$defined(this.option.extras)) return;
-        var t = this.option.extras[name];
-        if (!$defined(t)) return;
+//     event: function(name, x) {
+//         if (!$defined(this.option.extras)) return;
+//         var t = this.option.extras[name];
+//         if (!$defined(t)) return;
 
-        t.pass(x, this)();
-    },
+//         t.pass(x, this)();
+//     },
 
-    cancel: function() {}
+//     cancel: function() {}
+// });
+
+// config.TextInput = new Class({
+//     Extends: config.Input,
+//     render: function() {
+//         var i = this.createInput("text");
+//         this.mainElement = i;
+
+//         i.value = this.value;
+//         i.disabled = !this.enabled;
+
+//         this.parent();
+//     },
+
+//     get: function() {
+//         return this.mainElement.value;
+//     }
+// });
+
+// config.HueInput = new Class({
+//     Extends: config.Input,
+//     render: function() {
+//         var i = new Element("div");
+//         i.addClass("qwebirc-optionspane");
+//         i.addClass("hue-slider");
+//         this.parentElement.appendChild(i);
+
+//         var k = new Element("div");
+//         k.addClass("knob");
+//         if (Browser.Engine.trident) {
+//             k.setStyle("top", "0px");
+//             k.setStyle("background-color", "black");
+//         }
+
+//         i.appendChild(k);
+
+//         var slider = new Slider(i, k, {
+//             steps: 36,
+//             range: [0, 369],
+//             wheel: true
+//         });
+//         slider.set(this.value);
+//         this.startValue = this.value;
+
+//         slider.addEvent("change", function(step) {
+//             this.value = step;
+//             this.applyChanges();
+//         }.bind(this));
+//         this.mainElement = i;
+
+//         if (!this.enabled) slider.detach();
+
+//         this.parent();
+//     },
+//     get: function() {
+//         return this.value;
+//     },
+//     cancel: function() {
+//         this.value = this.startValue;
+//         this.applyChanges();
+//     }
+// });
+
+// config.CheckInput = new Class({
+//     Extends: config.Input,
+//     render: function() {
+//         var i = this.createInput("checkbox", null, null, null, this.id);
+//         this.mainElement = i;
+
+//         i.checked = this.value;
+//         i.disabled = !this.enabled;
+
+//         this.parent();
+//     },
+//     get: function() {
+//         return this.mainElement.checked;
+//     }
+// });
+
+// config.RadioInput = new Class({
+//     Extends: config.Input,
+//     render: function() {
+//         var value = this.option.options;
+
+//         this.elements = [];
+
+//         for (var i = 0; i < value.length; i++) {
+//             var d = this.FE("div", this.parentObject);
+//             var e = this.createInput("radio", d, "options_radio" + this.position, i == this.option.position);
+//             this.elements.push(e);
+//             e.disabled = !this.enabled;
+
+//             if (i === 0)
+//                 this.mainElement = e;
+
+//             d.appendChild(document.createTextNode(value[i][0]));
+//         };
+//         this.parent();
+//     },
+//     get: function() {
+//         for (var i = 0; i < this.elements.length; i++) {
+//             var x = this.elements[i];
+//             if (x.checked) {
+//                 this.option.position = i;
+//                 return this.option.options[i][1];
+//             }
+//         }
+//     }
+// });
+
+// config.Option = new Class({
+//     initialize: function(optionId, prefix, label, default_, extras) {
+//         this.prefix = prefix;
+//         this.label = label;
+//         this.default_ = default_;
+//         this.optionId = optionId;
+//         this.extras = extras;
+
+//         if ($defined(extras) && $defined(extras.enabled)) {
+//             var enabledResult = extras.enabled();
+//             this.enabled = enabledResult[0];
+
+//             if (!enabledResult[0] && enabledResult.length > 1)
+//                 this.default_ = enabledResult[1];
+//         } else {
+//             this.enabled = true;
+//         }
+
+//         if ($defined(extras) && $defined(extras.settableByURL)) {
+//             this.settableByURL = extras.settableByURL;
+//         } else {
+//             this.settableByURL = true;
+//         }
+//     },
+//     setSavedValue: function(x) {
+//         if (this.enabled)
+//             this.value = x;
+//     }
+// });
+
+// config.RadioOption = new Class({
+//     Extends: config.Option,
+//     Element: config.RadioInput,
+//     initialize: function(optionId, prefix, label, default_, extras, options) {
+//         this.options = options.map(function(x) {
+//             return (typeof(x) === "string") ? [x, x] : x;
+//         });
+//         this.defaultposition = default_;
+
+//         this.parent(optionId, prefix, label, this.options[default_][1], extras);
+//     },
+//     setSavedValue: function(x) {
+//         for (var i = 0; i < this.options.length; i++) {
+//             var y = this.options[i][1];
+//             if (x === y) {
+//                 this.position = i;
+//                 this.value = x;
+//                 return;
+//             }
+//         }
+//         this.position = this.defaultposition;
+//         this.value = this.default_;
+//     }
+// });
+
+// config.TextOption = new Class({
+//     Extends: config.Option,
+//     Element: config.TextInput
+// });
+
+// config.CheckOption = new Class({
+//     Extends: config.Option,
+//     Element: config.CheckInput
+// });
+
+// config.HueOption = new Class({
+//     Extends: config.Option,
+//     Element: config.HueInput
+// });
+
+// ui.Options = new Class({
+//     initialize: function(ui) {
+//         if (!$defined(config.DefaultOptions)) this.__configureDefaults();
+
+//         this.optionList = config.DefaultOptions.slice();
+//         this.optionHash = {};
+//         this.ui = ui;
+
+//         this._setup();
+//         this.optionList.each(function(x) {
+//             x.setSavedValue(this._get(x));
+//             this.optionHash[x.prefix] = x;
+//             this[x.prefix] = x.value;
+//         }.bind(this));
+//     },
+//     __configureDefaults: function() {
+//         config.DefaultOptions = config.DEFAULT_OPTIONS.map(function(opt) {
+//             var optionId = opt[0];
+//             var prefix = opt[1];
+//             var label = opt[2];
+//             var default_ = opt[3];
+//             var moreextras = opt[4];
+//             var extras = opt[5];
+
+//             var stype = typeof(default_);
+//             if (stype == "number") {
+//                 return new config.RadioOption(optionId, prefix, label, default_, moreextras, extra);
+//             } else {
+//                 var type;
+//                 if (stype == "boolean") {
+//                     type = config.CheckOption;
+//                 } else if (stype == "function") {
+//                     var options = default_();
+//                     type = options.class_;
+//                     default_ = options.default_;
+//                 } else {
+//                     type = config.TextOption;
+//                 }
+//                 return new type(optionId, prefix, label, default_, moreextras);
+//             }
+//         });
+//     },
+//     setValue: function(option, value) {
+//         this.optionHash[option.prefix].value = value;
+//         this[option.prefix] = value;
+//     },
+//     getOptionList: function() {
+//         return this.optionList;
+//     },
+//     _get: function(opt) {
+//         return opt.default_;
+//     },
+//     _setup: function() {},
+//     flush: function() {}
+// });
+
+// ui.OptionsPane = new Class({
+//     Implements: [Events],
+//     initialize: function(parentElement, optionObject) {
+//         this.parentElement = parentElement;
+//         this.optionObject = optionObject;
+
+//         this.createElements();
+//     },
+//     createElements: function() {
+//         var FE = function(element, parent) {
+//                 var n = new Element(element);
+//                 parent.appendChild(n);
+//                 return n;
+//             };
+
+//         var t = FE("table", this.parentElement);
+//         var tb = FE("tbody", t);
+
+//         this.boxList = [];
+
+//         var optList = this.optionObject.getOptionList();
+//         for (var i = 0; i < optList.length; i++) {
+//             var opt = optList[i];
+
+//             var row = FE("tr", tb);
+//             var cella = FE("td", row);
+
+//             opt.id = qwebirc.util.generateID();
+//             var label = new Element("label", {
+//                 "for": opt.id
+//             });
+//             cella.appendChild(label);
+//             label.set("text", opt.label + ":");
+
+//             var cellb = FE("td", row);
+//             this.boxList.push([opt, new opt.Element(cellb, opt, i, this)]);
+
+//         }
+
+//         var r = FE("tr", tb);
+//         var cella = FE("td", r);
+//         var cellb = FE("td", r);
+//         var save = qwebirc.util.createInput("submit", cellb);
+//         save.value = "Save";
+
+//         save.addEvent("click", function() {
+//             this.save();
+//             this.fireEvent("close");
+//         }.bind(this));
+
+//         var cancel = qwebirc.util.createInput("submit", cellb);
+//         cancel.value = "Cancel";
+//         cancel.addEvent("click", function() {
+//             this.cancel();
+//             this.fireEvent("close");
+//         }.bind(this));
+//     },
+//     save: function() {
+//         this.boxList.each(function(opt) {
+//             var option = opt[0];
+//             var box = opt[1];
+//             this.optionObject.setValue(option, box.get());
+//         }.bind(this));
+//         this.boxList.each(function(opt) {
+//             opt[1].applyChanges();
+//         }.bind(this));
+//         this.optionObject.flush();
+//     },
+//     cancel: function() {
+//         this.boxList.each(function(opt) {
+//             opt[1].cancel();
+//         }.bind(this));
+//     }
+// });
+
+// ui.CookieOptions = new Class({
+//     Extends: ui.Options,
+//     _setup: function() {
+//         // this.__cookie = new Hash.Cookie("opt1", {
+//         //     duration: 3650,
+//         //     autoSave: false
+//         // });
+//         this.storage = storage;
+//         this.__key = "opt1";
+//         this.__options = this.storage.get(this.__key) || {};
+//     },
+//     _get: function(option) {
+//         // var v = this.__cookie.get(option.optionId); 
+//         var val = this.__options[option.optionId];
+//         return $defined(val) ? val : option.default_;
+//     },
+//     flush: function() {
+//         // this.storage.remove(this.__key);
+//         // this._setup();
+
+//         // var opts = this.getOptionList().each(function(option) {
+//         //     this.__cookie.set(option.optionId, option.value);
+//         // }.bind(this));
+//         // this.__cookie.save();
+//         var opts = {};
+//         this.getOptionList().each(function(option) {
+//             if(option.value !== option.default_) { //minimize stored data
+//                 opts[option.optionId] = option.value;
+//             }
+//         });
+//         this.__options = opts;
+//         this.storage.set(this.__key, opts);
+//     }
+// });
+
+// ui.SuppliedArgOptions = new Class({
+//     Extends: ui.CookieOptions,
+//     initialize: function(ui, arg) {
+//         var p = {};
+
+//         if ($chk(arg) && arg.length > 2) {
+//             var checksum = arg.substr(arg.length - 2, 2);
+//             var decoded = util.B64.decode(arg.substr(0, arg.length - 2));
+
+//             if (decoded && (new crypto.MD5().digest(decoded).slice(0, 2) == checksum))
+//                 p = util.parseURI("?" + decoded);
+//         }
+
+//         this.parsedOptions = p;
+//         this.parent(ui);
+//     },
+
+//     _get: function(opt) {
+//         if (opt.settableByURL !== true)
+//             return this.parent(opt);
+
+//         var option = this.parsedOptions[opt.optionId];
+
+//         return $defined(option) ? opt : this.parent(opt);
+//     },
+
+//     serialise: function() {
+//         var result = [];
+//         this.getOptionList().each(function(opt) {
+//             if (opt.settableByURL && opt.default_ != opt.value)
+//                 result.push(opt.optionId + "=" + opt.value);
+//         }.bind(this));
+
+//         var raw = result.join("&");
+//         var checksum = new crypto.MD5().digest(raw).slice(0, 2);
+//         return (qwebirc.util.B64.encode(raw)).replaceAll("=", "") + checksum;
+//     }
+// });
+
+// ui.DefaultOptionsClass = new Class({
+//     Extends: ui.SuppliedArgOptions
+// });
+
+
+
+(function(){
+
+config.OptionModel = new Class({
+    Extends: Epitome.Model.Storage,
+    options: {
+        defaults: {
+            "beep_on_mention": true,
+            "flash_on_mention": ui.supportsFocus().every(Functional.I),
+            "dedicated_msg_window": false,
+            "dedicated_notice_window": false,
+            "nick_ov_status": true,
+            "accept_service_invites": true,
+            "use_hiddenhost": true,
+            "lastpos_line": true,
+            "nick_colours": true,
+            "hide_joinparts": true,
+            "style_hue": 210,
+            "style_saturation": 0,
+            "style_brightness": 0,
+            "query_on_nick_click": true,
+            "show_nicklist": true,
+            "show_timestamps": true
+        },
+        key: "qweboptions",
+        minimize: true
+    }
 });
 
-config.TextInput = new Class({
-    Extends: config.Input,
-    render: function() {
-        var i = this.createInput("text");
-        this.mainElement = i;
+function render() {
+    return this.render();
+}
 
-        i.value = this.value;
-        i.disabled = !this.enabled;
+ui.OptionView = new Class({
+    Extends: Epitome.View,
+    Binds: ['render'],
+    options: {
+        template: templates.options,
+        onReady: render,
+        // 'onChange:model': render,
+        events: {
+            'change:relay(#options input)': 'autoEventHandler'
+        }
+    },
+
+    render: function() {
+        var model = this.model,
+            data = model.toJSON();
+        data.lang = lang;
+        this.empty();
+        this.element.html(this.template(data));
+
+        this.tabs = new MGFX.Tabs(this.element, {
+            tabs: '.option-tabs li',
+            content: '.tab-content .control-group'
+        });
+
+        this.element.getElements(".slider").each(function(slider) {
+            var id = slider.get('id'),
+                knob = slider.getElement('.knob'),
+                slider = new Slider(slider, knob, {
+                    steps: 36,
+                    range: [0, 369],
+                    wheel: true
+                });
+            slider.addEvent("change", function(val) {
+                    model.set(id, val);
+                })
+                .set(data[id])
+        });
 
         this.parent();
+        return this;
     },
 
-    get: function() {
-        return this.mainElement.value;
-    }
-});
-
-config.HueInput = new Class({
-    Extends: config.Input,
-    render: function() {
-        var i = new Element("div");
-        i.addClass("qwebirc-optionspane");
-        i.addClass("hue-slider");
-        this.parentElement.appendChild(i);
-
-        var k = new Element("div");
-        k.addClass("knob");
-        if (Browser.Engine.trident) {
-            k.setStyle("top", "0px");
-            k.setStyle("background-color", "black");
-        }
-
-        i.appendChild(k);
-
-        var slider = new Slider(i, k, {
-            steps: 36,
-            range: [0, 369],
-            wheel: true
-        });
-        slider.set(this.value);
-        this.startValue = this.value;
-
-        slider.addEvent("change", function(step) {
-            this.value = step;
-            this.applyChanges();
-        }.bind(this));
-        this.mainElement = i;
-
-        if (!this.enabled) slider.detach();
-
-        this.parent();
+    empty: function() {
+        this.parent(true);
     },
-    get: function() {
-        return this.value;
-    },
-    cancel: function() {
-        this.value = this.startValue;
-        this.applyChanges();
-    }
-});
 
-config.CheckInput = new Class({
-    Extends: config.Input,
-    render: function() {
-        var i = this.createInput("checkbox", null, null, null, this.id);
-        this.mainElement = i;
-
-        i.checked = this.value;
-        i.disabled = !this.enabled;
-
-        this.parent();
-    },
-    get: function() {
-        return this.mainElement.checked;
-    }
-});
-
-config.RadioInput = new Class({
-    Extends: config.Input,
-    render: function() {
-        var value = this.option.options;
-
-        this.elements = [];
-
-        for (var i = 0; i < value.length; i++) {
-            var d = this.FE("div", this.parentObject);
-            var e = this.createInput("radio", d, "options_radio" + this.position, i == this.option.position);
-            this.elements.push(e);
-            e.disabled = !this.enabled;
-
-            if (i === 0)
-                this.mainElement = e;
-
-            d.appendChild(document.createTextNode(value[i][0]));
-        };
-        this.parent();
-    },
-    get: function() {
-        for (var i = 0; i < this.elements.length; i++) {
-            var x = this.elements[i];
-            if (x.checked) {
-                this.option.position = i;
-                return this.option.options[i][1];
-            }
+    //if left unhandled
+    autoEventHandler: function(e, target) {
+        var id = target.get('id');
+        if($defined(this.model.get(id))) {
+            this.model.set(id, target.get('value'));
         }
     }
 });
-
-config.Option = new Class({
-    initialize: function(optionId, prefix, label, default_, extras) {
-        this.prefix = prefix;
-        this.label = label;
-        this.default_ = default_;
-        this.optionId = optionId;
-        this.extras = extras;
-
-        if ($defined(extras) && $defined(extras.enabled)) {
-            var enabledResult = extras.enabled();
-            this.enabled = enabledResult[0];
-
-            if (!enabledResult[0] && enabledResult.length > 1)
-                this.default_ = enabledResult[1];
-        } else {
-            this.enabled = true;
-        }
-
-        if ($defined(extras) && $defined(extras.settableByURL)) {
-            this.settableByURL = extras.settableByURL;
-        } else {
-            this.settableByURL = true;
-        }
-    },
-    setSavedValue: function(x) {
-        if (this.enabled)
-            this.value = x;
-    }
-});
-
-config.RadioOption = new Class({
-    Extends: config.Option,
-    Element: config.RadioInput,
-    initialize: function(optionId, prefix, label, default_, extras, options) {
-        this.options = options.map(function(x) {
-            return (typeof(x) === "string") ? [x, x] : x;
-        });
-        this.defaultposition = default_;
-
-        this.parent(optionId, prefix, label, this.options[default_][1], extras);
-    },
-    setSavedValue: function(x) {
-        for (var i = 0; i < this.options.length; i++) {
-            var y = this.options[i][1];
-            if (x === y) {
-                this.position = i;
-                this.value = x;
-                return;
-            }
-        }
-        this.position = this.defaultposition;
-        this.value = this.default_;
-    }
-});
-
-config.TextOption = new Class({
-    Extends: config.Option,
-    Element: config.TextInput
-});
-
-config.CheckOption = new Class({
-    Extends: config.Option,
-    Element: config.CheckInput
-});
-
-config.HueOption = new Class({
-    Extends: config.Option,
-    Element: config.HueInput
-});
-
-ui.Options = new Class({
-    initialize: function(ui) {
-        if (!$defined(config.DefaultOptions)) this.__configureDefaults();
-
-        this.optionList = config.DefaultOptions.slice();
-        this.optionHash = {};
-        this.ui = ui;
-
-        this._setup();
-        this.optionList.each(function(x) {
-            x.setSavedValue(this._get(x));
-            this.optionHash[x.prefix] = x;
-            this[x.prefix] = x.value;
-        }.bind(this));
-    },
-    __configureDefaults: function() {
-        config.DefaultOptions = config.DEFAULT_OPTIONS.map(function(opt) {
-            var optionId = opt[0];
-            var prefix = opt[1];
-            var label = opt[2];
-            var default_ = opt[3];
-            var moreextras = opt[4];
-            var extras = opt[5];
-
-            var stype = typeof(default_);
-            if (stype == "number") {
-                return new config.RadioOption(optionId, prefix, label, default_, moreextras, extra);
-            } else {
-                var type;
-                if (stype == "boolean") {
-                    type = config.CheckOption;
-                } else if (stype == "function") {
-                    var options = default_();
-                    type = options.class_;
-                    default_ = options.default_;
-                } else {
-                    type = config.TextOption;
-                }
-                return new type(optionId, prefix, label, default_, moreextras);
-            }
-        });
-    },
-    setValue: function(option, value) {
-        this.optionHash[option.prefix].value = value;
-        this[option.prefix] = value;
-    },
-    getOptionList: function() {
-        return this.optionList;
-    },
-    _get: function(opt) {
-        return opt.default_;
-    },
-    _setup: function() {},
-    flush: function() {}
-});
-
-ui.OptionsPane = new Class({
-    Implements: [Events],
-    initialize: function(parentElement, optionObject) {
-        this.parentElement = parentElement;
-        this.optionObject = optionObject;
-
-        this.createElements();
-    },
-    createElements: function() {
-        var FE = function(element, parent) {
-                var n = new Element(element);
-                parent.appendChild(n);
-                return n;
-            };
-
-        var t = FE("table", this.parentElement);
-        var tb = FE("tbody", t);
-
-        this.boxList = [];
-
-        var optList = this.optionObject.getOptionList();
-        for (var i = 0; i < optList.length; i++) {
-            var opt = optList[i];
-
-            var row = FE("tr", tb);
-            var cella = FE("td", row);
-
-            opt.id = qwebirc.util.generateID();
-            var label = new Element("label", {
-                "for": opt.id
-            });
-            cella.appendChild(label);
-            label.set("text", opt.label + ":");
-
-            var cellb = FE("td", row);
-            this.boxList.push([opt, new opt.Element(cellb, opt, i, this)]);
-
-        }
-
-        var r = FE("tr", tb);
-        var cella = FE("td", r);
-        var cellb = FE("td", r);
-        var save = qwebirc.util.createInput("submit", cellb);
-        save.value = "Save";
-
-        save.addEvent("click", function() {
-            this.save();
-            this.fireEvent("close");
-        }.bind(this));
-
-        var cancel = qwebirc.util.createInput("submit", cellb);
-        cancel.value = "Cancel";
-        cancel.addEvent("click", function() {
-            this.cancel();
-            this.fireEvent("close");
-        }.bind(this));
-    },
-    save: function() {
-        this.boxList.each(function(opt) {
-            var option = opt[0];
-            var box = opt[1];
-            this.optionObject.setValue(option, box.get());
-        }.bind(this));
-        this.boxList.each(function(opt) {
-            opt[1].applyChanges();
-        }.bind(this));
-        this.optionObject.flush();
-    },
-    cancel: function() {
-        this.boxList.each(function(opt) {
-            opt[1].cancel();
-        }.bind(this));
-    }
-});
-
-ui.CookieOptions = new Class({
-    Extends: ui.Options,
-    _setup: function() {
-        // this.__cookie = new Hash.Cookie("opt1", {
-        //     duration: 3650,
-        //     autoSave: false
-        // });
-        this.storage = storage;
-        this.__key = "opt1";
-        this.__options = this.storage.get(this.__key) || {};
-    },
-    _get: function(option) {
-        // var v = this.__cookie.get(option.optionId); 
-        var val = this.__options[option.optionId];
-        return $defined(val) ? val : option.default_;
-    },
-    flush: function() {
-        // this.storage.remove(this.__key);
-        // this._setup();
-
-        // var opts = this.getOptionList().each(function(option) {
-        //     this.__cookie.set(option.optionId, option.value);
-        // }.bind(this));
-        // this.__cookie.save();
-        var opts = {};
-        this.getOptionList().each(function(option) {
-            if(option.value !== option.default_) { //minimize stored data
-                opts[option.optionId] = option.value;
-            }
-        });
-        this.__options = opts;
-        this.storage.set(this.__key, opts);
-    }
-});
-
-ui.SuppliedArgOptions = new Class({
-    Extends: ui.CookieOptions,
-    initialize: function(ui, arg) {
-        var p = {};
-
-        if ($chk(arg) && arg.length > 2) {
-            var checksum = arg.substr(arg.length - 2, 2);
-            var decoded = util.B64.decode(arg.substr(0, arg.length - 2));
-
-            if (decoded && (new crypto.MD5().digest(decoded).slice(0, 2) == checksum))
-                p = util.parseURI("?" + decoded);
-        }
-
-        this.parsedOptions = p;
-        this.parent(ui);
-    },
-
-    _get: function(opt) {
-        if (opt.settableByURL !== true)
-            return this.parent(opt);
-
-        var option = this.parsedOptions[opt.optionId];
-
-        return $defined(option) ? opt : this.parent(opt);
-    },
-
-    serialise: function() {
-        var result = [];
-        this.getOptionList().each(function(opt) {
-            if (opt.settableByURL && opt.default_ != opt.value)
-                result.push(opt.optionId + "=" + opt.value);
-        }.bind(this));
-
-        var raw = result.join("&");
-        var checksum = new crypto.MD5().digest(raw).slice(0, 2);
-        return (qwebirc.util.B64.encode(raw)).replaceAll("=", "") + checksum;
-    }
-});
-
-ui.DefaultOptionsClass = new Class({
-    Extends: ui.SuppliedArgOptions
-});
+})()
 
 
 util.parseStylesheet = function(data) {
@@ -21151,10 +23118,9 @@ ui.style.ModifiableStylesheet = new Class({
         var text = this.__cssText;
 
         Object.each(this.rules, function(val, key) {
-            var s = val.split(","),
-                value = mutatorfn.pass(s);
+            var getVal = mutatorfn.pass(val.split(","));
 
-            text = text.replaceAll("$(" + key + ")", value);
+            text = text.replaceAll("$(" + key + ")", getVal);
         });
 
         this.__setStylesheet(text);
@@ -21181,7 +23147,7 @@ ui.Window = new Class({
         this.subWindow = null;
         this.closed = false;
 
-        if (this.type & ui.WINDOW_LASTLINE) {
+        if (this.type & parentObject.uiOptions2.get("lastpos_line")) {
             this.lastPositionLine = Element.from(templates.messageLine());
             this.lastPositionLineInserted = false;
         }
@@ -21189,7 +23155,7 @@ ui.Window = new Class({
         this.window = this.parentObject.qjsui.createWindow();
     },
     updateTopic: function(topic, element) {
-        ui.Colourise("[" + topic + "]", element, this.client.exec, this.parentObject.urlDispatcher, this);
+        this.parentObject.theme.formatElement("[" + topic + "]", element);
     },
     close: function() {
         this.closed = true;
@@ -21211,7 +23177,7 @@ ui.Window = new Class({
     },
 
     select: function() {
-        if (this.lastPositionLineInserted && !this.parentObject.uiOptions.LASTPOS_LINE) {
+        if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
             this.lines.disown(this.lastPositionLine);
             this.lastPositionLineInserted = false;
         }
@@ -21266,22 +23232,22 @@ ui.Window = new Class({
     n: nick
     */
 
-    addLine: function(type, line, colour, $ele) {
+    addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
         var hilight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        if (type && line) {
+        if (type && data) {
         //regexs
-            var isbot = /^TF2/.test(line.n), //works for pugna(hl), mix(hl)
+            var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
                 ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
                 regNotice = /NOTICE$/,
                 sentByUs = /^OUR/.test(type),//ignore
                 containsNick = util.testForNick(self.client.nickname);
 
             var notice = function() {
-                if (!(self.active && uiobj.windowFocused) && line.c !== BROUHAHA) {
+                if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
                     uiobj.beep();
                     uiobj.flash();
                 }
@@ -21291,13 +23257,13 @@ ui.Window = new Class({
 
             if (ismsg) {
                 //highlighting
-                if (line.n && line.m && self.type === ui.WINDOW_CHANNEL) {
+                if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
                     $ele.addClass('message');
                     if(isbot)
                         $ele.addClass('bot');
                     else if(sentByUs)
                         $ele.addClass('our');
-                    if(!isbot && line.m.startsWith("!"))
+                    if(!isbot && data.m.startsWith("!"))
                         $ele.addClass('command');
                 }
 
@@ -21313,7 +23279,7 @@ ui.Window = new Class({
                     $ele.style.color = "red";
                     notice();
                 }
-                else if (!sentByUs && containsNick(line.m)) { //dont beep if bot says our name
+                else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
                     if(isbot) {
                         $ele.addClass('bot@us')
                     }
@@ -21332,14 +23298,14 @@ ui.Window = new Class({
         if (!self.active && (hilight !== ui.HILIGHT_NONE))
             self.highlightTab(hilight);
 
-        if (type)
-            line = uiobj.theme.message(type, line, hl_line);
-
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
         // $ele.appendChild($ele.from(tsE));
 
-        ui.Colourise(line, $ele, self.client.exec, uiobj.urlDispatcher, self);
+        // var themed = type ? uiobj.theme.message(type, data, hl_line) : data;
+        // ui.Colourise(themed, $ele, self);
+
+        var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
         // self.scrollAdd($ele);
         self.lines.adopt($ele);
     },
@@ -21386,7 +23352,7 @@ ui.Window = new Class({
             this.replaceLastPositionLine();
     },
     replaceLastPositionLine: function() {
-        if (this.parentObject.uiOptions.LASTPOS_LINE) {
+        if (this.parentObject.uiOptions2.get("lastpos_line")) {
             if (!this.lastPositionLineInserted) {
                 // this.scrollAdd(this.lastPositionLine);
             } else if (this.lines.lastChild !== this.lastPositionLine) {
@@ -21401,7 +23367,7 @@ ui.Window = new Class({
                 this.lines.disown(this.lastPositionLine);
         }
 
-        this.lastPositionLineInserted = this.parentObject.uiOptions.LASTPOS_LINE;
+        this.lastPositionLineInserted = this.parentObject.uiOptions2.get("lastpos_line");
     }
 });
 
@@ -21523,7 +23489,7 @@ ui.QUI.Window = new Class({
             qwindow.bottom.appendChild(self.createInput());
 
 
-        self.nicksColoured = self.parentObject.uiOptions.NICK_COLOURS;
+        self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
         // self.reflow();
     },
 
@@ -21704,16 +23670,16 @@ ui.QUI.Window = new Class({
         }
 
         if (util.windowNeedsInput(self.type)) {
-            util.fillContainer(self.$inputbox);
+            // util.fillContainer(self.$inputbox);
             self.$inputbox.focus();
         }
 
         if(util.isChannelType(self.type)) {
-            if (self.nicksColoured !== parentObject.uiOptions.NICK_COLOURS) {
-                self.nicksColoured = parentObject.uiOptions.NICK_COLOURS;
+            if (self.nicksColoured !== parentObject.uiOptions2.get("nick_colours")) {
+                self.nicksColoured = parentObject.uiOptions2.get("nick_colours");
 
                 var nodes = self.nicklist.childNodes;
-                if (parentObject.uiOptions.NICK_COLOURS) {
+                if (parentObject.uiOptions2.get("nick_colours")) {
                     Array.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
@@ -21733,7 +23699,6 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-
         this.tab.swapClass("tab-selected", "tab-unselected");
     },
 
@@ -21762,7 +23727,7 @@ ui.QUI.Window = new Class({
             $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
             $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
             $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.input-button'),
+            $inputbtn = $form.getElement('.send'),
 
             sendInput = function(e) {
                 if(e)
@@ -21856,7 +23821,7 @@ ui.QUI.Window = new Class({
         this.$nicklabel.getElement('.status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "")
-        util.fillContainer(this.$inputbox);
+        // util.fillContainer(this.$inputbox);
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
@@ -21938,7 +23903,7 @@ ui.QUI.Window = new Class({
         nickele.store("nick", realNick);
 
 
-        if (this.parentObject.uiOptions.NICK_COLOURS) {
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
             var colour = util.toHSBColour(realNick, this.client);
             if ($defined(colour))
                 span.setStyle("color", colour.rgbToHex());

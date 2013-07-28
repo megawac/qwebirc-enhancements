@@ -19,28 +19,17 @@
     //- _ :: used for partial() function
     var _ = parent._ = Function._ = {},
 
-        //+ slice :: create local reference for faster look-up
-        slice = Array.prototype.slice,
-        _unshift = Array.prototype.unshift,
-
-        //minor optimizaton 
-        //instead of [item].concat(xs)
-        unshift = function(xs, item) {
-            _unshift.call(xs, item);
+        unshift = function(xs, i) {
+            Array.unshift(xs, i);
             return xs;
-        },
-
-        //+ toArray :: a -> [b]
-        toArray = function(x) {
-            return slice.call(x);
         },
 
         //- from wu.js <http://fitzgen.github.com/wu.js/>
         //+ curry :: f -> ? -> g
         curry = function(fn /* variadic number of args */ ) {
-            var args = slice.call(arguments, 1);
+            var args = Array.slice(arguments, 1);
             curried = function() {
-                return fn.apply(this, args.concat(toArray(arguments)));
+                return fn.apply(this, args.concat(Array.from(arguments)));
             };
             ////sugar for console
             // curried.toString = function() {
@@ -57,7 +46,8 @@
             curried = function() {
                 bind = bind || this;
                 if (arguments.length < numArgs) {
-                    return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(toArray(arguments), fn)), numArgs - arguments.length) : curry.apply(bind, unshift(toArray(arguments), fn));
+                    return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(arguments, fn)), numArgs - arguments.length) : 
+                                                                    curry.apply(bind, unshift(arguments, fn));
                 } else {
                     return fn.apply(bind, arguments);
                 }
@@ -77,22 +67,16 @@
             }
 
             Function.prototype.curry = function( /*args...*/ ) {
-                return curry.apply(this, unshift(toArray(arguments), this)); //[this].concat(toArray(arguments)));
+                return curry.apply(this, unshift(arguments, this)); //[this].concat(Array.from(arguments)));
             }
 
         })(),
 
         //+ map :: f -> [a] -> [b]
-        map = function(fn, sequence) {
-            var length = sequence.length,
-                result = new Array(length),
-                i;
+        map = function(fn, sequence, bind) {
             fn = Function.toFunction(fn);
-            for (i = 0; i < length; i++) {
-                result[i] = fn.apply(null, [sequence[i], i]);
-            }
-            return result;
-        }.autoCurry(),
+            return Array.map(sequence, fn, bind);
+        }.autoCurry(2),
 
         //+ compose :: f -> g -> h 
         compose = function() {
@@ -123,7 +107,7 @@
         //good shit :D http://jsperf.com/comparison-of-memoization-implementations/28
         memoize = function(fn) {
             return function() {
-                var args = toArray(arguments),
+                var args = Array.from(arguments),
                     //Array.prototype.slice.call(arguments),
                     hash = "",
                     i = args.length;
@@ -137,30 +121,31 @@
             };
         },
 
-        //+ reduce :: f -> a -> [a] -> a
-        reduce = function(fn, init, sequence) {
-            var len = sequence.length,
-                result = init,
-                i;
-            fn = Function.toFunction(fn);
-            for (i = 0; i < len; i++) {
-                result = fn.apply(null, [result, sequence[i]]);
-            }
-            return result;
-        }.autoCurry(),
+        // //+ reduce :: f -> a -> [a] -> a
+        // reduce = function(fn, init, sequence) {
+        //     var len = sequence.length,
+        //         result = init,
+        //         i;
+        //     fn = Function.toFunction(fn);
+        //     for (i = 0; i < len; i++) {
+        //         result = fn.apply(null, [result, sequence[i]]);
+        //     }
+        //     return result;
+        // }.autoCurry(),
 
         //+ select :: f -> [a] -> [a]
-        select = function(fn, sequence) {
-            var len = sequence.length,
-                result = [],
-                i, x;
-            fn = Function.toFunction(fn);
-            for (i = 0; i < len; i++) {
-                x = sequence[i];
-                fn.apply(null, [x, i]) && result.push(x);
-            }
-            return result;
-        }.autoCurry(),
+        select = function(fn, sequence, bind) {
+            // var len = sequence.length,
+            //     result = [],
+            //     i, x;
+            // fn = Function.toFunction(fn);
+            // for (i = 0; i < len; i++) {
+            //     x = sequence[i];
+            //     fn.apply(null, [x, i]) && result.push(x);
+            // }
+            // return result;
+            return Array.filter(sequence, fn, bind);
+        }.autoCurry(2),
 
         //+ guard :: (_ -> Bool) -> f -> g -> h
         guard = function(guard, fn, otherwise) {
@@ -175,23 +160,23 @@
         //+ flip :: f -> g 
         flip = function(f) {
             return function() {
-                var args = toArray(arguments);
+                var args = Array.from(arguments);
                 args = args.slice(1, 2).concat(args.slice(0, 1)).concat(args.slice(2));
                 return f.apply(null, args);
             };
         },
 
-        //+ foldr :: f -> a -> [a] -> a
-        foldr = function(fn, init, sequence) {
-            var len = sequence.length,
-                result = init,
-                i;
-            fn = Function.toFunction(fn);
-            for (i = len; --i >= 0;) {
-                result = fn.apply(null, [sequence[i], result]);
-            }
-            return result;
-        }.autoCurry(),
+        // //+ foldr :: f -> a -> [a] -> a
+        // foldr = function(fn, init, sequence) {
+        //     var len = sequence.length,
+        //         result = init,
+        //         i;
+        //     fn = Function.toFunction(fn);
+        //     for (i = len; --i >= 0;) {
+        //         result = fn.apply(null, [sequence[i], result]);
+        //     }
+        //     return result;
+        // }.autoCurry(),
 
         //+ and :: _ -> (_ -> Bool)
         and = function() {
@@ -221,29 +206,29 @@
             };
         },
 
-        //+ some :: f -> [a] -> Bool
-        some = function(fn, sequence) {
-            fn = Function.toFunction(fn);
-            var len = sequence.length,
-                value = false,
-                i;
-            for (i = 0; i < len; i++) {
-                if ((value = fn.call(this, sequence[i]))) break;
-            }
-            return value;
-        }.autoCurry(),
+        // //+ some :: f -> [a] -> Bool
+        // some = function(fn, sequence) {
+        //     fn = Function.toFunction(fn);
+        //     var len = sequence.length,
+        //         value = false,
+        //         i;
+        //     for (i = 0; i < len; i++) {
+        //         if ((value = fn.call(this, sequence[i]))) break;
+        //     }
+        //     return value;
+        // }.autoCurry(),
 
-        //+ every :: f -> [a] -> Bool
-        every = function(fn, sequence) {
-            fn = Function.toFunction(fn);
-            var len = sequence.length,
-                value = true,
-                i;
-            for (i = 0; i < len; i++) {
-                if (!(value = fn.call(this, sequence[i]))) break;
-            }
-            return value;
-        }.autoCurry(),
+        // //+ every :: f -> [a] -> Bool
+        // every = function(fn, sequence) {
+        //     fn = Function.toFunction(fn);
+        //     var len = sequence.length,
+        //         value = true,
+        //         i;
+        //     for (i = 0; i < len; i++) {
+        //         if (!(value = fn.call(this, sequence[i]))) break;
+        //     }
+        //     return value;
+        // }.autoCurry(),
 
         //+ not :: f -> (_ -> Bool)
         not = function(fn) {
@@ -257,14 +242,14 @@
         //eq(1)(1,2,3) => false
         //eq(1)(1,1,1) => true
         //eq(1,1,1,1,2)=>false
-        eq = function(x) {
-            var equal = function() {
-                    return every(function(t) {
-                        return x === t;
-                    }, arguments);
-                };
-            return arguments.length === 1 ? equal : equal.apply(this, arguments); //if 1 arg returns curried function otherwise compares immediately
-        },
+        // eq = function(x) {
+        //     var equal = function() {
+        //             return every(function(t) {
+        //                 return x === t;
+        //             }, arguments);
+        //         };
+        //     return arguments.length === 1 ? equal : equal.apply(this, arguments); //if 1 arg returns curried function otherwise compares immediately
+        // },
 
         //+ equal :: _ -> (_ -> Bool)
         equal = function() {
@@ -290,9 +275,9 @@
 
         //+ invoke :: String -> (a -> b)
         invoke = function(methodName) {
-            var args = slice.call(arguments, 1);
+            var args = Array.slice(arguments, 1);
             return function(object) {
-                return object[methodName].apply(object, slice.call(arguments, 1).concat(args));
+                return object[methodName].apply(object, Array.slice(arguments, 1).concat(args));
             };
         },
 
@@ -337,23 +322,23 @@
             }
         },
 
-        //+ S :: f -> g -> (_ -> b)
-        S = function(f, g) {
-            var toFunction = Function.toFunction;
-            f = toFunction(f);
-            g = toFunction(g);
-            return function() {
-                var return_value_of_g = g.apply(this, arguments),
-                    original_args = slice.call(arguments, 0),
-                    all_args = unshift(original_args, return_value_of_g);
-                return f.apply(this, all_args);
-            };
-        },
+        // //+ S :: f -> g -> (_ -> b)
+        // S = function(f, g) {
+        //     var toFunction = Function.toFunction;
+        //     f = toFunction(f);
+        //     g = toFunction(g);
+        //     return function() {
+        //         var return_value_of_g = g.apply(this, arguments),
+        //             original_args = Array.slice(arguments, 0),
+        //             all_args = unshift(original_args, return_value_of_g);
+        //         return f.apply(this, all_args);
+        //     };
+        // },
 
         //+ partial :: _ -> f
         partial = function() {
             var fn = this,
-                args = toArray(arguments),
+                args = Array.from(arguments),
                 subpos = [],
                 i, value;
 
@@ -362,7 +347,7 @@
             }
 
             return function() {
-                var specialized = args.concat(slice.call(arguments, subpos.length)),
+                var specialized = args.concat(Array.slice(arguments, subpos.length)),
                     i;
                 for (i = 0; i < Math.min(subpos.length, arguments.length); i++) {
                     specialized[subpos[i]] = arguments[i];
@@ -461,7 +446,7 @@
     Function.prototype.partial = partial;
 
     Function.prototype.flip = function( /*args...*/ ) {
-        return flip.apply(this, unshift(toArray(arguments), this));
+        return flip.apply(this, unshift(arguments, this));
     }
 
     //+ decorateFunctionWithToFunction :: IO
@@ -485,11 +470,11 @@
         sequence: sequence,
         memoize: memoize,
 
-        reduce: reduce,
-        foldl: reduce,
-        foldr: foldr,
+        // reduce: reduce,
+        // foldl: reduce,
+        // foldr: foldr,
 
-        select: select,
+        // select: select,
         filter: select,
         guard: guard,
         flip: flip,
@@ -497,9 +482,9 @@
         // and_: and, // alias reserved word for coffeescript
         or: or,
         // or_: or, // alias reserved word for coffeescript
-        some: some,
-        every: every,
-        eq: eq,
+        // some: some,
+        // every: every,
+        // eq: eq,
         not: not,
         // not_: not, // alias reserved word for coffeescript
         equal: equal,
@@ -513,7 +498,7 @@
         // id: I,
         K: K,
         // konst: K,
-        S: S//,
+        // S: S//,
 
         // install: function(except) {
         //     var source = functional,

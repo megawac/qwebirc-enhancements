@@ -6,7 +6,7 @@
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
+        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
         sounds: "/sound/",
         beepsrc: "beep.mp3"
     },

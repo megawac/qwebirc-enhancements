@@ -37,7 +37,7 @@ irc.BaseCommandParser = new Class({
     newQueryLine: function(target, type, message, extra) {
         extra = this.buildExtra(extra, target, message);
 
-        if (this.parentObject.ui.uiOptions.DEDICATED_MSG_WINDOW) {
+        if (this.parentObject.ui.uiOptions2.get("dedicated_msg_window")) {
             var win = this.parentObject.getWindow(target);
             if (!win) {
                 var win = this.parentObject.ui.newWindow(this.parentObject, ui.WINDOW_MESSAGES, "Messages");

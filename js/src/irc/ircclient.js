@@ -57,18 +57,17 @@ irc.IRCClient = new Class({
                     if (extra["f"] === BROUHAHA) {
                         extra['f'] = '';
 
-                        var chanName = $('channel-name-id').innerHTML;
                         if (!util.isChannel(chanName)) {
                             extra['f'] = '>';
                         }
-                        extra["f"] = extra['f'] + irc.activeChannel; //hack active chan is on qwebirc.irc object
+                        extra["f"] += irc.activeChannel; //hack active chan is on qwebirc.irc object
                     }
-                    extra["n"] = util.hostToNick(user) + extra["f"];
+                    extra["n"] += extra["f"];
                 } else {
-                    if (util.hostToNick(user) == this.nickname) {
+                    if (extra['n'] == this.nickname) {
                         extra['n'] = this.nickname + '>' + extra['f'];
                     } else {
-                        extra['n'] = util.hostToNick(user) + '>' + extra['f'];
+                        extra['n'] += '>' + extra['f'];
                     }
                 }
             }
@@ -76,9 +75,9 @@ irc.IRCClient = new Class({
         extra["c"] = channel;
         extra["-"] = this.nickname;
 
-        if (!(this.ui.uiOptions.NICK_OV_STATUS))
+        if (!(this.ui.uiOptions2.get("nick_ov_status"))){
             delete extra["@"];
-
+        }
         this.newLine(channel, type, extra);
     },
 
@@ -151,7 +150,7 @@ irc.IRCClient = new Class({
     },
 
     newPrivmsgQueryWindow: function(name) {
-        if (this.ui.uiOptions.DEDICATED_MSG_WINDOW) {
+        if (this.ui.uiOptions2.get("dedicated_msg_window")) {
             if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
                 return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
         } else {
@@ -160,7 +159,7 @@ irc.IRCClient = new Class({
     },
 
     newNoticeQueryWindow: function(name) {
-        if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW)
+        if (this.ui.uiOptions2.get("dedicated_notice_window"))
             if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
                 return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
     },
@@ -173,9 +172,9 @@ irc.IRCClient = new Class({
 
         var e;
         if (privmsg) {
-            e = this.ui.uiOptions.DEDICATED_MSG_WINDOW;
+            e = this.ui.uiOptions2.get("dedicated_msg_window");
         } else {
-            e = this.ui.uiOptions.DEDICATED_NOTICE_WINDOW;
+            e = this.ui.uiOptions2.get("dedicated_notice_window");
         }
         if (e && win) {
             return win.addLine(type, data);
@@ -316,7 +315,7 @@ irc.IRCClient = new Class({
         this.updateNickList(channel);
 
         //dont display login message if join msgs disabled or window is brouhaha or something
-        if (!(this.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(channel))) {
+        if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
             this.newChanLine(channel, type, user);
         }
 
@@ -350,7 +349,7 @@ irc.IRCClient = new Class({
             this.updateNickList(channel);
 
             //hide disconnects in base windows or if option set
-            if (!(this.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(channel))) {
+            if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
                 this.newChanLine(channel, "PART", user, {
                     "m": message
                 });
@@ -410,7 +409,7 @@ irc.IRCClient = new Class({
     userInvite: function(user, channel) {
         var nick = util.hostToNick(user),
             host = util.hostToHost(user),
-            accept = this.ui.uiOptions.ACCEPT_SERVICE_INVITES && this.isNetworkService(user);
+            accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(user);
 
         this.newServerLine("INVITE", {
             "c": channel,
@@ -438,7 +437,7 @@ irc.IRCClient = new Class({
         var nick = util.hostToNick(user),
             host = util.hostToHost(user);
 
-        if (this.ui.uiOptions.DEDICATED_NOTICE_WINDOW) {
+        if (this.ui.uiOptions2.get("dedicated_notice_window")) {
             this.newQueryWindow(nick, false);
             this.newQueryOrActiveLine(nick, "PRIVNOTICE", {
                 "m": message,
@@ -467,7 +466,7 @@ irc.IRCClient = new Class({
         self.tracker.removeNick(nick);
 
         Object.keys(channels).each(function(chan) {
-            if (!(self.ui.uiOptions.HIDE_JOINPARTS || isBaseWindow(chan))) {
+            if (!(self.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(chan))) {
                 self.newChanLine(chan, "QUIT", user, {
                     "m": message
                 });

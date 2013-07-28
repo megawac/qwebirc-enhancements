@@ -1,7 +1,9 @@
 <form class='input'>
-<div>
-    <label class='nickname'><span class='status {{status}}'></span>{{nick}}</label>
-    <input class='{{type}} input-field' type='text'>
-    <input class='input-button' type='button' value='>' />
-</div>
+    <div class="input-group">
+        <span class='input-group-addon nickname'><span class='status {{status}}'></span>{{nick}}</span>
+        <input class='{{type}} input-field form-control' type='text'>
+        <span class="input-group-btn">
+            <button class="btn btn-default send" type="button">&gt;</button>
+        </span>
+    </div>
 </form>

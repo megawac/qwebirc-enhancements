@@ -31,11 +31,11 @@ irc.BaseIRCClient = new Class({
         self.nextctcp = 0;
 
         var conn = self.connection = new irc.IRCConnection({
-            gamesurge: options.gamesurge,
+            gamesurge: opts.gamesurge,
             initialNickname: self.nickname,
             onRecv: self.dispatch,
-            password: options.password,
-            serverPassword: options.serverPassword
+            password: opts.password,
+            serverPassword: opts.serverPassword
         });
 
         self.send = conn.send;

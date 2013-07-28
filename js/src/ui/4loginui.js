@@ -1,13 +1,14 @@
 
 ui.NewLoginUI = new Class({
     Extends: ui.NotificationUI,
-    loginBox: function(callbackfn, initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
+    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
         this.postInitialize();
 
+        var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
-        var callback = function() {
+        var callback = function(data) {
                 win.close();
-                callbackfn.apply(this, arguments);
+                self.fireEvent("login", data)
             };
         ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
         return win;
@@ -128,7 +129,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
             'detach': recenter
         });
 
-        callback.call(this,data);
+        callback(data);
     }.bind(this));
 
     // nickBox.set("value", initialNickname);

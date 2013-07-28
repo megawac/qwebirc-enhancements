@@ -6041,10 +6041,10 @@ if (typeof JSON == 'undefined') this.JSON = {};
 
 //<1.2compat>
 
-JSON = {
-	stringify: JSON.stringify,
-	parse: JSON.parse
-};
+// JSON = {
+// 	stringify: JSON.stringify,
+// 	parse: JSON.parse
+// };
 
 //</1.2compat>
 

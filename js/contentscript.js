@@ -93,7 +93,8 @@
         // guistyle.rel = "stylesheet";
         // guistyle.href = chrome.extension.getURL('css/tfircgui.css');
 
-        loader.loadCSS(chrome.extension.getURL('css/tfircgui.css'));
+        loader.loadCSS(chrome.extension.getURL('css/bootstrap.css'));
+        // loader.loadCSS(chrome.extension.getURL('css/tfircgui.css'));
         loader.loadCSS(chrome.extension.getURL('css/qwebirc.css'));
 
         // icons.rel = "stylesheet";

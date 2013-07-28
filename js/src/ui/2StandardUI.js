@@ -8,27 +8,27 @@ ui.StandardUI = new Class({
         this.parent(parentElement, windowClass, uiName, options);
 
         this.tabCompleter = new ui.TabCompleterFactory(this);
-        this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
+        // this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
+        this.uiOptions2 = new config.OptionModel({
+            defaults: options.uiOptionsArg
+        });
+        this.uiOptions2.on("change:style_hue", function(hue) {
+            this.setModifiableStylesheetValues({
+                hue: hue
+            });
+        }.bind(this));
+
+
+
         this.customWindows = {};
 
         this.__styleValues = {
-            hue: this.uiOptions.STYLE_HUE,
-            saturation: 0,
-            lightness: 0
+            hue: this.options.hue || this.uiOptions2.get("style_hue"),
+            saturation: this.options.saturation || this.uiOptions2.get("style_saturation"),
+            lightness: this.options.lightness || this.uiOptions2.get("style_brightness")
         };
-        if ($defined(this.options.hue))
-            this.__styleValues.hue = this.options.hue;
-        if ($defined(this.options.saturation))
-            this.__styleValues.saturation = this.options.saturation;
-        if ($defined(this.options.lightness))
-            this.__styleValues.lightness = this.options.lightness;
 
-        var ev;
-        if (Browser.Engine.trident) {
-            ev = "keydown";
-        } else {
-            ev = "keypress";
-        }
+        var ev = Browser.Engine.trident ? "keydown" : "keypress";
         document.addEvent(ev, this.__handleHotkey);
     },
     __handleHotkey: function(x) {
@@ -121,24 +121,30 @@ ui.StandardUI = new Class({
     embeddedWindow: function() {
         this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
             baseURL: this.options.baseURL,
-            uiOptions: this.uiOptions,
+            uiOptions: this.uiOptions2,
             optionsCallback: this.optionsWindow
         });
     },
     optionsWindow: function() {
-        this.addCustomWindow("Options", ui.OptionsPane, "optionspane", this.uiOptions);
+        var constructor = function(element, data) {
+            return new ui.OptionView({
+                element: element,
+                model: data
+            });
+        }
+        this.addCustomWindow("Options", constructor, "optionspane", this.uiOptions2);
     },
     aboutWindow: function() {
-        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions);
+        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions2);
     },
     privacyWindow: function() {
-        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions);
+        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions2);
     },
     feedbackWindow: function() {
-        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions);
+        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions2);
     },
     faqWindow: function() {
-        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions);
+        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions2);
     },
     urlDispatcher: function(name, window) {
         if (name == "embedded") {
@@ -149,10 +155,10 @@ ui.StandardUI = new Class({
         }
         /* doesn't really belong here */
         else if (name === "whois") {
-            var uiOptions = this.uiOptions;
+            var uiOptions2 = this.uiOptions2;
             ///this method is dumb
             return ["span", function(nick) {
-                if (uiOptions.QUERY_ON_NICK_CLICK) {
+                if (uiOptions2.QUERY_ON_NICK_CLICK) {
                     window.client.exec("/QUERY " + nick);
                 } else {
                     if (isChannel(nick)) {
@@ -176,7 +182,7 @@ ui.StandardUI = new Class({
     whoisURL: function(e, target) {
         var client = target.getParent('.lines').retrieve('client'),
             nick = target.get('data-user');
-        if (this.uiOptions.QUERY_ON_NICK_CLICK) {
+        if (this.uiOptions2.QUERY_ON_NICK_CLICK) {
             client.exec("/QUERY " + nick);
         } else {
             if (isChannel(nick)) {
@@ -216,7 +222,7 @@ ui.StandardUI = new Class({
         var hue = this.__styleValues.hue,
             lightness = this.__styleValues.lightness,
             saturation = this.__styleValues.saturation,
-            uiOptions = this.uiOptions;
+            uiOptions = this.uiOptions2;
 
         this.__styleSheet.set(function(mode, col) {
             if (mode == "c") {
@@ -227,7 +233,7 @@ ui.StandardUI = new Class({
 
                 return "rgb(" + c + ")";
             } else if (mode == "o") {
-                return uiOptions[arguments[1]] ? arguments[2] : arguments[3];
+                return uiOptions.get([arguments[1]] ? arguments[2] : arguments[3]);
             }
         });
     }
