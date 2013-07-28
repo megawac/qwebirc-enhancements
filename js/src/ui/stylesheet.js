@@ -67,10 +67,9 @@ ui.style.ModifiableStylesheet = new Class({
         var text = this.__cssText;
 
         Object.each(this.rules, function(val, key) {
-            var s = val.split(","),
-                value = mutatorfn.pass(s);
+            var getVal = mutatorfn.pass(val.split(","));
 
-            text = text.replaceAll("$(" + key + ")", value);
+            text = text.replaceAll("$(" + key + ")", getVal);
         });
 
         this.__setStylesheet(text);

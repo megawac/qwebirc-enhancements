@@ -18,7 +18,7 @@ ui.Window = new Class({
         this.subWindow = null;
         this.closed = false;
 
-        if (this.type & ui.WINDOW_LASTLINE) {
+        if (this.type & parentObject.uiOptions2.get("lastpos_line")) {
             this.lastPositionLine = Element.from(templates.messageLine());
             this.lastPositionLineInserted = false;
         }
@@ -26,7 +26,7 @@ ui.Window = new Class({
         this.window = this.parentObject.qjsui.createWindow();
     },
     updateTopic: function(topic, element) {
-        ui.Colourise("[" + topic + "]", element, this.client.exec, this.parentObject.urlDispatcher, this);
+        this.parentObject.theme.formatElement("[" + topic + "]", element);
     },
     close: function() {
         this.closed = true;
@@ -48,7 +48,7 @@ ui.Window = new Class({
     },
 
     select: function() {
-        if (this.lastPositionLineInserted && !this.parentObject.uiOptions.LASTPOS_LINE) {
+        if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
             this.lines.disown(this.lastPositionLine);
             this.lastPositionLineInserted = false;
         }
@@ -103,22 +103,22 @@ ui.Window = new Class({
     n: nick
     */
 
-    addLine: function(type, line, colour, $ele) {
+    addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
         var hilight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        if (type && line) {
+        if (type && data) {
         //regexs
-            var isbot = /^TF2/.test(line.n), //works for pugna(hl), mix(hl)
+            var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
                 ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
                 regNotice = /NOTICE$/,
                 sentByUs = /^OUR/.test(type),//ignore
                 containsNick = util.testForNick(self.client.nickname);
 
             var notice = function() {
-                if (!(self.active && uiobj.windowFocused) && line.c !== BROUHAHA) {
+                if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
                     uiobj.beep();
                     uiobj.flash();
                 }
@@ -128,13 +128,13 @@ ui.Window = new Class({
 
             if (ismsg) {
                 //highlighting
-                if (line.n && line.m && self.type === ui.WINDOW_CHANNEL) {
+                if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
                     $ele.addClass('message');
                     if(isbot)
                         $ele.addClass('bot');
                     else if(sentByUs)
                         $ele.addClass('our');
-                    if(!isbot && line.m.startsWith("!"))
+                    if(!isbot && data.m.startsWith("!"))
                         $ele.addClass('command');
                 }
 
@@ -150,7 +150,7 @@ ui.Window = new Class({
                     $ele.style.color = "red";
                     notice();
                 }
-                else if (!sentByUs && containsNick(line.m)) { //dont beep if bot says our name
+                else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
                     if(isbot) {
                         $ele.addClass('bot@us')
                     }
@@ -169,14 +169,14 @@ ui.Window = new Class({
         if (!self.active && (hilight !== ui.HILIGHT_NONE))
             self.highlightTab(hilight);
 
-        if (type)
-            line = uiobj.theme.message(type, line, hl_line);
-
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
         // $ele.appendChild($ele.from(tsE));
 
-        ui.Colourise(line, $ele, self.client.exec, uiobj.urlDispatcher, self);
+        // var themed = type ? uiobj.theme.message(type, data, hl_line) : data;
+        // ui.Colourise(themed, $ele, self);
+
+        var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
         // self.scrollAdd($ele);
         self.lines.adopt($ele);
     },
@@ -223,7 +223,7 @@ ui.Window = new Class({
             this.replaceLastPositionLine();
     },
     replaceLastPositionLine: function() {
-        if (this.parentObject.uiOptions.LASTPOS_LINE) {
+        if (this.parentObject.uiOptions2.get("lastpos_line")) {
             if (!this.lastPositionLineInserted) {
                 // this.scrollAdd(this.lastPositionLine);
             } else if (this.lines.lastChild !== this.lastPositionLine) {
@@ -238,6 +238,6 @@ ui.Window = new Class({
                 this.lines.disown(this.lastPositionLine);
         }
 
-        this.lastPositionLineInserted = this.parentObject.uiOptions.LASTPOS_LINE;
+        this.lastPositionLineInserted = this.parentObject.uiOptions2.get("lastpos_line");
     }
 });

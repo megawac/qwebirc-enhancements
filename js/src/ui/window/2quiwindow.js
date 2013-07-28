@@ -116,7 +116,7 @@ ui.QUI.Window = new Class({
             qwindow.bottom.appendChild(self.createInput());
 
 
-        self.nicksColoured = self.parentObject.uiOptions.NICK_COLOURS;
+        self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
         // self.reflow();
     },
 
@@ -297,16 +297,16 @@ ui.QUI.Window = new Class({
         }
 
         if (util.windowNeedsInput(self.type)) {
-            util.fillContainer(self.$inputbox);
+            // util.fillContainer(self.$inputbox);
             self.$inputbox.focus();
         }
 
         if(util.isChannelType(self.type)) {
-            if (self.nicksColoured !== parentObject.uiOptions.NICK_COLOURS) {
-                self.nicksColoured = parentObject.uiOptions.NICK_COLOURS;
+            if (self.nicksColoured !== parentObject.uiOptions2.get("nick_colours")) {
+                self.nicksColoured = parentObject.uiOptions2.get("nick_colours");
 
                 var nodes = self.nicklist.childNodes;
-                if (parentObject.uiOptions.NICK_COLOURS) {
+                if (parentObject.uiOptions2.get("nick_colours")) {
                     Array.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
@@ -326,7 +326,6 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-
         this.tab.swapClass("tab-selected", "tab-unselected");
     },
 
@@ -355,7 +354,7 @@ ui.QUI.Window = new Class({
             $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
             $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
             $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.input-button'),
+            $inputbtn = $form.getElement('.send'),
 
             sendInput = function(e) {
                 if(e)
@@ -449,7 +448,7 @@ ui.QUI.Window = new Class({
         this.$nicklabel.getElement('.status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "")
-        util.fillContainer(this.$inputbox);
+        // util.fillContainer(this.$inputbox);
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
@@ -531,7 +530,7 @@ ui.QUI.Window = new Class({
         nickele.store("nick", realNick);
 
 
-        if (this.parentObject.uiOptions.NICK_COLOURS) {
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
             var colour = util.toHSBColour(realNick, this.client);
             if ($defined(colour))
                 span.setStyle("color", colour.rgbToHex());

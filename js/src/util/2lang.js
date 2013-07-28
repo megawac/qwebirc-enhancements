@@ -71,47 +71,39 @@
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 
         closeTab: "Close tab",
-        detachWindow: "Detach Window"
+        detachWindow: "Detach Window",
 
+        //options
+        BEEP_ON_MENTION: "Beep when nick mentioned or on query activity (requires Flash or html5)",
+        FLASH_ON_MENTION: "Flash titlebar when nick mentioned or on query activity",
+        DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
+        DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
+        NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
+        ACCEPT_SERVICE_INVITES: "Automatically join channels when invited",
+        USE_HIDDENHOST: "Hide your hostmask when authed (+x)",
+        LASTPOS_LINE: "Show a last position indicator for each window",
+        NICK_COLOURS: "Automatically colour nicknames",
+        HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
+        STYLE_HUE: "Adjust user interface hue",
+        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
+        SHOW_NICKLIST: "Show nickname list in channels",
+        SHOW_TIMESTAMPS: "Show timestamps"
     };
 
 
-    lang.IRC_COMMAND_HELPERS = {
-        "JOIN": "/JOIN <channel>",
-        "NICK": "/NICK <new nickname>",
-        "PART": "/PART <channel>",
-        "QUIT": "/QUIT <message>",
-        "TOPIC": "/TOPIC <channel> <topic>",
-        "AWAY": "/AWAY <message>",
-        "ME": "/ME <message>",
-        "NOTICE": "/NOTICE <message>",
-        "MODE": "/MODE <target(chan/user)> <mode>",
-        "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
-    };
+    // lang.IRC_COMMAND_HELPERS = {
+    //     "JOIN": "/JOIN <channel>",
+    //     "NICK": "/NICK <new nickname>",
+    //     "PART": "/PART <channel>",
+    //     "QUIT": "/QUIT <message>",
+    //     "TOPIC": "/TOPIC <channel> <topic>",
+    //     "AWAY": "/AWAY <message>",
+    //     "ME": "/ME <message>",
+    //     "NOTICE": "/NOTICE <message>",
+    //     "MODE": "/MODE <target(chan/user)> <mode>",
+    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
+    // };
 
-    // lang.DaysOfWeek = [
-    //     "Sun",
-    //     "Mon",
-    //     "Tue",
-    //     "Wed",
-    //     "Thu",
-    //     "Fri",
-    //     "Sat"
-    // ];
-
-    // lang.MonthsOfYear = [
-    //     "Jan",
-    //     "Feb",
-    //     "Mar",
-    //     "Apr",
-    //     "May",
-    //     "Jun",
-    //     "Jul",
-    //     "Aug",
-    //     "Sep",
-    //     "Oct",
-    //     "Nov",
-    //     "Dec"];
 
 
 ui.themes.ThemeControlCodeMap2 = {
@@ -125,7 +117,6 @@ ui.themes.ThemeControlCodeMap2 = {
     "$": "$"
 };
 
-//todo make this stuff more clear
 ui.themes.Default2 = {
     "SIGNON": ["Signed on!", true],
     "CONNECT": ["Connected to server.", true],
@@ -150,13 +141,13 @@ ui.themes.Default2 = {
     "HILIGHT": ["{C}4"],
     "HILIGHTEND": ["{O}"],
 
-    "CHANMSG": ["<{D}{@}{(}{N}{)}{D}> {m}"],
-    "PRIVMSG": ["<{(}{N}{)}> {m}"],
+    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
+    "PRIVMSG": ["{(}{N}{)} {m}"],
     "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
     "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
 
-    "OURCHANMSG": ["<{@}{N}> {m}"],
-    "OURPRIVMSG": ["<{N}> {m}"],
+    "OURCHANMSG": ["{@}{N} {m}"],
+    "OURPRIVMSG": ["{N} {m}"],
     "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
     "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
     "OURCHANNOTICE": ["-{N}:{t}- {m}"],

@@ -222,6 +222,29 @@ irc.toIRCCompletion = Functional.compose(prelude.replace(/[^\w]+/g, ""), Functio
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
+util.getStyleByName = function(name) {
+    return irc.styles.filter(function(style) {
+        return style.name === name;
+    })[0];
+}
+
+util.getStyleByKey = function(key) {
+    return irc.styles.filter(function(style) {
+        return style.key === key;
+    })[0];
+}
+
+util.getColourByName = function(name) {
+    return irc.colours.filter(function(colour) {
+        return colour.name == name;
+    })[0];
+}
+
+util.getColourByKey = function(key) {
+    return irc.colours.filter(function(colour) {
+        return colour.key == key;
+    })[0];
+}
 
 // returns the arguments 
 util.parseURI = function(uri) {
