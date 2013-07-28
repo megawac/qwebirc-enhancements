@@ -12499,27 +12499,27 @@ Element.implement({
 
     hasClasses: function() {
         Array.every(arguments, this.hasClass, this);
-    },
+    }
 
     // https://gist.github.com/eligrey/1276030
-    insertAdjacentHTML: function(position, html) {
-        var self = this,
-            el = Elements.from(foo);
-        switch (position.toLowerCase()) {
-            case "beforebegin":
-                el.inject(self, 'before');
-                break;
-            case "afterbegin":
-                el.inject(self, 'top');
-                break;
-            case "beforeend":
-                el.inject(self, 'bottom');
-                break;
-            case "afterend":
-                el.inject(self, 'after');
-                break;
-        }
-    }
+    // insertAdjacentHTML: function(position, html) {
+    //     var self = this,
+    //         el = Elements.from(html);
+    //     switch (position.toLowerCase()) {
+    //         case "beforebegin":
+    //             el.inject(self, 'before');
+    //             break;
+    //         case "afterbegin":
+    //             el.inject(self, 'top');
+    //             break;
+    //         case "beforeend":
+    //             el.inject(self, 'bottom');
+    //             break;
+    //         case "afterend":
+    //             el.inject(self, 'after');
+    //             break;
+    //     }
+    // }
 
 
 });
@@ -13953,7 +13953,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
                     this.setupSync();
                 },
 
-                //revert changes
+                //revert or update changes to Model
                 sync: function(method, model) {
                     var oldattrs = Object.clone(this._attributes),
                         attrs = this.properties.storage.get(this.options.key);
