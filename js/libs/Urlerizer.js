@@ -40,26 +40,6 @@
         return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
-    var trailing_punctuation_django = ['.', ',', ':', ';'];
-    var trailing_punctuation_improved = ['.', ',', ':', ';', '.)'];
-    var wrapping_punctuation_django = [
-        ['(', ')'],
-        ['<', '>'],
-        ['&lt;', '&gt;']
-    ];
-    var wrapping_punctuation_improved = [
-        ['(', ')'],
-        ['<', '>'],
-        ['&lt;', '&gt;'],
-        ['“', '”'],
-        ['‘', '’']
-    ];
-    var word_split_re_django = /(\s+)/;
-    var word_split_re_improved = /([\s<>"]+)/;
-    var simple_url_re = /^https?:\/\/\w/;
-    var simple_url_2_re = /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/;
-    var simple_email_re = /^\S+@\S+\.\S+$/;
-
 
     self.Urlerizer = new Class({
         Implements: [Options],
@@ -67,9 +47,21 @@
             nofollow: false,
             autoescape: true,
             trim_url_limit: false, //length of a url before it is trimmed
-            target: false,
-            django_compatible: true
+            target: false
         },
+
+        trailing_punctuation: ['.', ',', ':', ';', '.)'],
+        wrapping_punctuation: [
+            ['(', ')'],
+            ['<', '>'],
+            ['&lt;', '&gt;'],
+            ['“', '”'],
+            ['‘', '’']
+        ],
+        word_split_re: /([\s<>"]+)/,
+        simple_url_re: /^https?:\/\/\w/,
+        simple_url_2_re: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
+        simple_email_re: /^\S+@\S+\.\S+$/,
 
         initialize: function(opts) {
             this.setOptions(opts);
@@ -106,16 +98,34 @@
             return x;
         },
 
+        parsePunctuation: function(text) {
+            var lead = '',
+                mid = text,
+                end = '';
+
+            this.trailing_punctuation.each(function(punc) {
+                if($type(punc) == "string") {
+
+                } else {
+                    
+                }
+            });
+
+
+            return {
+                lead: lead,
+                mid: mid,
+                end: end
+            }
+        },
+
         patterns: [{
             pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
             wholeWord: false,
             parse: function (text) {
                 var options = this.options;
                 var safe_input = false;
-                var word_split_re = options.django_compatible ? word_split_re_django : word_split_re_improved;
-                var trailing_punctuation = options.django_compatible ? trailing_punctuation_django : trailing_punctuation_improved;
-                var wrapping_punctuation = options.django_compatible ? wrapping_punctuation_django : wrapping_punctuation_improved;
-                var words = text.split(word_split_re);
+                var words = text.split(this.word_split_re);
                 for (var i = 0; i < words.length; i++) {
                     var word = words[i];
                     var match = undefined;
@@ -124,16 +134,16 @@
                         var lead = '';
                         var middle = word;
                         var trail = '';
-                        for (var j = 0; j < trailing_punctuation.length; j++) {
-                            var punctuation = trailing_punctuation[j];
+                        for (var j = 0; j < this.trailing_punctuation.length; j++) {
+                            var punctuation = this.trailing_punctuation[j];
                             if (middle.endsWith(punctuation)) {
                                 middle = middle.substr(0, middle.length - punctuation.length);
                                 trail = punctuation + trail;
                             }
                         }
-                        for (var j = 0; j < wrapping_punctuation.length; j++) {
-                            var opening = wrapping_punctuation[j][0];
-                            var closing = wrapping_punctuation[j][1];
+                        for (var j = 0; j < this.wrapping_punctuation.length; j++) {
+                            var opening = this.wrapping_punctuation[j][0];
+                            var closing = this.wrapping_punctuation[j][1];
                             if (middle.startsWith(opening)) {
                                 middle = middle.substr(opening.length);
                                 lead = lead + opening;
@@ -150,9 +160,9 @@
                         var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                         var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                        if (middle.match(simple_url_re)) url = smart_urlquote(middle);
-                        else if (middle.match(simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                        else if (middle.indexOf(':') == -1 && middle.match(simple_email_re)) {
+                        if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                        else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                        else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
                             // XXX: Not handling IDN.
                             url = 'mailto:' + middle;
                             nofollow_attr = '';

@@ -59,7 +59,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     form.addEvent("submit", function(e) {
         e.stop();
 
-        var nickname = nickBox.value;
+        var nickname = nickBox.val();
 
         //validate nick
         if (!nickname) {
@@ -69,7 +69,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         }
         var stripped = qwebirc.global.nicknameValidator.validate(nickname);
         if (stripped !== nickname) {
-            nickBox.value = stripped;
+            nickBox.val() = stripped;
             alert(lang.invalidNick);
             nickBox.focus();
             return;
@@ -84,10 +84,10 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
-            data.account = account = usernameBox.value;
-            data.password = password = passwordBox.value;
+            data.account = account = usernameBox.val();
+            data.password = password = passwordBox.val();
             if (auth.bouncerAuth()) {
-                if (!password) {
+                if (!$chk(password)) {
                     alert(lang.missingPass.message);
                     passwordBox.focus();
                     return;
@@ -97,7 +97,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
             }
             if (!account || !password) {
                 alert(lang.missingAuthInfo.message);
-                if (!usernameBox.value) {
+                if (!$chk(account)) {
                     usernameBox.focus();
                 } else {
                     passwordBox.focus();
@@ -238,15 +238,15 @@ ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChanne
         yes.focus();
 }
 
-ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
-    var visible = checkbox.checked;
-    var display = visible ? null : "none";
-    usernameRow.setStyle("display", display);
-    passwordRow.setStyle("display", display);
+// ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
+//     var visible = checkbox.checked;
+//     var display = visible ? null : "none";
+//     usernameRow.setStyle("display", display);
+//     passwordRow.setStyle("display", display);
 
-    if (visible) {
-        //    authRow.parentNode.setStyle("display", "none");
-        usernameBox.focus();
-    }
-}
+//     if (visible) {
+//         //    authRow.parentNode.setStyle("display", "none");
+//         usernameBox.focus();
+//     }
+// }
 

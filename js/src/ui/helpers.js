@@ -36,35 +36,6 @@ util.setAtEnd = function($el) {
 
 util.getCaretPos = Element.getCaretPosition;
 
-//....
-//TODO this is garbage
-util.createInput = function(type, parent, name, selected, id) {
-    var r;
-    if (Browser.Engine.trident) {
-        if (name) {
-            name = " name=\"" + escape(name) + "\"";
-        } else {
-            name = "";
-        }
-        if (id) {
-            id = " id=\"" + escape(id) + "\"";
-        } else {
-            id = "";
-        }
-        r = $(document.createElement("<input type=\"" + type + "\"" + name + id + " " + (selected ? " checked" : "") + "/>"));
-    } else {
-        r = new Element("input");
-        r.type = type;
-        if (name) r.name = name;
-        if (id) r.id = id;
-
-        if (selected) r.checked = true;
-    }
-
-    parent.appendChild(r);
-    return r;
-};
-
 util.percentToPixel= function(data, par) {
     par = par || document.body;
     var size = par.getSize();

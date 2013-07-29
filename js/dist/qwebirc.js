@@ -37,7 +37,7 @@ function program1(depth0,data) {
     + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-small\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
@@ -1911,6 +1911,15 @@ util.crypto.getARC4Stream = function(key, length) {
 // };
 
 
+Epitome.View.implement({
+    template: function(data, template) {
+        // refactored for handlebars
+        template = template || this.options.template;
+        return template(data);
+    }
+});
+
+
 var storage = util.storage = new Storage({
     duration: 365,
     domain: '/',
@@ -1951,6 +1960,8 @@ var Storer = (function(name, storer) {
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
+
+// urlifier.
 
 urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs qwebirc://whois/hi-#tf2mix/
             //given "qwebirc://whois/rushey#tf2mix/"
@@ -5877,7 +5888,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     form.addEvent("submit", function(e) {
         e.stop();
 
-        var nickname = nickBox.value;
+        var nickname = nickBox.val();
 
         //validate nick
         if (!nickname) {
@@ -5887,7 +5898,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         }
         var stripped = qwebirc.global.nicknameValidator.validate(nickname);
         if (stripped !== nickname) {
-            nickBox.value = stripped;
+            nickBox.val() = stripped;
             alert(lang.invalidNick);
             nickBox.focus();
             return;
@@ -5902,10 +5913,10 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
-            data.account = account = usernameBox.value;
-            data.password = password = passwordBox.value;
+            data.account = account = usernameBox.val();
+            data.password = password = passwordBox.val();
             if (auth.bouncerAuth()) {
-                if (!password) {
+                if (!$chk(password)) {
                     alert(lang.missingPass.message);
                     passwordBox.focus();
                     return;
@@ -5915,7 +5926,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
             }
             if (!account || !password) {
                 alert(lang.missingAuthInfo.message);
-                if (!usernameBox.value) {
+                if (!$chk(account)) {
                     usernameBox.focus();
                 } else {
                     passwordBox.focus();
@@ -6056,17 +6067,17 @@ ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChanne
         yes.focus();
 }
 
-ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
-    var visible = checkbox.checked;
-    var display = visible ? null : "none";
-    usernameRow.setStyle("display", display);
-    passwordRow.setStyle("display", display);
+// ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
+//     var visible = checkbox.checked;
+//     var display = visible ? null : "none";
+//     usernameRow.setStyle("display", display);
+//     passwordRow.setStyle("display", display);
 
-    if (visible) {
-        //    authRow.parentNode.setStyle("display", "none");
-        usernameBox.focus();
-    }
-}
+//     if (visible) {
+//         //    authRow.parentNode.setStyle("display", "none");
+//         usernameBox.focus();
+//     }
+// }
 
 
 
@@ -6769,7 +6780,6 @@ ui.Theme = new Class({
 
         // if($type(data) === "string")
         //     return line;
-        console.log(line);
 
         var result = line;
 
@@ -6821,6 +6831,8 @@ ui.Theme = new Class({
                 result.replace(style.key + styled[0] + style.key, html);
             }
         });
+
+        console.log(result);
 
         return result;
     },
@@ -7354,35 +7366,6 @@ util.setAtEnd = function($el) {
 };
 
 util.getCaretPos = Element.getCaretPosition;
-
-//....
-//TODO this is garbage
-util.createInput = function(type, parent, name, selected, id) {
-    var r;
-    if (Browser.Engine.trident) {
-        if (name) {
-            name = " name=\"" + escape(name) + "\"";
-        } else {
-            name = "";
-        }
-        if (id) {
-            id = " id=\"" + escape(id) + "\"";
-        } else {
-            id = "";
-        }
-        r = $(document.createElement("<input type=\"" + type + "\"" + name + id + " " + (selected ? " checked" : "") + "/>"));
-    } else {
-        r = new Element("input");
-        r.type = type;
-        if (name) r.name = name;
-        if (id) r.id = id;
-
-        if (selected) r.checked = true;
-    }
-
-    parent.appendChild(r);
-    return r;
-};
 
 util.percentToPixel= function(data, par) {
     par = par || document.body;
@@ -8321,10 +8304,17 @@ ui.OptionView = new Class({
     Binds: ['render', 'save', 'reset'],
     options: {
         template: templates.options,
-        onReady: render,
         // 'onChange:model': render,
         events: {
-            'change:relay(#options input)': 'autoEventHandler'
+            'change:relay(#options input)': 'inputChange'
+        },
+
+        onReady: render,
+        onInputChange: function(e, target) {//set model values when inputs are clicked
+            var id = target.get('id');
+            if($defined(this.model.get(id))) {
+                this.model.set(id, target.val());
+            }
         }
     },
 
@@ -8365,14 +8355,6 @@ ui.OptionView = new Class({
 
     empty: function() {
         this.parent(true);
-    },
-
-    //if left unhandled
-    autoEventHandler: function(e, target) {
-        var id = target.get('id');
-        if($defined(this.model.get(id))) {
-            this.model.set(id, target.get('value'));
-        }
     },
 
     save: function(e) {

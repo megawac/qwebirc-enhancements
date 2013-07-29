@@ -140,10 +140,9 @@
 				template = template || this.options.template;
 
 				// instantiate a template engine when needed
-				// var compiler = this.Template || (this.Template = new Template());
+				var compiler = this.Template || (this.Template = new Template());
 
-				// return compiler.template(template, data);
-				return template(data);
+				return compiler.template(template, data);
 			},
 
 			render: function(){

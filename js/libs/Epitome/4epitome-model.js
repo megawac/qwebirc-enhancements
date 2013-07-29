@@ -38,7 +38,7 @@
 				// constructor for Model class.
 
 				// are there any defaults passed? better to have them on the proto.
-				options && options.defaults && (Object.merge(this.options.defaults, options.defaults));
+				options && options.defaults && (this.options.defaults = Object.merge(this.options.defaults, options.defaults));
 
 				// initial obj should pass on to the setter.
 				obj = obj && typeOf(obj) === 'object' ? obj : {};

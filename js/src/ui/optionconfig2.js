@@ -37,10 +37,17 @@ ui.OptionView = new Class({
     Binds: ['render', 'save', 'reset'],
     options: {
         template: templates.options,
-        onReady: render,
         // 'onChange:model': render,
         events: {
-            'change:relay(#options input)': 'autoEventHandler'
+            'change:relay(#options input)': 'inputChange'
+        },
+
+        onReady: render,
+        onInputChange: function(e, target) {//set model values when inputs are clicked
+            var id = target.get('id');
+            if($defined(this.model.get(id))) {
+                this.model.set(id, target.val());
+            }
         }
     },
 
@@ -81,14 +88,6 @@ ui.OptionView = new Class({
 
     empty: function() {
         this.parent(true);
-    },
-
-    //if left unhandled
-    autoEventHandler: function(e, target) {
-        var id = target.get('id');
-        if($defined(this.model.get(id))) {
-            this.model.set(id, target.get('value'));
-        }
     },
 
     save: function(e) {

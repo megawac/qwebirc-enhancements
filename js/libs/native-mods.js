@@ -147,6 +147,15 @@ Element.implement({
         return this;
     },
 
+    val: function(val) {
+        var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
+
+        if(val) {
+            return set(key, val);
+        }
+        return this.get(key);
+    },
+
     insertAt: function(element, position) {
         //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
         return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted

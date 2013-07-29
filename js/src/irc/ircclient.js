@@ -274,15 +274,14 @@ irc.IRCClient = new Class({
             //     win.infoMessage("Waiting for login before joining channels...");
             // }).delay(200);
 
-            var writer = this.writeMessages;
             //this.writeMessages(lang.joinAfterAuth);
-            writer.curry(lang.joinAfterAuth).delay(100);
+            this.writeMessages.delay(100, this, lang.joinAfterAuth);
 
             this.activeTimers.autojoin = (function() {
                 if (!auth.authed) {
-                    writer(lang.authFailed);
+                    this.writeMessages(lang.authFailed);
                 }
-            }).delay(5000);
+            }).delay(5000, this);
         }
     },
 

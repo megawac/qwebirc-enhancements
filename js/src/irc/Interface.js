@@ -25,7 +25,7 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
-        loginRegex: null,
+        loginRegex: I recogni[sz]e you\.,
         nickValidation: null
 
     },

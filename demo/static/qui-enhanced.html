@@ -11,7 +11,15 @@
 <script>window.ircoptions = {stylesheet: 'css/modifiablecss.mcss'}</script>
 <script src="js/dist/qwebirc-0.93dev.js"></script>
 <script>
-    var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {"appTitle":"GameSurge Web IRC","networkServices":["AuthServ!AuthServ@Services.GameSurge.net","ChanServ!ChanServ@Services.GameSurge.net"],"loginRegex":"^I recogni[sz]e you\\.$","dynamicBaseURL":"","staticBaseURL":"","networkName":"GameSurge","baseURL":"https://webchat.gamesurge.net/"});
+    var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {
+        "appTitle": "GameSurge Web IRC",
+        "networkServices": ["AuthServ!AuthServ@Services.GameSurge.net", "ChanServ!ChanServ@Services.GameSurge.net"],
+        "loginRegex": /^I recogni[sz]e you/,
+        "dynamicBaseURL": "",
+        "staticBaseURL": "",
+        "networkName": "GameSurge",
+        "baseURL": "https://webchat.gamesurge.net/"
+    });
   </script>
 </head>
     <body>
