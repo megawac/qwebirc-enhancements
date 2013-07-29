@@ -588,14 +588,14 @@ irc.IRCClient = new Class({
         this.fireEvent("channelNotice", {
             'user': user,
             'channel': channel,
-            'type': type
+            'message': message
         });
     },
 
     channelMode: function(user, channel, modes, raw) {
+        var self = this;
         modes.each(function(mo) {
-            var self = this,
-                direction = mo[0],
+                var direction = mo[0],
                 mode = mo[1];
 
             var prefixindex = self.modeprefixes.indexOf(mode);
@@ -610,21 +610,21 @@ irc.IRCClient = new Class({
             prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
                                 util.removePrefix(nc, prefixchar)
 
-            this.fireEvent("mode", {
+            self.fireEvent("mode", {
                 "added": oped,
                 "prefix": prefixchar,
                 "nick": nick,
                 "channel": channel,
-                "thisclient": nick === this.nickname,
+                "thisclient": nick === self.nickname,
                 "nickchan": nc
             });
-        }, this);
+        });
 
-        this.newChanLine(channel, "MODE", user, {
+        self.newChanLine(channel, "MODE", user, {
             "m": raw.join(" ")
         });
 
-        this.updateNickList(channel);
+        self.updateNickList(channel);
     },
 
     channelCTCP: function(user, channel, type, args) {

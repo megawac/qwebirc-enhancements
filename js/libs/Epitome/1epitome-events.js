@@ -37,6 +37,37 @@
 			return this;
 		}.overloadSetter(),
 
+		fireEvent = function(type, args){
+			type = removeOn(type);
+			var events = this.$events[type] || [],
+				subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
+				self = this;
+
+			if (!events && !subs) return this;
+			args = Array.from(args);
+
+			events.each(function(fn){
+				// local events
+				fn.apply(self, args);
+			});
+
+			subs.each(function(sub){
+				// if event was added towards a specific callback, fire that
+				if (sub.fn){
+					sub.fn.apply(sub.context, args);
+				}
+				else {
+					// runs on subscriber, shifting arguments to pass on instance with a fake event object.
+
+					// this use is not recommended as it can cause event storms, use with caution and
+					// argument shift, arg1 = context. result of .listenTo(obj) with no other args or with type but no callback.
+					sub.subscriber.trigger(type, Array.flatten([self, args]));
+				}
+			});
+
+			return this;
+		},
+
 		all = '*',
 
 		func = 'function',
@@ -49,39 +80,12 @@
 			$subscribers: {},
 
 			on: addEvent,
-
 			off: removeEvent,
+			trigger: fireEvent,
 
-			trigger: function(type, args){
-				type = removeOn(type);
-				var events = this.$events[type] || [],
-					subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
-					self = this;
-
-				if (!events && !subs) return this;
-				args = Array.from(args);
-
-				events.each(function(fn){
-					// local events
-					fn.apply(self, args);
-				});
-
-				subs.each(function(sub){
-					// if event was added towards a specific callback, fire that
-					if (sub.fn){
-						sub.fn.apply(sub.context, args);
-					}
-					else {
-						// runs on subscriber, shifting arguments to pass on instance with a fake event object.
-
-						// this use is not recommended as it can cause event storms, use with caution and
-						// argument shift, arg1 = context. result of .listenTo(obj) with no other args or with type but no callback.
-						sub.subscriber.trigger(type, Array.flatten([self, args]));
-					}
-				});
-
-				return this;
-			},
+			addEvent: addEvent,
+			removeEvent: removeEvent,
+			fireEvent: fireEvent,
 
 			listenTo: function(obj, type, fn){
 				// obj: instance to subscribe to

@@ -544,10 +544,6 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
 
 /************* OPTIONS *****************/
 
-#options {
-    padding-left: 25px;
-}
-
 .qwebirc-optionspane .hue-slider {
     border: 0px solid black;
     width: 360px;

@@ -535,11 +535,12 @@ div.qwebirc-embeddedwizard {
 
 
 /*MGFX custom tabbar stuff*/
-.mgfx-tab .tab-content {background-color:#ddd; position:relative; height:160px; width:350px; margin-bottom:10px; }
-.mgfx-tab { margin-left:0;margin-bottom:0;}
-.mgfx-tab li {background-color:transparent;display:inline;float:none;list-style:none; }
-.mgfx-tab li a {background-color:#edd; color:#333; display:inline; height:auto;padding:5px 20px;text-decoration:none;width:auto;}
-.mgfx-tab li a.active { background-color:#ddd;color:#000; }
+/*.mgfx-content .control-group {
+    background-color:#ddd;
+    margin-bottom:10px;
+    padding: 25px 50px;
+}*/
+
 
 .mgfx-content > div {
     position: absolute;
@@ -547,5 +548,12 @@ div.qwebirc-embeddedwizard {
 
 #options .actions {
     position: absolute;
-    margin-top: 30px;
+    margin-top: 10px;
+}
+
+
+#options {
+    padding-left: 25px;
+    padding-top: 25px;
+    overflow-y: scroll;
 }

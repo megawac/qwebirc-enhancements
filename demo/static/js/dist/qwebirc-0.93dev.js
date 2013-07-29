@@ -13119,6 +13119,37 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 			return this;
 		}.overloadSetter(),
 
+		fireEvent = function(type, args){
+			type = removeOn(type);
+			var events = this.$events[type] || [],
+				subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
+				self = this;
+
+			if (!events && !subs) return this;
+			args = Array.from(args);
+
+			events.each(function(fn){
+				// local events
+				fn.apply(self, args);
+			});
+
+			subs.each(function(sub){
+				// if event was added towards a specific callback, fire that
+				if (sub.fn){
+					sub.fn.apply(sub.context, args);
+				}
+				else {
+					// runs on subscriber, shifting arguments to pass on instance with a fake event object.
+
+					// this use is not recommended as it can cause event storms, use with caution and
+					// argument shift, arg1 = context. result of .listenTo(obj) with no other args or with type but no callback.
+					sub.subscriber.trigger(type, Array.flatten([self, args]));
+				}
+			});
+
+			return this;
+		},
+
 		all = '*',
 
 		func = 'function',
@@ -13131,39 +13162,12 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 			$subscribers: {},
 
 			on: addEvent,
-
 			off: removeEvent,
+			trigger: fireEvent,
 
-			trigger: function(type, args){
-				type = removeOn(type);
-				var events = this.$events[type] || [],
-					subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
-					self = this;
-
-				if (!events && !subs) return this;
-				args = Array.from(args);
-
-				events.each(function(fn){
-					// local events
-					fn.apply(self, args);
-				});
-
-				subs.each(function(sub){
-					// if event was added towards a specific callback, fire that
-					if (sub.fn){
-						sub.fn.apply(sub.context, args);
-					}
-					else {
-						// runs on subscriber, shifting arguments to pass on instance with a fake event object.
-
-						// this use is not recommended as it can cause event storms, use with caution and
-						// argument shift, arg1 = context. result of .listenTo(obj) with no other args or with type but no callback.
-						sub.subscriber.trigger(type, Array.flatten([self, args]));
-					}
-				});
-
-				return this;
-			},
+			addEvent: addEvent,
+			removeEvent: removeEvent,
+			fireEvent: fireEvent,
 
 			listenTo: function(obj, type, fn){
 				// obj: instance to subscribe to
@@ -14770,7 +14774,7 @@ function program1(depth0,data) {
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "</span></div>\n";
+    + "</span></div>";
   return buffer;
   });
 
@@ -14790,7 +14794,7 @@ function program1(depth0,data) {
   buffer += "<div class='chanmenu dropdownmenu'>\r\n";
   stack1 = helpers.each.call(depth0, depth0.channels, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\n";
+  buffer += "\r\n</div>";
   return buffer;
   });
 
@@ -14804,7 +14808,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</div>\n";
+  buffer += "</div>";
   return buffer;
   });
 
@@ -14822,7 +14826,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\n";
+    + "</span>";
   return buffer;
   });
 
@@ -14849,7 +14853,7 @@ function program1(depth0,data) {
   buffer += "\r\n";
   stack1 = self.invokePartial(partials.tabAttach, 'tabAttach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n</div>\n";
+  buffer += "\r\n</div>\r\n</div>";
   return buffer;
   });
 
@@ -14871,7 +14875,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " input-field form-control' type='text'>\r\n<span class=\"input-group-btn\">\r\n<button class=\"btn btn-default send\" type=\"button\">&gt;</button>\r\n</span>\r\n</div>\r\n</form>\n";
+    + " input-field form-control' type='text'>\r\n<span class=\"input-group-btn\">\r\n<button class=\"btn btn-default send\" type=\"button\">&gt;</button>\r\n</span>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -14885,7 +14889,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers['class']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0['class']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></div>\n";
+    + "'></div>";
   return buffer;
   });
 
@@ -14902,7 +14906,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   buffer += "&nbsp;";
   stack1 = self.invokePartial(partials.tabDetach, 'tabDetach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</a>\n";
+  buffer += "</a>";
   return buffer;
   });
 
@@ -14928,8 +14932,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</span>"
-    + "\n";
+  buffer += "</span>";
   return buffer;
   });
 
@@ -14943,7 +14946,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.icon) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.icon; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "' title='menu' alt='menu'>\r\n</div>\n";
+    + "' title='menu' alt='menu'>\r\n</div>";
   return buffer;
   });
 
@@ -14984,7 +14987,7 @@ function program3(depth0,data) {
     + "</span>\r\n";
   stack1 = helpers['if'].call(depth0, depth0.hint, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</a>\n";
+  buffer += "\r\n</a>";
   return buffer;
   });
 
@@ -15001,7 +15004,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack2 = helpers.message) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.message; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "</span></div>\n";
+    + "</span></div>";
   return buffer;
   });
 
@@ -15015,7 +15018,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span></a>\n";
+    + "</span></a>";
   return buffer;
   });
 
@@ -15025,7 +15028,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<fieldset>Options</fieldset>\r\n<ul class=\"option-tabs\">\r\n<li class=\"ui-options\">Interface</li>\r\n<li class=\"alert-options\">Notifications</li>\r\n<li class=\"irc-options\">Chat Preferences</li>\r\n</ul>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
+  buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<div class=\"\">\r\n<ul class=\"option-tabs nav nav-tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options disabled\"><a href=\"#\">Notifications(TODO)</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n</div>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_COLOURS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<input type=\"checkbox\" id=\"nick_colours\" ";
   options = {hash:{},data:data};
@@ -15072,7 +15075,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.query_on_nick_click, options) : helperMissing.call(depth0, "check", depth0.query_on_nick_click, options)))
     + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label for=\"style_hue\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.STYLE_HUE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<div id=\"style_hue\" class=\"slider hue-slider\"><div class=\"knob\"></div></div>\r\n</label>\r\n\r\n</div>\r\n</div>\r\n<div class=\"irc-options control-group\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"use_hiddenhost\">\r\n"
+    + "\r\n<div id=\"style_hue\" class=\"slider hue-slider\"><div class=\"knob\"></div></div>\r\n</label>\r\n\r\n</div>\r\n</div>\r\n<div class=\"irc-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"use_hiddenhost\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USE_HIDDENHOST)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<input type=\"checkbox\" id=\"use_hiddenhost\" ";
   options = {hash:{},data:data};
@@ -15082,7 +15085,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>\n";
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -15096,7 +15099,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\n";
+    + "</span>";
   return buffer;
   });
 
@@ -15110,7 +15113,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.time) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.time; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " </span>\n";
+    + " </span>";
   return buffer;
   });
 
@@ -15138,7 +15141,7 @@ function program3(depth0,data) {
   buffer += "<div class='topic tab-invisible qui colourline'>\r\n";
   stack1 = helpers['if'].call(depth0, depth0.topic, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\n";
+  buffer += "\r\n</div>";
   return buffer;
   });
 
@@ -15160,7 +15163,7 @@ function program1(depth0,data) {
   if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\n";
+    + "</span>";
   return buffer;
   });
 
@@ -15178,7 +15181,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "&gt;</span>\n";
+    + "&gt;</span>";
   return buffer;
   });
 /*Copyright (c) 2008-2009 the qwebirc project.
@@ -16506,140 +16509,6 @@ util.crypto.getARC4Stream = function(key, length) {
 };
 
 
-// //TODO cleanup
-// ui.urlificate = function(element, text) {
-
-//     // var punct_re = /[[\)|\]]?(\.*|[\,;])$/;
-//     // var urlregex = /\b((https?|ftp|qwebirc):\/\/|([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*))[^ ]+|connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i; //matches links, qwebirc handlers, and steam connect info - sorry
-//     // var addedText = [];
-
-//     // var txtprocess = function(text, regex, appendfn, matchfn) {
-//     //     var processed = text;
-//     //     for (var index;(index = processed.search(regex)) !== -1;) {
-//     //         var match = processed.match(regex);
-
-//     //         var before = processed.slice(0, index);
-//     //         var matched = match[0];
-//     //         var after = processed.slice(index + matched.length);
-
-//     //         appendfn(before);
-//     //         var more = matchfn(matched, appendfn) || "";
-//     //         processed = more + after;
-//     //     }
-//     //     appendfn(processed);
-//     // };
-
-//     // var appendText = function(text) {
-//     //     addedText.push(text);
-//     //     util.NBSPCreate(text, element);
-//     // };
-
-//     // var appendChan = function(text) {
-//     //     var newtext = text.replace(punct_re, "");
-//     //     addedText.push(newtext);
-//     //     var punct = text.substring(newtext.length);
-
-//     //     var a = new Element("span");
-//     //     a.href = "#";
-//     //     a.addClass("hyperlink-channel")
-//     //         .addEvent("click", function(e) {
-//     //             new Event(e).stop();
-//     //             execfn("/JOIN " + newtext); //be more efficent and semantic to add this as a prop and have a listener on the element for the event
-//     //         })
-//     //         .appendText(newtext);
-//     //     element.appendChild(a);
-
-//     //     return punct;
-//     // };
-
-//     // var appendURL = function(text, appendfn, regex) {
-//     //     var url = text.replace(punct_re, "");
-//     //     var punct = text.substring(url.length);
-
-//     //     var href = "";
-//     //     var fn = null;
-//     //     var target = "_blank";
-//     //     var disptext = url;
-//     //     var elementType = "a";
-//     //     var addClass;
-
-//     //     var ma = url.match(/^qwebirc:\/\/(.*)$/);
-//     //     if (ma) {
-//     //         var m = ma[1].match(/^([^\/]+)\/([^\/]+)\/?(.*)$/);
-//     //         if (!m) {
-//     //             appendfn(text);
-//     //             return;
-//     //         }
-
-//     //         var cmd = cmdfn(m[1], window);
-//     //         if (cmd) {
-//     //             addClass = m[1];
-//     //             elementType = cmd[0];
-//     //             if (cmd[0] != "a") {
-//     //                 url = null;
-//     //             } else {
-//     //                 url = "#";
-//     //             }
-//     //             fn = cmd[1];
-//     //             disptext = unescape(m[2]);
-//     //             target = null;
-//     //         } else {
-//     //             appendfn(text);
-//     //             return;
-//     //         }
-//     //         if (m[3])
-//     //             punct = m[3] + punct;
-//     //     } 
-//     //     else if (url.match(/^www\./))
-//     //         url = "http://" + url;
-//     //     else if (url.match(/^connect/)) {
-//     //         target = null;
-//     //         var info = url.split(';'),
-//     //             server = info[0].split(' ')[1],
-//     //             password = info[1].split(' ').getLast();
-//     //         url = 'steam://connect/' + server + '/' + password;
-//     //     }
-
-//     //     var a = new Element(elementType);
-//     //     if (addClass)
-//     //         a.addClass("hyperlink-" + addClass);
-
-//     //     if (url) {
-//     //         a.href = url;
-//     //         a.onclick = function() {
-//     //             par.steamlink = Date.now();
-//     //         };
-
-//     //         if (target) {
-//     //             a.target = target;
-//     //         }
-//     //     }
-//     //     addedText.push(disptext);
-//     //     a.appendText(disptext);
-
-//     //     element.appendChild(a);
-//     //     if ($defined(fn)){
-//     //         a.addEvent("click", function(e) {// Functional.compose(fn.bind(disptext), Event.stop)
-//     //             // e.stop();
-//     //             fn(disptext);
-//     //         });
-//     //     }
-//     //     return punct;
-//     // };
-
-//     // txtprocess(text, urlregex, function(text) {
-//     //     txtprocess(text, /\B#[^ ,]+/, appendText, appendChan);
-//     // }, appendURL);
-
-
-
-//     var result = urlifier.urlerize(text);
-//     element.insertAdjacentHTML("BeforeEnd", result);
-
-//     // return addedText.join("");
-// };
-
-
 Epitome.View.implement({
     template: function(data, template) {
         // refactored for handlebars
@@ -16692,7 +16561,7 @@ var urlifier = util.urlifier = new Urlerizer({
 
 // urlifier.
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs qwebirc://whois/hi-#tf2mix/
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs "qwebirc://whois/envision-#tf2mix/"
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
                 var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
@@ -16703,7 +16572,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                         var chan_match = res.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = res.slice(6,  chanlen);
+                        var user = res.slice(6, chanlen);
                         res = templates.userlink({'userid': user, 'username': user + chan});
                     }
                     else if(res.contains("options") || res.contains("embedded")) {
@@ -16727,6 +16596,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             return res;
         })
         .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
+            console.log("todo");
             return word;
         });
 
@@ -16802,7 +16672,7 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
-        loginRegex: null,
+        loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
 
     },
@@ -18503,15 +18373,14 @@ irc.IRCClient = new Class({
             //     win.infoMessage("Waiting for login before joining channels...");
             // }).delay(200);
 
-            var writer = this.writeMessages;
             //this.writeMessages(lang.joinAfterAuth);
-            writer.curry(lang.joinAfterAuth).delay(100);
+            this.writeMessages.delay(100, this, lang.joinAfterAuth);
 
             this.activeTimers.autojoin = (function() {
                 if (!auth.authed) {
-                    writer(lang.authFailed);
+                    this.writeMessages(lang.authFailed);
                 }
-            }).delay(5000);
+            }).delay(5000, this);
         }
     },
 
@@ -18818,14 +18687,14 @@ irc.IRCClient = new Class({
         this.fireEvent("channelNotice", {
             'user': user,
             'channel': channel,
-            'type': type
+            'message': message
         });
     },
 
     channelMode: function(user, channel, modes, raw) {
+        var self = this;
         modes.each(function(mo) {
-            var self = this,
-                direction = mo[0],
+                var direction = mo[0],
                 mode = mo[1];
 
             var prefixindex = self.modeprefixes.indexOf(mode);
@@ -18840,21 +18709,21 @@ irc.IRCClient = new Class({
             prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
                                 util.removePrefix(nc, prefixchar)
 
-            this.fireEvent("mode", {
+            self.fireEvent("mode", {
                 "added": oped,
                 "prefix": prefixchar,
                 "nick": nick,
                 "channel": channel,
-                "thisclient": nick === this.nickname,
+                "thisclient": nick === self.nickname,
                 "nickchan": nc
             });
-        }, this);
+        });
 
-        this.newChanLine(channel, "MODE", user, {
+        self.newChanLine(channel, "MODE", user, {
             "m": raw.join(" ")
         });
 
-        this.updateNickList(channel);
+        self.updateNickList(channel);
     },
 
     channelCTCP: function(user, channel, type, args) {
@@ -20243,7 +20112,7 @@ ui.StandardUI = new Class({
             type = ui.WINDOW_CUSTOM;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        (win.on || win.addEvent).call(win, "close", function(win) {
+        win.addEvent("close", function(win) {
             delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
         }.bind(this));
 
@@ -20272,7 +20141,7 @@ ui.StandardUI = new Class({
             win.lines.addClass("qwebirc-" + cssClass);
 
         var ew = new class_(win.lines, options);
-        (ew.on || ew.addEvent).call(ew, "close", win.close);
+        ew.addEvent("close", win.close);
 
         win.setSubWindow(ew);
     },
@@ -21285,144 +21154,6 @@ ui.QUI.JSUI = new Class({
         newWin.window.show();
     }
 });
-
-
-// hacky... todo simplify
-// ui.Colourise = function(line, entity, execfn, cmdfn, win) {
-//     var fg;
-//     var bg;
-//     var underline = false;
-//     var bold = false;
-//     var autoNickColour = false;
-
-//     var out = [];
-//     var xline = line.split("");
-//     var element = new Element("span");
-
-//     entity.addClass("colourline");
-
-//     function parseColours(xline, i) {
-//         if(isNaN(xline[i + 1])) {
-//             fg = undefined;
-//             bg = undefined;
-//             return i;
-//         }
-//         i++;
-//         if(prelude.isNumber(xline[i + 1])) {
-//             fg = parseInt(xline[i] + xline[i + 1]);
-//             i++;
-//         } else {
-//             fg = parseInt(xline[i]);
-//         }
-//         if(xline[i + 1] != ",")
-//             return i;
-//         else if(isNaN(xline[i + 2]))
-//             return i;
-//         i+=2;
-
-//         if(prelude.isNumber(xline[i + 1])) {
-//             bg = parseInt(xline[i] + xline[i + 1]);
-//             i++;
-//         } else {
-//             bg = parseInt(xline[i]);
-//         }
-//         return i;
-//     }
-
-//     function emitEndToken() {
-//         var data = "";
-//         if (out.length > 0) {
-//             data = ui.urlificate(element, out.join(""), execfn, cmdfn, win);
-//             entity.appendChild(element);
-//             out.empty();
-//         }
-//         element = document.createElement("span"); //?
-//         return data;
-//     }
-
-//     function emitStartToken() {
-//         if(autoNickColour)
-//             return element;
-
-//         var classes = "";
-//         if(fg !== undefined)
-//             classes = concatSpace(classes, "Xc" + fg); //text colour
-//         if(bg !== undefined)
-//             classes = concatSpace(classes, "Xbc" + bg); //background
-//         if(bold)
-//             classes = concatSpace(classes, "Xb"); //style
-//         if(underline)
-//             classes = concatSpace(classes, "Xu");
-//         element.className = classes;
-//         // element.className = classes.join(" ");
-//   }
-
-//     var nickColouring = win.parentObject.uiOptions2.get("nick_colours"); /* HACK */
-//     var capturingNick = false;
-
-//     //evil confusing loop
-//     for (var i = 0; i < xline.length; i++) {
-//         var lc = xline[i];
-
-//         if (nickColouring) {
-//             if (!capturingNick) {
-//                 if (lc == "\x00") {
-//                     capturingNick = true;
-//                     emitEndToken();
-//                     continue;
-//                 }
-//             } else {
-//                 if (lc != "\x00") {
-//                     out.push(lc);
-//                 } else {
-//                     autoNickColour = true;
-//                     var e = emitStartToken();
-//                     var text = emitEndToken();
-
-//                     var c = util.toHSBColour(text, win.client);
-//                     if ($defined(c)) e.style.color = c.rgbToHex();
-//                     capturingNick = autoNickColour = false;
-//                 }
-//                 continue;
-//             }
-//         } else if (lc == "\x00") {
-//             continue;
-//         }
-
-//         if (lc == "\x02") {
-//             emitEndToken();
-
-//             bold = !bold;
-
-//             emitStartToken();
-//         } else if (lc == "\x1F") {
-//             emitEndToken();
-
-//             underline = !underline;
-
-//             emitStartToken();
-//         } else if (lc == "\x0F") {
-//             emitEndToken();
-
-//             fg = undefined;
-//             bg = undefined;
-//             underline = false;
-//             bold = false;
-//         } else if (lc == "\x03") {
-//             emitEndToken();
-
-//             i = parseColours(xline, i);
-//             if (bg > 15) bg = undefined;
-//             if (fg > 15) fg = undefined;
-
-//             emitStartToken();
-//         } else {
-//             out.push(lc);
-//         }
-//     }
-
-//     emitEndToken();
-// };
 
 
 ui.Theme = new Class({
@@ -22491,510 +22222,6 @@ ui.ChannelUsersTabCompleter = new Class({
 
 
 
-// /*
-//     TODO: Options:
-//     - templating get rid of tables
-//     - beep/flash/highligh on text infinite regexp list
-//     - custom sounds?
-
-// */
-
-
-// /**
-//  * Note that options are settable by the uioptions url arg by default unless you specifiy
-//  * settableByURL...
-//  */
-// config.DEFAULT_OPTIONS = [
-//     //option is a structure:
-//     // 0: id
-//     // 1: alias
-//     // 2: description of option
-//     // 3: default val
-//     // 4: setter
-//     [1, "BEEP_ON_MENTION", "Beep when nick mentioned or on query activity (requires Flash or html5)", true,
-//     {
-//         enabled: $lambda([true]),
-//         applyChanges: function(value, ui) {
-//             if ($defined(ui.setBeepOnMention))
-//                 ui.setBeepOnMention(value);
-//         }
-//     }],
-//     [7, "FLASH_ON_MENTION", "Flash titlebar when nick mentioned or on query activity", true,
-//     {
-//         enabled: ui.supportsFocus
-//     }],
-//     [2, "DEDICATED_MSG_WINDOW", "Send privmsgs to dedicated messages window", false],
-//     [4, "DEDICATED_NOTICE_WINDOW", "Send notices to dedicated message window", false],
-//     [3, "NICK_OV_STATUS", "Show status (@/+) before nicknames in channel lines", true],
-//     [5, "ACCEPT_SERVICE_INVITES", "Automatically join channels when invited by Q", true,
-//     {
-//         settableByURL: false
-//     }],
-//     [6, "USE_HIDDENHOST", "Hide your hostmask when authed to Q (+x)", true,
-//     {
-//         settableByURL: false
-//     }],
-//     [8, "LASTPOS_LINE", "Show a last position indicator for each window", true,
-//     {
-//         enabled: ui.supportsFocus
-//     }],
-//     [9, "NICK_COLOURS", "Automatically colour nicknames", false],
-//     [10, "HIDE_JOINPARTS", "Hide JOINS/PARTS/QUITS", false],
-//     [11, "STYLE_HUE", "Adjust user interface hue", function() {
-//         return {
-//             class_: config.HueOption,
-//             default_: 210
-//         };
-//     }, {
-//         applyChanges: function(value, ui) {
-//             ui.setModifiableStylesheetValues({
-//                 hue: value
-//             });
-//         }
-//     }],
-//     [12, "QUERY_ON_NICK_CLICK", "Query on nickname click in channel", false],
-//     [13, "SHOW_NICKLIST", "Show nickname list in channels", true],
-//     [14, "SHOW_TIMESTAMPS", "Show timestamps", true] /* we rely on the hue update */ ];
-
-// config.DefaultOptions = null;
-
-// config.Input = new Class({
-//     initialize: function(parent, option, position, parentObject) {
-//         this.option = option;
-//         this.value = option.value;
-//         this.enabled = this.option.enabled;
-//         this.position = position;
-//         this.parentElement = parent;
-//         this.parentObject = parentObject;
-//         this.render();
-//     },
-
-//     createInput: function(type, parent, name, selected, id) {
-//         if (!$defined(parent))
-//             parent = this.parentElement;
-
-//         return util.createInput(type, parent, name, selected, this.option.id);
-//     },
-
-//     FE: function(element, parent) {
-//         var n = new Element(element);
-//         if (!$defined(parent)) parent = this.parentElement;
-
-//         parent.adopt(n);
-//         return n;
-//     },
-
-//     focus: function() {
-//         this.mainElement.focus();
-//     },
-
-//     render: function() {
-//         this.event("render", this.mainElement);
-//     },
-
-//     applyChanges: function() {
-//         this.event("applyChanges", [this.get(), this.parentObject.optionObject.ui]);
-//     },
-
-//     event: function(name, x) {
-//         if (!$defined(this.option.extras)) return;
-//         var t = this.option.extras[name];
-//         if (!$defined(t)) return;
-
-//         t.pass(x, this)();
-//     },
-
-//     cancel: function() {}
-// });
-
-// config.TextInput = new Class({
-//     Extends: config.Input,
-//     render: function() {
-//         var i = this.createInput("text");
-//         this.mainElement = i;
-
-//         i.value = this.value;
-//         i.disabled = !this.enabled;
-
-//         this.parent();
-//     },
-
-//     get: function() {
-//         return this.mainElement.value;
-//     }
-// });
-
-// config.HueInput = new Class({
-//     Extends: config.Input,
-//     render: function() {
-//         var i = new Element("div");
-//         i.addClass("qwebirc-optionspane");
-//         i.addClass("hue-slider");
-//         this.parentElement.appendChild(i);
-
-//         var k = new Element("div");
-//         k.addClass("knob");
-//         if (Browser.Engine.trident) {
-//             k.setStyle("top", "0px");
-//             k.setStyle("background-color", "black");
-//         }
-
-//         i.appendChild(k);
-
-//         var slider = new Slider(i, k, {
-//             steps: 36,
-//             range: [0, 369],
-//             wheel: true
-//         });
-//         slider.set(this.value);
-//         this.startValue = this.value;
-
-//         slider.addEvent("change", function(step) {
-//             this.value = step;
-//             this.applyChanges();
-//         }.bind(this));
-//         this.mainElement = i;
-
-//         if (!this.enabled) slider.detach();
-
-//         this.parent();
-//     },
-//     get: function() {
-//         return this.value;
-//     },
-//     cancel: function() {
-//         this.value = this.startValue;
-//         this.applyChanges();
-//     }
-// });
-
-// config.CheckInput = new Class({
-//     Extends: config.Input,
-//     render: function() {
-//         var i = this.createInput("checkbox", null, null, null, this.id);
-//         this.mainElement = i;
-
-//         i.checked = this.value;
-//         i.disabled = !this.enabled;
-
-//         this.parent();
-//     },
-//     get: function() {
-//         return this.mainElement.checked;
-//     }
-// });
-
-// config.RadioInput = new Class({
-//     Extends: config.Input,
-//     render: function() {
-//         var value = this.option.options;
-
-//         this.elements = [];
-
-//         for (var i = 0; i < value.length; i++) {
-//             var d = this.FE("div", this.parentObject);
-//             var e = this.createInput("radio", d, "options_radio" + this.position, i == this.option.position);
-//             this.elements.push(e);
-//             e.disabled = !this.enabled;
-
-//             if (i === 0)
-//                 this.mainElement = e;
-
-//             d.appendChild(document.createTextNode(value[i][0]));
-//         };
-//         this.parent();
-//     },
-//     get: function() {
-//         for (var i = 0; i < this.elements.length; i++) {
-//             var x = this.elements[i];
-//             if (x.checked) {
-//                 this.option.position = i;
-//                 return this.option.options[i][1];
-//             }
-//         }
-//     }
-// });
-
-// config.Option = new Class({
-//     initialize: function(optionId, prefix, label, default_, extras) {
-//         this.prefix = prefix;
-//         this.label = label;
-//         this.default_ = default_;
-//         this.optionId = optionId;
-//         this.extras = extras;
-
-//         if ($defined(extras) && $defined(extras.enabled)) {
-//             var enabledResult = extras.enabled();
-//             this.enabled = enabledResult[0];
-
-//             if (!enabledResult[0] && enabledResult.length > 1)
-//                 this.default_ = enabledResult[1];
-//         } else {
-//             this.enabled = true;
-//         }
-
-//         if ($defined(extras) && $defined(extras.settableByURL)) {
-//             this.settableByURL = extras.settableByURL;
-//         } else {
-//             this.settableByURL = true;
-//         }
-//     },
-//     setSavedValue: function(x) {
-//         if (this.enabled)
-//             this.value = x;
-//     }
-// });
-
-// config.RadioOption = new Class({
-//     Extends: config.Option,
-//     Element: config.RadioInput,
-//     initialize: function(optionId, prefix, label, default_, extras, options) {
-//         this.options = options.map(function(x) {
-//             return (typeof(x) === "string") ? [x, x] : x;
-//         });
-//         this.defaultposition = default_;
-
-//         this.parent(optionId, prefix, label, this.options[default_][1], extras);
-//     },
-//     setSavedValue: function(x) {
-//         for (var i = 0; i < this.options.length; i++) {
-//             var y = this.options[i][1];
-//             if (x === y) {
-//                 this.position = i;
-//                 this.value = x;
-//                 return;
-//             }
-//         }
-//         this.position = this.defaultposition;
-//         this.value = this.default_;
-//     }
-// });
-
-// config.TextOption = new Class({
-//     Extends: config.Option,
-//     Element: config.TextInput
-// });
-
-// config.CheckOption = new Class({
-//     Extends: config.Option,
-//     Element: config.CheckInput
-// });
-
-// config.HueOption = new Class({
-//     Extends: config.Option,
-//     Element: config.HueInput
-// });
-
-// ui.Options = new Class({
-//     initialize: function(ui) {
-//         if (!$defined(config.DefaultOptions)) this.__configureDefaults();
-
-//         this.optionList = config.DefaultOptions.slice();
-//         this.optionHash = {};
-//         this.ui = ui;
-
-//         this._setup();
-//         this.optionList.each(function(x) {
-//             x.setSavedValue(this._get(x));
-//             this.optionHash[x.prefix] = x;
-//             this[x.prefix] = x.value;
-//         }.bind(this));
-//     },
-//     __configureDefaults: function() {
-//         config.DefaultOptions = config.DEFAULT_OPTIONS.map(function(opt) {
-//             var optionId = opt[0];
-//             var prefix = opt[1];
-//             var label = opt[2];
-//             var default_ = opt[3];
-//             var moreextras = opt[4];
-//             var extras = opt[5];
-
-//             var stype = typeof(default_);
-//             if (stype == "number") {
-//                 return new config.RadioOption(optionId, prefix, label, default_, moreextras, extra);
-//             } else {
-//                 var type;
-//                 if (stype == "boolean") {
-//                     type = config.CheckOption;
-//                 } else if (stype == "function") {
-//                     var options = default_();
-//                     type = options.class_;
-//                     default_ = options.default_;
-//                 } else {
-//                     type = config.TextOption;
-//                 }
-//                 return new type(optionId, prefix, label, default_, moreextras);
-//             }
-//         });
-//     },
-//     setValue: function(option, value) {
-//         this.optionHash[option.prefix].value = value;
-//         this[option.prefix] = value;
-//     },
-//     getOptionList: function() {
-//         return this.optionList;
-//     },
-//     _get: function(opt) {
-//         return opt.default_;
-//     },
-//     _setup: function() {},
-//     flush: function() {}
-// });
-
-// ui.OptionsPane = new Class({
-//     Implements: [Events],
-//     initialize: function(parentElement, optionObject) {
-//         this.parentElement = parentElement;
-//         this.optionObject = optionObject;
-
-//         this.createElements();
-//     },
-//     createElements: function() {
-//         var FE = function(element, parent) {
-//                 var n = new Element(element);
-//                 parent.appendChild(n);
-//                 return n;
-//             };
-
-//         var t = FE("table", this.parentElement);
-//         var tb = FE("tbody", t);
-
-//         this.boxList = [];
-
-//         var optList = this.optionObject.getOptionList();
-//         for (var i = 0; i < optList.length; i++) {
-//             var opt = optList[i];
-
-//             var row = FE("tr", tb);
-//             var cella = FE("td", row);
-
-//             opt.id = qwebirc.util.generateID();
-//             var label = new Element("label", {
-//                 "for": opt.id
-//             });
-//             cella.appendChild(label);
-//             label.set("text", opt.label + ":");
-
-//             var cellb = FE("td", row);
-//             this.boxList.push([opt, new opt.Element(cellb, opt, i, this)]);
-
-//         }
-
-//         var r = FE("tr", tb);
-//         var cella = FE("td", r);
-//         var cellb = FE("td", r);
-//         var save = qwebirc.util.createInput("submit", cellb);
-//         save.value = "Save";
-
-//         save.addEvent("click", function() {
-//             this.save();
-//             this.fireEvent("close");
-//         }.bind(this));
-
-//         var cancel = qwebirc.util.createInput("submit", cellb);
-//         cancel.value = "Cancel";
-//         cancel.addEvent("click", function() {
-//             this.cancel();
-//             this.fireEvent("close");
-//         }.bind(this));
-//     },
-//     save: function() {
-//         this.boxList.each(function(opt) {
-//             var option = opt[0];
-//             var box = opt[1];
-//             this.optionObject.setValue(option, box.get());
-//         }.bind(this));
-//         this.boxList.each(function(opt) {
-//             opt[1].applyChanges();
-//         }.bind(this));
-//         this.optionObject.flush();
-//     },
-//     cancel: function() {
-//         this.boxList.each(function(opt) {
-//             opt[1].cancel();
-//         }.bind(this));
-//     }
-// });
-
-// ui.CookieOptions = new Class({
-//     Extends: ui.Options,
-//     _setup: function() {
-//         // this.__cookie = new Hash.Cookie("opt1", {
-//         //     duration: 3650,
-//         //     autoSave: false
-//         // });
-//         this.storage = storage;
-//         this.__key = "opt1";
-//         this.__options = this.storage.get(this.__key) || {};
-//     },
-//     _get: function(option) {
-//         // var v = this.__cookie.get(option.optionId); 
-//         var val = this.__options[option.optionId];
-//         return $defined(val) ? val : option.default_;
-//     },
-//     flush: function() {
-//         // this.storage.remove(this.__key);
-//         // this._setup();
-
-//         // var opts = this.getOptionList().each(function(option) {
-//         //     this.__cookie.set(option.optionId, option.value);
-//         // }.bind(this));
-//         // this.__cookie.save();
-//         var opts = {};
-//         this.getOptionList().each(function(option) {
-//             if(option.value !== option.default_) { //minimize stored data
-//                 opts[option.optionId] = option.value;
-//             }
-//         });
-//         this.__options = opts;
-//         this.storage.set(this.__key, opts);
-//     }
-// });
-
-// ui.SuppliedArgOptions = new Class({
-//     Extends: ui.CookieOptions,
-//     initialize: function(ui, arg) {
-//         var p = {};
-
-//         if ($chk(arg) && arg.length > 2) {
-//             var checksum = arg.substr(arg.length - 2, 2);
-//             var decoded = util.B64.decode(arg.substr(0, arg.length - 2));
-
-//             if (decoded && (new crypto.MD5().digest(decoded).slice(0, 2) == checksum))
-//                 p = util.parseURI("?" + decoded);
-//         }
-
-//         this.parsedOptions = p;
-//         this.parent(ui);
-//     },
-
-//     _get: function(opt) {
-//         if (opt.settableByURL !== true)
-//             return this.parent(opt);
-
-//         var option = this.parsedOptions[opt.optionId];
-
-//         return $defined(option) ? opt : this.parent(opt);
-//     },
-
-//     serialise: function() {
-//         var result = [];
-//         this.getOptionList().each(function(opt) {
-//             if (opt.settableByURL && opt.default_ != opt.value)
-//                 result.push(opt.optionId + "=" + opt.value);
-//         }.bind(this));
-
-//         var raw = result.join("&");
-//         var checksum = new crypto.MD5().digest(raw).slice(0, 2);
-//         return (qwebirc.util.B64.encode(raw)).replaceAll("=", "") + checksum;
-//     }
-// });
-
-// ui.DefaultOptionsClass = new Class({
-//     Extends: ui.SuppliedArgOptions
-// });
-
-
 
 (function(){
 
@@ -23224,7 +22451,7 @@ ui.Window = new Class({
     subEvent: function(event) {
         var sub = this.subWindow
         if ($defined(sub))
-            (sub.fireEvent || sub.trigger).call(sub, event);
+            sub.fireEvent.call(sub, event);
     },
     setSubWindow: function(win) {
         this.subWindow = win;

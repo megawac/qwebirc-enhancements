@@ -85,7 +85,7 @@ ui.StandardUI = new Class({
             type = ui.WINDOW_CUSTOM;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        (win.on || win.addEvent).call(win, "close", function(win) {
+        win.addEvent("close", function(win) {
             delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
         }.bind(this));
 
@@ -114,7 +114,7 @@ ui.StandardUI = new Class({
             win.lines.addClass("qwebirc-" + cssClass);
 
         var ew = new class_(win.lines, options);
-        (ew.on || ew.addEvent).call(ew, "close", win.close);
+        ew.addEvent("close", win.close);
 
         win.setSubWindow(ew);
     },

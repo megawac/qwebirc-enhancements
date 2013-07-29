@@ -1,12 +1,14 @@
 <form id="options" class="form-horizontal">
-    <fieldset>Options</fieldset>
-    <ul class="option-tabs">
-        <li class="ui-options">Interface</li>
-        <li class="alert-options">Notifications</li>
-        <li class="irc-options">Chat Preferences</li>
-    </ul>
+    <div class="">
+        <ul class="option-tabs nav nav-tabs">
+            <li class="ui-options"><a href="#">Interface</a></li>
+            <li class="irc-options"><a href="#">Chat Preferences</a></li>
+            <li class="alert-options disabled"><a href="#">Notifications(TODO)</a></li>
+            <li class="hotkeys disabled"><a href="#">Hot Keys(TODO)</a></li>
+        </ul>
+    </div>
     <div class="tab-content">
-        <div class="ui-options control-group">
+        <div class="ui-options control-group well">
             <div class="controls">
                 <label class="checkbox" for="nick_colours">
                     {{lang.NICK_COLOURS}}
@@ -69,7 +71,7 @@
                 
             </div>
         </div>
-        <div class="irc-options control-group">
+        <div class="irc-options control-group well">
             <div class="controls">
             <label class="checkbox" for="use_hiddenhost">
                 {{lang.USE_HIDDENHOST}}
@@ -83,8 +85,11 @@
                 </label>
             </div>
         </div>
-        <div class="alert-options control-group">
+        <div class="alert-options control-group well">
 
+        </div>
+        <div class="hotkeys control-group well">
+            
         </div>
     </div>
     <div class="actions">

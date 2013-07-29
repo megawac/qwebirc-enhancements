@@ -22,7 +22,7 @@ module.exports = function(grunt) {
                     node: false,
                     processContent: function(content) {//remove whitespace
                         content = content.replace(/^[\x20\t]+/mg, '').replace(/[\x20\t]+$/mg, '');
-                        content = content.replace(/^[\r\n]+/, '').replace(/[\r\n]*$/, '\n');
+                        content = content.replace(/^[\r\n]+/, '').replace(/[\r\n]*$/, '');
                         return content;
                     },
 
