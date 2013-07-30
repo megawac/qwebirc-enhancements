@@ -87,7 +87,8 @@
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
-        SHOW_TIMESTAMPS: "Show timestamps"
+        SHOW_TIMESTAMPS: "Show timestamps",
+        FONT_SIZE: "Set font size"
     };
 
 

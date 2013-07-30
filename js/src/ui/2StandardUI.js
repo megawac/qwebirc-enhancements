@@ -1,35 +1,40 @@
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
-        this.parent(parentElement, windowClass, uiName, options);
+        var self = this;
+        self.parent(parentElement, windowClass, uiName, options);
 
-        this.tabCompleter = new ui.TabCompleterFactory(this);
-        // this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
-        this.uiOptions2 = new config.OptionModel({
+        self.tabCompleter = new ui.TabCompleterFactory(self);
+        // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
+        self.uiOptions2 = new config.OptionModel({
             defaults: options.uiOptionsArg
         });
-        this.uiOptions2.on("change:style_hue", function(hue) {
-            this.setModifiableStylesheetValues({
-                hue: hue
-            });
-        }.bind(this));
+
+        self.uiOptions2.on({
+            "change:style_hue": function(hue) {
+                self.setModifiableStylesheetValues({
+                    hue: hue
+                })
+            },
+            "change:font_size": self.setModifiableStylesheetValues
+        });
 
 
 
-        this.customWindows = {};
+        self.customWindows = {};
 
-        this.__styleValues = {
-            hue: this.options.hue || this.uiOptions2.get("style_hue"),
-            saturation: this.options.saturation || this.uiOptions2.get("style_saturation"),
-            lightness: this.options.lightness || this.uiOptions2.get("style_brightness")
+        self.__styleValues = {
+            hue: self.options.hue || self.uiOptions2.get("style_hue"),
+            saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
+            lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
         };
 
         var ev = Browser.Engine.trident ? "keydown" : "keypress";
-        document.addEvent(ev, this.__handleHotkey);
+        document.addEvent(ev, self.__handleHotkey);
     },
     __handleHotkey: function(x) {
         if (!x.alt || x.control) {
@@ -209,12 +214,10 @@ ui.StandardUI = new Class({
     },
     setModifiableStylesheet: function(name) {
         this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues({});
+        this.setModifiableStylesheetValues();
     },
-    setModifiableStylesheetValues: function(values) {
-        // for (var k in values)
-        //     this.__styleValues[k] = values[k];
-        $extend(this.__styleValues, values);
+    setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
+        Object.append(this.__styleValues, values);
 
         if (!$defined(this.__styleSheet))
             return;
@@ -224,17 +227,19 @@ ui.StandardUI = new Class({
             saturation = this.__styleValues.saturation,
             uiOptions = this.uiOptions2;
 
-        this.__styleSheet.set(function(mode, col) {
+        this.__styleSheet.set(function(mode, val, _default) {
             if (mode == "c") {
-                var x = new Color(col);
+                var x = new Color(val);
                 var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
                 if (c == "255,255,255") // IE confuses white with transparent... 
                 c = "255,255,254";
 
                 return "rgb(" + c + ")";
-            } else if (mode == "o") {
-                return uiOptions.get([arguments[1]] ? arguments[2] : arguments[3]);
             }
+            else if (mode == "o") {
+                return uiOptions.get(val);
+            }
+            return _default;
         });
     }
 });

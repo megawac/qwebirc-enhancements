@@ -10862,6 +10862,368 @@ Keyboard.getShortcuts = function(name, keyboard){
 };
 
 
+/*
+
+Copyright (C) 2011 by Yehuda Katz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+// lib/handlebars/browser-prefix.js
+var Handlebars = {};
+
+(function(Handlebars, undefined) {
+;
+// lib/handlebars/base.js
+
+Handlebars.VERSION = "1.0.0";
+Handlebars.COMPILER_REVISION = 4;
+
+Handlebars.REVISION_CHANGES = {
+  1: '<= 1.0.rc.2', // 1.0.rc.2 is actually rev2 but doesn't report it
+  2: '== 1.0.0-rc.3',
+  3: '== 1.0.0-rc.4',
+  4: '>= 1.0.0'
+};
+
+Handlebars.helpers  = {};
+Handlebars.partials = {};
+
+var toString = Object.prototype.toString,
+    functionType = '[object Function]',
+    objectType = '[object Object]';
+
+Handlebars.registerHelper = function(name, fn, inverse) {
+  if (toString.call(name) === objectType) {
+    if (inverse || fn) { throw new Handlebars.Exception('Arg not supported with multiple helpers'); }
+    Handlebars.Utils.extend(this.helpers, name);
+  } else {
+    if (inverse) { fn.not = inverse; }
+    this.helpers[name] = fn;
+  }
+};
+
+Handlebars.registerPartial = function(name, str) {
+  if (toString.call(name) === objectType) {
+    Handlebars.Utils.extend(this.partials,  name);
+  } else {
+    this.partials[name] = str;
+  }
+};
+
+Handlebars.registerHelper('helperMissing', function(arg) {
+  if(arguments.length === 2) {
+    return undefined;
+  } else {
+    throw new Error("Missing helper: '" + arg + "'");
+  }
+});
+
+Handlebars.registerHelper('blockHelperMissing', function(context, options) {
+  var inverse = options.inverse || function() {}, fn = options.fn;
+
+  var type = toString.call(context);
+
+  if(type === functionType) { context = context.call(this); }
+
+  if(context === true) {
+    return fn(this);
+  } else if(context === false || context == null) {
+    return inverse(this);
+  } else if(type === "[object Array]") {
+    if(context.length > 0) {
+      return Handlebars.helpers.each(context, options);
+    } else {
+      return inverse(this);
+    }
+  } else {
+    return fn(context);
+  }
+});
+
+Handlebars.K = function() {};
+
+Handlebars.createFrame = Object.create || function(object) {
+  Handlebars.K.prototype = object;
+  var obj = new Handlebars.K();
+  Handlebars.K.prototype = null;
+  return obj;
+};
+
+Handlebars.logger = {
+  DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, level: 3,
+
+  methodMap: {0: 'debug', 1: 'info', 2: 'warn', 3: 'error'},
+
+  // can be overridden in the host environment
+  log: function(level, obj) {
+    if (Handlebars.logger.level <= level) {
+      var method = Handlebars.logger.methodMap[level];
+      if (typeof console !== 'undefined' && console[method]) {
+        console[method].call(console, obj);
+      }
+    }
+  }
+};
+
+Handlebars.log = function(level, obj) { Handlebars.logger.log(level, obj); };
+
+Handlebars.registerHelper('each', function(context, options) {
+  var fn = options.fn, inverse = options.inverse;
+  var i = 0, ret = "", data;
+
+  var type = toString.call(context);
+  if(type === functionType) { context = context.call(this); }
+
+  if (options.data) {
+    data = Handlebars.createFrame(options.data);
+  }
+
+  if(context && typeof context === 'object') {
+    if(context instanceof Array){
+      for(var j = context.length; i<j; i++) {
+        if (data) { data.index = i; }
+        ret = ret + fn(context[i], { data: data });
+      }
+    } else {
+      for(var key in context) {
+        if(context.hasOwnProperty(key)) {
+          if(data) { data.key = key; }
+          ret = ret + fn(context[key], {data: data});
+          i++;
+        }
+      }
+    }
+  }
+
+  if(i === 0){
+    ret = inverse(this);
+  }
+
+  return ret;
+});
+
+Handlebars.registerHelper('if', function(conditional, options) {
+  var type = toString.call(conditional);
+  if(type === functionType) { conditional = conditional.call(this); }
+
+  if(!conditional || Handlebars.Utils.isEmpty(conditional)) {
+    return options.inverse(this);
+  } else {
+    return options.fn(this);
+  }
+});
+
+Handlebars.registerHelper('unless', function(conditional, options) {
+  return Handlebars.helpers['if'].call(this, conditional, {fn: options.inverse, inverse: options.fn});
+});
+
+Handlebars.registerHelper('with', function(context, options) {
+  var type = toString.call(context);
+  if(type === functionType) { context = context.call(this); }
+
+  if (!Handlebars.Utils.isEmpty(context)) return options.fn(context);
+});
+
+Handlebars.registerHelper('log', function(context, options) {
+  var level = options.data && options.data.level != null ? parseInt(options.data.level, 10) : 1;
+  Handlebars.log(level, context);
+});
+;
+// lib/handlebars/utils.js
+
+var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
+
+Handlebars.Exception = function(message) {
+  var tmp = Error.prototype.constructor.apply(this, arguments);
+
+  // Unfortunately errors are not enumerable in Chrome (at least), so `for prop in tmp` doesn't work.
+  for (var idx = 0; idx < errorProps.length; idx++) {
+    this[errorProps[idx]] = tmp[errorProps[idx]];
+  }
+};
+Handlebars.Exception.prototype = new Error();
+
+// Build out our basic SafeString type
+Handlebars.SafeString = function(string) {
+  this.string = string;
+};
+Handlebars.SafeString.prototype.toString = function() {
+  return this.string.toString();
+};
+
+var escape = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#x27;",
+  "`": "&#x60;"
+};
+
+var badChars = /[&<>"'`]/g;
+var possible = /[&<>"'`]/;
+
+var escapeChar = function(chr) {
+  return escape[chr] || "&amp;";
+};
+
+Handlebars.Utils = {
+  extend: function(obj, value) {
+    for(var key in value) {
+      if(value.hasOwnProperty(key)) {
+        obj[key] = value[key];
+      }
+    }
+  },
+
+  escapeExpression: function(string) {
+    // don't escape SafeStrings, since they're already safe
+    if (string instanceof Handlebars.SafeString) {
+      return string.toString();
+    } else if (string == null || string === false) {
+      return "";
+    }
+
+    // Force a string conversion as this will be done by the append regardless and
+    // the regex test will do this transparently behind the scenes, causing issues if
+    // an object's to string has escaped characters in it.
+    string = string.toString();
+
+    if(!possible.test(string)) { return string; }
+    return string.replace(badChars, escapeChar);
+  },
+
+  isEmpty: function(value) {
+    if (!value && value !== 0) {
+      return true;
+    } else if(toString.call(value) === "[object Array]" && value.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+;
+// lib/handlebars/runtime.js
+
+Handlebars.VM = {
+  template: function(templateSpec) {
+    // Just add water
+    var container = {
+      escapeExpression: Handlebars.Utils.escapeExpression,
+      invokePartial: Handlebars.VM.invokePartial,
+      programs: [],
+      program: function(i, fn, data) {
+        var programWrapper = this.programs[i];
+        if(data) {
+          programWrapper = Handlebars.VM.program(i, fn, data);
+        } else if (!programWrapper) {
+          programWrapper = this.programs[i] = Handlebars.VM.program(i, fn);
+        }
+        return programWrapper;
+      },
+      merge: function(param, common) {
+        var ret = param || common;
+
+        if (param && common) {
+          ret = {};
+          Handlebars.Utils.extend(ret, common);
+          Handlebars.Utils.extend(ret, param);
+        }
+        return ret;
+      },
+      programWithDepth: Handlebars.VM.programWithDepth,
+      noop: Handlebars.VM.noop,
+      compilerInfo: null
+    };
+
+    return function(context, options) {
+      options = options || {};
+      var result = templateSpec.call(container, Handlebars, context, options.helpers, options.partials, options.data);
+
+      var compilerInfo = container.compilerInfo || [],
+          compilerRevision = compilerInfo[0] || 1,
+          currentRevision = Handlebars.COMPILER_REVISION;
+
+      if (compilerRevision !== currentRevision) {
+        if (compilerRevision < currentRevision) {
+          var runtimeVersions = Handlebars.REVISION_CHANGES[currentRevision],
+              compilerVersions = Handlebars.REVISION_CHANGES[compilerRevision];
+          throw "Template was precompiled with an older version of Handlebars than the current runtime. "+
+                "Please update your precompiler to a newer version ("+runtimeVersions+") or downgrade your runtime to an older version ("+compilerVersions+").";
+        } else {
+          // Use the embedded version info since the runtime doesn't know about this revision yet
+          throw "Template was precompiled with a newer version of Handlebars than the current runtime. "+
+                "Please update your runtime to a newer version ("+compilerInfo[1]+").";
+        }
+      }
+
+      return result;
+    };
+  },
+
+  programWithDepth: function(i, fn, data /*, $depth */) {
+    var args = Array.prototype.slice.call(arguments, 3);
+
+    var program = function(context, options) {
+      options = options || {};
+
+      return fn.apply(this, [context, options.data || data].concat(args));
+    };
+    program.program = i;
+    program.depth = args.length;
+    return program;
+  },
+  program: function(i, fn, data) {
+    var program = function(context, options) {
+      options = options || {};
+
+      return fn(context, options.data || data);
+    };
+    program.program = i;
+    program.depth = 0;
+    return program;
+  },
+  noop: function() { return ""; },
+  invokePartial: function(partial, name, context, helpers, partials, data) {
+    var options = { helpers: helpers, partials: partials, data: data };
+
+    if(partial === undefined) {
+      throw new Handlebars.Exception("The partial " + name + " could not be found");
+    } else if(partial instanceof Function) {
+      return partial(context, options);
+    } else if (!Handlebars.compile) {
+      throw new Handlebars.Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
+    } else {
+      partials[name] = Handlebars.compile(partial, {data: data !== undefined});
+      return partials[name](context, options);
+    }
+  }
+};
+
+Handlebars.template = Handlebars.VM.template;
+;
+// lib/handlebars/browser-suffix.js
+})(Handlebars);
+;
 //adapted version to use native parser if available
 
 //Changes from Mootools spec: excludeScripts defaults to to false because fuck you
@@ -11071,12 +11433,10 @@ Copyright (c) 2010 Arieh Glazer
 
 })(this);
 
-
 //Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
 (function(self) {
 
     // http://stackoverflow.com/a/7924240/17498
-
 
     function occurrences(string, substring) {
         var n = 0;
@@ -11097,7 +11457,6 @@ Copyright (c) 2010 Arieh Glazer
 
     // Quotes a URL if it isn't already quoted.
 
-
     function smart_urlquote(url) {
         // XXX: Not handling IDN.
         // 
@@ -11109,28 +11468,57 @@ Copyright (c) 2010 Arieh Glazer
             return url;
         }
     }
-    function htmlescape(html) {
-        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+    function getTrailing(text, punc) {
+        if (typeOf(punc) == "regexp") {
+            var match = text.match(punc);
+            if (match) {
+                return match[0];
+            }
+        } else {
+            if (text.endsWith(punc)) {
+                return punc;
+            }
+        }
     }
 
-
+    function getLeading(text, punc) {
+        if (typeOf(punc) == "regexp") {
+            var match = text.match(punc);
+            if (match) {
+                return match[0];
+            }
+        } else {
+            if (text.startsWith(punc)) {
+                return punc;
+            }
+        }
+    }
+    // function htmlescape(html) {
+    //     return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    // }
     self.Urlerizer = new Class({
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: true,
-            trim_url_limit: false, //length of a url before it is trimmed
+            autoescape: false,
+            trim_url_limit: false,
+            //length of a url before it is trimmed
             target: false
         },
 
-        trailing_punctuation: ['.', ',', ':', ';', '.)'],
+        leading_punctuation: [],
+        trailing_punctuation: [/[.,.)]$/],
         wrapping_punctuation: [
             ['(', ')'],
             ['<', '>'],
             ['&lt;', '&gt;'],
             ['“', '”'],
-            ['‘', '’']
+            ['‘', '’'],
+            ["'", "'"],
+            ['[', ']']
         ],
+
         word_split_re: /([\s<>"]+)/,
         simple_url_re: /^https?:\/\/\w/,
         simple_url_2_re: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
@@ -11140,9 +11528,11 @@ Copyright (c) 2010 Arieh Glazer
             this.setOptions(opts);
         },
 
+        htmlescape: Handlebars.Utils.escapeExpression,
+        //shut up i know it exists and its better than what was here before
         urlerize: function(text) {
             var self = this,
-                result = text.split(" "),
+                result = text.split(this.word_split_re),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.wholeWord || pat.pattern.test(text);
                 });
@@ -11151,13 +11541,13 @@ Copyright (c) 2010 Arieh Glazer
                 item = result[i];
 
                 funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                    if(pattern.pattern.test(item)) {
+                    if (pattern.pattern.test(item)) {
                         result[i] = pattern.parse.call(self, item);
                     }
                 });
             };
             self.patterns.each(function(pattern) {
-                if(pattern.wholeWord && pattern.pattern.test(result)) {
+                if (pattern.wholeWord && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
@@ -11174,99 +11564,104 @@ Copyright (c) 2010 Arieh Glazer
         parsePunctuation: function(text) {
             var lead = '',
                 mid = text,
-                end = '';
+                end = '',
+                check;
 
-            this.trailing_punctuation.each(function(punc) {
-                if($type(punc) == "string") {
-
-                } else {
-                    
+            function leader(punc) {
+                var lead = getLeading(mid, punc);
+                if (lead) {
+                    mid = mid.slice(lead.length);
+                    lead += lead;
                 }
-            });
+            }
 
+            function trailer(punc) {
+                var trail = getTrailing(mid, punc);
+                if (trail) {
+                    mid = mid.slice(0, mid.length - trail.length);
+                    end = trail + end;
+                }
+            }
+
+            function wrapper(puncs) {
+                var lead = getLeading(mid, puncs[0]),
+                    trail;
+                if (lead && (trail = getTrailing(mid, puncs[1]))) {
+                    mid = mid.slice(lead.length, mid.length - trail.length);
+                    lead += lead;
+                    end = trail + end;
+                    return true;
+                }
+            }
+
+            do {
+                check = this.leading_punctuation.some(leader);
+            }
+            while (check);
+
+            do {
+                check = this.trailing_punctuation.some(trailer);
+            }
+            while (check);
+
+            do {
+                check = this.wrapping_punctuation.some(wrapper);
+            }
+            while (check);
 
             return {
                 lead: lead,
                 mid: mid,
                 end: end
-            }
+            };
         },
 
         patterns: [{
-            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
+            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
+            //i think this should pass tests on all valid urls... will also pick up things like test.test
             wholeWord: false,
-            parse: function (text) {
+            parse: function(text) {
                 var options = this.options;
-                var safe_input = false;
-                var words = text.split(this.word_split_re);
-                for (var i = 0; i < words.length; i++) {
-                    var word = words[i];
-                    var match = undefined;
-                    if (word.contains('.') || word.contains('@') || word.contains(':')) {
-                        // Deal with punctuation.
-                        var lead = '';
-                        var middle = word;
-                        var trail = '';
-                        for (var j = 0; j < this.trailing_punctuation.length; j++) {
-                            var punctuation = this.trailing_punctuation[j];
-                            if (middle.endsWith(punctuation)) {
-                                middle = middle.substr(0, middle.length - punctuation.length);
-                                trail = punctuation + trail;
-                            }
-                        }
-                        for (var j = 0; j < this.wrapping_punctuation.length; j++) {
-                            var opening = this.wrapping_punctuation[j][0];
-                            var closing = this.wrapping_punctuation[j][1];
-                            if (middle.startsWith(opening)) {
-                                middle = middle.substr(opening.length);
-                                lead = lead + opening;
-                            }
-                            // Keep parentheses at the end only if they're balanced.
-                            if (middle.endsWith(closing) && occurrences(middle, closing) == occurrences(middle, opening) + 1) {
-                                middle = middle.substr(0, middle.length - closing.length);
-                                trail = closing + trail;
-                            }
-                        }
+                var word = text;
+                if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                    // Deal with punctuation.
+                    var parsed = this.parsePunctuation(word);
+                    var middle = parsed.mid;
 
-                        // Make URL we want to point to.
-                        var url = undefined;
-                        var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
-                        var target_attr = options.target ? ' target="' + options.target + '"' : '';
+                    // Make URL we want to point to.
+                    var url = undefined;
+                    var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
+                    var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                        if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
-                        else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                        else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
-                            // XXX: Not handling IDN.
-                            url = 'mailto:' + middle;
-                            nofollow_attr = '';
-                        }
-
-                        // Make link.
-                        if (url) {
-                            var trimmed = this.trimURL(middle);
-                            if (options.autoescape) {
-                                // XXX: Assuming autoscape == false
-                                lead = htmlescape(lead);
-                                trail = htmlescape(trail);
-                                url = htmlescape(url);
-                                trimmed = htmlescape(trimmed);
-                            }
-                            middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
-                            words[i] = lead + middle + trail;
-                        } else {
-                            if (safe_input) {
-                                // Do nothing, as we have no mark_safe.
-                            } else if (options.autoescape) {
-                                words[i] = htmlescape(word);
-                            }
-                        }
-                    } else if (safe_input) {
-                        // Do nothing, as we have no mark_safe.
-                    } else if (options.autoescape) {
-                        words[i] = htmlescape(word);
+                    if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                    else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                    else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
+                        // XXX: Not handling IDN.
+                        url = 'mailto:' + middle;
+                        nofollow_attr = '';
                     }
+
+                    // Make link.
+                    if (url) {
+                        var trimmed = this.trimURL(middle);
+                        if (options.autoescape) {
+                            // XXX: Assuming autoscape == false
+                            parsed.lead = this.htmlescape(parsed.lead);
+                            parsed.end = this.htmlescape(parsed.end);
+                            url = this.htmlescape(url);
+                            trimmed = this.htmlescape(trimmed);
+                        }
+                        middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
+                        word = parsed.lead + middle + parsed.end;
+                    } else {
+                        if (options.autoescape) {
+                            word = this.htmlescape(word);
+                        }
+                    }
+                } else if (options.autoescape) {
+                    word = this.htmlescape(word);
                 }
-                return words.join('');
+                return word;
             }
         }],
 
@@ -11889,368 +12284,6 @@ Fx.AutoScroll = new Class({
         // }
     };
 })(this);
-/*
-
-Copyright (C) 2011 by Yehuda Katz
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-// lib/handlebars/browser-prefix.js
-var Handlebars = {};
-
-(function(Handlebars, undefined) {
-;
-// lib/handlebars/base.js
-
-Handlebars.VERSION = "1.0.0";
-Handlebars.COMPILER_REVISION = 4;
-
-Handlebars.REVISION_CHANGES = {
-  1: '<= 1.0.rc.2', // 1.0.rc.2 is actually rev2 but doesn't report it
-  2: '== 1.0.0-rc.3',
-  3: '== 1.0.0-rc.4',
-  4: '>= 1.0.0'
-};
-
-Handlebars.helpers  = {};
-Handlebars.partials = {};
-
-var toString = Object.prototype.toString,
-    functionType = '[object Function]',
-    objectType = '[object Object]';
-
-Handlebars.registerHelper = function(name, fn, inverse) {
-  if (toString.call(name) === objectType) {
-    if (inverse || fn) { throw new Handlebars.Exception('Arg not supported with multiple helpers'); }
-    Handlebars.Utils.extend(this.helpers, name);
-  } else {
-    if (inverse) { fn.not = inverse; }
-    this.helpers[name] = fn;
-  }
-};
-
-Handlebars.registerPartial = function(name, str) {
-  if (toString.call(name) === objectType) {
-    Handlebars.Utils.extend(this.partials,  name);
-  } else {
-    this.partials[name] = str;
-  }
-};
-
-Handlebars.registerHelper('helperMissing', function(arg) {
-  if(arguments.length === 2) {
-    return undefined;
-  } else {
-    throw new Error("Missing helper: '" + arg + "'");
-  }
-});
-
-Handlebars.registerHelper('blockHelperMissing', function(context, options) {
-  var inverse = options.inverse || function() {}, fn = options.fn;
-
-  var type = toString.call(context);
-
-  if(type === functionType) { context = context.call(this); }
-
-  if(context === true) {
-    return fn(this);
-  } else if(context === false || context == null) {
-    return inverse(this);
-  } else if(type === "[object Array]") {
-    if(context.length > 0) {
-      return Handlebars.helpers.each(context, options);
-    } else {
-      return inverse(this);
-    }
-  } else {
-    return fn(context);
-  }
-});
-
-Handlebars.K = function() {};
-
-Handlebars.createFrame = Object.create || function(object) {
-  Handlebars.K.prototype = object;
-  var obj = new Handlebars.K();
-  Handlebars.K.prototype = null;
-  return obj;
-};
-
-Handlebars.logger = {
-  DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, level: 3,
-
-  methodMap: {0: 'debug', 1: 'info', 2: 'warn', 3: 'error'},
-
-  // can be overridden in the host environment
-  log: function(level, obj) {
-    if (Handlebars.logger.level <= level) {
-      var method = Handlebars.logger.methodMap[level];
-      if (typeof console !== 'undefined' && console[method]) {
-        console[method].call(console, obj);
-      }
-    }
-  }
-};
-
-Handlebars.log = function(level, obj) { Handlebars.logger.log(level, obj); };
-
-Handlebars.registerHelper('each', function(context, options) {
-  var fn = options.fn, inverse = options.inverse;
-  var i = 0, ret = "", data;
-
-  var type = toString.call(context);
-  if(type === functionType) { context = context.call(this); }
-
-  if (options.data) {
-    data = Handlebars.createFrame(options.data);
-  }
-
-  if(context && typeof context === 'object') {
-    if(context instanceof Array){
-      for(var j = context.length; i<j; i++) {
-        if (data) { data.index = i; }
-        ret = ret + fn(context[i], { data: data });
-      }
-    } else {
-      for(var key in context) {
-        if(context.hasOwnProperty(key)) {
-          if(data) { data.key = key; }
-          ret = ret + fn(context[key], {data: data});
-          i++;
-        }
-      }
-    }
-  }
-
-  if(i === 0){
-    ret = inverse(this);
-  }
-
-  return ret;
-});
-
-Handlebars.registerHelper('if', function(conditional, options) {
-  var type = toString.call(conditional);
-  if(type === functionType) { conditional = conditional.call(this); }
-
-  if(!conditional || Handlebars.Utils.isEmpty(conditional)) {
-    return options.inverse(this);
-  } else {
-    return options.fn(this);
-  }
-});
-
-Handlebars.registerHelper('unless', function(conditional, options) {
-  return Handlebars.helpers['if'].call(this, conditional, {fn: options.inverse, inverse: options.fn});
-});
-
-Handlebars.registerHelper('with', function(context, options) {
-  var type = toString.call(context);
-  if(type === functionType) { context = context.call(this); }
-
-  if (!Handlebars.Utils.isEmpty(context)) return options.fn(context);
-});
-
-Handlebars.registerHelper('log', function(context, options) {
-  var level = options.data && options.data.level != null ? parseInt(options.data.level, 10) : 1;
-  Handlebars.log(level, context);
-});
-;
-// lib/handlebars/utils.js
-
-var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
-
-Handlebars.Exception = function(message) {
-  var tmp = Error.prototype.constructor.apply(this, arguments);
-
-  // Unfortunately errors are not enumerable in Chrome (at least), so `for prop in tmp` doesn't work.
-  for (var idx = 0; idx < errorProps.length; idx++) {
-    this[errorProps[idx]] = tmp[errorProps[idx]];
-  }
-};
-Handlebars.Exception.prototype = new Error();
-
-// Build out our basic SafeString type
-Handlebars.SafeString = function(string) {
-  this.string = string;
-};
-Handlebars.SafeString.prototype.toString = function() {
-  return this.string.toString();
-};
-
-var escape = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#x27;",
-  "`": "&#x60;"
-};
-
-var badChars = /[&<>"'`]/g;
-var possible = /[&<>"'`]/;
-
-var escapeChar = function(chr) {
-  return escape[chr] || "&amp;";
-};
-
-Handlebars.Utils = {
-  extend: function(obj, value) {
-    for(var key in value) {
-      if(value.hasOwnProperty(key)) {
-        obj[key] = value[key];
-      }
-    }
-  },
-
-  escapeExpression: function(string) {
-    // don't escape SafeStrings, since they're already safe
-    if (string instanceof Handlebars.SafeString) {
-      return string.toString();
-    } else if (string == null || string === false) {
-      return "";
-    }
-
-    // Force a string conversion as this will be done by the append regardless and
-    // the regex test will do this transparently behind the scenes, causing issues if
-    // an object's to string has escaped characters in it.
-    string = string.toString();
-
-    if(!possible.test(string)) { return string; }
-    return string.replace(badChars, escapeChar);
-  },
-
-  isEmpty: function(value) {
-    if (!value && value !== 0) {
-      return true;
-    } else if(toString.call(value) === "[object Array]" && value.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-};
-;
-// lib/handlebars/runtime.js
-
-Handlebars.VM = {
-  template: function(templateSpec) {
-    // Just add water
-    var container = {
-      escapeExpression: Handlebars.Utils.escapeExpression,
-      invokePartial: Handlebars.VM.invokePartial,
-      programs: [],
-      program: function(i, fn, data) {
-        var programWrapper = this.programs[i];
-        if(data) {
-          programWrapper = Handlebars.VM.program(i, fn, data);
-        } else if (!programWrapper) {
-          programWrapper = this.programs[i] = Handlebars.VM.program(i, fn);
-        }
-        return programWrapper;
-      },
-      merge: function(param, common) {
-        var ret = param || common;
-
-        if (param && common) {
-          ret = {};
-          Handlebars.Utils.extend(ret, common);
-          Handlebars.Utils.extend(ret, param);
-        }
-        return ret;
-      },
-      programWithDepth: Handlebars.VM.programWithDepth,
-      noop: Handlebars.VM.noop,
-      compilerInfo: null
-    };
-
-    return function(context, options) {
-      options = options || {};
-      var result = templateSpec.call(container, Handlebars, context, options.helpers, options.partials, options.data);
-
-      var compilerInfo = container.compilerInfo || [],
-          compilerRevision = compilerInfo[0] || 1,
-          currentRevision = Handlebars.COMPILER_REVISION;
-
-      if (compilerRevision !== currentRevision) {
-        if (compilerRevision < currentRevision) {
-          var runtimeVersions = Handlebars.REVISION_CHANGES[currentRevision],
-              compilerVersions = Handlebars.REVISION_CHANGES[compilerRevision];
-          throw "Template was precompiled with an older version of Handlebars than the current runtime. "+
-                "Please update your precompiler to a newer version ("+runtimeVersions+") or downgrade your runtime to an older version ("+compilerVersions+").";
-        } else {
-          // Use the embedded version info since the runtime doesn't know about this revision yet
-          throw "Template was precompiled with a newer version of Handlebars than the current runtime. "+
-                "Please update your runtime to a newer version ("+compilerInfo[1]+").";
-        }
-      }
-
-      return result;
-    };
-  },
-
-  programWithDepth: function(i, fn, data /*, $depth */) {
-    var args = Array.prototype.slice.call(arguments, 3);
-
-    var program = function(context, options) {
-      options = options || {};
-
-      return fn.apply(this, [context, options.data || data].concat(args));
-    };
-    program.program = i;
-    program.depth = args.length;
-    return program;
-  },
-  program: function(i, fn, data) {
-    var program = function(context, options) {
-      options = options || {};
-
-      return fn(context, options.data || data);
-    };
-    program.program = i;
-    program.depth = 0;
-    return program;
-  },
-  noop: function() { return ""; },
-  invokePartial: function(partial, name, context, helpers, partials, data) {
-    var options = { helpers: helpers, partials: partials, data: data };
-
-    if(partial === undefined) {
-      throw new Handlebars.Exception("The partial " + name + " could not be found");
-    } else if(partial instanceof Function) {
-      return partial(context, options);
-    } else if (!Handlebars.compile) {
-      throw new Handlebars.Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
-    } else {
-      partials[name] = Handlebars.compile(partial, {data: data !== undefined});
-      return partials[name](context, options);
-    }
-  }
-};
-
-Handlebars.template = Handlebars.VM.template;
-;
-// lib/handlebars/browser-suffix.js
-})(Handlebars);
-;
 //replacement for highlight recent
 (function (window, $$) {
     "use strict";
@@ -12317,264 +12350,273 @@ Handlebars.template = Handlebars.VM.template;
 
 })(this, this.$$);
 
+(function() {
 
-(function(){
-
-Array.implement({
+    Array.implement({
 /*
         Function: Array.first
           Returns the first item.
         */
-    // first: function() {
-    //     return this[0];
-    // },
-
-    // last: function() {
-    //     return this[this.length - 1];
-    // },
+        // first: function() {
+        //     return this[0];
+        // },
+        // last: function() {
+        //     return this[this.length - 1];
+        // },
 /*
         Returns the item at index n
         */
-    item: function(n) {
-        return this[n];
-    },
+        item: function(n) {
+            return this[n];
+        },
 
-    //returns next item in array with overflow
-    next: function(pos, dir) {
-        var index = pos + (dir || 1);
-        if(index >= this.length) {
-            index %= this.length;
+        //returns next item in array with overflow
+        next: function(pos, dir) {
+            var index = pos + (dir || 1);
+            if (index >= this.length) {
+                index %= this.length;
+            }
+            if (index < 0) {
+                index = this.length + (index % this.length);
+            }
+            return this[index];
         }
-        if(index < 0) {
-            index = this.length + (index % this.length);
+
+        // rest: function(n) {
+        //     return this.slice(n || 1 /*, this.length*/ );
+        // }
+    }).extend({
+        isArray: function(xs) {
+            return typeOf(xs) == "array";
         }
-        return this[index];
-    }
-
-    // rest: function(n) {
-    //     return this.slice(n || 1 /*, this.length*/ );
-    // }
-})
-.extend({
-    isArray: function(xs) {
-        return $type(xs) == "array";
-    }
-});
-
-String.implement({
-
-    //replaces all occurences of the tofind string in this string with
-    //torep
-    //torep may be another string or a callback which takes a single string
-    //http://jsperf.com/replaceall-escape
-    replaceAll: function(tofind, torep) { //gross
-        var ns = this;
-        while (ns.indexOf(tofind) > -1) {
-            ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
-        }
-        return ns;
-    },
-
-    //splits string into array of with a max length of max
-    // useful for seperating names from messages
-    // "test!willsplit!into!1".splitMax('!', 1) => ["test!willsplit!into!1"]
-    // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
-    // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
-    //http://jsperf.com/string-splitmax-implementations
-    splitMax: function(by, max) { //wtf
-        var items = this.split(by),
-            len = max - 1,
-            newitems = items.slice(0, len);
-        if (items.length >= max) {
-            newitems.push(items.slice(len).join(by));
-        }
-        return newitems;
-    },
-
-    // var items = this.split(by);
-    // var newitems = items.slice(0, max - 1);
-    // if (items.length >= max) {
-    //     newitems.push(items.slice(max - 1).join(by));
-    // }
-    startsWith: function(what) {
-        return this.slice(0, what.length) == what;
-    },
-
-    endsWith: function(what) {
-        return this.slice(this.length - what.length) == what;
-    }
-});
-
-
-Object.extend({
-
-    isEmpty: function(hash) {
-        return Object.getLength(hash) === 0;
-    },
-    //same as Object.map but maps to an array
-    mapA: function (object, fn, bind){
-        var results = [];
-        for (var key in object){
-            if (hasOwnProperty.call(object, key))
-                results.push(fn.call(bind, object[key], key, object));
-        }
-        return results;
-    }
-});
-
-
-var adopt = Element.prototype.adopt,
-    inject = Element.prototype.inject;
-
-
-["html", "text"].each(function(fn) {
-    Element.implement(fn, function(data) {
-        if(data)
-            return this.set(fn, data);
-        return this.get(fn);
     });
-});
 
-Element.implement({
+    String.implement({
 
-    adopt: function() {
-        //just mootools adopt method which fires an event when called
-        return adopt.apply(this, arguments)
-            .fireEvent("adopt", arguments);
-    },
+        //replaces all occurences of the tofind string in this string with
+        //torep
+        //torep may be another string or a callback which takes a single string
+        //http://jsperf.com/replaceall-escape
+        replaceAll: function(tofind, torep) { //gross
+            var ns = this;
+            while (ns.indexOf(tofind) > -1) {
+                ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
+            }
+            return ns;
+        },
 
-    //removes all elements in arguments from array if found - opposite of adopt
-    disown: function() {
-        Array.each(arguments, function(element){
-            element = document.id(element, true);
-            if (element) element.dispose();
+        //splits string into array of with a max length of max
+        // useful for seperating names from messages
+        // "test!willsplit!into!1".splitMax('!', 1) => ["test!willsplit!into!1"]
+        // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
+        // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
+        //http://jsperf.com/string-splitmax-implementations
+        splitMax: function(by, max) { //wtf
+            var items = this.split(by),
+                len = max - 1,
+                newitems = items.slice(0, len);
+            if (items.length >= max) {
+                newitems.push(items.slice(len).join(by));
+            }
+            return newitems;
+        },
+
+        // var items = this.split(by);
+        // var newitems = items.slice(0, max - 1);
+        // if (items.length >= max) {
+        //     newitems.push(items.slice(max - 1).join(by));
+        // }
+        startsWith: function(what) {
+            return this.slice(0, what.length) == what;
+        },
+
+        endsWith: function(what) {
+            return this.slice(this.length - what.length) == what;
+        }
+    });
+
+
+    Object.extend({
+
+        isEmpty: function(hash) {
+            return Object.getLength(hash) === 0;
+        },
+        //same as Object.map but maps to an array
+        mapA: function(object, fn, bind) {
+            var results = [];
+            for (var key in object) {
+                if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
+            }
+            return results;
+        }
+    });
+
+
+    var adopt = Element.prototype.adopt,
+        inject = Element.prototype.inject;
+
+
+    ["html", "text"].each(function(fn) {
+        Element.implement(fn, function(data) {
+            if (data) return this.set(fn, data);
+            return this.get(fn);
         });
-        this.fireEvent("disown", arguments);
-        return this;
-    },
+    });
 
-    inject: function(el) {
-        var ret = inject.apply(this, arguments);
-        el.fireEvent('adopt', arguments);
-        return ret;
-    },
+    Element.implement({
 
-    maxChildren: function(n) {
-        for(var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
-            ele.destroy();
+        adopt: function() {
+            //just mootools adopt method which fires an event when called
+            return adopt.apply(this, arguments).fireEvent("adopt", arguments);
+        },
+
+        //removes all elements in arguments from array if found - opposite of adopt
+        disown: function() {
+            Array.each(arguments, function(element) {
+                element = document.id(element, true);
+                if (element) element.dispose();
+            });
+            this.fireEvent("disown", arguments);
+            return this;
+        },
+
+        inject: function(el) {
+            var ret = inject.apply(this, arguments);
+            el.fireEvent('adopt', arguments);
+            return ret;
+        },
+
+        maxChildren: function(n) {
+            for (var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
+                ele.destroy();
+            }
+            return this;
+        },
+
+        val: function(val) {
+            var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
+
+            if (val != null) {
+                return this.set(key, val);
+            }
+            return this.get(key);
+        },
+
+        insertAt: function(element, position) {
+            //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
+            return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
+        },
+
+        isDisplayed: function() {
+            return !this.hasClass('hidden');
+        },
+
+        // normal mootool version uses display property - this way helps with selectors
+        show: function() {
+            return this.removeClass('hidden');
+        },
+
+        hide: function() {
+            return this.addClass('hidden');
+        },
+
+        toggle: function(state) {
+            if (state == null) state = !this.isDisplayed();
+            return this[state ? 'show' : 'hide']();
+        },
+
+        swapParent: function(parent) {
+            this.dispose();
+            return parent.adopt(this);
+        },
+
+        addClasses: function() {
+            Array.each(arguments, this.addClass, this);
+            return this;
+        },
+
+        removeClasses: function() {
+            Array.each(arguments, this.removeClass, this);
+            return this;
+        },
+
+        hasClasses: function() {
+            Array.every(arguments, this.hasClass, this);
         }
-        return this;
-    },
 
-    val: function(val) {
-        var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
+    });
 
-        if(val) {
-            return set(key, val);
-        }
-        return this.get(key);
-    },
+    //By Eli Grey, https://gist.github.com/eligrey/1276030
+    if (this.document && !("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
+        HTMLElement.implement("insertAdjacentHTML", function(position, html) {
+            var ref = this,
+                container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
+                ref_parent = ref.parentNode,
+                node, first_child, next_sibling;
 
-    insertAt: function(element, position) {
-        //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
-        return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
-    },
+            container.innerHTML = html;
 
-    isDisplayed: function(){
-        return !this.hasClass('hidden');
-    },
-
-    // normal mootool version uses display property - this way helps with selectors
-    show: function() {
-        return this.removeClass('hidden');
-    },
-
-    hide: function() {
-        return this.addClass('hidden');
-    },
-
-    toggle: function (state){
-        if(!$defined(state))
-            state = !this.isDisplayed();
-        return this[state ? 'show': 'hide']();
-    },
-
-    swapParent: function(parent) {
-        this.dispose();
-        return parent.adopt(this);
-    },
-
-    addClasses: function() {
-        Array.each(arguments, this.addClass, this);
-        return this;
-    },
-
-    removeClasses: function() {
-        Array.each(arguments, this.removeClass, this);
-        return this;
-    },
-
-    hasClasses: function() {
-        Array.every(arguments, this.hasClass, this);
+            switch (position.toLowerCase()) {
+            case "beforebegin":
+                while ((node = container.firstChild)) {
+                    ref_parent.insertBefore(node, ref);
+                }
+                break;
+            case "afterbegin":
+                first_child = ref.firstChild;
+                while ((node = container.lastChild)) {
+                    first_child = ref.insertBefore(node, first_child);
+                }
+                break;
+            case "beforeend":
+                while ((node = container.firstChild)) {
+                    ref.appendChild(node);
+                }
+                break;
+            case "afterend":
+                next_sibling = ref.nextSibling;
+                while ((node = container.lastChild)) {
+                    next_sibling = ref_parent.insertBefore(node, next_sibling);
+                }
+                break;
+            }
+        });
     }
 
-    // https://gist.github.com/eligrey/1276030
-    // insertAdjacentHTML: function(position, html) {
-    //     var self = this,
-    //         el = Elements.from(html);
-    //     switch (position.toLowerCase()) {
-    //         case "beforebegin":
-    //             el.inject(self, 'before');
-    //             break;
-    //         case "afterbegin":
-    //             el.inject(self, 'top');
-    //             break;
-    //         case "beforeend":
-    //             el.inject(self, 'bottom');
-    //             break;
-    //         case "afterend":
-    //             el.inject(self, 'after');
-    //             break;
-    //     }
-    // }
+    this.$type = function(object) {
+        var type = typeOf(object);
+        if (type == 'elements') return 'array';
+        return (type == 'null') ? false : type;
+    };
 
+    this.$lambda = Function.from;
 
-});
+    this.$chk = function(obj) {
+        return !!(obj || obj === 0);
+    };
 
-this.$type = function(object){
-    var type = typeOf(object);
-    if (type == 'elements') return 'array';
-    return (type == 'null') ? false : type;
-};
+    this.$clear = function(timer) {
+        clearTimeout(timer);
+        clearInterval(timer);
+        return null;
+    };
 
-this.$lambda = Function.from;
+    this.$defined = function(obj) {
+        return (obj != null);
+    };
 
-this.$chk = function(obj){
-    return !!(obj || obj === 0);
-};
+    this.$each = function(iterable, fn, bind) {
+        var type = typeOf(iterable);
+        ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+    };
 
-this.$clear = function(timer){
-    clearTimeout(timer);
-    clearInterval(timer);
-    return null;
-};
+    this.$empty = function() {};
 
-this.$defined = function(obj){
-    return (obj != null);
-};
+    this.$extend = function(original, extended) {
+        return Object.append(original, extended);
+    };
 
-this.$each = function(iterable, fn, bind){
-    var type = typeOf(iterable);
-    ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-};
-
-this.$empty = function(){};
-
-this.$extend = function(original, extended){
-    return Object.append(original, extended);
-};
-
-this.$A = Array.from;
+    this.$A = Array.from;
 
 })();
 // /*
@@ -12901,7 +12943,10 @@ MGFX.Rotater = new Class({
 	},
 	
 	createFx: function(){
-		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {duration: this.options.transitionDuration, link: 'cancel'});
+		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {
+			duration: this.options.transitionDuration,
+			link: 'cancel'
+		});
 		this.slides.setStyle('opacity', 0);
 	}.protect(),
 	
@@ -12961,12 +13006,14 @@ MGFX.Rotater = new Class({
 		this.slides.each(function(slide, index){
 			if(index == slideIndex && index != curSlide){ //show
 				action[index.toString()] = {
-					opacity: 1
+					opacity: 1,
+					'z-index': 1
 				};
 				slide.getParent().setStyle('height', slide.getHeight());
 			} else {
 				action[index.toString()] = {
-					opacity:0
+					opacity: 0,
+					'z-index': -1
 				};
 			}
 		});
@@ -14745,7 +14792,7 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<form id='login'>\r\n<h2>Connect to ";
+  buffer += "<div class=\"container center\">\r\n<form id='login'>\r\n<h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -14770,11 +14817,11 @@ function program1(depth0,data) {
     + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-small\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "</span></div>";
+    + "</span></div>\r\n</div>";
   return buffer;
   });
 
@@ -14804,7 +14851,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function";
 
 
-  buffer += "<div id='channel-name-id' class='channel-name'>";
+  buffer += "<div class='channel-name'>";
   if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
@@ -15025,7 +15072,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 this["Handlebars"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
   buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<div class=\"\">\r\n<ul class=\"option-tabs nav nav-tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options disabled\"><a href=\"#\">Notifications(TODO)</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n</div>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
@@ -15073,6 +15120,12 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"query_on_nick_click\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.query_on_nick_click, options) : helperMissing.call(depth0, "check", depth0.query_on_nick_click, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"font_size\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FONT_SIZE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"number\" id=\"font_size\" value=";
+  if (stack2 = helpers.font_size) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.font_size; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
     + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label for=\"style_hue\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.STYLE_HUE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<div id=\"style_hue\" class=\"slider hue-slider\"><div class=\"knob\"></div></div>\r\n</label>\r\n\r\n</div>\r\n</div>\r\n<div class=\"irc-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"use_hiddenhost\">\r\n"
@@ -15182,6 +15235,25 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "&gt;</span>";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this;
+
+
+  buffer += "<div class=\"window qui ircwindow channel hidden\">\r\n\r\n";
+  stack1 = self.invokePartial(partials.topicBar, 'topicBar', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n\r\n<div class=\"qui content\">\r\n<div class=\"qui leftpanel lines\">\r\n<div class=\"ui-icon ui-icon-grip-solid-vertical handle vertical\"></div>\r\n<div class=\"qui rightpanel nicklist\"></div>\r\n</div>\r\n\r\n<div class=\"qui properties\">\r\n";
+  stack1 = self.invokePartial(partials.channelName, 'channelName', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n\r\n<div class=\"qui bottompanel\">\r\n";
+  stack1 = self.invokePartial(partials.ircInput, 'ircInput', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n\r\n</div>";
   return buffer;
   });
 /*Copyright (c) 2008-2009 the qwebirc project.
@@ -15601,7 +15673,8 @@ irc.colours = [//http://www.mirc.com/colors.html
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
-        SHOW_TIMESTAMPS: "Show timestamps"
+        SHOW_TIMESTAMPS: "Show timestamps",
+        FONT_SIZE: "Set font size"
     };
 
 
@@ -16559,12 +16632,15 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-// urlifier.
+urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
+urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
 
 urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs "qwebirc://whois/envision-#tf2mix/"
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
-                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                var parsed = this.parsePunctuation(word),
+                    mid = parsed.mid,
+                    res = mid.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
                 if(res) {
                     res = res[0].slice(10);//remove qwebirc://
@@ -16579,7 +16655,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                         console.log("called yo");
                         console.log(res);
                     }
-                    word = res;
+                    word = parsed.lead + res + parsed.end;
                 }
             }
             return word;
@@ -16587,13 +16663,14 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
         })
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
-            var res = word;
+            var parsed = this.parsePunctuation(word),
+                res = parsed.mid;
 
-            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                res = templates.channellink({channel:util.formatChannel(word)});
+            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(res)});
             }
 
-            return res;
+            return parsed.lead + res + parsed.end;
         })
         .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
             console.log("todo");
@@ -20028,35 +20105,40 @@ ui.BaseUI = new Class({
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
-        this.parent(parentElement, windowClass, uiName, options);
+        var self = this;
+        self.parent(parentElement, windowClass, uiName, options);
 
-        this.tabCompleter = new ui.TabCompleterFactory(this);
-        // this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
-        this.uiOptions2 = new config.OptionModel({
+        self.tabCompleter = new ui.TabCompleterFactory(self);
+        // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
+        self.uiOptions2 = new config.OptionModel({
             defaults: options.uiOptionsArg
         });
-        this.uiOptions2.on("change:style_hue", function(hue) {
-            this.setModifiableStylesheetValues({
-                hue: hue
-            });
-        }.bind(this));
+
+        self.uiOptions2.on({
+            "change:style_hue": function(hue) {
+                self.setModifiableStylesheetValues({
+                    hue: hue
+                })
+            },
+            "change:font_size": self.setModifiableStylesheetValues
+        });
 
 
 
-        this.customWindows = {};
+        self.customWindows = {};
 
-        this.__styleValues = {
-            hue: this.options.hue || this.uiOptions2.get("style_hue"),
-            saturation: this.options.saturation || this.uiOptions2.get("style_saturation"),
-            lightness: this.options.lightness || this.uiOptions2.get("style_brightness")
+        self.__styleValues = {
+            hue: self.options.hue || self.uiOptions2.get("style_hue"),
+            saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
+            lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
         };
 
         var ev = Browser.Engine.trident ? "keydown" : "keypress";
-        document.addEvent(ev, this.__handleHotkey);
+        document.addEvent(ev, self.__handleHotkey);
     },
     __handleHotkey: function(x) {
         if (!x.alt || x.control) {
@@ -20236,12 +20318,10 @@ ui.StandardUI = new Class({
     },
     setModifiableStylesheet: function(name) {
         this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues({});
+        this.setModifiableStylesheetValues();
     },
-    setModifiableStylesheetValues: function(values) {
-        // for (var k in values)
-        //     this.__styleValues[k] = values[k];
-        $extend(this.__styleValues, values);
+    setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
+        Object.append(this.__styleValues, values);
 
         if (!$defined(this.__styleSheet))
             return;
@@ -20251,17 +20331,19 @@ ui.StandardUI = new Class({
             saturation = this.__styleValues.saturation,
             uiOptions = this.uiOptions2;
 
-        this.__styleSheet.set(function(mode, col) {
+        this.__styleSheet.set(function(mode, val, _default) {
             if (mode == "c") {
-                var x = new Color(col);
+                var x = new Color(val);
                 var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
                 if (c == "255,255,255") // IE confuses white with transparent... 
                 c = "255,255,254";
 
                 return "rgb(" + c + ")";
-            } else if (mode == "o") {
-                return uiOptions.get([arguments[1]] ? arguments[2] : arguments[3]);
             }
+            else if (mode == "o") {
+                return uiOptions.get(val);
+            }
+            return _default;
         });
     }
 });
@@ -20452,9 +20534,6 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
 
-    var content = new Element('div').inject(parentElement),
-        recenter = content.position.bind(content);
-
     var nickname = cookies.nick.get() || initialNickname,
         account = util.B64.decode(cookies.user.get()),
         password = util.B64.decode(cookies.pass.get()),
@@ -20468,13 +20547,14 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
     };
-    content.html(templates.authpage(context));
+    var page = templates.authpage(context);
+    parentElement.insertAdjacentHTML("beforeEnd", page);
 
-    var nickBox = content.getElementById('nickname'),
-        usernameBox = content.getElementById('username'),
-        passwordBox = content.getElementById('password'),
-        chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login');
+    var form = parentElement.getElementById('login'),
+        nickBox = parentElement.getElementById('nickname'),
+        usernameBox = parentElement.getElementById('username'),
+        passwordBox = parentElement.getElementById('password'),
+        chkAddAuth = parentElement.getElementById('authenticate');
 
 
     function toggleFull () {
@@ -20550,12 +20630,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         auth.loggedin = true;
 
-        window.removeEvent('resize', recenter);
-        parentElement.retrieve('window').removeEvents({
-            'attach': recenter,
-            'detach': recenter
-        });
-
         callback(data);
     }.bind(this));
 
@@ -20564,18 +20638,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
     if (window === window.top)
         nickBox.focus();
-
-
-    //center everything... 
-    recenter();
-    window.addEvent('resize', recenter);
-    parentElement.retrieve('window').addEvents({
-        'attach': recenter,
-        'detach': recenter
-    });
-
-
-    window.content = content;
 };
 
 
@@ -21215,7 +21277,6 @@ ui.Theme = new Class({
 
 
         var themed = type ? self.message(type, data, highlight) : data;
-        
         var result = self.colourise(themed);
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
@@ -21229,7 +21290,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line))
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -21267,7 +21328,7 @@ ui.Theme = new Class({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
-                })
+                });
 
 
                 result = result.replace("\x03" + str, html);
@@ -21278,21 +21339,20 @@ ui.Theme = new Class({
         irc.styles.each(function(style) {
             parseArr = result.split(style.key);
 
-            if(parseArr.length % 2 != 0) {
+            if(parseArr.length % 2 != 1) {
                 console.log(parseArr);
             }
 
             //seems cleaner than filtering by index and then doing an each i think
-            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
-                html = templates.ircstyle({
+            for (var i = 1, styled; i < parseArr.length; i+=2) {
+                styled = parseArr[i];
+                var html = templates.ircstyle({
                     'style': style.style,
                     'text': styled[0]
                 });
                 result.replace(style.key + styled[0] + style.key, html);
-            }
+            };
         });
-
-        console.log(result);
 
         return result;
     },
@@ -22237,14 +22297,15 @@ config.OptionModel = new Class({
             "accept_service_invites": true,
             "use_hiddenhost": true,
             "lastpos_line": true,
-            "nick_colours": true,
+            "nick_colours": false,
             "hide_joinparts": true,
             "style_hue": 210,
             "style_saturation": 0,
             "style_brightness": 0,
             "query_on_nick_click": true,
             "show_nicklist": true,
-            "show_timestamps": true
+            "show_timestamps": true,
+            "font_size": 12
         },
         key: "qweboptions",
         minimize: true
@@ -22265,13 +22326,15 @@ ui.OptionView = new Class({
             'change:relay(#options input)': 'inputChange'
         },
 
-        onReady: render,
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
             if($defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
-        }
+        },
+
+        onReady: render
+        
     },
 
     render: function() {
@@ -22356,9 +22419,9 @@ util.parseStylesheet = function(data) {
     };
 };
 
-util.getSyncAsset = function(url) {
+util.getSyncAsset = function(url) {//todo async it
     var req = new Request({
-        'url': url,//'http://atf2.org/css/qui-bbc577ad5cb78d946ac1.mcss',
+        'url': url,
         'async': false
     });
     req.headers = {};
@@ -22728,6 +22791,7 @@ ui.QUI.Window = new Class({
                         !$ele.hasClass('our');//from us
                 },
                 selector: '.message:not(.bot):not(.command):not(.our)',
+                highlightClasses: ['highlight', 'highlight2'],
                 maxHighlight: NaN
             });
 
@@ -22771,7 +22835,6 @@ ui.QUI.Window = new Class({
 
 
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
-        // self.reflow();
     },
 
     close: function(e) {
@@ -22797,9 +22860,6 @@ ui.QUI.Window = new Class({
         } else {
             this.window.window.destroy();
         }
-
-        // this.tab.dispose();
-        // this.reflow();
     },
 
     attach: function(e) {
@@ -22817,7 +22877,7 @@ ui.QUI.Window = new Class({
 
         this.drag.detach().stop();
         this.resizable.detach().stop();
-        this.wrapper = this.resizable = this.drag = undefined;
+        this.wrapper = this.resizable = this.drag = null;
 
         this.tab.show();
         this.select();
@@ -22832,9 +22892,9 @@ ui.QUI.Window = new Class({
             qjsui = po.qjsui,
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                                                                'channel': this.name,
-                                                                'base': util.isBaseWindow(this.name)
-                                                            })),
+                                                    'channel': this.name,
+                                                    'base': util.isBaseWindow(this.name)
+                                                })),
             header = wrapper.getElement('.header'),
             attach = header.getElement('.attach'),
             close = header.getElement('.tab-close'),
@@ -22927,7 +22987,6 @@ ui.QUI.Window = new Class({
         //changing windows occurs here
         this.parentObject.setWindow(this.window);
 
-        // this.reflow();
         this.parent();
 
         this.selectUpdates();
@@ -23015,8 +23074,8 @@ ui.QUI.Window = new Class({
                     e.stop();
                 if ($inputbox.value.trim() !== "") {
                     parentO.resetTabComplete();
-                    self.historyExec($inputbox.value);
-                    $inputbox.value = "";
+                    self.historyExec($inputbox.val());
+                    $inputbox.val("");
                 }
                 $inputbox.focus();
             }
@@ -23037,7 +23096,7 @@ ui.QUI.Window = new Class({
         var resettab = parentO.resetTabComplete,
             complete = function(e) {
                 var resultfn;
-                var cvalue = $inputbox.value;
+                var cvalue = $inputbox.val();
 
                 if (e.key === "up") {
                     resultfn = self.commandhistory.upLine;
@@ -23063,7 +23122,7 @@ ui.QUI.Window = new Class({
                     result = "";
                 self.lastcvalue = result;
 
-                $inputbox.value = result;
+                $inputbox.val(result);
                 util.setAtEnd($inputbox);
             };
 
@@ -23213,7 +23272,6 @@ ui.QUI.Window = new Class({
         } else {
             topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
         }
-        // this.reflow();
     },
 
     //TODO do all processing in template?
@@ -23221,11 +23279,10 @@ ui.QUI.Window = new Class({
         // var e = new Element("div");
         var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
-        var msge = Element.from(templates.ircMessage({class: eclass}));
+        var msge = Element.from(templates.ircMessage({'class': eclass}));
         this.lastcolour = !this.lastcolour;
 
         this.parent(type, line, colourClass, msge);
-        // this.reflow();
     },
     highlightTab: function(state) {
         this.parent(state);

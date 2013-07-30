@@ -58,7 +58,6 @@ ui.Theme = new Class({
 
 
         var themed = type ? self.message(type, data, highlight) : data;
-        
         var result = self.colourise(themed);
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
@@ -72,7 +71,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line))
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -110,7 +109,7 @@ ui.Theme = new Class({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
-                })
+                });
 
 
                 result = result.replace("\x03" + str, html);
@@ -121,21 +120,20 @@ ui.Theme = new Class({
         irc.styles.each(function(style) {
             parseArr = result.split(style.key);
 
-            if(parseArr.length % 2 != 0) {
+            if(parseArr.length % 2 != 1) {
                 console.log(parseArr);
             }
 
             //seems cleaner than filtering by index and then doing an each i think
-            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
-                html = templates.ircstyle({
+            for (var i = 1, styled; i < parseArr.length; i+=2) {
+                styled = parseArr[i];
+                var html = templates.ircstyle({
                     'style': style.style,
                     'text': styled[0]
                 });
                 result.replace(style.key + styled[0] + style.key, html);
-            }
+            };
         });
-
-        console.log(result);
 
         return result;
     },

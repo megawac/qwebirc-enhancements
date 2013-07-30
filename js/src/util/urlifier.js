@@ -4,12 +4,15 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-// urlifier.
+urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
+urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
 
 urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs "qwebirc://whois/envision-#tf2mix/"
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
-                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                var parsed = this.parsePunctuation(word),
+                    mid = parsed.mid,
+                    res = mid.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
                 if(res) {
                     res = res[0].slice(10);//remove qwebirc://
@@ -24,7 +27,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                         console.log("called yo");
                         console.log(res);
                     }
-                    word = res;
+                    word = parsed.lead + res + parsed.end;
                 }
             }
             return word;
@@ -32,13 +35,14 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
         })
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
-            var res = word;
+            var parsed = this.parsePunctuation(word),
+                res = parsed.mid;
 
-            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                res = templates.channellink({channel:util.formatChannel(word)});
+            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(res)});
             }
 
-            return res;
+            return parsed.lead + res + parsed.end;
         })
         .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
             console.log("todo");

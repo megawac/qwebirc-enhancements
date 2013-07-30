@@ -46,7 +46,10 @@ MGFX.Rotater = new Class({
 	},
 	
 	createFx: function(){
-		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {duration: this.options.transitionDuration, link: 'cancel'});
+		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {
+			duration: this.options.transitionDuration,
+			link: 'cancel'
+		});
 		this.slides.setStyle('opacity', 0);
 	}.protect(),
 	
@@ -106,12 +109,14 @@ MGFX.Rotater = new Class({
 		this.slides.each(function(slide, index){
 			if(index == slideIndex && index != curSlide){ //show
 				action[index.toString()] = {
-					opacity: 1
+					opacity: 1,
+					'z-index': 1
 				};
 				slide.getParent().setStyle('height', slide.getHeight());
 			} else {
 				action[index.toString()] = {
-					opacity:0
+					opacity: 0,
+					'z-index': -1
 				};
 			}
 		});

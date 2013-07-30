@@ -60,11 +60,22 @@ module.exports = function(grunt) {
                 'js/dist/qwebirc.js'],
                 // the location of the resulting JS file
                 dest: 'js/dist/qwebirc-0.93dev.js'
-            },
+            }
+        },
 
-            democopy: { //cant have 2 output files for dest
-                src: 'js/dist/qwebirc-0.93dev.js',
-                dest: 'demo/static/js/dist/qwebirc-0.93dev.js'
+        copy: {
+
+            demo: {
+                files: [{
+                    expand: true,
+                    src: ['js/dist/qwebirc-0.93dev.js'],
+                    dest: 'demo/static/'
+                },
+                {
+                    expand: true,
+                    src: ['css/*.css', 'css/*.mcss'],
+                    dest: 'demo/static/'
+                }]
             }
         },
 
@@ -84,7 +95,8 @@ module.exports = function(grunt) {
             },
             strip: {
                 files: {
-                    'js/qwebirc.min.js': ['js/qwebirc.js']
+                    'js/dist/qwebirc.min.js': ['js/dist/qwebirc.js'],
+                    'js/dist/qwebirc-0.93dev-min.js': ['js/dist/qwebirc-0.93dev.js']
                 }
             }
         }
@@ -98,13 +110,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-handlebars');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.registerTask('default', [
 
     'handlebars',
 
     'concat:qweb', 'concat:full',
-    'concat:democopy',
+    'copy:demo'
     // , 'uglify:strip'
     //, 'uglify:min'
     ]);

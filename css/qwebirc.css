@@ -42,6 +42,13 @@ html, body {
     top: 15px;
 }
 
+.btn-smaller {
+    padding: 2px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
 /*otherwise 100%*/
 .channel .leftpanel {
     position: absolute;
@@ -301,32 +308,8 @@ html, body {
 
 /**************** LOGIN BOX *******************/
 
-.qwebirc-centrebox {
-    height: 100%;
-    width: 100%;
-}
-
-.qwebirc-centrebox table {
-    width: 100%;
-}
-
-.qwebirc-centrebox table table {
-    width: auto;
-}
-
-.qwebirc-loginbox .tr1 td {
-    width: 100%;
-    text-align: center;
-}
-
-.qwebirc-loginbox .tr2 td {
-    vertical-align: top;
-}
-
-.qwebirc-loginbox .tr2 table {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
+.qui .center { /*lazy mode fix later*/
+    margin-top: 5%;
 }
 
 /**************** CONFIRM LOGIN BOX *******************/
@@ -556,4 +539,34 @@ div.qwebirc-embeddedwizard {
     padding-left: 25px;
     padding-top: 25px;
     overflow-y: scroll;
+}
+
+
+
+#login {
+    text-align: center;
+    width: 500px;
+    margin: 0 auto 5px;
+}
+
+#login div {
+    width: 385px;
+    margin: .25em auto;
+}
+
+#login > * {
+    margin: .5em 0;
+}
+
+#login .right {
+    text-align: right;
+    margin-left: 15px; /*seems to center it*/
+}
+
+#login .right input {
+    width: 200px;
+}
+
+#login input {
+    margin-left: 5px;
 }

@@ -1,6 +1,7 @@
 topic_background=c,f2f0ff
 lines_background=c,f2f0ff
 lines_highlight=c,f6ff94
+lines_highlight2=c,A4FCCA
 topic_border=c,c8d2dc
 tabbar_border=c,c3cee0
 tabbar_background=c,e2ecf9
@@ -20,9 +21,10 @@ menu_border=c,c8d2dc
 menu_background=c,f2f0ff
 menu_hover_background=c,FFFE
 lastpositionbar=c,C8D2DC
-timestamp_display=o,SHOW_TIMESTAMPS,inline,none
-timestamp_padding_left=o,SHOW_TIMESTAMPS,1em,11px
-timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
+windowfont_size=o,font_size,12
+timestamp_display=o,show_timestamps,inline,none
+timestamp_padding_left=o,show_timestamps,1em,11px
+timestamp_text_indent=o,show_timestamps,0,-9px
 
 #ircui {
   /*position: absolute;
@@ -82,7 +84,7 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
 .qui .lines {
     color: black;
     overflow: auto;
-    font-size: 0.8em;
+    font-size: $(windowfont_size)px;
     background: $(lines_background);
 }
 
@@ -99,6 +101,10 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
 
 .qui .lines .highlight { /*last 5 messages not sent by the bot*/
     background-color: $(lines_highlight);
+}
+
+.qui .lines .highlight2 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight2);
 }
 
 .qui .properties {
@@ -511,34 +517,6 @@ timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
     font-size: 95%;
     color: #928D8D;
     text-align: center;
-}
-
-#login {
-    text-align: center;
-    width: 500px;
-    margin: 0 auto 5px;
-}
-
-#login div {
-    width: 385px;
-    margin: .25em auto;
-}
-
-#login div > * {
-    margin: 0 .2em;
-}
-
-#login .right {
-    text-align: right;
-    margin-left: 15px; /*seems to center it*/
-}
-
-#login .right input {
-    width: 200px;
-}
-
-#login input {
-    margin-left: 5px;
 }
 
 

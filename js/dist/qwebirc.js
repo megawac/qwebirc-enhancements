@@ -12,7 +12,7 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<form id='login'>\r\n<h2>Connect to ";
+  buffer += "<div class=\"container center\">\r\n<form id='login'>\r\n<h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -37,11 +37,11 @@ function program1(depth0,data) {
     + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-small\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "</span></div>";
+    + "</span></div>\r\n</div>";
   return buffer;
   });
 
@@ -71,7 +71,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function";
 
 
-  buffer += "<div id='channel-name-id' class='channel-name'>";
+  buffer += "<div class='channel-name'>";
   if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
@@ -292,7 +292,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 this["Handlebars"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
   buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<div class=\"\">\r\n<ul class=\"option-tabs nav nav-tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options disabled\"><a href=\"#\">Notifications(TODO)</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n</div>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
@@ -340,6 +340,12 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"query_on_nick_click\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.query_on_nick_click, options) : helperMissing.call(depth0, "check", depth0.query_on_nick_click, options)))
+    + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"font_size\">\r\n"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FONT_SIZE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"number\" id=\"font_size\" value=";
+  if (stack2 = helpers.font_size) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.font_size; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
     + ">\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label for=\"style_hue\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.STYLE_HUE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<div id=\"style_hue\" class=\"slider hue-slider\"><div class=\"knob\"></div></div>\r\n</label>\r\n\r\n</div>\r\n</div>\r\n<div class=\"irc-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"use_hiddenhost\">\r\n"
@@ -449,6 +455,25 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "&gt;</span>";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this;
+
+
+  buffer += "<div class=\"window qui ircwindow channel hidden\">\r\n\r\n";
+  stack1 = self.invokePartial(partials.topicBar, 'topicBar', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n\r\n<div class=\"qui content\">\r\n<div class=\"qui leftpanel lines\">\r\n<div class=\"ui-icon ui-icon-grip-solid-vertical handle vertical\"></div>\r\n<div class=\"qui rightpanel nicklist\"></div>\r\n</div>\r\n\r\n<div class=\"qui properties\">\r\n";
+  stack1 = self.invokePartial(partials.channelName, 'channelName', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n\r\n<div class=\"qui bottompanel\">\r\n";
+  stack1 = self.invokePartial(partials.ircInput, 'ircInput', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n\r\n</div>";
   return buffer;
   });
 /*Copyright (c) 2008-2009 the qwebirc project.
@@ -868,7 +893,8 @@ irc.colours = [//http://www.mirc.com/colors.html
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
-        SHOW_TIMESTAMPS: "Show timestamps"
+        SHOW_TIMESTAMPS: "Show timestamps",
+        FONT_SIZE: "Set font size"
     };
 
 
@@ -1826,12 +1852,15 @@ var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
 
-// urlifier.
+urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
+urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
 
 urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs "qwebirc://whois/envision-#tf2mix/"
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
-                var res = word.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                var parsed = this.parsePunctuation(word),
+                    mid = parsed.mid,
+                    res = mid.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
 
                 if(res) {
                     res = res[0].slice(10);//remove qwebirc://
@@ -1846,7 +1875,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                         console.log("called yo");
                         console.log(res);
                     }
-                    word = res;
+                    word = parsed.lead + res + parsed.end;
                 }
             }
             return word;
@@ -1854,13 +1883,14 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
         })
         .addPattern(/\B#+(?![\._#-+])/, function(word) {
-            var res = word;
+            var parsed = this.parsePunctuation(word),
+                res = parsed.mid;
 
-            if(isChannel(word) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
-                res = templates.channellink({channel:util.formatChannel(word)});
+            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+                res = templates.channellink({channel:util.formatChannel(res)});
             }
 
-            return res;
+            return parsed.lead + res + parsed.end;
         })
         .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
             console.log("todo");
@@ -5295,35 +5325,40 @@ ui.BaseUI = new Class({
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, windowClass, uiName, options) {
-        this.parent(parentElement, windowClass, uiName, options);
+        var self = this;
+        self.parent(parentElement, windowClass, uiName, options);
 
-        this.tabCompleter = new ui.TabCompleterFactory(this);
-        // this.uiOptions = new ui.DefaultOptionsClass(this, options.uiOptionsArg);
-        this.uiOptions2 = new config.OptionModel({
+        self.tabCompleter = new ui.TabCompleterFactory(self);
+        // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
+        self.uiOptions2 = new config.OptionModel({
             defaults: options.uiOptionsArg
         });
-        this.uiOptions2.on("change:style_hue", function(hue) {
-            this.setModifiableStylesheetValues({
-                hue: hue
-            });
-        }.bind(this));
+
+        self.uiOptions2.on({
+            "change:style_hue": function(hue) {
+                self.setModifiableStylesheetValues({
+                    hue: hue
+                })
+            },
+            "change:font_size": self.setModifiableStylesheetValues
+        });
 
 
 
-        this.customWindows = {};
+        self.customWindows = {};
 
-        this.__styleValues = {
-            hue: this.options.hue || this.uiOptions2.get("style_hue"),
-            saturation: this.options.saturation || this.uiOptions2.get("style_saturation"),
-            lightness: this.options.lightness || this.uiOptions2.get("style_brightness")
+        self.__styleValues = {
+            hue: self.options.hue || self.uiOptions2.get("style_hue"),
+            saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
+            lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
         };
 
         var ev = Browser.Engine.trident ? "keydown" : "keypress";
-        document.addEvent(ev, this.__handleHotkey);
+        document.addEvent(ev, self.__handleHotkey);
     },
     __handleHotkey: function(x) {
         if (!x.alt || x.control) {
@@ -5503,12 +5538,10 @@ ui.StandardUI = new Class({
     },
     setModifiableStylesheet: function(name) {
         this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues({});
+        this.setModifiableStylesheetValues();
     },
-    setModifiableStylesheetValues: function(values) {
-        // for (var k in values)
-        //     this.__styleValues[k] = values[k];
-        $extend(this.__styleValues, values);
+    setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
+        Object.append(this.__styleValues, values);
 
         if (!$defined(this.__styleSheet))
             return;
@@ -5518,17 +5551,19 @@ ui.StandardUI = new Class({
             saturation = this.__styleValues.saturation,
             uiOptions = this.uiOptions2;
 
-        this.__styleSheet.set(function(mode, col) {
+        this.__styleSheet.set(function(mode, val, _default) {
             if (mode == "c") {
-                var x = new Color(col);
+                var x = new Color(val);
                 var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
                 if (c == "255,255,255") // IE confuses white with transparent... 
                 c = "255,255,254";
 
                 return "rgb(" + c + ")";
-            } else if (mode == "o") {
-                return uiOptions.get([arguments[1]] ? arguments[2] : arguments[3]);
             }
+            else if (mode == "o") {
+                return uiOptions.get(val);
+            }
+            return _default;
         });
     }
 });
@@ -5719,9 +5754,6 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
 
-    var content = new Element('div').inject(parentElement),
-        recenter = content.position.bind(content);
-
     var nickname = cookies.nick.get() || initialNickname,
         account = util.B64.decode(cookies.user.get()),
         password = util.B64.decode(cookies.pass.get()),
@@ -5735,13 +5767,14 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
     };
-    content.html(templates.authpage(context));
+    var page = templates.authpage(context);
+    parentElement.insertAdjacentHTML("beforeEnd", page);
 
-    var nickBox = content.getElementById('nickname'),
-        usernameBox = content.getElementById('username'),
-        passwordBox = content.getElementById('password'),
-        chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login');
+    var form = parentElement.getElementById('login'),
+        nickBox = parentElement.getElementById('nickname'),
+        usernameBox = parentElement.getElementById('username'),
+        passwordBox = parentElement.getElementById('password'),
+        chkAddAuth = parentElement.getElementById('authenticate');
 
 
     function toggleFull () {
@@ -5817,12 +5850,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         auth.loggedin = true;
 
-        window.removeEvent('resize', recenter);
-        parentElement.retrieve('window').removeEvents({
-            'attach': recenter,
-            'detach': recenter
-        });
-
         callback(data);
     }.bind(this));
 
@@ -5831,18 +5858,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
     if (window === window.top)
         nickBox.focus();
-
-
-    //center everything... 
-    recenter();
-    window.addEvent('resize', recenter);
-    parentElement.retrieve('window').addEvents({
-        'attach': recenter,
-        'detach': recenter
-    });
-
-
-    window.content = content;
 };
 
 
@@ -6482,7 +6497,6 @@ ui.Theme = new Class({
 
 
         var themed = type ? self.message(type, data, highlight) : data;
-        
         var result = self.colourise(themed);
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
@@ -6496,7 +6510,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line))
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -6534,7 +6548,7 @@ ui.Theme = new Class({
                     'colour': (colour ? colour.fore : ""),
                     'background': (background ? background.back : ""),
                     'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
-                })
+                });
 
 
                 result = result.replace("\x03" + str, html);
@@ -6545,21 +6559,20 @@ ui.Theme = new Class({
         irc.styles.each(function(style) {
             parseArr = result.split(style.key);
 
-            if(parseArr.length % 2 != 0) {
+            if(parseArr.length % 2 != 1) {
                 console.log(parseArr);
             }
 
             //seems cleaner than filtering by index and then doing an each i think
-            for(var styled,html; parseArr.length > 1 && (styled = parseArr.splice(0, 2)); ) {//aft [0] is assumed normal text
-                html = templates.ircstyle({
+            for (var i = 1, styled; i < parseArr.length; i+=2) {
+                styled = parseArr[i];
+                var html = templates.ircstyle({
                     'style': style.style,
                     'text': styled[0]
                 });
                 result.replace(style.key + styled[0] + style.key, html);
-            }
+            };
         });
-
-        console.log(result);
 
         return result;
     },
@@ -7504,14 +7517,15 @@ config.OptionModel = new Class({
             "accept_service_invites": true,
             "use_hiddenhost": true,
             "lastpos_line": true,
-            "nick_colours": true,
+            "nick_colours": false,
             "hide_joinparts": true,
             "style_hue": 210,
             "style_saturation": 0,
             "style_brightness": 0,
             "query_on_nick_click": true,
             "show_nicklist": true,
-            "show_timestamps": true
+            "show_timestamps": true,
+            "font_size": 12
         },
         key: "qweboptions",
         minimize: true
@@ -7532,13 +7546,15 @@ ui.OptionView = new Class({
             'change:relay(#options input)': 'inputChange'
         },
 
-        onReady: render,
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
             if($defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
-        }
+        },
+
+        onReady: render
+        
     },
 
     render: function() {
@@ -7623,9 +7639,9 @@ util.parseStylesheet = function(data) {
     };
 };
 
-util.getSyncAsset = function(url) {
+util.getSyncAsset = function(url) {//todo async it
     var req = new Request({
-        'url': url,//'http://atf2.org/css/qui-bbc577ad5cb78d946ac1.mcss',
+        'url': url,
         'async': false
     });
     req.headers = {};
@@ -7995,6 +8011,7 @@ ui.QUI.Window = new Class({
                         !$ele.hasClass('our');//from us
                 },
                 selector: '.message:not(.bot):not(.command):not(.our)',
+                highlightClasses: ['highlight', 'highlight2'],
                 maxHighlight: NaN
             });
 
@@ -8038,7 +8055,6 @@ ui.QUI.Window = new Class({
 
 
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
-        // self.reflow();
     },
 
     close: function(e) {
@@ -8064,9 +8080,6 @@ ui.QUI.Window = new Class({
         } else {
             this.window.window.destroy();
         }
-
-        // this.tab.dispose();
-        // this.reflow();
     },
 
     attach: function(e) {
@@ -8084,7 +8097,7 @@ ui.QUI.Window = new Class({
 
         this.drag.detach().stop();
         this.resizable.detach().stop();
-        this.wrapper = this.resizable = this.drag = undefined;
+        this.wrapper = this.resizable = this.drag = null;
 
         this.tab.show();
         this.select();
@@ -8099,9 +8112,9 @@ ui.QUI.Window = new Class({
             qjsui = po.qjsui,
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                                                                'channel': this.name,
-                                                                'base': util.isBaseWindow(this.name)
-                                                            })),
+                                                    'channel': this.name,
+                                                    'base': util.isBaseWindow(this.name)
+                                                })),
             header = wrapper.getElement('.header'),
             attach = header.getElement('.attach'),
             close = header.getElement('.tab-close'),
@@ -8194,7 +8207,6 @@ ui.QUI.Window = new Class({
         //changing windows occurs here
         this.parentObject.setWindow(this.window);
 
-        // this.reflow();
         this.parent();
 
         this.selectUpdates();
@@ -8282,8 +8294,8 @@ ui.QUI.Window = new Class({
                     e.stop();
                 if ($inputbox.value.trim() !== "") {
                     parentO.resetTabComplete();
-                    self.historyExec($inputbox.value);
-                    $inputbox.value = "";
+                    self.historyExec($inputbox.val());
+                    $inputbox.val("");
                 }
                 $inputbox.focus();
             }
@@ -8304,7 +8316,7 @@ ui.QUI.Window = new Class({
         var resettab = parentO.resetTabComplete,
             complete = function(e) {
                 var resultfn;
-                var cvalue = $inputbox.value;
+                var cvalue = $inputbox.val();
 
                 if (e.key === "up") {
                     resultfn = self.commandhistory.upLine;
@@ -8330,7 +8342,7 @@ ui.QUI.Window = new Class({
                     result = "";
                 self.lastcvalue = result;
 
-                $inputbox.value = result;
+                $inputbox.val(result);
                 util.setAtEnd($inputbox);
             };
 
@@ -8480,7 +8492,6 @@ ui.QUI.Window = new Class({
         } else {
             topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
         }
-        // this.reflow();
     },
 
     //TODO do all processing in template?
@@ -8488,11 +8499,10 @@ ui.QUI.Window = new Class({
         // var e = new Element("div");
         var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
-        var msge = Element.from(templates.ircMessage({class: eclass}));
+        var msge = Element.from(templates.ircMessage({'class': eclass}));
         this.lastcolour = !this.lastcolour;
 
         this.parent(type, line, colourClass, msge);
-        // this.reflow();
     },
     highlightTab: function(state) {
         this.parent(state);

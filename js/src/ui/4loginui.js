@@ -25,9 +25,6 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
 
-    var content = new Element('div').inject(parentElement),
-        recenter = content.position.bind(content);
-
     var nickname = cookies.nick.get() || initialNickname,
         account = util.B64.decode(cookies.user.get()),
         password = util.B64.decode(cookies.pass.get()),
@@ -41,13 +38,14 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
     };
-    content.html(templates.authpage(context));
+    var page = templates.authpage(context);
+    parentElement.insertAdjacentHTML("beforeEnd", page);
 
-    var nickBox = content.getElementById('nickname'),
-        usernameBox = content.getElementById('username'),
-        passwordBox = content.getElementById('password'),
-        chkAddAuth = content.getElementById('authenticate'),
-        form = content.getElementById('login');
+    var form = parentElement.getElementById('login'),
+        nickBox = parentElement.getElementById('nickname'),
+        usernameBox = parentElement.getElementById('username'),
+        passwordBox = parentElement.getElementById('password'),
+        chkAddAuth = parentElement.getElementById('authenticate');
 
 
     function toggleFull () {
@@ -123,12 +121,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         auth.loggedin = true;
 
-        window.removeEvent('resize', recenter);
-        parentElement.retrieve('window').removeEvents({
-            'attach': recenter,
-            'detach': recenter
-        });
-
         callback(data);
     }.bind(this));
 
@@ -137,18 +129,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
     if (window === window.top)
         nickBox.focus();
-
-
-    //center everything... 
-    recenter();
-    window.addEvent('resize', recenter);
-    parentElement.retrieve('window').addEvents({
-        'attach': recenter,
-        'detach': recenter
-    });
-
-
-    window.content = content;
 };
 
 

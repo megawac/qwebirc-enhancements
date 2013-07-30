@@ -74,6 +74,7 @@ ui.QUI.Window = new Class({
                         !$ele.hasClass('our');//from us
                 },
                 selector: '.message:not(.bot):not(.command):not(.our)',
+                highlightClasses: ['highlight', 'highlight2'],
                 maxHighlight: NaN
             });
 
@@ -117,7 +118,6 @@ ui.QUI.Window = new Class({
 
 
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
-        // self.reflow();
     },
 
     close: function(e) {
@@ -143,9 +143,6 @@ ui.QUI.Window = new Class({
         } else {
             this.window.window.destroy();
         }
-
-        // this.tab.dispose();
-        // this.reflow();
     },
 
     attach: function(e) {
@@ -163,7 +160,7 @@ ui.QUI.Window = new Class({
 
         this.drag.detach().stop();
         this.resizable.detach().stop();
-        this.wrapper = this.resizable = this.drag = undefined;
+        this.wrapper = this.resizable = this.drag = null;
 
         this.tab.show();
         this.select();
@@ -178,9 +175,9 @@ ui.QUI.Window = new Class({
             qjsui = po.qjsui,
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                                                                'channel': this.name,
-                                                                'base': util.isBaseWindow(this.name)
-                                                            })),
+                                                    'channel': this.name,
+                                                    'base': util.isBaseWindow(this.name)
+                                                })),
             header = wrapper.getElement('.header'),
             attach = header.getElement('.attach'),
             close = header.getElement('.tab-close'),
@@ -273,7 +270,6 @@ ui.QUI.Window = new Class({
         //changing windows occurs here
         this.parentObject.setWindow(this.window);
 
-        // this.reflow();
         this.parent();
 
         this.selectUpdates();
@@ -361,8 +357,8 @@ ui.QUI.Window = new Class({
                     e.stop();
                 if ($inputbox.value.trim() !== "") {
                     parentO.resetTabComplete();
-                    self.historyExec($inputbox.value);
-                    $inputbox.value = "";
+                    self.historyExec($inputbox.val());
+                    $inputbox.val("");
                 }
                 $inputbox.focus();
             }
@@ -383,7 +379,7 @@ ui.QUI.Window = new Class({
         var resettab = parentO.resetTabComplete,
             complete = function(e) {
                 var resultfn;
-                var cvalue = $inputbox.value;
+                var cvalue = $inputbox.val();
 
                 if (e.key === "up") {
                     resultfn = self.commandhistory.upLine;
@@ -409,7 +405,7 @@ ui.QUI.Window = new Class({
                     result = "";
                 self.lastcvalue = result;
 
-                $inputbox.value = result;
+                $inputbox.val(result);
                 util.setAtEnd($inputbox);
             };
 
@@ -559,7 +555,6 @@ ui.QUI.Window = new Class({
         } else {
             topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
         }
-        // this.reflow();
     },
 
     //TODO do all processing in template?
@@ -567,11 +562,10 @@ ui.QUI.Window = new Class({
         // var e = new Element("div");
         var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
 
-        var msge = Element.from(templates.ircMessage({class: eclass}));
+        var msge = Element.from(templates.ircMessage({'class': eclass}));
         this.lastcolour = !this.lastcolour;
 
         this.parent(type, line, colourClass, msge);
-        // this.reflow();
     },
     highlightTab: function(state) {
         this.parent(state);

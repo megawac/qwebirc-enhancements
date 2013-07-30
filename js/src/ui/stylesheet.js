@@ -25,9 +25,9 @@ util.parseStylesheet = function(data) {
     };
 };
 
-util.getSyncAsset = function(url) {
+util.getSyncAsset = function(url) {//todo async it
     var req = new Request({
-        'url': url,//'http://atf2.org/css/qui-bbc577ad5cb78d946ac1.mcss',
+        'url': url,
         'async': false
     });
     req.headers = {};

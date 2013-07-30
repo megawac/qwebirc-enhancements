@@ -14,14 +14,15 @@ config.OptionModel = new Class({
             "accept_service_invites": true,
             "use_hiddenhost": true,
             "lastpos_line": true,
-            "nick_colours": true,
+            "nick_colours": false,
             "hide_joinparts": true,
             "style_hue": 210,
             "style_saturation": 0,
             "style_brightness": 0,
             "query_on_nick_click": true,
             "show_nicklist": true,
-            "show_timestamps": true
+            "show_timestamps": true,
+            "font_size": 12
         },
         key: "qweboptions",
         minimize: true
@@ -42,13 +43,15 @@ ui.OptionView = new Class({
             'change:relay(#options input)': 'inputChange'
         },
 
-        onReady: render,
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
             if($defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
-        }
+        },
+
+        onReady: render
+        
     },
 
     render: function() {

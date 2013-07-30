@@ -1,9 +1,7 @@
-
 //Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
 (function(self) {
 
     // http://stackoverflow.com/a/7924240/17498
-
 
     function occurrences(string, substring) {
         var n = 0;
@@ -24,7 +22,6 @@
 
     // Quotes a URL if it isn't already quoted.
 
-
     function smart_urlquote(url) {
         // XXX: Not handling IDN.
         // 
@@ -36,28 +33,57 @@
             return url;
         }
     }
-    function htmlescape(html) {
-        return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+    function getTrailing(text, punc) {
+        if (typeOf(punc) == "regexp") {
+            var match = text.match(punc);
+            if (match) {
+                return match[0];
+            }
+        } else {
+            if (text.endsWith(punc)) {
+                return punc;
+            }
+        }
     }
 
-
+    function getLeading(text, punc) {
+        if (typeOf(punc) == "regexp") {
+            var match = text.match(punc);
+            if (match) {
+                return match[0];
+            }
+        } else {
+            if (text.startsWith(punc)) {
+                return punc;
+            }
+        }
+    }
+    // function htmlescape(html) {
+    //     return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    // }
     self.Urlerizer = new Class({
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: true,
-            trim_url_limit: false, //length of a url before it is trimmed
+            autoescape: false,
+            trim_url_limit: false,
+            //length of a url before it is trimmed
             target: false
         },
 
-        trailing_punctuation: ['.', ',', ':', ';', '.)'],
+        leading_punctuation: [],
+        trailing_punctuation: [/[.,.)]$/],
         wrapping_punctuation: [
             ['(', ')'],
             ['<', '>'],
             ['&lt;', '&gt;'],
             ['“', '”'],
-            ['‘', '’']
+            ['‘', '’'],
+            ["'", "'"],
+            ['[', ']']
         ],
+
         word_split_re: /([\s<>"]+)/,
         simple_url_re: /^https?:\/\/\w/,
         simple_url_2_re: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
@@ -67,9 +93,11 @@
             this.setOptions(opts);
         },
 
+        htmlescape: Handlebars.Utils.escapeExpression,
+        //shut up i know it exists and its better than what was here before
         urlerize: function(text) {
             var self = this,
-                result = text.split(" "),
+                result = text.split(this.word_split_re),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.wholeWord || pat.pattern.test(text);
                 });
@@ -78,13 +106,13 @@
                 item = result[i];
 
                 funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                    if(pattern.pattern.test(item)) {
+                    if (pattern.pattern.test(item)) {
                         result[i] = pattern.parse.call(self, item);
                     }
                 });
             };
             self.patterns.each(function(pattern) {
-                if(pattern.wholeWord && pattern.pattern.test(result)) {
+                if (pattern.wholeWord && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
@@ -101,99 +129,104 @@
         parsePunctuation: function(text) {
             var lead = '',
                 mid = text,
-                end = '';
+                end = '',
+                check;
 
-            this.trailing_punctuation.each(function(punc) {
-                if($type(punc) == "string") {
-
-                } else {
-                    
+            function leader(punc) {
+                var lead = getLeading(mid, punc);
+                if (lead) {
+                    mid = mid.slice(lead.length);
+                    lead += lead;
                 }
-            });
+            }
 
+            function trailer(punc) {
+                var trail = getTrailing(mid, punc);
+                if (trail) {
+                    mid = mid.slice(0, mid.length - trail.length);
+                    end = trail + end;
+                }
+            }
+
+            function wrapper(puncs) {
+                var lead = getLeading(mid, puncs[0]),
+                    trail;
+                if (lead && (trail = getTrailing(mid, puncs[1]))) {
+                    mid = mid.slice(lead.length, mid.length - trail.length);
+                    lead += lead;
+                    end = trail + end;
+                    return true;
+                }
+            }
+
+            do {
+                check = this.leading_punctuation.some(leader);
+            }
+            while (check);
+
+            do {
+                check = this.trailing_punctuation.some(trailer);
+            }
+            while (check);
+
+            do {
+                check = this.wrapping_punctuation.some(wrapper);
+            }
+            while (check);
 
             return {
                 lead: lead,
                 mid: mid,
                 end: end
-            }
+            };
         },
 
         patterns: [{
-            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
+            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
+            //i think this should pass tests on all valid urls... will also pick up things like test.test
             wholeWord: false,
-            parse: function (text) {
+            parse: function(text) {
                 var options = this.options;
-                var safe_input = false;
-                var words = text.split(this.word_split_re);
-                for (var i = 0; i < words.length; i++) {
-                    var word = words[i];
-                    var match = undefined;
-                    if (word.contains('.') || word.contains('@') || word.contains(':')) {
-                        // Deal with punctuation.
-                        var lead = '';
-                        var middle = word;
-                        var trail = '';
-                        for (var j = 0; j < this.trailing_punctuation.length; j++) {
-                            var punctuation = this.trailing_punctuation[j];
-                            if (middle.endsWith(punctuation)) {
-                                middle = middle.substr(0, middle.length - punctuation.length);
-                                trail = punctuation + trail;
-                            }
-                        }
-                        for (var j = 0; j < this.wrapping_punctuation.length; j++) {
-                            var opening = this.wrapping_punctuation[j][0];
-                            var closing = this.wrapping_punctuation[j][1];
-                            if (middle.startsWith(opening)) {
-                                middle = middle.substr(opening.length);
-                                lead = lead + opening;
-                            }
-                            // Keep parentheses at the end only if they're balanced.
-                            if (middle.endsWith(closing) && occurrences(middle, closing) == occurrences(middle, opening) + 1) {
-                                middle = middle.substr(0, middle.length - closing.length);
-                                trail = closing + trail;
-                            }
-                        }
+                var word = text;
+                if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                    // Deal with punctuation.
+                    var parsed = this.parsePunctuation(word);
+                    var middle = parsed.mid;
 
-                        // Make URL we want to point to.
-                        var url = undefined;
-                        var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
-                        var target_attr = options.target ? ' target="' + options.target + '"' : '';
+                    // Make URL we want to point to.
+                    var url = undefined;
+                    var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
+                    var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                        if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
-                        else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                        else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
-                            // XXX: Not handling IDN.
-                            url = 'mailto:' + middle;
-                            nofollow_attr = '';
-                        }
-
-                        // Make link.
-                        if (url) {
-                            var trimmed = this.trimURL(middle);
-                            if (options.autoescape) {
-                                // XXX: Assuming autoscape == false
-                                lead = htmlescape(lead);
-                                trail = htmlescape(trail);
-                                url = htmlescape(url);
-                                trimmed = htmlescape(trimmed);
-                            }
-                            middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
-                            words[i] = lead + middle + trail;
-                        } else {
-                            if (safe_input) {
-                                // Do nothing, as we have no mark_safe.
-                            } else if (options.autoescape) {
-                                words[i] = htmlescape(word);
-                            }
-                        }
-                    } else if (safe_input) {
-                        // Do nothing, as we have no mark_safe.
-                    } else if (options.autoescape) {
-                        words[i] = htmlescape(word);
+                    if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                    else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                    else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
+                        // XXX: Not handling IDN.
+                        url = 'mailto:' + middle;
+                        nofollow_attr = '';
                     }
+
+                    // Make link.
+                    if (url) {
+                        var trimmed = this.trimURL(middle);
+                        if (options.autoescape) {
+                            // XXX: Assuming autoscape == false
+                            parsed.lead = this.htmlescape(parsed.lead);
+                            parsed.end = this.htmlescape(parsed.end);
+                            url = this.htmlescape(url);
+                            trimmed = this.htmlescape(trimmed);
+                        }
+                        middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
+                        word = parsed.lead + middle + parsed.end;
+                    } else {
+                        if (options.autoescape) {
+                            word = this.htmlescape(word);
+                        }
+                    }
+                } else if (options.autoescape) {
+                    word = this.htmlescape(word);
                 }
-                return words.join('');
+                return word;
             }
         }],
 
