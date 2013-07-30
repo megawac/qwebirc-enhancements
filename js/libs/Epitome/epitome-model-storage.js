@@ -5,8 +5,6 @@
     // wrapper function for requirejs or normal object
     var wrap = function(Model) {
 
-            var syncPseudo = 'sync:';
-
             // decorate the original object by adding a new property Sync
             return new Class({
                 Extends: Model,
@@ -63,7 +61,7 @@
                     if(this.validate()) {
                         var defaults = this.options.defaults,
                             data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
-                                return val !== defaults[key];//dont store defaults if minimize is true
+                                return Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
                             }) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
                         this.trigger('save');

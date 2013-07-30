@@ -74,8 +74,6 @@
         detachWindow: "Detach Window",
 
         //options
-        BEEP_ON_MENTION: "Beep when nick mentioned or on query activity (requires Flash or html5)",
-        FLASH_ON_MENTION: "Flash titlebar when nick mentioned or on query activity",
         DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
         DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
         NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
@@ -88,7 +86,14 @@
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
-        FONT_SIZE: "Set font size"
+        FONT_SIZE: "Set font size",
+
+
+        NOTIFY_ON_MENTION: "When nick mentioned:",
+        NOTIFY_ON_PM: "When private messaged:",
+        NOTIFY_ON_NOTICE: "When channel notice:",
+        FLASH: "flash",
+        BEEP: "beep"
     };
 
 

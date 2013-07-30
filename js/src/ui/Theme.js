@@ -21,6 +21,8 @@ ui.Theme = new Class({
             }
         });
 
+        self.highlightClasses.currentIndex = 0;
+
         self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
 
@@ -140,5 +142,129 @@ ui.Theme = new Class({
 
     urlerize: function(text) {
         return urlifier.urlerize(text);
+    },
+
+    messageParsers: [
+        {//match bots
+            regex: /(^tf2)|((serv|bot)$)/i,
+            classes: 'bot',
+            highlight: false,
+            flash: false,
+            beep: false,
+            types: [ui.WINDOW_CHANNEL],
+            prop: "n"
+        },
+        {
+            regex: /^\!/,
+            classes: 'command',
+            highlight: false,
+            flash: false,
+            beep: false,
+            types: [ui.WINDOW_CHANNEL]
+        },
+        {
+            mentioned: true,
+            classes: 'mentioned',
+            highlight: false,
+            flash: false,
+            beep: false
+            
+        },
+        {
+            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            mentioned: true,
+            classes: '',
+            highlight: false,
+            beep: true,
+            flash: true,
+            prop: "n"
+        },
+        {
+            regex: /^((?!(tf2|bot|serv|\!)).)*$/i,
+            classes: '',
+            highlight: true,
+            beep: false,
+            flash: false,
+            prop: "n"
+        }
+    ],
+
+    typeParsers: [
+        {
+            regex: /NOTICE$/,
+            classes: 'notice',
+            highlight: false,
+            flash: true,
+            beep: true
+        },
+        {
+            regex: /^OUR/,
+            classes: 'our-msg',
+            highlight: false,
+            flash: false,
+            beep: false
+        }
+    ],
+
+    highlightClasses: ['highlight1', 'highlight2', 'highlight3'],
+
+    highlightAndNotice: function(data, type, win, $ele) {
+        var self = this,
+            tabHighlight = ui.HILIGHT_NONE,
+            highlights = self.highlightClasses;
+
+        
+
+        if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
+            if(data.m)
+                $ele.addClass('message');
+            self.messageParsers.each(function(parser) {
+                if((parser.types && !parser.types.contains(win.type)))
+                    return;
+                if((!parser.regex || parser.regex.test(data[(parser.prop || "m")])) &&
+                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) ) {//implication
+                    if(parser.flash) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.beep) {
+                        console.log(parser.regex);
+                        win.parentObject.beep();
+                    }
+                    if(parser.highlight) {
+                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                    }
+                    if($chk(parser.classes)) {
+                        $ele.addClass(parser.classes);
+                    }
+                }
+            });
+        }
+
+        if(type) {
+            self.typeParsers.each(function(parser) {
+                if(parser.types && !parser.types.contains(win.type))
+                    return;
+                if((parser.regex && parser.regex.test(type))) {
+                    if(parser.flash) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.beep) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.highlight) {
+                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                    }
+                    if($chk(parser.classes)) {
+                        $ele.addClass(parser.classes);
+                    }
+                }
+            });
+        }
+
+        return tabHighlight
     }
+
 });

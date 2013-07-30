@@ -46,6 +46,7 @@ KNOWN BUGS:
 -Split panes are buggy (disabled currently)  
 -urls arent being matched if they are coloured eg \x03www.google.ca\x03  
     -move prefix patterns to seperate function and take regex class [\x03-\x15] or something  
+-Notices are sent to the wrong window (always to status window...)  
 
 
 DEMO:  

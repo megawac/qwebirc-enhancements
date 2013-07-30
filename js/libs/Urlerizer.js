@@ -129,8 +129,7 @@
         parsePunctuation: function(text) {
             var lead = '',
                 mid = text,
-                end = '',
-                check;
+                end = '';
 
             function leader(punc) {
                 var lead = getLeading(mid, punc);
@@ -159,20 +158,12 @@
                 }
             }
 
-            do {
-                check = this.leading_punctuation.some(leader);
-            }
-            while (check);
+            //destructive calls
+            while(this.leading_punctuation.some(leader)) {};
 
-            do {
-                check = this.trailing_punctuation.some(trailer);
-            }
-            while (check);
+            while(this.trailing_punctuation.some(trailer)) {};
 
-            do {
-                check = this.wrapping_punctuation.some(wrapper);
-            }
-            while (check);
+            while(this.wrapping_punctuation.some(wrapper)) {};
 
             return {
                 lead: lead,

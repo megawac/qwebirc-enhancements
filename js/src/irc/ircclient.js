@@ -57,7 +57,7 @@ irc.IRCClient = new Class({
                     if (extra["f"] === BROUHAHA) {
                         extra['f'] = '';
 
-                        if (!util.isChannel(chanName)) {
+                        if (!util.isChannel(channel)) {
                             extra['f'] = '>';
                         }
                         extra["f"] += irc.activeChannel; //hack active chan is on qwebirc.irc object

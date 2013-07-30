@@ -189,10 +189,9 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
-util.testForNick = Functional.memoize(function(nick) {
-    var classes = '[\\s\\.,;:]';
-    return prelude.test(new RegExp('(^|' + classes + ')' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"));
-});
+util.testForNick = function(nick, name) {
+    return prelude.test(new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"), name);
+};
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));

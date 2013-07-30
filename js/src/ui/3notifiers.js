@@ -13,14 +13,10 @@ ui.NotificationUI = new Class({
         this.parent.apply(this, arguments);
 
 
-        if (this.uiOptions2.get("beep_on_mention")) {
-            this.soundInit();
-            this.lastSound = 0;
-        }
-
+        this.soundInit();
+        this.lastSound = 0;
 
         var flasher = this.__flasher = new ui.Flasher(this.options, this.uiOptions2);
-
         this.flash = flasher.flash;
         this.cancelFlash = flasher.cancelFlash;
     },
@@ -40,8 +36,7 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundPlayer.isReady() && this.uiOptions2.get("beep_on_mention") &&
-                (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+        if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.sounds[alias]();
         }
@@ -58,9 +53,7 @@ ui.NotificationUI = new Class({
 ui.Flasher = new Class({
     Binds: ["flash", "cancelFlash"],
 
-    initialize: function(opts, uiOptions) {
-        this.uiOptions = uiOptions;
-
+    initialize: function(opts) {
         this.windowFocused = false;
         this.canUpdateTitle = true;
         this.titleText = document.title;
@@ -84,17 +77,13 @@ ui.Flasher = new Class({
             this.flashing = false;
 
             this.canFlash = true;
-            document.addEvents({
-                "mousedown:once": this.cancelFlash,
-                "keydown:once": this.cancelFlash
-            });
         } else {
             this.canFlash = false;
         }
     },
     flash: function() {
         var self = this;
-        if (!self.uiOptions.get("flash_on_mention") || self.windowFocused || !self.canFlash || self.flashing)
+        if (self.windowFocused || !self.canFlash || self.flashing)
             return;
 
         self.titleText = document.title; /* just in case */
@@ -115,6 +104,10 @@ ui.Flasher = new Class({
         self.flashing = true;
         // flashA();
         self.flasher = flash.periodical(750);
+        window.addEvents({
+            "mousedown:once": this.cancelFlash,
+            "keydown:once": this.cancelFlash
+        });
     },
     cancelFlash: function() {
         if (!$defined(this.flasher))

@@ -6,7 +6,6 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "beep_on_mention": true,
             "flash_on_mention": ui.supportsFocus().every(Functional.I),
             "dedicated_msg_window": false,
             "dedicated_notice_window": false,
@@ -22,7 +21,12 @@ config.OptionModel = new Class({
             "query_on_nick_click": true,
             "show_nicklist": true,
             "show_timestamps": true,
-            "font_size": 12
+            "font_size": 12,
+
+            "notify_on_mention": {flash:true, beep:true},
+            "notify_on_pm": {flash:true, beep:true},
+            "notify_on_notice": {flash:false, beep:true},
+            "custom_notices": []
         },
         key: "qweboptions",
         minimize: true
@@ -44,7 +48,12 @@ ui.OptionView = new Class({
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
-            var id = target.get('id');
+            var split = target.get('id').split(':'),
+                id = split[0];
+                // sub = split.slice(1).join('.'),
+                // item = this.model.get(id);
+
+            //handle sub props
             if($defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
@@ -94,14 +103,14 @@ ui.OptionView = new Class({
     },
 
     save: function(e) {
-        e.stop();
+        if(e) e.stop();
         this.model.save();
         this.destroy();
         this.trigger('close');
     },
 
     reset: function(e) {
-        e.stop();
+        if(e) e.stop();
         this.model.sync();
         this.destroy();
         this.trigger('close');

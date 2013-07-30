@@ -37,10 +37,18 @@ Fx.AutoScroll = new Class({
                 }
             };
 
-        this.element.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
-            // .addEvent("selectstart:throttle(" + interval + ")", throttleToggler)
-            .addEvent("adopt", self.updatePosition); //new elements appended to container
-        window.addEvent("resize", self.updatePosition);
+        this.$events = {
+            element: {
+                "adopt": self.updatePosition
+            },
+            'window': {
+                "resize": self.updatePosition
+            }
+        }
+        this.$events["scroll:throttle(" + interval + ")"] = throttleToggler;
+
+        this.element.addEvents(this.$events.element);
+        window.addEvents(this.$events.window);
 
         self.autoScroll();
     },
@@ -52,6 +60,8 @@ Fx.AutoScroll = new Class({
     },
 
     stopScroll: function() {
+        clearTimeout(timers.throttle);
+        clearInterval(timers.autoscroll);
         delete this.$timers.autoscroll;
     },
 
@@ -92,5 +102,12 @@ Fx.AutoScroll = new Class({
                 this.threshold = this.options.threshold || target.getHeight();
         }
         return this;
+    },
+
+    stop: function() {
+        window.removeEvents(this.$events.window);
+        this.element.removeEvents(this.$events.element);
+        this.stopScroll();
+        return this.parent();
     }
 });

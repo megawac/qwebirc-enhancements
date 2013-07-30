@@ -107,68 +107,68 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
-        var hilight = ui.HILIGHT_NONE,
+        var highlight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        if (type && data) {
-        //regexs
-            var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
-                ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
-                regNotice = /NOTICE$/,
-                sentByUs = /^OUR/.test(type),//ignore
-                containsNick = util.testForNick(self.client.nickname);
+        // if (type && data) {
+        // //regexs
+        //     var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
+        //         ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
+        //         regNotice = /NOTICE$/,
+        //         sentByUs = /^OUR/.test(type),//ignore
+        //         containsNick = util.testForNick(self.client.nickname);
 
-            var notice = function() {
-                if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
-                    uiobj.beep();
-                    uiobj.flash();
-                }
-            };
+        //     var notice = function() {
+        //         if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
+        //             uiobj.beep();
+        //             uiobj.flash();
+        //         }
+        //     };
 
-            hilight = ui.HILIGHT_ACTIVITY;
+        //     highlight = ui.HILIGHT_ACTIVITY;
 
-            if (ismsg) {
-                //highlighting
-                if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.addClass('message');
-                    if(isbot)
-                        $ele.addClass('bot');
-                    else if(sentByUs)
-                        $ele.addClass('our');
-                    if(!isbot && data.m.startsWith("!"))
-                        $ele.addClass('command');
-                }
+        //     if (ismsg) {
+        //         //highlighting
+        //         if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
+        //             $ele.addClass('message');
+        //             if(isbot)
+        //                 $ele.addClass('bot');
+        //             else if(sentByUs)
+        //                 $ele.addClass('our');
+        //             if(!isbot && data.m.startsWith("!"))
+        //                 $ele.addClass('command');
+        //         }
 
-                if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
-                    if (sentByUs || regNotice.test(type)) {
-                        hilight = ui.HILIGHT_ACTIVITY;
-                    } else {
-                        hilight = ui.HILIGHT_US;
-                        notice(); //private message
-                    }
-                }
-                else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.style.color = "red";
-                    notice();
-                }
-                else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
-                    if(isbot) {
-                        $ele.addClass('bot@us')
-                    }
-                    else {
-                        hl_line = true;
-                        hilight = ui.HILIGHT_US;
-                        notice();//name mention in chan
-                    }
-                }
-                else if (hilight !== ui.HILIGHT_US) {
-                    hilight = ui.HILIGHT_SPEECH;
-                }
-            }
-        }
+        //         if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
+        //             if (sentByUs || regNotice.test(type)) {
+        //                 highlight = ui.HILIGHT_ACTIVITY;
+        //             } else {
+        //                 highlight = ui.HILIGHT_US;
+        //                 notice(); //private message
+        //             }
+        //         }
+        //         else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
+        //             notice();
+        //         }
+        //         else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
+        //             hl_line = true;
+        //             if(isbot) {
+        //                 $ele.addClass('bot@us')
+        //             }
+        //             else {
+        //                 highlight = ui.HILIGHT_US;
+        //                 notice();//name mention in chan
+        //             }
+        //         }
+        //         else if (highlight !== ui.HILIGHT_US) {
+        //             highlight = ui.HILIGHT_SPEECH;
+        //         }
+        //     }
+        // }
+        highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
 
-        if (!self.active && (hilight !== ui.HILIGHT_NONE))
-            self.highlightTab(hilight);
+        if (!self.active && (highlight !== ui.HILIGHT_NONE))
+            self.highlightTab(highlight);
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);

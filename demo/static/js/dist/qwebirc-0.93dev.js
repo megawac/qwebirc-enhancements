@@ -11564,8 +11564,7 @@ Copyright (c) 2010 Arieh Glazer
         parsePunctuation: function(text) {
             var lead = '',
                 mid = text,
-                end = '',
-                check;
+                end = '';
 
             function leader(punc) {
                 var lead = getLeading(mid, punc);
@@ -11594,20 +11593,12 @@ Copyright (c) 2010 Arieh Glazer
                 }
             }
 
-            do {
-                check = this.leading_punctuation.some(leader);
-            }
-            while (check);
+            //destructive calls
+            while(this.leading_punctuation.some(leader)) {};
 
-            do {
-                check = this.trailing_punctuation.some(trailer);
-            }
-            while (check);
+            while(this.trailing_punctuation.some(trailer)) {};
 
-            do {
-                check = this.wrapping_punctuation.some(wrapper);
-            }
-            while (check);
+            while(this.wrapping_punctuation.some(wrapper)) {};
 
             return {
                 lead: lead,
@@ -11716,10 +11707,18 @@ Fx.AutoScroll = new Class({
                 }
             };
 
-        this.element.addEvent("scroll:throttle(" + interval + ")", throttleToggler) //TODO: self toggling - find a fix
-            // .addEvent("selectstart:throttle(" + interval + ")", throttleToggler)
-            .addEvent("adopt", self.updatePosition); //new elements appended to container
-        window.addEvent("resize", self.updatePosition);
+        this.$events = {
+            element: {
+                "adopt": self.updatePosition
+            },
+            'window': {
+                "resize": self.updatePosition
+            }
+        }
+        this.$events["scroll:throttle(" + interval + ")"] = throttleToggler;
+
+        this.element.addEvents(this.$events.element);
+        window.addEvents(this.$events.window);
 
         self.autoScroll();
     },
@@ -11731,6 +11730,8 @@ Fx.AutoScroll = new Class({
     },
 
     stopScroll: function() {
+        clearTimeout(timers.throttle);
+        clearInterval(timers.autoscroll);
         delete this.$timers.autoscroll;
     },
 
@@ -11771,6 +11772,13 @@ Fx.AutoScroll = new Class({
                 this.threshold = this.options.threshold || target.getHeight();
         }
         return this;
+    },
+
+    stop: function() {
+        window.removeEvents(this.$events.window);
+        this.element.removeEvents(this.$events.element);
+        this.stopScroll();
+        return this.parent();
     }
 });
 
@@ -12284,72 +12292,6 @@ Fx.AutoScroll = new Class({
         // }
     };
 })(this);
-//replacement for highlight recent
-(function (window, $$) {
-    "use strict";
-
-    //not necessary ----- just do with css rules [nth-children] :)
-    window.Highlighter = new Class({
-        Implements: [Options, Events],
-        Binds: ["highlight", "removeElement"],
-        options: {
-            highlightClasses: ["highlight"], //array of classes to iterate
-            maxHighlight: NaN,//max elements to highlight at anytime NaN/undef will be ignored
-            selector: '> *',
-            filter: Function.from(false) // (f -> bool) whether to hl a element
-        },
-        index: 0,
-        highlighted: [],
-
-        initialize: function(element, options) {
-            this.setOptions(options);
-            this.element = $(element);
-
-            this.element.addEvents({
-                adopt: this.highlight,
-                disown: this.removeElement
-            });
-        },
-
-        //can be applied one or more ele
-        highlight: function($ele) {
-            if(this.options.filter($ele)) {
-                var clas = this.options.highlightClasses.next(this.index ++),
-                    $$ele = $$($ele),
-                    highlighted = this.highlighted.combine($$ele),
-                    sel2 = highlighted.length - this.options.maxHighlight;
-                $$ele.addClass(clas);
-
-                if(sel2 > 0)
-                    this.removeHighlights(highlighted.splice(0, sel2));
-            }
-        },
-
-        removeElement: function(el) {
-            var i = this.highlighted.indexOf(el);
-            if(i > 0) {
-                this.highlighted.splice(i, 1);
-                this.element.getElements(this.selector);
-            }
-            return this;
-        },
-
-        removeHighlights: function(ele, hl) {
-            hl = hl || this.options.highlightClasses.join(",.");
-            if(!hl.startsWith("."))
-                hl = "." + hl;
-            var highlighted = $$(ele || this.element.getElements(hl));
-
-            hl.split(",").each(function(clas) {
-                highlighted.removeClass(clas.substring(1)); //remove period
-            });
-        }
-
-
-    });
-
-})(this, this.$$);
-
 (function() {
 
     Array.implement({
@@ -13988,8 +13930,6 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
     // wrapper function for requirejs or normal object
     var wrap = function(Model) {
 
-            var syncPseudo = 'sync:';
-
             // decorate the original object by adding a new property Sync
             return new Class({
                 Extends: Model,
@@ -14046,7 +13986,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
                     if(this.validate()) {
                         var defaults = this.options.defaults,
                             data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
-                                return val !== defaults[key];//dont store defaults if minimize is true
+                                return Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
                             }) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
                         this.trigger('save');
@@ -15138,7 +15078,43 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:beep\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:beep\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:flash\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:flash\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:beep\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:beep\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:flash\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:flash\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:beep\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:beep\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:flash\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:flash\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -15660,8 +15636,6 @@ irc.colours = [//http://www.mirc.com/colors.html
         detachWindow: "Detach Window",
 
         //options
-        BEEP_ON_MENTION: "Beep when nick mentioned or on query activity (requires Flash or html5)",
-        FLASH_ON_MENTION: "Flash titlebar when nick mentioned or on query activity",
         DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
         DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
         NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
@@ -15674,7 +15648,14 @@ irc.colours = [//http://www.mirc.com/colors.html
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
-        FONT_SIZE: "Set font size"
+        FONT_SIZE: "Set font size",
+
+
+        NOTIFY_ON_MENTION: "When nick mentioned:",
+        NOTIFY_ON_PM: "When private messaged:",
+        NOTIFY_ON_NOTICE: "When channel notice:",
+        FLASH: "flash",
+        BEEP: "beep"
     };
 
 
@@ -15975,10 +15956,9 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
-util.testForNick = Functional.memoize(function(nick) {
-    var classes = '[\\s\\.,;:]';
-    return prelude.test(new RegExp('(^|' + classes + ')' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"));
-});
+util.testForNick = function(nick, name) {
+    return prelude.test(new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"), name);
+};
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
@@ -18233,7 +18213,7 @@ irc.IRCClient = new Class({
                     if (extra["f"] === BROUHAHA) {
                         extra['f'] = '';
 
-                        if (!util.isChannel(chanName)) {
+                        if (!util.isChannel(channel)) {
                             extra['f'] = '>';
                         }
                         extra["f"] += irc.activeChannel; //hack active chan is on qwebirc.irc object
@@ -20363,14 +20343,10 @@ ui.NotificationUI = new Class({
         this.parent.apply(this, arguments);
 
 
-        if (this.uiOptions2.get("beep_on_mention")) {
-            this.soundInit();
-            this.lastSound = 0;
-        }
-
+        this.soundInit();
+        this.lastSound = 0;
 
         var flasher = this.__flasher = new ui.Flasher(this.options, this.uiOptions2);
-
         this.flash = flasher.flash;
         this.cancelFlash = flasher.cancelFlash;
     },
@@ -20390,8 +20366,7 @@ ui.NotificationUI = new Class({
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundPlayer.isReady() && this.uiOptions2.get("beep_on_mention") &&
-                (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+        if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.sounds[alias]();
         }
@@ -20408,9 +20383,7 @@ ui.NotificationUI = new Class({
 ui.Flasher = new Class({
     Binds: ["flash", "cancelFlash"],
 
-    initialize: function(opts, uiOptions) {
-        this.uiOptions = uiOptions;
-
+    initialize: function(opts) {
         this.windowFocused = false;
         this.canUpdateTitle = true;
         this.titleText = document.title;
@@ -20444,7 +20417,7 @@ ui.Flasher = new Class({
     },
     flash: function() {
         var self = this;
-        if (!self.uiOptions.get("flash_on_mention") || self.windowFocused || !self.canFlash || self.flashing)
+        if (self.windowFocused || !self.canFlash || self.flashing)
             return;
 
         self.titleText = document.title; /* just in case */
@@ -21240,6 +21213,8 @@ ui.Theme = new Class({
             }
         });
 
+        self.highlightClasses.currentIndex = 0;
+
         self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
 
@@ -21359,7 +21334,131 @@ ui.Theme = new Class({
 
     urlerize: function(text) {
         return urlifier.urlerize(text);
+    },
+
+    messageParsers: [
+        {//match bots
+            regex: /(^tf2)|((serv|bot)$)/i,
+            classes: 'bot',
+            highlight: false,
+            flash: false,
+            beep: false,
+            types: [ui.WINDOW_CHANNEL],
+            prop: "n"
+        },
+        {
+            regex: /^\!/,
+            classes: 'command',
+            highlight: false,
+            flash: false,
+            beep: false,
+            types: [ui.WINDOW_CHANNEL]
+        },
+        {
+            mentioned: true,
+            classes: 'mentioned',
+            highlight: false,
+            flash: false,
+            beep: false
+            
+        },
+        {
+            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            mentioned: true,
+            classes: '',
+            highlight: false,
+            beep: true,
+            flash: true,
+            prop: "n"
+        },
+        {
+            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            classes: '',
+            highlight: true,
+            beep: false,
+            flash: false,
+            prop: "n"
+        }
+    ],
+
+    typeParsers: [
+        {
+            regex: /NOTICE$/,
+            classes: 'notice',
+            highlight: false,
+            flash: true,
+            beep: true
+        },
+        {
+            regex: /^OUR/,
+            classes: 'our-msg',
+            highlight: false,
+            flash: false,
+            beep: false
+        }
+    ],
+
+    highlightClasses: ['highlight1', 'highlight2', 'highlight3'],
+
+    highlightAndNotice: function(data, type, win, $ele) {
+        var self = this,
+            tabHighlight = ui.HILIGHT_NONE,
+            highlights = self.highlightClasses;
+
+        
+
+        if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
+            if(data.m)
+                $ele.addClass('message');
+            self.messageParsers.each(function(parser) {
+                if((parser.types && !parser.types.contains(win.type)))
+                    return;
+                if((!parser.regex || parser.regex.test(data[(parser.prop || "m")])) &&
+                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) ) {//implication
+                    if(parser.flash) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.beep) {
+                        console.log(parser.regex);
+                        win.parentObject.beep();
+                    }
+                    if(parser.highlight) {
+                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                    }
+                    if($chk(parser.classes)) {
+                        $ele.addClass(parser.classes);
+                    }
+                }
+            });
+        }
+
+        if(type) {
+            self.typeParsers.each(function(parser) {
+                if(parser.types && !parser.types.contains(win.type))
+                    return;
+                if((parser.regex && parser.regex.test(type))) {
+                    if(parser.flash) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.beep) {
+                        console.log(parser.regex);
+                        win.parentObject.flash();
+                    }
+                    if(parser.highlight) {
+                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                    }
+                    if($chk(parser.classes)) {
+                        $ele.addClass(parser.classes);
+                    }
+                }
+            });
+        }
+
+        return tabHighlight
     }
+
 });
 
 
@@ -22289,7 +22388,6 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "beep_on_mention": true,
             "flash_on_mention": ui.supportsFocus().every(Functional.I),
             "dedicated_msg_window": false,
             "dedicated_notice_window": false,
@@ -22305,7 +22403,12 @@ config.OptionModel = new Class({
             "query_on_nick_click": true,
             "show_nicklist": true,
             "show_timestamps": true,
-            "font_size": 12
+            "font_size": 12,
+
+            "notify_on_mention": {flash:true, beep:true},
+            "notify_on_pm": {flash:true, beep:true},
+            "notify_on_notice": {flash:false, beep:true},
+            "custom_notices": []
         },
         key: "qweboptions",
         minimize: true
@@ -22327,7 +22430,12 @@ ui.OptionView = new Class({
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
-            var id = target.get('id');
+            var split = target.get('id').split(':'),
+                id = split[0];
+                // sub = split.slice(1).join('.'),
+                // item = this.model.get(id);
+
+            //handle sub props
             if($defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
@@ -22377,14 +22485,14 @@ ui.OptionView = new Class({
     },
 
     save: function(e) {
-        e.stop();
+        if(e) e.stop();
         this.model.save();
         this.destroy();
         this.trigger('close');
     },
 
     reset: function(e) {
-        e.stop();
+        if(e) e.stop();
         this.model.sync();
         this.destroy();
         this.trigger('close');
@@ -22579,68 +22687,68 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
-        var hilight = ui.HILIGHT_NONE,
+        var highlight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        if (type && data) {
-        //regexs
-            var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
-                ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
-                regNotice = /NOTICE$/,
-                sentByUs = /^OUR/.test(type),//ignore
-                containsNick = util.testForNick(self.client.nickname);
+        // if (type && data) {
+        // //regexs
+        //     var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
+        //         ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
+        //         regNotice = /NOTICE$/,
+        //         sentByUs = /^OUR/.test(type),//ignore
+        //         containsNick = util.testForNick(self.client.nickname);
 
-            var notice = function() {
-                if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
-                    uiobj.beep();
-                    uiobj.flash();
-                }
-            };
+        //     var notice = function() {
+        //         if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
+        //             uiobj.beep();
+        //             uiobj.flash();
+        //         }
+        //     };
 
-            hilight = ui.HILIGHT_ACTIVITY;
+        //     highlight = ui.HILIGHT_ACTIVITY;
 
-            if (ismsg) {
-                //highlighting
-                if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.addClass('message');
-                    if(isbot)
-                        $ele.addClass('bot');
-                    else if(sentByUs)
-                        $ele.addClass('our');
-                    if(!isbot && data.m.startsWith("!"))
-                        $ele.addClass('command');
-                }
+        //     if (ismsg) {
+        //         //highlighting
+        //         if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
+        //             $ele.addClass('message');
+        //             if(isbot)
+        //                 $ele.addClass('bot');
+        //             else if(sentByUs)
+        //                 $ele.addClass('our');
+        //             if(!isbot && data.m.startsWith("!"))
+        //                 $ele.addClass('command');
+        //         }
 
-                if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
-                    if (sentByUs || regNotice.test(type)) {
-                        hilight = ui.HILIGHT_ACTIVITY;
-                    } else {
-                        hilight = ui.HILIGHT_US;
-                        notice(); //private message
-                    }
-                }
-                else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
-                    $ele.style.color = "red";
-                    notice();
-                }
-                else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
-                    if(isbot) {
-                        $ele.addClass('bot@us')
-                    }
-                    else {
-                        hl_line = true;
-                        hilight = ui.HILIGHT_US;
-                        notice();//name mention in chan
-                    }
-                }
-                else if (hilight !== ui.HILIGHT_US) {
-                    hilight = ui.HILIGHT_SPEECH;
-                }
-            }
-        }
+        //         if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
+        //             if (sentByUs || regNotice.test(type)) {
+        //                 highlight = ui.HILIGHT_ACTIVITY;
+        //             } else {
+        //                 highlight = ui.HILIGHT_US;
+        //                 notice(); //private message
+        //             }
+        //         }
+        //         else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
+        //             notice();
+        //         }
+        //         else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
+        //             hl_line = true;
+        //             if(isbot) {
+        //                 $ele.addClass('bot@us')
+        //             }
+        //             else {
+        //                 highlight = ui.HILIGHT_US;
+        //                 notice();//name mention in chan
+        //             }
+        //         }
+        //         else if (highlight !== ui.HILIGHT_US) {
+        //             highlight = ui.HILIGHT_SPEECH;
+        //         }
+        //     }
+        // }
+        highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
 
-        if (!self.active && (hilight !== ui.HILIGHT_NONE))
-            self.highlightTab(hilight);
+        if (!self.active && (highlight !== ui.HILIGHT_NONE))
+            self.highlightTab(highlight);
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
@@ -22783,17 +22891,17 @@ ui.QUI.Window = new Class({
                 // .set('id', 'mainircwindow');
             self.fxscroll = new Fx.AutoScroll(lines, {
             });
-            self.highlighter = new Highlighter(lines, { //highlight last 5 messages
-                filter: function($ele) {
-                    return $ele.hasClass('message') &&
-                        !$ele.hasClass('bot') &&
-                        !$ele.hasClass('command') &&//msg 2 bot
-                        !$ele.hasClass('our');//from us
-                },
-                selector: '.message:not(.bot):not(.command):not(.our)',
-                highlightClasses: ['highlight', 'highlight2'],
-                maxHighlight: NaN
-            });
+            // self.highlighter = new Highlighter(lines, { //highlight last 5 messages
+            //     filter: function($ele) {
+            //         return $ele.hasClass('message') &&
+            //             !$ele.hasClass('bot') &&
+            //             !$ele.hasClass('command') &&//msg 2 bot
+            //             !$ele.hasClass('our');//from us
+            //     },
+            //     selector: '.message:not(.bot):not(.command):not(.our)',
+            //     highlightClasses: ['highlight', 'highlight2'],
+            //     maxHighlight: NaN
+            // });
 
             lines.store("fxscroll", self.fxscroll)
                 .store("client", self.client);
@@ -22854,6 +22962,12 @@ ui.QUI.Window = new Class({
         this.parent();
 
         this.parentObject.tabs.disown(this.tab);
+        if(this.fxscroll)
+            this.fxscroll.stop();
+        if(this.resizable)
+            this.resizable.detach().stop();
+        if(this.drag)
+            this.drag.detach().stop();
 
         if(this.detached) {
             this.wrapper.destroy();

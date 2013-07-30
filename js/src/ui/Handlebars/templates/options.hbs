@@ -92,7 +92,36 @@
             </div>
         </div>
         <div class="alert-options control-group well">
-
+            <div class="controls">
+                <label class="control-label">{{lang.NOTIFY_ON_MENTION}}
+                    <label class="checkbox-inline" for="notify_on_mention:beep">{{lang.BEEP}}
+                        <input type="checkbox" id="notify_on_mention:beep" {{check notify_on_mention.beep}}>
+                    </label>
+                    <label class="checkbox-inline" for="notify_on_mention:flash">{{lang.FLASH}}
+                        <input type="checkbox" id="notify_on_mention:flash" {{check notify_on_mention.flash}}>
+                    </label>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="control-label">{{lang.NOTIFY_ON_PM}}
+                    <label class="checkbox-inline" for="notify_on_pm:beep">{{lang.BEEP}}
+                        <input type="checkbox" id="notify_on_pm:beep" {{check notify_on_pm.beep}}>
+                    </label>
+                    <label class="checkbox-inline" for="notify_on_pm:flash">{{lang.FLASH}}
+                        <input type="checkbox" id="notify_on_pm:flash" {{check notify_on_pm.flash}}>
+                    </label>
+                </label>
+            </div>
+            <div class="controls">
+                <label class="control-label">{{lang.NOTIFY_ON_NOTICE}}
+                    <label class="checkbox-inline" for="notify_on_notice:beep">{{lang.BEEP}}
+                        <input type="checkbox" id="notify_on_notice:beep" {{check notify_on_notice.beep}}>
+                    </label>
+                    <label class="checkbox-inline" for="notify_on_notice:flash">{{lang.FLASH}}
+                        <input type="checkbox" id="notify_on_notice:flash" {{check notify_on_notice.flash}}>
+                    </label>
+                </label>
+            </div>
         </div>
         <div class="hotkeys control-group well">
             

@@ -1,7 +1,9 @@
 topic_background=c,f2f0ff
 lines_background=c,f2f0ff
-lines_highlight=c,f6ff94
+lines_highlight1=c,f6ff94
 lines_highlight2=c,A4FCCA
+lines_highlight3=c,FAC3D5
+mentioned_colour=c,E63772
 topic_border=c,c8d2dc
 tabbar_border=c,c3cee0
 tabbar_background=c,e2ecf9
@@ -24,7 +26,6 @@ lastpositionbar=c,C8D2DC
 windowfont_size=o,font_size,12
 timestamp_display=o,show_timestamps,inline,none
 timestamp_padding_left=o,show_timestamps,1em,11px
-timestamp_text_indent=o,show_timestamps,0,-9px
 
 #ircui {
   /*position: absolute;
@@ -94,17 +95,25 @@ timestamp_text_indent=o,show_timestamps,0,-9px
 
 .qui .ircwindow .lines {
     font-family: Consolas, "Lucida Console", monospace;
-    text-indent: $(timestamp_text_indent);
+    text-indent: 10px;
     padding-left: $(timestamp_padding_left);
     word-wrap: break-word;
 }
 
-.qui .lines .highlight { /*last 5 messages not sent by the bot*/
-    background-color: $(lines_highlight);
+.qui .lines .highlight1 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight1);
 }
 
 .qui .lines .highlight2 { /*last 5 messages not sent by the bot*/
     background-color: $(lines_highlight2);
+}
+
+.qui .lines .highlight3 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight3);
+}
+
+.qui .lines .mentioned {
+    background-color: $(mentioned_colour) !important;
 }
 
 .qui .properties {

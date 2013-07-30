@@ -66,17 +66,17 @@ ui.QUI.Window = new Class({
                 // .set('id', 'mainircwindow');
             self.fxscroll = new Fx.AutoScroll(lines, {
             });
-            self.highlighter = new Highlighter(lines, { //highlight last 5 messages
-                filter: function($ele) {
-                    return $ele.hasClass('message') &&
-                        !$ele.hasClass('bot') &&
-                        !$ele.hasClass('command') &&//msg 2 bot
-                        !$ele.hasClass('our');//from us
-                },
-                selector: '.message:not(.bot):not(.command):not(.our)',
-                highlightClasses: ['highlight', 'highlight2'],
-                maxHighlight: NaN
-            });
+            // self.highlighter = new Highlighter(lines, { //highlight last 5 messages
+            //     filter: function($ele) {
+            //         return $ele.hasClass('message') &&
+            //             !$ele.hasClass('bot') &&
+            //             !$ele.hasClass('command') &&//msg 2 bot
+            //             !$ele.hasClass('our');//from us
+            //     },
+            //     selector: '.message:not(.bot):not(.command):not(.our)',
+            //     highlightClasses: ['highlight', 'highlight2'],
+            //     maxHighlight: NaN
+            // });
 
             lines.store("fxscroll", self.fxscroll)
                 .store("client", self.client);
@@ -137,6 +137,12 @@ ui.QUI.Window = new Class({
         this.parent();
 
         this.parentObject.tabs.disown(this.tab);
+        if(this.fxscroll)
+            this.fxscroll.stop();
+        if(this.resizable)
+            this.resizable.detach().stop();
+        if(this.drag)
+            this.drag.detach().stop();
 
         if(this.detached) {
             this.wrapper.destroy();
