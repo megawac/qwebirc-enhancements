@@ -11,23 +11,22 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
                 var parsed = this.parsePunctuation(word),
-                    mid = parsed.mid,
-                    res = mid.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                    mid = parsed.mid;
 
-                if(res) {
-                    res = res[0].slice(10);//remove qwebirc://
-                    if(res.contains("whois/")) {
-                        var chan_match = res.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
+                if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
+                    var cmd = mid.slice(10);//remove qwebirc://
+                    if(cmd.startsWith("whois/")) {
+                        var chan_match = cmd.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
-                        var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = res.slice(6, chanlen);
-                        res = templates.userlink({'userid': user, 'username': user + chan});
+                        var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
+                        var user = cmd.slice(6, chanlen);
+                        cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(res.contains("options") || res.contains("embedded")) {
+                    else if(cmd.contains("options") || cmd.contains("embedded")) {
                         console.log("called yo");
-                        console.log(res);
+                        console.log(cmd);
                     }
-                    word = parsed.lead + res + parsed.end;
+                    word = parsed.lead + cmd + parsed.end;
                 }
             }
             return word;

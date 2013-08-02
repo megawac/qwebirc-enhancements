@@ -278,7 +278,7 @@ qwebirc.irc.BaseIRCClient = new Class({
   irc_NOTICE: function(prefix, params) {
     var user = prefix;
     var target = params[0];
-    var message = params.indexFromEnd(-1);
+    var message = params.getLast();
 
     if((user == "") || (user.indexOf("!") == -1)) {
       this.serverNotice(user, message);

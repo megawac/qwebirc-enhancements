@@ -134,25 +134,28 @@ irc.IRCTracker = new Class({
     },
 
     getSortedByLastSpoke: function(channel) {
-        var sorter = function(a, b) {
-            return b[1].lastSpoke - a[1].lastSpoke;
-        };
-
         var chan = this.getChannel(channel);
         if (!chan)
             return;
+
+        var sorter = function(key1, key2) {
+            return chan[key2].lastSpoke - chan[key1].lastSpoke;
+        };
 
         // var names = [];
         // Hash.each(chan, function(chan, name) {
         //     names.push([name, chan]);
         // });
-        var names = Object.mapA(chan, function(c, n) {
-            return [n, c];
+        // var names = util.mapA(chan, function(c, n) {
+        //     return [n, c];
+        // });
+        var sorted = Object.keys(chan).sort(sorter).map(function(key){
+            return chan[key];
         });
 
-        var newnames = names.sort(sorter)
-                            .map(prelude.first);
+        // var newnames = names.sort(sorter)
+        //                     .map(prelude.first);
 
-        return newnames;
+        return sorted;
     }
 });

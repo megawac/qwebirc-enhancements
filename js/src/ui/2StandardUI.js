@@ -4,14 +4,29 @@ ui.StandardUI = new Class({
     Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
 
     UICommands: ui.UI_COMMANDS,
-    initialize: function(parentElement, windowClass, uiName, options) {
+    initialize: function(parentElement, theme, windowClass, uiName, options) {
         var self = this;
         self.parent(parentElement, windowClass, uiName, options);
+
+        self.theme = theme;
 
         self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
         self.uiOptions2 = new config.OptionModel({
-            defaults: options.uiOptionsArg
+            defaults: self.options.uiOptionsArg
+        }, {
+            onInit: function() {//merge where necessary
+                var model = this;
+                ["notify_on_mention", "notify_on_pm", "notify_on_notice"].each(function(type) {
+                    var notifier = self.theme.messageParsers.filter(function(n) { return n.id === type; })[0],
+                        set = model.get(type);
+                    Object.merge(notifier, set);
+
+                    model.on("change:" + type, function() {
+                        Object.merge(notifier, set);
+                    });
+                });
+            }
         });
 
         self.uiOptions2.on({
@@ -23,8 +38,6 @@ ui.StandardUI = new Class({
             "change:font_size": self.setModifiableStylesheetValues
         });
 
-
-
         self.customWindows = {};
 
         self.__styleValues = {
@@ -32,59 +45,8 @@ ui.StandardUI = new Class({
             saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
             lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
         };
-
-        var ev = Browser.Engine.trident ? "keydown" : "keypress";
-        document.addEvent(ev, self.__handleHotkey);
     },
-    __handleHotkey: function(x) {
-        if (!x.alt || x.control) {
-            if (x.key === "backspace" || x.key === "/")
-                if (!this.getInputFocused(x))
-                    x.stop();
-            return;
-        }
-        var success = false;
-        if (x.key.match(/a/i)) {
-            var highestNum = 0;
-            var highestIndex = -1;
-            success = true;
 
-            x.stop();
-            //good place for foldr no?
-            this.windowArray.each(function(win, indx){
-                var h = win.hilighted;
-                if (h > highestNum) {
-                    highestIndex = indx;
-                    highestNum = h;
-                }
-            });
-            if (highestIndex !== -1)
-                this.selectWindow(this.windowArray[highestIndex]);
-        } else if (prelude.isNumber(x.key)) { /*x.key >= '0' && x.key <= '9'*/
-            success = true;
-
-            //number = x.key - '0'; //ridiculously stupid
-            number = (Number.toInt(x.key) || 10) - 1;
-
-            if (number >= this.windowArray.length)
-                return;
-
-            this.selectWindow(this.windowArray[number]);
-        } else if (x.key == "left") {
-            this.prevWindow();
-            success = true;
-        } else if (x.key == "right") {
-            this.nextWindow();
-            success = true;
-        }
-        if (success)
-            x.stop();
-    },
-    getInputFocused: function(x) {
-        //wtf? (x.target.TYPE =="INPUT") or something work?
-        var focused = !($$("input").contains(x.target) && $$("textarea").contains(x.target));
-        return focused;
-    },
     newCustomWindow: function(name, select, type) {
         if (!type)
             type = ui.WINDOW_CUSTOM;
@@ -99,6 +61,7 @@ ui.StandardUI = new Class({
 
         return win;
     },
+
     addCustomWindow: function(windowName, class_, cssClass, options) {
         if (!$defined(options))
             options = {};

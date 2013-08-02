@@ -35,7 +35,7 @@
     }
 
     function getTrailing(text, punc) {
-        if (typeOf(punc) == "regexp") {
+        if (Type.isRegExp(punc)) {
             var match = text.match(punc);
             if (match) {
                 return match[0];
@@ -48,7 +48,7 @@
     }
 
     function getLeading(text, punc) {
-        if (typeOf(punc) == "regexp") {
+        if (Type.isRegExp(punc)) {
             var match = text.match(punc);
             if (match) {
                 return match[0];
@@ -102,14 +102,15 @@
                     return !pat.wholeWord || pat.pattern.test(text);
                 });
 
+            function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                if (pattern.pattern.test(item)) {
+                    result[i] = pattern.parse.call(self, item);
+                }
+            }
+
             for (var i = result.length - 1, item; i >= 0; i--) {
                 item = result[i];
-
-                funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                    if (pattern.pattern.test(item)) {
-                        result[i] = pattern.parse.call(self, item);
-                    }
-                });
+                funcs.each(parseWord);
             };
             self.patterns.each(function(pattern) {
                 if (pattern.wholeWord && pattern.pattern.test(result)) {

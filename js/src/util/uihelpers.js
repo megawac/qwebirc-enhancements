@@ -1,5 +1,4 @@
 
-
 ui.setTitle = function(title, options) {
     if (options && options.alert) {
         ui.setTitleAlert(title, options);
@@ -15,26 +14,27 @@ ui.supportsFocus = function() {
     return result;
 };
 
-util.NBSPCreate = function(text, element) {
-    var e = text.split("  ");
-    e.each(function(txt, i) {
-        var tn = document.createTextNode(txt);
-        element.appendChild(tn);
-
-        if (i != e.length - 1) {
-            var e2 = new Element("span", {"html": "&nbsp;&nbsp;"});
-            element.appendChild(e2);
-        }
-    });
-};
 
 util.setCaretPos = Element.setCaretPosition;
 
 util.setAtEnd = function($el) {
-    util.setCaretPos($el, $el.value.length);
+    $el.setCaretPosition($el.value.length);
 };
 
 util.getCaretPos = Element.getCaretPosition;
+
+util.wrapSelected = function($eles, wrap) {
+    $eles = $$($eles);
+
+    $eles.each(function($ele) {
+        var range = $ele.getSelectedRange();
+        if(range.start != range.end) {
+            var text = $ele.text();
+            $ele.text(text.slice(0, range.start) + wrap + text.slice(range.start, range.end) + wrap + text.slice(range.end))
+                .setCaretPosition(range.end + wrap.length);
+        }
+    });
+}
 
 util.percentToPixel= function(data, par) {
     par = par || document.body;
@@ -44,7 +44,6 @@ util.percentToPixel= function(data, par) {
         y: size.y * (data.y / 100)
     };
 }
-
 
 ui.decorateDropdown = function(btn, ddm, options) {
     ddm.hideMenu = function() {

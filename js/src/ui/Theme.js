@@ -8,7 +8,7 @@ ui.Theme = new Class({
             // for (var k in themeDict) {
             //     theme[k] = themeDict[k];
             // }
-            $extend(theme, themeDict);
+            Object.append(theme, themeDict);
         }
         Object.each(theme, function(data, key) {
             if (key === "PREFIX")
@@ -21,7 +21,7 @@ ui.Theme = new Class({
             }
         });
 
-        self.highlightClasses.currentIndex = 0;
+        self.highlightClasses.channels = {};
 
         self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
@@ -31,13 +31,13 @@ ui.Theme = new Class({
         self.__ccmaph["{"] = self.__ccmaph["}"] = "";
     },
 
-    __dollarSubstitute: function(x, h, mapper) {
-        return x.substitute(Object.append(h||{}, mapper||{}))
+    __dollarSubstitute: function(str, data, mapper) {
+        return str.substitute(Object.append(data||{}, mapper||{}))
     },
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
-            isobj = $type(_data) == "object",
+            isobj = Type.isObject(_data),
             data = isobj ? Object.clone(_data) : _data,
             val;
 
@@ -81,9 +81,6 @@ ui.Theme = new Class({
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
-
-        // if($type(data) === "string")
-        //     return line;
 
         var result = line;
 
@@ -145,126 +142,101 @@ ui.Theme = new Class({
     },
 
     messageParsers: [
-        {//match bots
-            regex: /(^tf2)|((serv|bot)$)/i,
-            classes: 'bot',
-            highlight: false,
-            flash: false,
-            beep: false,
-            types: [ui.WINDOW_CHANNEL],
-            prop: "n"
+        {
+            type: /NOTICE$/,
+            classes: '',
+            flash: true,
+            beep: true,
+            id: 'notify_on_notice',
+            highlight: ui.HILIGHT_SPEECH
         },
         {
-            regex: /^\!/,
+            type: /PRIVMSG$/,
+            flash: true,
+            beep: true,
+            id: 'notify_on_pm',
+            highlight: ui.HILIGHT_SPEECH
+        },
+        {
+            type: /^OUR/,
+            classes: 'our-msg'
+        },
+        {//match bots
+            nic: /(^tf2)|((serv|bot)$)/i,
+            classes: 'bot',
+            types: [ui.WINDOW_CHANNEL]
+        },
+        {
+            msg: /^\!/,
             classes: 'command',
-            highlight: false,
-            flash: false,
-            beep: false,
             types: [ui.WINDOW_CHANNEL]
         },
         {
             mentioned: true,
             classes: 'mentioned',
-            highlight: false,
-            flash: false,
-            beep: false
-            
+            notus: true,
+            tabhl: ui.HILIGHT_US
         },
         {
-            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
             mentioned: true,
             classes: '',
-            highlight: false,
             beep: true,
             flash: true,
-            prop: "n"
+            notus: true,
+            id: 'notify_on_mention'//for filtering
         },
         {
-            regex: /^((?!(tf2|bot|serv|\!)).)*$/i,
+            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
             highlight: true,
-            beep: false,
-            flash: false,
-            prop: "n"
+            notus: true,
+            id: 'highlighter',
+            tabhl: ui.HILIGHT_ACTIVITY,
+            types: [ui.WINDOW_CHANNEL]
         }
     ],
 
-    typeParsers: [
-        {
-            regex: /NOTICE$/,
-            classes: 'notice',
-            highlight: false,
-            flash: true,
-            beep: true
-        },
-        {
-            regex: /^OUR/,
-            classes: 'our-msg',
-            highlight: false,
-            flash: false,
-            beep: false
-        }
-    ],
-
-    highlightClasses: ['highlight1', 'highlight2', 'highlight3'],
+    highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
 
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
             tabHighlight = ui.HILIGHT_NONE,
-            highlights = self.highlightClasses;
-
-        
+            highlights = self.highlightClasses,
+            notus = !(/^OUR/.test(type));//wish we could just use not selector
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m)
                 $ele.addClass('message');
             self.messageParsers.each(function(parser) {
-                if((parser.types && !parser.types.contains(win.type)))
-                    return;
-                if((!parser.regex || parser.regex.test(data[(parser.prop || "m")])) &&
-                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) ) {//implication
-                    if(parser.flash) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.beep) {
-                        console.log(parser.regex);
-                        win.parentObject.beep();
-                    }
+                //sorry little crazy :)
+                if( (!parser.notus || notus) &&//implications - organized them by complexity
+                    (!parser.types || parser.types.contains(win.type)) &&
+                    (!parser.type || parser.type.test(type)) && 
+                    (!parser.msg || parser.msg.test(data.m)) &&
+                    (!parser.nic || parser.nic.test(data.n)) &&
+                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
+                {
+                    if(win.active && win.name !== BROUHAHA) {
+                        if(parser.flash) {
+                            win.parentObject.flash();
+                        }
+                        if(parser.beep) {
+                            win.parentObject.beep();
+                        }
+                    }   
                     if(parser.highlight) {
-                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                        if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
+                        $ele.addClass(highlights.next(highlights.channels[win.name]++));
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);
                     }
+                    tabHighlight = Math.max(tabHighlight, parser.tabhl);
                 }
-            });
+            })
         }
-
-        if(type) {
-            self.typeParsers.each(function(parser) {
-                if(parser.types && !parser.types.contains(win.type))
-                    return;
-                if((parser.regex && parser.regex.test(type))) {
-                    if(parser.flash) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.beep) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.highlight) {
-                        $ele.addClass(highlights.next(highlights.currentIndex++));
-                    }
-                    if($chk(parser.classes)) {
-                        $ele.addClass(parser.classes);
-                    }
-                }
-            });
-        }
-
-        return tabHighlight
+        return tabHighlight;
     }
-
 });

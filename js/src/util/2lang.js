@@ -43,11 +43,7 @@
         invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
         insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
 
-        invalidNick: message("Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.", types.ERROR),
-        missingNick: message("You must supply a nickname"),
-        missingPass: message("You must supply a password.", types.ERROR),
-        missingAuthInfo: message("You must supply your username and password in auth mode.", types.ERROR),
-
+        
 
         loadingPage: message("Loading . . .", types.INFO),
         submittingPage: message("Submitting . . .", types.INFO),
@@ -72,6 +68,12 @@
 
         closeTab: "Close tab",
         detachWindow: "Detach Window",
+
+        invalidNick: "Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.",
+        missingNick: "You must supply a nickname",
+        missingPass: "You must supply a password.",
+        missingAuthInfo: "You must supply your username and password in auth mode.",
+
 
         //options
         DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
@@ -175,7 +177,7 @@ ui.themes.Default2 = {
     "WHOISREALNAME": [" realname : {m}", true],
     "WHOISCHANNELS": [" channels : {m}", true],
     "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account  : qwebirc://qwhois/{m}", true],
+    "WHOISACCOUNT": [" account  : m", true],
     "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
     "WHOISAWAY": [" away     : {m}", true],
     "WHOISOPER": ["          : {B}IRC Operator{B}", true],

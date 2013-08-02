@@ -14,6 +14,8 @@ var $identity = Functional.I,
 
     splitBang = prelude.split("!"),
 
+    joinBang = prelude.join("!"),
+
     joinEmpty = prelude.join(""),
 
     splitEmpty = prelude.split(""),
@@ -73,11 +75,19 @@ util.formatter = String.substitute;
 // RegExp.escape = prelude.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 RegExp.escape = String.escapeRegExp;
 
+// util.mapA = function(object, fn, bind) {
+//     var results = [];
+//     for (var key in object) {
+//         if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
+//     }
+//     return results;
+// };
+
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = Functional.compose(prelude.first, splitBang);
+util.hostToNick = Functional.compose(joinBang, prelude.restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = Functional.compose(prelude.item(1), splitBang);
+util.hostToHost = Functional.compose(prelude.last, splitBang);
 
 
 var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),

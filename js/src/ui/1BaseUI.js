@@ -110,8 +110,14 @@ ui.BaseUI = new Class({
         this.active = win;
     },
     selectWindow: function(win) {
-        if (this.active)
+        if(Type.isNumber(win))
+            win = this.windowArray[win];
+        else if(Type.isString(win)) 
+            win = this.windows[win];
+        if (this.active) {
+            if(win === this.active) return;
             this.active.deselect();
+        }
         win.select();
         this.updateTitle(win.name + " - " + this.options.appTitle);
     },

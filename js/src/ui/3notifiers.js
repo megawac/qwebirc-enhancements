@@ -8,7 +8,7 @@ ui.NotificationUI = new Class({
     options: {
         minSoundRepeatInterval: 1000
     },
-    initialize: function(/*parentElement, windowClass, uiName, options*/) {
+    initialize: function() {
         // this.parent(parentElement, windowClass, uiName, options);
         this.parent.apply(this, arguments);
 

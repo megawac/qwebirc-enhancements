@@ -1,5 +1,5 @@
 
-ui.NewLoginUI = new Class({
+ui.LoginUI = new Class({
     Extends: ui.NotificationUI,
     loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
         this.postInitialize();
@@ -67,7 +67,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         }
         var stripped = qwebirc.global.nicknameValidator.validate(nickname);
         if (stripped !== nickname) {
-            nickBox.val() = stripped;
+            nickBox.val(stripped);
             alert(lang.invalidNick);
             nickBox.focus();
             return;
@@ -79,14 +79,13 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         cookies.nick.set(nickname);
 
-
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
             data.account = account = usernameBox.val();
             data.password = password = passwordBox.val();
             if (auth.bouncerAuth()) {
                 if (!$chk(password)) {
-                    alert(lang.missingPass.message);
+                    alert(lang.missingPass);
                     passwordBox.focus();
                     return;
                 }
@@ -94,7 +93,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 data.serverPassword = password;
             }
             if (!account || !password) {
-                alert(lang.missingAuthInfo.message);
+                alert(lang.missingAuthInfo);
                 if (!$chk(account)) {
                     usernameBox.focus();
                 } else {

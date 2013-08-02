@@ -79,20 +79,6 @@ ui.Window = new Class({
         this.active = false;
     },
 
-    resetScrollPos: function() {
-        // if (this.scrolleddown) {
-        //     this.scrollToBottom();
-        // } else if ($defined(this.scrollpos)) {
-        //     this.getScrollParent().scrollTo(this.scrollpos.x, this.scrollpos.y);
-        // }
-    },
-    setScrollPos: function() {
-        // if (!this.parentObject.singleWindow) {
-        //     this.scrolleddown = this.scrolledDown();
-        //     this.scrollpos = this.lines.getScroll();
-        // }
-    },
-
 
     /* A line is an object of the form:
     -: current nick
@@ -110,61 +96,6 @@ ui.Window = new Class({
         var highlight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        // if (type && data) {
-        // //regexs
-        //     var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
-        //         ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
-        //         regNotice = /NOTICE$/,
-        //         sentByUs = /^OUR/.test(type),//ignore
-        //         containsNick = util.testForNick(self.client.nickname);
-
-        //     var notice = function() {
-        //         if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
-        //             uiobj.beep();
-        //             uiobj.flash();
-        //         }
-        //     };
-
-        //     highlight = ui.HILIGHT_ACTIVITY;
-
-        //     if (ismsg) {
-        //         //highlighting
-        //         if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
-        //             $ele.addClass('message');
-        //             if(isbot)
-        //                 $ele.addClass('bot');
-        //             else if(sentByUs)
-        //                 $ele.addClass('our');
-        //             if(!isbot && data.m.startsWith("!"))
-        //                 $ele.addClass('command');
-        //         }
-
-        //         if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
-        //             if (sentByUs || regNotice.test(type)) {
-        //                 highlight = ui.HILIGHT_ACTIVITY;
-        //             } else {
-        //                 highlight = ui.HILIGHT_US;
-        //                 notice(); //private message
-        //             }
-        //         }
-        //         else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
-        //             notice();
-        //         }
-        //         else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
-        //             hl_line = true;
-        //             if(isbot) {
-        //                 $ele.addClass('bot@us')
-        //             }
-        //             else {
-        //                 highlight = ui.HILIGHT_US;
-        //                 notice();//name mention in chan
-        //             }
-        //         }
-        //         else if (highlight !== ui.HILIGHT_US) {
-        //             highlight = ui.HILIGHT_SPEECH;
-        //         }
-        //     }
-        // }
         highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
 
         if (!self.active && (highlight !== ui.HILIGHT_NONE))

@@ -8,7 +8,7 @@ config.OptionModel = new Class({
         defaults: {
             "flash_on_mention": ui.supportsFocus().every(Functional.I),
             "dedicated_msg_window": false,
-            "dedicated_notice_window": false,
+            "dedicated_notice_window": true,
             "nick_ov_status": true,
             "accept_service_invites": true,
             "use_hiddenhost": true,
@@ -48,8 +48,7 @@ ui.OptionView = new Class({
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
-            var split = target.get('id').split(':'),
-                id = split[0];
+            var id = target.get('id');
                 // sub = split.slice(1).join('.'),
                 // item = this.model.get(id);
 
@@ -60,7 +59,6 @@ ui.OptionView = new Class({
         },
 
         onReady: render
-        
     },
 
     render: function() {
@@ -92,7 +90,7 @@ ui.OptionView = new Class({
         this.element.getElement('#options').addEvents({ //default will fire before bubble
             'submit': this.save,
             'reset': this.reset
-        })
+        });
 
         this.parent();
         return this;
@@ -106,14 +104,17 @@ ui.OptionView = new Class({
         if(e) e.stop();
         this.model.save();
         this.destroy();
-        this.trigger('close');
     },
 
     reset: function(e) {
         if(e) e.stop();
         this.model.sync();
         this.destroy();
+    },
+
+    destroy: function() {
         this.trigger('close');
+        return this.parent();
     }
 });
-})()
+})();

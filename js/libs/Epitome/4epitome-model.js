@@ -64,24 +64,27 @@
 			},
 
 			// private, real setter functions, not on prototype, see note above
-			_set: function(key, value){
+			_set: function(path, value){
 				// needs to be bound the the instance.
-				if (!key || typeof value === 'undefined') return this;
+				if (typeof path !== 'string' || typeof value === 'undefined') return this;
+				var key = path.split('.')[0];
 
 				// custom setter - see bit further down
 				if (this.properties[key] && this.properties[key]['set'])
 					return this.properties[key]['set'].call(this, value);
 
+				var attr = Object.get(this._attributes, path)
 				// no change? this is crude and works for primitives.
-				if (this._attributes[key] && isEqual(this._attributes[key], value))
+				if (attr && isEqual(attr, value))
 					return this;
 
 				// basic validator support
-				var validator = this.validate(key, value);
-				if (this.validators[key] && validator !== true){
+				var validator = this.validate(path, value);
+				if (Object.get(this.validators, path) && validator !== true){
 					var obj = {};
 					obj[key] = {
 						key: key,
+						path: path,
 						value: value,
 						error: validator
 					};
@@ -94,7 +97,7 @@
 					delete this._attributes[key]; // delete = null.
 				}
 				else {
-					this._attributes[key] = value;
+					Object.set(this._attributes, path, value);
 				}
 
 				// fire an event.
@@ -115,7 +118,8 @@
 				}
 
 				// else, return from attributes or return null when undefined.
-				return (key && typeof this._attributes[key] !== 'undefined') ? this._attributes[key] : null;
+				var attr = Object.get(this._attributes, key);
+				return (typeof attr !== 'undefined') ? attr : null;
 			}.overloadGetter(),
 
 			unset: function(){

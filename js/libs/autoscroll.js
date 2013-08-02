@@ -60,9 +60,10 @@ Fx.AutoScroll = new Class({
     },
 
     stopScroll: function() {
+        var timers = this.$timers;
         clearTimeout(timers.throttle);
         clearInterval(timers.autoscroll);
-        delete this.$timers.autoscroll;
+        timers.autoscroll = null;
     },
 
     toggleScroll: function() {

@@ -3,11 +3,10 @@ ui.QUI = new Class({
     Extends: ui.QuakeNetUI,
     Binds: ["__createChannelMenu"],
     initialize: function(parentElement, theme, options) {
-        this.parent(parentElement, ui.QUI.Window, "qui", options);
+        this.parent(parentElement, theme, ui.QUI.Window, "qui", options);
 
         parentElement.addClass('qui')
                     .addClass('signed-out');
-        this.theme = theme;
         this.parentElement = parentElement;
         this.setModifiableStylesheet("qui");
         this.setHotKeys();
@@ -174,12 +173,67 @@ ui.QUI = new Class({
         return dropdown;
     },
 
-    setHotKeys: function (argument) {
-        var events = storage.get('hotkeys');
-        console.log('todo');
-        if(keys && events) {
-            keys.activate();
+    keyboardEvents: {
+        focusInput: {
+            keys: 'ctrl+space',
+            description: '',
+            handler: function(e) {
+                e.stop();
+                if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+            }
+        },
+        testEvent: {
+            keys: 'shift+b',
+            description: '',
+            handler: prelude.log
+        },
+        nextWindow: {
+            keys: 'right',
+            description: '',
+            handler: function() {
+                this.scope.nextWindow();
+            }
+        },
+        prevWindow: {
+            keys: 'left',
+            description: '',
+            handler: function() {
+                this.scope.prevWindow();
+            }
         }
+    },
+
+    inputHotkeys: {
+        bold: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').key)
+        }
+    },
+
+    setHotKeys: function () {
+        var self = this, 
+            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.keyboardEvents),
+            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.inputHotkeys);;
+            keyboard.scope = self;
+
+
+        // document.addEvent("keydown", self.__handleHotkey);
+
+        document.addEvents({
+            "blur:relay(input)": function() {
+                keyboard.activate();
+            },
+            "focus:relay(input)": function() {
+                inputKeyboard.activate();
+            },
+            "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
+                if(keyboard.isActive() && !isNaN(e.key)) {
+                    if(e.key <= self.windowArray.length)
+                        self.selectWindow(e.key - 1);
+                }
+            }
+        });
     },
 
     //the effect on page load
@@ -212,9 +266,9 @@ ui.QUI = new Class({
         hider2.delay(4000);
 
         document.addEvents({
-                "mousedown": hider2,
-                "keydown": hider2
-            });
+            "mousedown:once": hider2,
+            "keydown:once": hider2
+        });
     },
 
     //todo use other dropdown menu code

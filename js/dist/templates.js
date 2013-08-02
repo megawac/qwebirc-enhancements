@@ -152,11 +152,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='";
-  if (stack1 = helpers['class']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0['class']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += "<div class=\"";
+  if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></div>";
+    + "\"></div>";
   return buffer;
   });
 
@@ -360,38 +360,38 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
     + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";

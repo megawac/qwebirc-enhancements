@@ -66,17 +66,6 @@ ui.QUI.Window = new Class({
                 // .set('id', 'mainircwindow');
             self.fxscroll = new Fx.AutoScroll(lines, {
             });
-            // self.highlighter = new Highlighter(lines, { //highlight last 5 messages
-            //     filter: function($ele) {
-            //         return $ele.hasClass('message') &&
-            //             !$ele.hasClass('bot') &&
-            //             !$ele.hasClass('command') &&//msg 2 bot
-            //             !$ele.hasClass('our');//from us
-            //     },
-            //     selector: '.message:not(.bot):not(.command):not(.our)',
-            //     highlightClasses: ['highlight', 'highlight2'],
-            //     maxHighlight: NaN
-            // });
 
             lines.store("fxscroll", self.fxscroll)
                 .store("client", self.client);
@@ -147,6 +136,7 @@ ui.QUI.Window = new Class({
         if(this.detached) {
             this.wrapper.destroy();
         } else {
+
             this.window.window.destroy();
         }
     },
@@ -255,7 +245,7 @@ ui.QUI.Window = new Class({
         if(self.name !== BROUHAHA) {
             self.parentObject.windowArray.each(function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-                    win.tab.swapClass("tab-selected", "tab-unselected");
+                    win.tab.removeClass("tab-selected");
                 }
                 if(win.name === BROUHAHA) {
                     if(util.isChannelType(self.type)) {
@@ -267,7 +257,7 @@ ui.QUI.Window = new Class({
         }
         irc.activeChannel = self.name;
         self.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech")
-                .swapClass("tab-unselected", "tab-selected");
+                .addClass("tab-selected");
     },
 
     select: function() {
@@ -298,10 +288,10 @@ ui.QUI.Window = new Class({
             self.fxscroll.autoScroll();
         }
 
-        if (util.windowNeedsInput(self.type)) {
-            // util.fillContainer(self.$inputbox);
-            self.$inputbox.focus();
-        }
+        //give focus on select
+        // if (util.windowNeedsInput(self.type)) {
+        //     self.$inputbox.focus();
+        // }
 
         if(util.isChannelType(self.type)) {
             if (self.nicksColoured !== parentObject.uiOptions2.get("nick_colours")) {
@@ -328,7 +318,7 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-        this.tab.swapClass("tab-selected", "tab-unselected");
+        this.tab.removeClass("tab-selected");
     },
 
     editTopic: function() {
@@ -356,30 +346,23 @@ ui.QUI.Window = new Class({
             $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
             $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
             $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.send'),
+            $inputbtn = $form.getElement('.send');
 
-            sendInput = function(e) {
-                if(e)
-                    e.stop();
-                if ($inputbox.value.trim() !== "") {
-                    parentO.resetTabComplete();
-                    self.historyExec($inputbox.val());
-                    $inputbox.val("");
-                }
-                $inputbox.focus();
+
+        function sendInput(e) {
+            if(e)
+                e.stop();
+            var text = $inputbox.val()
+            if (text.trim() !== "") {
+                parentO.resetTabComplete();
+                self.historyExec(text);
+                $inputbox.val("");
             }
+            $inputbox.focus();
+        }
 
         if (Browser.isMobile) {
             $inputbtn.addClass("mobile-button");
-        } else {
-            $inputbox.addEvents({
-                blur: function() {
-                    window.keyboardInputFocus = 0;
-                },
-                focus: function() {
-                    window.keyboardInputFocus = 1;
-                }
-            });
         }
 
         var resettab = parentO.resetTabComplete,
@@ -393,11 +376,9 @@ ui.QUI.Window = new Class({
                     resultfn = self.commandhistory.downLine;
                 } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
-                    self.tabComplete($inputbox);
-                    return;
+                    return self.tabComplete($inputbox);
                 } else { /* ideally alt and other keys wouldn't break self */
-                    parentO.resetTabComplete();
-                    return;
+                    return parentO.resetTabComplete();
                 }
                 e.stop();
 
@@ -405,7 +386,7 @@ ui.QUI.Window = new Class({
                 if ((!!cvalue) && (self.lastcvalue !== cvalue))
                     self.commandhistory.addLine(cvalue, true);
 
-                var result = resultfn.call(self.commandhistory);//.bind(self.commandhistory)();
+                var result = resultfn.call(self.commandhistory);
 
                 if (!result)
                     result = "";
@@ -441,9 +422,10 @@ ui.QUI.Window = new Class({
     updatePrefix: function (data) {
         var prefix;
         if(data) {
-            if(data.channel === this.name)
+            if(!data.thisclient || data.channel !== this.name)
+                return;
+            else
                 prefix = data.prefix;
-            else return;
         } else {
             prefix = this.client.getNickStatus(this.name, this.client.nickname)
         }
@@ -476,9 +458,7 @@ ui.QUI.Window = new Class({
 
         (ui.MENU_ITEMS.filter(function(item) {
             var pred = item.predicate;
-
-            return ($type(pred) === 'function') ? pred.call(self, nick) : //pred.apply(this, nickArray)
-                                                  !!pred;
+            return Type.isFunction(pred) ? pred.call(self, nick) : !!pred;//pred.apply(this, nickArray)
         })).each(function(item) {
             Element.from(templates.nickbtn({'nick': "- " + item.text}))
                     .store("action", item.fn)
@@ -504,10 +484,9 @@ ui.QUI.Window = new Class({
 
     moveMenuClass: function($sel) {
         $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        if (!$sel){}
-        else if (this.nicklist.firstChild === $sel) {
+        if (this.nicklist.firstChild === $sel) {
             $sel.removeClass("selected-middle");
-        } else {
+        } else if($sel) {
             $sel.addClass("selected-middle");
         }
     },
@@ -563,15 +542,13 @@ ui.QUI.Window = new Class({
         }
     },
 
-    //TODO do all processing in template?
     addLine: function(type, line, colourClass) {
-        // var e = new Element("div");
-        var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
+        var $msg = Element.from(templates.ircMessage({ type: type.toLowerCase() }));
 
-        var msge = Element.from(templates.ircMessage({'class': eclass}));
-        this.lastcolour = !this.lastcolour;
+        if(colourClass)
+            $msg.addClass(colourClass);
 
-        this.parent(type, line, colourClass, msge);
+        this.parent(type, line, colourClass, $msg);
     },
     highlightTab: function(state) {
         this.parent(state);

@@ -62,15 +62,10 @@
             return x === y;
         }.autoCurry(),
 
-        //+ isObj :: a -> Boolean
-        isObj = ret.isObj = function(obj) {
-            return (typeof obj == "object" && !Array.isArray(obj));
-        },
-
         //+ isNumber :: a -> Boolean
-        isNumber = ret.isNumber = function(n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
-        },
+        // isNumber = ret.isNumber = function(n) {
+        //     return !isNaN(parseFloat(n)) && isFinite(n);
+        // },
 
         // Array
         //+ take :: Integer -> [a] -> [a]
@@ -108,7 +103,11 @@
 
         //+ rest :: [a] -> [a] 
         rest = ret.rest = function(xs) {
-            return (typeof xs == "string") ? xs.substr(1 /*, xs.length*/ ) : xs.slice(1 /*, xs.length*/ );
+            return xs.slice(1 /*, xs.length*/ );
+        },
+
+        restRight = ret.restRight = function(xs) {
+            return xs.slice(0, xs.length-1)
         },
 
         //+ last :: [a] -> a

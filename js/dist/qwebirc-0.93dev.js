@@ -11470,7 +11470,7 @@ Copyright (c) 2010 Arieh Glazer
     }
 
     function getTrailing(text, punc) {
-        if (typeOf(punc) == "regexp") {
+        if (Type.isRegExp(punc)) {
             var match = text.match(punc);
             if (match) {
                 return match[0];
@@ -11483,7 +11483,7 @@ Copyright (c) 2010 Arieh Glazer
     }
 
     function getLeading(text, punc) {
-        if (typeOf(punc) == "regexp") {
+        if (Type.isRegExp(punc)) {
             var match = text.match(punc);
             if (match) {
                 return match[0];
@@ -11537,14 +11537,15 @@ Copyright (c) 2010 Arieh Glazer
                     return !pat.wholeWord || pat.pattern.test(text);
                 });
 
+            function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                if (pattern.pattern.test(item)) {
+                    result[i] = pattern.parse.call(self, item);
+                }
+            }
+
             for (var i = result.length - 1, item; i >= 0; i--) {
                 item = result[i];
-
-                funcs.each(function(pattern) { //TODO: important optimization - split words and apply only one fn to each word
-                    if (pattern.pattern.test(item)) {
-                        result[i] = pattern.parse.call(self, item);
-                    }
-                });
+                funcs.each(parseWord);
             };
             self.patterns.each(function(pattern) {
                 if (pattern.wholeWord && pattern.pattern.test(result)) {
@@ -11730,9 +11731,10 @@ Fx.AutoScroll = new Class({
     },
 
     stopScroll: function() {
+        var timers = this.$timers;
         clearTimeout(timers.throttle);
         clearInterval(timers.autoscroll);
-        delete this.$timers.autoscroll;
+        timers.autoscroll = null;
     },
 
     toggleScroll: function() {
@@ -12295,7 +12297,7 @@ Fx.AutoScroll = new Class({
 (function() {
 
     Array.implement({
-/*
+        /*
         Function: Array.first
           Returns the first item.
         */
@@ -12305,7 +12307,7 @@ Fx.AutoScroll = new Class({
         // last: function() {
         //     return this[this.length - 1];
         // },
-/*
+        /*
         Returns the item at index n
         */
         item: function(n) {
@@ -12328,9 +12330,7 @@ Fx.AutoScroll = new Class({
         //     return this.slice(n || 1 /*, this.length*/ );
         // }
     }).extend({
-        isArray: function(xs) {
-            return typeOf(xs) == "array";
-        }
+        isArray: Type.isArray
     });
 
     String.implement({
@@ -12377,19 +12377,133 @@ Fx.AutoScroll = new Class({
         }
     });
 
+    if(!Object.equal) {
+        var eq = function(a, b, stack) {//this is Epitome.isEqual I just moved it here
+            // this is a modified version of eq func from _.js
+
+            // Identical objects are equal. `0 === -0`, but they aren't identical.
+            // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+            // stack = stack || [];
+
+            if (a === b) return a !== 0 || 1 / a == 1 / b;
+
+            // A strict comparison is necessary because `null == undefined`.
+            if (a == null || b == null) return a === b;
+
+            // use MooTools types instead of toString.call(a),
+            // this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
+            var typeA = typeOf(a),
+                typeB = typeOf(b);
+
+            if (typeA != typeB) return false;
+
+            switch (typeA) {
+                // Strings, numbers, dates, and booleans are compared by value.
+                case 'string':
+                    // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+                    // equivalent to `new String("5")`.
+                    return a == String(b);
+                case 'number':
+                    // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+                    // other numeric values.
+                    return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
+                case 'date':
+                case 'boolean':
+                    // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+                    // millisecond representations. Note that invalid dates with millisecond representations
+                    // of `NaN` are not equivalent.
+                    return +a == +b;
+                    // RegExps are compared by their source patterns and flags.
+                case 'regexp':
+                    return a.source == b.source &&
+                        a.global == b.global &&
+                        a.multiline == b.multiline &&
+                        a.ignoreCase == b.ignoreCase;
+            }
+
+            if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+            // Assume equality for cyclic structures. The algorithm for detecting cyclic
+            // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+            var length = stack.length;
+            while (length--) {
+                // Linear search. Performance is inversely proportional to the number of
+                // unique nested structures.
+                if (stack[length] == a) return true;
+            }
+
+            // Add the first object to the stack of traversed objects.
+            stack.push(a);
+            var size = 0,
+                result = true;
+            // Recursively compare objects and arrays.
+            if (typeA == 'array') {
+                // Compare array lengths to determine if a deep comparison is necessary.
+                size = a.length;
+                result = size == b.length;
+                if (result) {
+                    // Deep compare the contents, ignoring non-numeric properties.
+                    while (size--) {
+                        // Ensure commutative equality for sparse arrays.
+                        if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
+                    }
+                }
+            } else {
+                // Objects with different constructors are not equivalent.
+                if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
+                // Deep compare objects.
+                for (var key in a) {
+                    if (a.hasOwnProperty(key)) {
+                        // Count the expected number of properties.
+                        size++;
+                        // Deep compare each member.
+                        if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
+                    }
+                }
+                // Ensure that both objects contain the same number of properties.
+                if (result) {
+                    for (key in b) {
+                        if (b.hasOwnProperty(key) && !(size--)) break;
+                    }
+                    result = !size;
+                }
+            }
+
+            // Remove the first object from the stack of traversed objects.
+            stack.pop();
+            return result;
+        }
+        Object.equal = function() {
+            var args = arguments;
+            if(args.length > 1) {
+                for (var comp = args[0], stack = [], i = args.length - 1; i >= 0; i--) {
+                    if(!eq(args[i], comp, stack))
+                        return false;
+                }
+            }
+            return true;
+        }
+    }
+
 
     Object.extend({
+        get: Object.getFromPath,
+
+        set: function(object, path, value) {
+            path = (typeof path == 'string') ? path.split('.') : path.slice(0);
+            var key = path.pop(),
+                len = path.length,
+                i = 0,
+                current;
+            while (len--) {
+                current = path[i++];
+                object = current in object ? object[current] : (object[current] = {});
+            }
+            object[key] = value;
+        },
 
         isEmpty: function(hash) {
             return Object.getLength(hash) === 0;
-        },
-        //same as Object.map but maps to an array
-        mapA: function(object, fn, bind) {
-            var results = [];
-            for (var key in object) {
-                if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
-            }
-            return results;
         }
     });
 
@@ -12399,11 +12513,11 @@ Fx.AutoScroll = new Class({
 
 
     ["html", "text"].each(function(fn) {
-        Element.implement(fn, function(data) {
-            if (data) return this.set(fn, data);
-            return this.get(fn);
+            Element.implement(fn, function(data) {
+                if (data) return this.set(fn, data);
+                return this.get(fn);
+            });
         });
-    });
 
     Element.implement({
 
@@ -12499,37 +12613,31 @@ Fx.AutoScroll = new Class({
             container.innerHTML = html;
 
             switch (position.toLowerCase()) {
-            case "beforebegin":
-                while ((node = container.firstChild)) {
-                    ref_parent.insertBefore(node, ref);
-                }
-                break;
-            case "afterbegin":
-                first_child = ref.firstChild;
-                while ((node = container.lastChild)) {
-                    first_child = ref.insertBefore(node, first_child);
-                }
-                break;
-            case "beforeend":
-                while ((node = container.firstChild)) {
-                    ref.appendChild(node);
-                }
-                break;
-            case "afterend":
-                next_sibling = ref.nextSibling;
-                while ((node = container.lastChild)) {
-                    next_sibling = ref_parent.insertBefore(node, next_sibling);
-                }
-                break;
+                case "beforebegin":
+                    while ((node = container.firstChild)) {
+                        ref_parent.insertBefore(node, ref);
+                    }
+                    break;
+                case "afterbegin":
+                    first_child = ref.firstChild;
+                    while ((node = container.lastChild)) {
+                        first_child = ref.insertBefore(node, first_child);
+                    }
+                    break;
+                case "beforeend":
+                    while ((node = container.firstChild)) {
+                        ref.appendChild(node);
+                    }
+                    break;
+                case "afterend":
+                    next_sibling = ref.nextSibling;
+                    while ((node = container.lastChild)) {
+                        next_sibling = ref_parent.insertBefore(node, next_sibling);
+                    }
+                    break;
             }
         });
     }
-
-    this.$type = function(object) {
-        var type = typeOf(object);
-        if (type == 'elements') return 'array';
-        return (type == 'null') ? false : type;
-    };
 
     this.$lambda = Function.from;
 
@@ -13274,100 +13382,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 	// wrapper function for requirejs or normal object
 	var wrap = function(){
 
-		var eq = function(a, b, stack){
-			// this is a modified version of eq func from _.js
-
-			// Identical objects are equal. `0 === -0`, but they aren't identical.
-			// See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
-			stack = stack || [];
-
-			if (a === b) return a !== 0 || 1 / a == 1 / b;
-
-			// A strict comparison is necessary because `null == undefined`.
-			if (a == null || b == null) return a === b;
-
-			// use MooTools types instead of toString.call(a),
-			// this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
-			var typeA = typeOf(a),
-				typeB = typeOf(b);
-
-			if (typeA != typeB) return false;
-
-			switch (typeA){
-				// Strings, numbers, dates, and booleans are compared by value.
-				case 'string':
-					// Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-					// equivalent to `new String("5")`.
-					return a == String(b);
-				case 'number':
-					// `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
-					// other numeric values.
-					return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
-				case 'date':
-				case 'boolean':
-					// Coerce dates and booleans to numeric primitive values. Dates are compared by their
-					// millisecond representations. Note that invalid dates with millisecond representations
-					// of `NaN` are not equivalent.
-					return +a == +b;
-				// RegExps are compared by their source patterns and flags.
-				case 'regexp':
-					return a.source == b.source &&
-						a.global == b.global &&
-						a.multiline == b.multiline &&
-						a.ignoreCase == b.ignoreCase;
-			}
-
-			if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-			// Assume equality for cyclic structures. The algorithm for detecting cyclic
-			// structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-			var length = stack.length;
-			while (length--){
-				// Linear search. Performance is inversely proportional to the number of
-				// unique nested structures.
-				if (stack[length] == a) return true;
-			}
-
-			// Add the first object to the stack of traversed objects.
-			stack.push(a);
-			var size = 0, result = true;
-			// Recursively compare objects and arrays.
-			if (typeA == 'array'){
-				// Compare array lengths to determine if a deep comparison is necessary.
-				size = a.length;
-				result = size == b.length;
-				if (result){
-					// Deep compare the contents, ignoring non-numeric properties.
-					while (size--){
-						// Ensure commutative equality for sparse arrays.
-						if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
-					}
-				}
-			} else {
-				// Objects with different constructors are not equivalent.
-				if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
-				// Deep compare objects.
-				for (var key in a){
-					if (a.hasOwnProperty(key)){
-						// Count the expected number of properties.
-						size++;
-						// Deep compare each member.
-						if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
-					}
-				}
-				// Ensure that both objects contain the same number of properties.
-				if (result){
-					for (key in b){
-						if (b.hasOwnProperty(key) && !(size--)) break;
-					}
-					result = !size;
-				}
-			}
-
-			// Remove the first object from the stack of traversed objects.
-			stack.pop();
-			return result;
-		};
+		var eq = Object.equal;
 
 		return eq;
 	}; // end wrap
@@ -13450,24 +13465,27 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 			},
 
 			// private, real setter functions, not on prototype, see note above
-			_set: function(key, value){
+			_set: function(path, value){
 				// needs to be bound the the instance.
-				if (!key || typeof value === 'undefined') return this;
+				if (typeof path !== 'string' || typeof value === 'undefined') return this;
+				var key = path.split('.')[0];
 
 				// custom setter - see bit further down
 				if (this.properties[key] && this.properties[key]['set'])
 					return this.properties[key]['set'].call(this, value);
 
+				var attr = Object.get(this._attributes, path)
 				// no change? this is crude and works for primitives.
-				if (this._attributes[key] && isEqual(this._attributes[key], value))
+				if (attr && isEqual(attr, value))
 					return this;
 
 				// basic validator support
-				var validator = this.validate(key, value);
-				if (this.validators[key] && validator !== true){
+				var validator = this.validate(path, value);
+				if (Object.get(this.validators, path) && validator !== true){
 					var obj = {};
 					obj[key] = {
 						key: key,
+						path: path,
 						value: value,
 						error: validator
 					};
@@ -13480,7 +13498,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 					delete this._attributes[key]; // delete = null.
 				}
 				else {
-					this._attributes[key] = value;
+					Object.set(this._attributes, path, value);
 				}
 
 				// fire an event.
@@ -13501,7 +13519,8 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 				}
 
 				// else, return from attributes or return null when undefined.
-				return (key && typeof this._attributes[key] !== 'undefined') ? this._attributes[key] : null;
+				var attr = Object.get(this._attributes, key);
+				return (typeof attr !== 'undefined') ? attr : null;
 			}.overloadGetter(),
 
 			unset: function(){
@@ -13963,22 +13982,30 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 
                 //revert or update changes to Model
                 sync: function(method, model) {
-                    var oldattrs = Object.clone(this._attributes),
-                        attrs = this.properties.storage.get(this.options.key);
+                    var oldattrs = this._attributes,
+                        attrs = Object.append({}, this.options.defaults, this.properties.storage.get(this.options.key));
 
-                    this._attributes = {};
+                    //update props
                     Object.each(attrs, function(val, key) {
-                        if(oldattrs[key] !== val) {
+                        if(!Epitome.isEqual(oldattrs[key], val)) {
                             this.set(key, val);
                         }
                     }, this);
+
+                    //no longer set properties
+                    Object.keys(oldattrs).each(function(key) {
+                        if(!attrs.hasOwnProperty(key)) {
+                            this.unset(key);
+                        }
+                    });
 
                     this.trigger('sync');
                     return this;
                 },
 
                 setupSync: function() {
-                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    this._attributes = Object.append(this._attributes, this.properties.storage.get(this.options.key));
+                    this.fireEvent("init");
                     return this;
                 },
 
@@ -13986,7 +14013,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
                     if(this.validate()) {
                         var defaults = this.options.defaults,
                             data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
-                                return Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
+                                return !Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
                             }) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
                         this.trigger('save');
@@ -14467,15 +14494,10 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
             return x === y;
         }.autoCurry(),
 
-        //+ isObj :: a -> Boolean
-        isObj = ret.isObj = function(obj) {
-            return (typeof obj == "object" && !Array.isArray(obj));
-        },
-
         //+ isNumber :: a -> Boolean
-        isNumber = ret.isNumber = function(n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
-        },
+        // isNumber = ret.isNumber = function(n) {
+        //     return !isNaN(parseFloat(n)) && isFinite(n);
+        // },
 
         // Array
         //+ take :: Integer -> [a] -> [a]
@@ -14513,7 +14535,11 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 
         //+ rest :: [a] -> [a] 
         rest = ret.rest = function(xs) {
-            return (typeof xs == "string") ? xs.substr(1 /*, xs.length*/ ) : xs.slice(1 /*, xs.length*/ );
+            return xs.slice(1 /*, xs.length*/ );
+        },
+
+        restRight = ret.restRight = function(xs) {
+            return xs.slice(0, xs.length-1)
         },
 
         //+ last :: [a] -> a
@@ -14872,11 +14898,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='";
-  if (stack1 = helpers['class']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0['class']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += "<div class=\"";
+  if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></div>";
+    + "\"></div>";
   return buffer;
   });
 
@@ -15080,38 +15106,38 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
     + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice:flash\">"
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice:flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
@@ -15306,6 +15332,7 @@ ui.HILIGHT_NONE = 0;
 ui.HILIGHT_ACTIVITY = 1;
 ui.HILIGHT_SPEECH = 2;
 ui.HILIGHT_US = 3;
+
 ui.MAXIMUM_LINES_PER_WINDOW = 1000;
 ui.WINDOW_LASTLINE = ui.WINDOW_QUERY | ui.WINDOW_MESSAGES | ui.WINDOW_CHANNEL | ui.WINDOW_STATUS;
 
@@ -15605,11 +15632,7 @@ irc.colours = [//http://www.mirc.com/colors.html
         invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
         insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
 
-        invalidNick: message("Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.", types.ERROR),
-        missingNick: message("You must supply a nickname"),
-        missingPass: message("You must supply a password.", types.ERROR),
-        missingAuthInfo: message("You must supply your username and password in auth mode.", types.ERROR),
-
+        
 
         loadingPage: message("Loading . . .", types.INFO),
         submittingPage: message("Submitting . . .", types.INFO),
@@ -15634,6 +15657,12 @@ irc.colours = [//http://www.mirc.com/colors.html
 
         closeTab: "Close tab",
         detachWindow: "Detach Window",
+
+        invalidNick: "Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.",
+        missingNick: "You must supply a nickname",
+        missingPass: "You must supply a password.",
+        missingAuthInfo: "You must supply your username and password in auth mode.",
+
 
         //options
         DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
@@ -15737,7 +15766,7 @@ ui.themes.Default2 = {
     "WHOISREALNAME": [" realname : {m}", true],
     "WHOISCHANNELS": [" channels : {m}", true],
     "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account  : qwebirc://qwhois/{m}", true],
+    "WHOISACCOUNT": [" account  : m", true],
     "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
     "WHOISAWAY": [" away     : {m}", true],
     "WHOISOPER": ["          : {B}IRC Operator{B}", true],
@@ -15780,6 +15809,8 @@ var $identity = Functional.I,
     charAt = function(n, str) { return str.charAt(n); }.autoCurry(),
 
     splitBang = prelude.split("!"),
+
+    joinBang = prelude.join("!"),
 
     joinEmpty = prelude.join(""),
 
@@ -15840,11 +15871,19 @@ util.formatter = String.substitute;
 // RegExp.escape = prelude.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 RegExp.escape = String.escapeRegExp;
 
+// util.mapA = function(object, fn, bind) {
+//     var results = [];
+//     for (var key in object) {
+//         if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
+//     }
+//     return results;
+// };
+
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = Functional.compose(prelude.first, splitBang);
+util.hostToNick = Functional.compose(joinBang, prelude.restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = Functional.compose(prelude.item(1), splitBang);
+util.hostToHost = Functional.compose(prelude.last, splitBang);
 
 
 var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
@@ -16607,6 +16646,123 @@ var Storer = (function(name, storer) {
 }));*/
 
 
+ui.setTitle = function(title, options) {
+    if (options && options.alert) {
+        ui.setTitleAlert(title, options);
+    } else {
+        document.title = title;
+    }
+};
+
+ui.supportsFocus = function() {
+    var result = (util.isMobile || Browser.name === "Konqueror") ?  [false, false] : [true];
+
+    ui.supportsFocus = $lambda(result);
+    return result;
+};
+
+
+util.setCaretPos = Element.setCaretPosition;
+
+util.setAtEnd = function($el) {
+    $el.setCaretPosition($el.value.length);
+};
+
+util.getCaretPos = Element.getCaretPosition;
+
+util.wrapSelected = function($eles, wrap) {
+    $eles = $$($eles);
+
+    $eles.each(function($ele) {
+        var range = $ele.getSelectedRange();
+        if(range.start != range.end) {
+            var text = $ele.text();
+            $ele.text(text.slice(0, range.start) + wrap + text.slice(range.start, range.end) + wrap + text.slice(range.end))
+                .setCaretPosition(range.end + wrap.length);
+        }
+    });
+}
+
+util.percentToPixel= function(data, par) {
+    par = par || document.body;
+    var size = par.getSize();
+    return {
+        x: size.x * (data.x / 100),
+        y: size.y * (data.y / 100)
+    };
+}
+
+ui.decorateDropdown = function(btn, ddm, options) {
+    ddm.hideMenu = function() {
+        if(options && options.onHide)
+            options.onHide.call(this, ddm);
+        return ddm.hide();
+    };
+    ddm.showMenu = function() {
+        if(options && options.onShow)
+            options.onShow.call(this, ddm);
+
+        if (ddm.isDisplayed()) {
+           ddm.hideMenu();
+        } else {
+            ddm.show();
+            document.addEvent("click:once", ddm.hideMenu);
+        }
+        return ddm;
+    };
+
+    ddm.position.delay(50, ddm, {
+        relativeTo: btn,
+        position: {x: 'left', y: 'bottom'},
+        edge: {x: 'left', y: 'top'}
+    });
+
+    btn.addEvent("click", function(e) {
+            e.stop();
+            ddm.showMenu();
+        });
+    return ddm.hideMenu();
+};
+
+//dirty function please help with css :(
+//dir can be 'width' 'height'
+util.fillContainer = function ($ele, options) {
+    options = Object.append({style: ['width'], offset: 20}, options);
+
+    var filler = function() {
+        var size = $ele.getSize();
+
+        Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
+            var method = style.contains('width') ? 'x' : 'y',
+                offset = options.offset;
+
+            $ele.getSiblings().each(function(sib) {
+                offset += sib.getSize()[method];
+            });
+
+            $ele.setStyle(style, "calc(100% - " + offset + "px)");
+        });
+    }
+
+    filler.delay(20);
+    return $ele;
+};
+
+util.elementAtScrollPos = function($ele, pos, dir, offset) {
+    dir = (dir || 'width').capitalize();
+    offset = offset || 10;
+    var $res = $ele.lastChild;
+    Array.some($ele.childNodes, function($kid) {
+        offset += $kid['get' + dir]();
+        if(offset >= pos) {
+            $res = $kid;
+            return true;
+        }
+    });
+    return $res;
+};
+
+
 //Parses messages for url strings and creates hyperlinks
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
@@ -16619,23 +16775,22 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
                 var parsed = this.parsePunctuation(word),
-                    mid = parsed.mid,
-                    res = mid.match(/qwebirc:\/\/(.*)(\/)(?!.*\/)/g);//matches a valid qweb tag like qwebirc://options/ removes anything outside off qweb- and the last dash
+                    mid = parsed.mid;
 
-                if(res) {
-                    res = res[0].slice(10);//remove qwebirc://
-                    if(res.contains("whois/")) {
-                        var chan_match = res.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
+                if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
+                    var cmd = mid.slice(10);//remove qwebirc://
+                    if(cmd.startsWith("whois/")) {
+                        var chan_match = cmd.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
-                        var chanlen = chan_match ? chan_match.index : res.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = res.slice(6, chanlen);
-                        res = templates.userlink({'userid': user, 'username': user + chan});
+                        var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
+                        var user = cmd.slice(6, chanlen);
+                        cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(res.contains("options") || res.contains("embedded")) {
+                    else if(cmd.contains("options") || cmd.contains("embedded")) {
                         console.log("called yo");
-                        console.log(res);
+                        console.log(cmd);
                     }
-                    word = parsed.lead + res + parsed.end;
+                    word = parsed.lead + cmd + parsed.end;
                 }
             }
             return word;
@@ -16881,7 +17036,7 @@ ui.Interface = new Class({
             var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
 
             self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime']), loginopts);
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
                 client.connect();
@@ -17369,8 +17524,8 @@ irc.BaseIRCClient = new Class({
         return true;
     },
 
-    irc_NOTICE: function(prefix, params) {
-        var user = prefix,
+    irc_NOTICE: function(host, params) {
+        var user = util.hostToNick(host),
             target = params[0],
             message = params.getLast();
 
@@ -17380,21 +17535,19 @@ irc.BaseIRCClient = new Class({
             fn.call(this, user, message, target, this);
         }, this);
 
-        if ((user === "") || user.contains("!")) {
-            this.serverNotice(user, message);
-
+        if ((user === "") || user.contains("!") || this.options.networkServices.contains(host)) {
+            this.serverNotice(host, message);
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
-
             if (ctcp) {
-                this.userCTCPReply(user, ctcp[0], ctcp[1]);
+                this.userCTCPReply(host, ctcp[0], ctcp[1]);
             } else {
-                this.userNotice(user, message);
+                this.userNotice(host, message);
             }
 
         } else {
-            this.broadcast(user, BROUHAHA, message, target, "CHANNOTICE");
-            this.channelNotice(user, target, message);
+            this.broadcast(host, BROUHAHA, message, target, "CHANNOTICE");
+            this.channelNotice(host, target, message);
         }
 
         return true;
@@ -19657,26 +19810,29 @@ irc.IRCTracker = new Class({
     },
 
     getSortedByLastSpoke: function(channel) {
-        var sorter = function(a, b) {
-            return b[1].lastSpoke - a[1].lastSpoke;
-        };
-
         var chan = this.getChannel(channel);
         if (!chan)
             return;
+
+        var sorter = function(key1, key2) {
+            return chan[key2].lastSpoke - chan[key1].lastSpoke;
+        };
 
         // var names = [];
         // Hash.each(chan, function(chan, name) {
         //     names.push([name, chan]);
         // });
-        var names = Object.mapA(chan, function(c, n) {
-            return [n, c];
+        // var names = util.mapA(chan, function(c, n) {
+        //     return [n, c];
+        // });
+        var sorted = Object.keys(chan).sort(sorter).map(function(key){
+            return chan[key];
         });
 
-        var newnames = names.sort(sorter)
-                            .map(prelude.first);
+        // var newnames = names.sort(sorter)
+        //                     .map(prelude.first);
 
-        return newnames;
+        return sorted;
     }
 });
 
@@ -20029,8 +20185,14 @@ ui.BaseUI = new Class({
         this.active = win;
     },
     selectWindow: function(win) {
-        if (this.active)
+        if(Type.isNumber(win))
+            win = this.windowArray[win];
+        else if(Type.isString(win)) 
+            win = this.windows[win];
+        if (this.active) {
+            if(win === this.active) return;
             this.active.deselect();
+        }
         win.select();
         this.updateTitle(win.name + " - " + this.options.appTitle);
     },
@@ -20088,14 +20250,29 @@ ui.StandardUI = new Class({
     Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
 
     UICommands: ui.UI_COMMANDS,
-    initialize: function(parentElement, windowClass, uiName, options) {
+    initialize: function(parentElement, theme, windowClass, uiName, options) {
         var self = this;
         self.parent(parentElement, windowClass, uiName, options);
+
+        self.theme = theme;
 
         self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
         self.uiOptions2 = new config.OptionModel({
-            defaults: options.uiOptionsArg
+            defaults: self.options.uiOptionsArg
+        }, {
+            onInit: function() {//merge where necessary
+                var model = this;
+                ["notify_on_mention", "notify_on_pm", "notify_on_notice"].each(function(type) {
+                    var notifier = self.theme.messageParsers.filter(function(n) { return n.id === type; })[0],
+                        set = model.get(type);
+                    Object.merge(notifier, set);
+
+                    model.on("change:" + type, function() {
+                        Object.merge(notifier, set);
+                    });
+                });
+            }
         });
 
         self.uiOptions2.on({
@@ -20107,8 +20284,6 @@ ui.StandardUI = new Class({
             "change:font_size": self.setModifiableStylesheetValues
         });
 
-
-
         self.customWindows = {};
 
         self.__styleValues = {
@@ -20116,59 +20291,8 @@ ui.StandardUI = new Class({
             saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
             lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
         };
-
-        var ev = Browser.Engine.trident ? "keydown" : "keypress";
-        document.addEvent(ev, self.__handleHotkey);
     },
-    __handleHotkey: function(x) {
-        if (!x.alt || x.control) {
-            if (x.key === "backspace" || x.key === "/")
-                if (!this.getInputFocused(x))
-                    x.stop();
-            return;
-        }
-        var success = false;
-        if (x.key.match(/a/i)) {
-            var highestNum = 0;
-            var highestIndex = -1;
-            success = true;
 
-            x.stop();
-            //good place for foldr no?
-            this.windowArray.each(function(win, indx){
-                var h = win.hilighted;
-                if (h > highestNum) {
-                    highestIndex = indx;
-                    highestNum = h;
-                }
-            });
-            if (highestIndex !== -1)
-                this.selectWindow(this.windowArray[highestIndex]);
-        } else if (prelude.isNumber(x.key)) { /*x.key >= '0' && x.key <= '9'*/
-            success = true;
-
-            //number = x.key - '0'; //ridiculously stupid
-            number = (Number.toInt(x.key) || 10) - 1;
-
-            if (number >= this.windowArray.length)
-                return;
-
-            this.selectWindow(this.windowArray[number]);
-        } else if (x.key == "left") {
-            this.prevWindow();
-            success = true;
-        } else if (x.key == "right") {
-            this.nextWindow();
-            success = true;
-        }
-        if (success)
-            x.stop();
-    },
-    getInputFocused: function(x) {
-        //wtf? (x.target.TYPE =="INPUT") or something work?
-        var focused = !($$("input").contains(x.target) && $$("textarea").contains(x.target));
-        return focused;
-    },
     newCustomWindow: function(name, select, type) {
         if (!type)
             type = ui.WINDOW_CUSTOM;
@@ -20183,6 +20307,7 @@ ui.StandardUI = new Class({
 
         return win;
     },
+
     addCustomWindow: function(windowName, class_, cssClass, options) {
         if (!$defined(options))
             options = {};
@@ -20338,7 +20463,7 @@ ui.NotificationUI = new Class({
     options: {
         minSoundRepeatInterval: 1000
     },
-    initialize: function(/*parentElement, windowClass, uiName, options*/) {
+    initialize: function() {
         // this.parent(parentElement, windowClass, uiName, options);
         this.parent.apply(this, arguments);
 
@@ -20407,10 +20532,6 @@ ui.Flasher = new Class({
             this.flashing = false;
 
             this.canFlash = true;
-            document.addEvents({
-                "mousedown:once": this.cancelFlash,
-                "keydown:once": this.cancelFlash
-            });
         } else {
             this.canFlash = false;
         }
@@ -20438,6 +20559,10 @@ ui.Flasher = new Class({
         self.flashing = true;
         // flashA();
         self.flasher = flash.periodical(750);
+        window.addEvents({
+            "mousedown:once": this.cancelFlash,
+            "keydown:once": this.cancelFlash
+        });
     },
     cancelFlash: function() {
         if (!$defined(this.flasher))
@@ -20481,7 +20606,7 @@ ui.Flasher = new Class({
 });
 
 
-ui.NewLoginUI = new Class({
+ui.LoginUI = new Class({
     Extends: ui.NotificationUI,
     loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
         this.postInitialize();
@@ -20549,7 +20674,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         }
         var stripped = qwebirc.global.nicknameValidator.validate(nickname);
         if (stripped !== nickname) {
-            nickBox.val() = stripped;
+            nickBox.val(stripped);
             alert(lang.invalidNick);
             nickBox.focus();
             return;
@@ -20561,14 +20686,13 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         cookies.nick.set(nickname);
 
-
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
             data.account = account = usernameBox.val();
             data.password = password = passwordBox.val();
             if (auth.bouncerAuth()) {
                 if (!$chk(password)) {
-                    alert(lang.missingPass.message);
+                    alert(lang.missingPass);
                     passwordBox.focus();
                     return;
                 }
@@ -20576,7 +20700,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 data.serverPassword = password;
             }
             if (!account || !password) {
-                alert(lang.missingAuthInfo.message);
+                alert(lang.missingAuthInfo);
                 if (!$chk(account)) {
                     usernameBox.focus();
                 } else {
@@ -20715,7 +20839,7 @@ ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChanne
 
 
 ui.QuakeNetUI = new Class({
-    Extends: ui.NewLoginUI,
+    Extends: ui.LoginUI,
     urlDispatcher: function(name, window) {
         if (name == "qwhois") {
             return ["span", function(auth) {
@@ -20744,11 +20868,10 @@ ui.QUI = new Class({
     Extends: ui.QuakeNetUI,
     Binds: ["__createChannelMenu"],
     initialize: function(parentElement, theme, options) {
-        this.parent(parentElement, ui.QUI.Window, "qui", options);
+        this.parent(parentElement, theme, ui.QUI.Window, "qui", options);
 
         parentElement.addClass('qui')
                     .addClass('signed-out');
-        this.theme = theme;
         this.parentElement = parentElement;
         this.setModifiableStylesheet("qui");
         this.setHotKeys();
@@ -20915,12 +21038,67 @@ ui.QUI = new Class({
         return dropdown;
     },
 
-    setHotKeys: function (argument) {
-        var events = storage.get('hotkeys');
-        console.log('todo');
-        if(keys && events) {
-            keys.activate();
+    keyboardEvents: {
+        focusInput: {
+            keys: 'ctrl+space',
+            description: '',
+            handler: function(e) {
+                e.stop();
+                if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+            }
+        },
+        testEvent: {
+            keys: 'shift+b',
+            description: '',
+            handler: prelude.log
+        },
+        nextWindow: {
+            keys: 'right',
+            description: '',
+            handler: function() {
+                this.scope.nextWindow();
+            }
+        },
+        prevWindow: {
+            keys: 'left',
+            description: '',
+            handler: function() {
+                this.scope.prevWindow();
+            }
         }
+    },
+
+    inputHotkeys: {
+        bold: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').key)
+        }
+    },
+
+    setHotKeys: function () {
+        var self = this, 
+            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.keyboardEvents),
+            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.inputHotkeys);;
+            keyboard.scope = self;
+
+
+        // document.addEvent("keydown", self.__handleHotkey);
+
+        document.addEvents({
+            "blur:relay(input)": function() {
+                keyboard.activate();
+            },
+            "focus:relay(input)": function() {
+                inputKeyboard.activate();
+            },
+            "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
+                if(keyboard.isActive() && !isNaN(e.key)) {
+                    if(e.key <= self.windowArray.length)
+                        self.selectWindow(e.key - 1);
+                }
+            }
+        });
     },
 
     //the effect on page load
@@ -20953,9 +21131,9 @@ ui.QUI = new Class({
         hider2.delay(4000);
 
         document.addEvents({
-                "mousedown": hider2,
-                "keydown": hider2
-            });
+            "mousedown:once": hider2,
+            "keydown:once": hider2
+        });
     },
 
     //todo use other dropdown menu code
@@ -21200,7 +21378,7 @@ ui.Theme = new Class({
             // for (var k in themeDict) {
             //     theme[k] = themeDict[k];
             // }
-            $extend(theme, themeDict);
+            Object.append(theme, themeDict);
         }
         Object.each(theme, function(data, key) {
             if (key === "PREFIX")
@@ -21213,7 +21391,7 @@ ui.Theme = new Class({
             }
         });
 
-        self.highlightClasses.currentIndex = 0;
+        self.highlightClasses.channels = {};
 
         self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
         self.__ccmaph = Object.clone(self.__ccmap);
@@ -21223,13 +21401,13 @@ ui.Theme = new Class({
         self.__ccmaph["{"] = self.__ccmaph["}"] = "";
     },
 
-    __dollarSubstitute: function(x, h, mapper) {
-        return x.substitute(Object.append(h||{}, mapper||{}))
+    __dollarSubstitute: function(str, data, mapper) {
+        return str.substitute(Object.append(data||{}, mapper||{}))
     },
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
-            isobj = $type(_data) == "object",
+            isobj = Type.isObject(_data),
             data = isobj ? Object.clone(_data) : _data,
             val;
 
@@ -21273,9 +21451,6 @@ ui.Theme = new Class({
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
-
-        // if($type(data) === "string")
-        //     return line;
 
         var result = line;
 
@@ -21337,128 +21512,103 @@ ui.Theme = new Class({
     },
 
     messageParsers: [
-        {//match bots
-            regex: /(^tf2)|((serv|bot)$)/i,
-            classes: 'bot',
-            highlight: false,
-            flash: false,
-            beep: false,
-            types: [ui.WINDOW_CHANNEL],
-            prop: "n"
+        {
+            type: /NOTICE$/,
+            classes: '',
+            flash: true,
+            beep: true,
+            id: 'notify_on_notice',
+            highlight: ui.HILIGHT_SPEECH
         },
         {
-            regex: /^\!/,
+            type: /PRIVMSG$/,
+            flash: true,
+            beep: true,
+            id: 'notify_on_pm',
+            highlight: ui.HILIGHT_SPEECH
+        },
+        {
+            type: /^OUR/,
+            classes: 'our-msg'
+        },
+        {//match bots
+            nic: /(^tf2)|((serv|bot)$)/i,
+            classes: 'bot',
+            types: [ui.WINDOW_CHANNEL]
+        },
+        {
+            msg: /^\!/,
             classes: 'command',
-            highlight: false,
-            flash: false,
-            beep: false,
             types: [ui.WINDOW_CHANNEL]
         },
         {
             mentioned: true,
             classes: 'mentioned',
-            highlight: false,
-            flash: false,
-            beep: false
-            
+            notus: true,
+            tabhl: ui.HILIGHT_US
         },
         {
-            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
             mentioned: true,
             classes: '',
-            highlight: false,
             beep: true,
             flash: true,
-            prop: "n"
+            notus: true,
+            id: 'notify_on_mention'//for filtering
         },
         {
-            regex: /^((?!(tf2|bot|serv)).)*$/i,
+            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
             highlight: true,
-            beep: false,
-            flash: false,
-            prop: "n"
+            notus: true,
+            id: 'highlighter',
+            tabhl: ui.HILIGHT_ACTIVITY,
+            types: [ui.WINDOW_CHANNEL]
         }
     ],
 
-    typeParsers: [
-        {
-            regex: /NOTICE$/,
-            classes: 'notice',
-            highlight: false,
-            flash: true,
-            beep: true
-        },
-        {
-            regex: /^OUR/,
-            classes: 'our-msg',
-            highlight: false,
-            flash: false,
-            beep: false
-        }
-    ],
-
-    highlightClasses: ['highlight1', 'highlight2', 'highlight3'],
+    highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
 
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
             tabHighlight = ui.HILIGHT_NONE,
-            highlights = self.highlightClasses;
-
-        
+            highlights = self.highlightClasses,
+            notus = !(/^OUR/.test(type));//wish we could just use not selector
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m)
                 $ele.addClass('message');
             self.messageParsers.each(function(parser) {
-                if((parser.types && !parser.types.contains(win.type)))
-                    return;
-                if((!parser.regex || parser.regex.test(data[(parser.prop || "m")])) &&
-                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) ) {//implication
-                    if(parser.flash) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.beep) {
-                        console.log(parser.regex);
-                        win.parentObject.beep();
-                    }
+                //sorry little crazy :)
+                if( (!parser.notus || notus) &&//implications - organized them by complexity
+                    (!parser.types || parser.types.contains(win.type)) &&
+                    (!parser.type || parser.type.test(type)) && 
+                    (!parser.msg || parser.msg.test(data.m)) &&
+                    (!parser.nic || parser.nic.test(data.n)) &&
+                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
+                {
+                    if(win.active && win.name !== BROUHAHA) {
+                        if(parser.flash) {
+                            win.parentObject.flash();
+                        }
+                        if(parser.beep) {
+                            win.parentObject.beep();
+                        }
+                    }   
                     if(parser.highlight) {
-                        $ele.addClass(highlights.next(highlights.currentIndex++));
+                        if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
+                        $ele.addClass(highlights.next(highlights.channels[win.name]++));
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);
                     }
+                    tabHighlight = Math.max(tabHighlight, parser.tabhl);
                 }
-            });
+            })
         }
-
-        if(type) {
-            self.typeParsers.each(function(parser) {
-                if(parser.types && !parser.types.contains(win.type))
-                    return;
-                if((parser.regex && parser.regex.test(type))) {
-                    if(parser.flash) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.beep) {
-                        console.log(parser.regex);
-                        win.parentObject.flash();
-                    }
-                    if(parser.highlight) {
-                        $ele.addClass(highlights.next(highlights.currentIndex++));
-                    }
-                    if($chk(parser.classes)) {
-                        $ele.addClass(parser.classes);
-                    }
-                }
-            });
-        }
-
-        return tabHighlight
+        return tabHighlight;
     }
-
 });
 
 
@@ -21949,124 +22099,6 @@ ui.EmbedWizard = new Class({
 });
 
 
-
-ui.setTitle = function(title, options) {
-    if (options && options.alert) {
-        ui.setTitleAlert(title, options);
-    } else {
-        document.title = title;
-    }
-};
-
-ui.supportsFocus = function() {
-    var result = (util.isMobile || Browser.name === "Konqueror") ?  [false, false] : [true];
-
-    ui.supportsFocus = $lambda(result);
-    return result;
-};
-
-util.NBSPCreate = function(text, element) {
-    var e = text.split("  ");
-    e.each(function(txt, i) {
-        var tn = document.createTextNode(txt);
-        element.appendChild(tn);
-
-        if (i != e.length - 1) {
-            var e2 = new Element("span", {"html": "&nbsp;&nbsp;"});
-            element.appendChild(e2);
-        }
-    });
-};
-
-util.setCaretPos = Element.setCaretPosition;
-
-util.setAtEnd = function($el) {
-    util.setCaretPos($el, $el.value.length);
-};
-
-util.getCaretPos = Element.getCaretPosition;
-
-util.percentToPixel= function(data, par) {
-    par = par || document.body;
-    var size = par.getSize();
-    return {
-        x: size.x * (data.x / 100),
-        y: size.y * (data.y / 100)
-    };
-}
-
-
-ui.decorateDropdown = function(btn, ddm, options) {
-    ddm.hideMenu = function() {
-        if(options && options.onHide)
-            options.onHide.call(this, ddm);
-        return ddm.hide();
-    };
-    ddm.showMenu = function() {
-        if(options && options.onShow)
-            options.onShow.call(this, ddm);
-
-        if (ddm.isDisplayed()) {
-           ddm.hideMenu();
-        } else {
-            ddm.show();
-            document.addEvent("click:once", ddm.hideMenu);
-        }
-        return ddm;
-    };
-
-    ddm.position.delay(50, ddm, {
-        relativeTo: btn,
-        position: {x: 'left', y: 'bottom'},
-        edge: {x: 'left', y: 'top'}
-    });
-
-    btn.addEvent("click", function(e) {
-            e.stop();
-            ddm.showMenu();
-        });
-    return ddm.hideMenu();
-};
-
-//dirty function please help with css :(
-//dir can be 'width' 'height'
-util.fillContainer = function ($ele, options) {
-    options = Object.append({style: ['width'], offset: 20}, options);
-
-    var filler = function() {
-        var size = $ele.getSize();
-
-        Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
-            var method = style.contains('width') ? 'x' : 'y',
-                offset = options.offset;
-
-            $ele.getSiblings().each(function(sib) {
-                offset += sib.getSize()[method];
-            });
-
-            $ele.setStyle(style, "calc(100% - " + offset + "px)");
-        });
-    }
-
-    filler.delay(20);
-    return $ele;
-};
-
-util.elementAtScrollPos = function($ele, pos, dir, offset) {
-    dir = (dir || 'width').capitalize();
-    offset = offset || 10;
-    var $res = $ele.lastChild;
-    Array.some($ele.childNodes, function($kid) {
-        offset += $kid['get' + dir]();
-        if(offset >= pos) {
-            $res = $kid;
-            return true;
-        }
-    });
-    return $res;
-};
-
-
 var keys;
 if(!util.isMobile) {
     keys = new Keyboard();
@@ -22390,7 +22422,7 @@ config.OptionModel = new Class({
         defaults: {
             "flash_on_mention": ui.supportsFocus().every(Functional.I),
             "dedicated_msg_window": false,
-            "dedicated_notice_window": false,
+            "dedicated_notice_window": true,
             "nick_ov_status": true,
             "accept_service_invites": true,
             "use_hiddenhost": true,
@@ -22430,8 +22462,7 @@ ui.OptionView = new Class({
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
-            var split = target.get('id').split(':'),
-                id = split[0];
+            var id = target.get('id');
                 // sub = split.slice(1).join('.'),
                 // item = this.model.get(id);
 
@@ -22442,7 +22473,6 @@ ui.OptionView = new Class({
         },
 
         onReady: render
-        
     },
 
     render: function() {
@@ -22474,7 +22504,7 @@ ui.OptionView = new Class({
         this.element.getElement('#options').addEvents({ //default will fire before bubble
             'submit': this.save,
             'reset': this.reset
-        })
+        });
 
         this.parent();
         return this;
@@ -22488,17 +22518,20 @@ ui.OptionView = new Class({
         if(e) e.stop();
         this.model.save();
         this.destroy();
-        this.trigger('close');
     },
 
     reset: function(e) {
         if(e) e.stop();
         this.model.sync();
         this.destroy();
+    },
+
+    destroy: function() {
         this.trigger('close');
+        return this.parent();
     }
 });
-})()
+})();
 
 
 util.parseStylesheet = function(data) {
@@ -22659,20 +22692,6 @@ ui.Window = new Class({
         this.active = false;
     },
 
-    resetScrollPos: function() {
-        // if (this.scrolleddown) {
-        //     this.scrollToBottom();
-        // } else if ($defined(this.scrollpos)) {
-        //     this.getScrollParent().scrollTo(this.scrollpos.x, this.scrollpos.y);
-        // }
-    },
-    setScrollPos: function() {
-        // if (!this.parentObject.singleWindow) {
-        //     this.scrolleddown = this.scrolledDown();
-        //     this.scrollpos = this.lines.getScroll();
-        // }
-    },
-
 
     /* A line is an object of the form:
     -: current nick
@@ -22690,61 +22709,6 @@ ui.Window = new Class({
         var highlight = ui.HILIGHT_NONE,
             hl_line = false;
 
-        // if (type && data) {
-        // //regexs
-        //     var isbot = /^TF2/.test(data.n), //works for pugna(hl), mix(hl)
-        //         ismsg = /(NOTICE|ACTION|MSG)$/.test(type),
-        //         regNotice = /NOTICE$/,
-        //         sentByUs = /^OUR/.test(type),//ignore
-        //         containsNick = util.testForNick(self.client.nickname);
-
-        //     var notice = function() {
-        //         if (!(self.active && uiobj.windowFocused) && data.c !== BROUHAHA) {
-        //             uiobj.beep();
-        //             uiobj.flash();
-        //         }
-        //     };
-
-        //     highlight = ui.HILIGHT_ACTIVITY;
-
-        //     if (ismsg) {
-        //         //highlighting
-        //         if (data.n && data.m && self.type === ui.WINDOW_CHANNEL) {
-        //             $ele.addClass('message');
-        //             if(isbot)
-        //                 $ele.addClass('bot');
-        //             else if(sentByUs)
-        //                 $ele.addClass('our');
-        //             if(!isbot && data.m.startsWith("!"))
-        //                 $ele.addClass('command');
-        //         }
-
-        //         if (self.type === ui.WINDOW_QUERY || self.type === ui.WINDOW_MESSAGES) {
-        //             if (sentByUs || regNotice.test(type)) {
-        //                 highlight = ui.HILIGHT_ACTIVITY;
-        //             } else {
-        //                 highlight = ui.HILIGHT_US;
-        //                 notice(); //private message
-        //             }
-        //         }
-        //         else if (regNotice.test(type) && self.type === ui.WINDOW_CHANNEL) {
-        //             notice();
-        //         }
-        //         else if (!sentByUs && containsNick(data.m)) { //dont beep if bot says our name
-        //             hl_line = true;
-        //             if(isbot) {
-        //                 $ele.addClass('bot@us')
-        //             }
-        //             else {
-        //                 highlight = ui.HILIGHT_US;
-        //                 notice();//name mention in chan
-        //             }
-        //         }
-        //         else if (highlight !== ui.HILIGHT_US) {
-        //             highlight = ui.HILIGHT_SPEECH;
-        //         }
-        //     }
-        // }
         highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
 
         if (!self.active && (highlight !== ui.HILIGHT_NONE))
@@ -22891,17 +22855,6 @@ ui.QUI.Window = new Class({
                 // .set('id', 'mainircwindow');
             self.fxscroll = new Fx.AutoScroll(lines, {
             });
-            // self.highlighter = new Highlighter(lines, { //highlight last 5 messages
-            //     filter: function($ele) {
-            //         return $ele.hasClass('message') &&
-            //             !$ele.hasClass('bot') &&
-            //             !$ele.hasClass('command') &&//msg 2 bot
-            //             !$ele.hasClass('our');//from us
-            //     },
-            //     selector: '.message:not(.bot):not(.command):not(.our)',
-            //     highlightClasses: ['highlight', 'highlight2'],
-            //     maxHighlight: NaN
-            // });
 
             lines.store("fxscroll", self.fxscroll)
                 .store("client", self.client);
@@ -22972,6 +22925,7 @@ ui.QUI.Window = new Class({
         if(this.detached) {
             this.wrapper.destroy();
         } else {
+
             this.window.window.destroy();
         }
     },
@@ -23080,7 +23034,7 @@ ui.QUI.Window = new Class({
         if(self.name !== BROUHAHA) {
             self.parentObject.windowArray.each(function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-                    win.tab.swapClass("tab-selected", "tab-unselected");
+                    win.tab.removeClass("tab-selected");
                 }
                 if(win.name === BROUHAHA) {
                     if(util.isChannelType(self.type)) {
@@ -23092,7 +23046,7 @@ ui.QUI.Window = new Class({
         }
         irc.activeChannel = self.name;
         self.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech")
-                .swapClass("tab-unselected", "tab-selected");
+                .addClass("tab-selected");
     },
 
     select: function() {
@@ -23123,10 +23077,10 @@ ui.QUI.Window = new Class({
             self.fxscroll.autoScroll();
         }
 
-        if (util.windowNeedsInput(self.type)) {
-            // util.fillContainer(self.$inputbox);
-            self.$inputbox.focus();
-        }
+        //give focus on select
+        // if (util.windowNeedsInput(self.type)) {
+        //     self.$inputbox.focus();
+        // }
 
         if(util.isChannelType(self.type)) {
             if (self.nicksColoured !== parentObject.uiOptions2.get("nick_colours")) {
@@ -23153,7 +23107,7 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-        this.tab.swapClass("tab-selected", "tab-unselected");
+        this.tab.removeClass("tab-selected");
     },
 
     editTopic: function() {
@@ -23181,30 +23135,23 @@ ui.QUI.Window = new Class({
             $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
             $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
             $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.send'),
+            $inputbtn = $form.getElement('.send');
 
-            sendInput = function(e) {
-                if(e)
-                    e.stop();
-                if ($inputbox.value.trim() !== "") {
-                    parentO.resetTabComplete();
-                    self.historyExec($inputbox.val());
-                    $inputbox.val("");
-                }
-                $inputbox.focus();
+
+        function sendInput(e) {
+            if(e)
+                e.stop();
+            var text = $inputbox.val()
+            if (text.trim() !== "") {
+                parentO.resetTabComplete();
+                self.historyExec(text);
+                $inputbox.val("");
             }
+            $inputbox.focus();
+        }
 
         if (Browser.isMobile) {
             $inputbtn.addClass("mobile-button");
-        } else {
-            $inputbox.addEvents({
-                blur: function() {
-                    window.keyboardInputFocus = 0;
-                },
-                focus: function() {
-                    window.keyboardInputFocus = 1;
-                }
-            });
         }
 
         var resettab = parentO.resetTabComplete,
@@ -23218,11 +23165,9 @@ ui.QUI.Window = new Class({
                     resultfn = self.commandhistory.downLine;
                 } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
-                    self.tabComplete($inputbox);
-                    return;
+                    return self.tabComplete($inputbox);
                 } else { /* ideally alt and other keys wouldn't break self */
-                    parentO.resetTabComplete();
-                    return;
+                    return parentO.resetTabComplete();
                 }
                 e.stop();
 
@@ -23230,7 +23175,7 @@ ui.QUI.Window = new Class({
                 if ((!!cvalue) && (self.lastcvalue !== cvalue))
                     self.commandhistory.addLine(cvalue, true);
 
-                var result = resultfn.call(self.commandhistory);//.bind(self.commandhistory)();
+                var result = resultfn.call(self.commandhistory);
 
                 if (!result)
                     result = "";
@@ -23266,9 +23211,10 @@ ui.QUI.Window = new Class({
     updatePrefix: function (data) {
         var prefix;
         if(data) {
-            if(data.channel === this.name)
+            if(!data.thisclient || data.channel !== this.name)
+                return;
+            else
                 prefix = data.prefix;
-            else return;
         } else {
             prefix = this.client.getNickStatus(this.name, this.client.nickname)
         }
@@ -23301,9 +23247,7 @@ ui.QUI.Window = new Class({
 
         (ui.MENU_ITEMS.filter(function(item) {
             var pred = item.predicate;
-
-            return ($type(pred) === 'function') ? pred.call(self, nick) : //pred.apply(this, nickArray)
-                                                  !!pred;
+            return Type.isFunction(pred) ? pred.call(self, nick) : !!pred;//pred.apply(this, nickArray)
         })).each(function(item) {
             Element.from(templates.nickbtn({'nick': "- " + item.text}))
                     .store("action", item.fn)
@@ -23329,10 +23273,9 @@ ui.QUI.Window = new Class({
 
     moveMenuClass: function($sel) {
         $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        if (!$sel){}
-        else if (this.nicklist.firstChild === $sel) {
+        if (this.nicklist.firstChild === $sel) {
             $sel.removeClass("selected-middle");
-        } else {
+        } else if($sel) {
             $sel.addClass("selected-middle");
         }
     },
@@ -23388,15 +23331,13 @@ ui.QUI.Window = new Class({
         }
     },
 
-    //TODO do all processing in template?
     addLine: function(type, line, colourClass) {
-        // var e = new Element("div");
-        var eclass = colourClass || (this.lastcolour ? "linestyle1" : "linestyle2");
+        var $msg = Element.from(templates.ircMessage({ type: type.toLowerCase() }));
 
-        var msge = Element.from(templates.ircMessage({'class': eclass}));
-        this.lastcolour = !this.lastcolour;
+        if(colourClass)
+            $msg.addClass(colourClass);
 
-        this.parent(type, line, colourClass, msge);
+        this.parent(type, line, colourClass, $msg);
     },
     highlightTab: function(state) {
         this.parent(state);

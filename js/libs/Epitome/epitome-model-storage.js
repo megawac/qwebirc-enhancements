@@ -38,22 +38,30 @@
 
                 //revert or update changes to Model
                 sync: function(method, model) {
-                    var oldattrs = Object.clone(this._attributes),
-                        attrs = this.properties.storage.get(this.options.key);
+                    var oldattrs = this._attributes,
+                        attrs = Object.append({}, this.options.defaults, this.properties.storage.get(this.options.key));
 
-                    this._attributes = {};
+                    //update props
                     Object.each(attrs, function(val, key) {
-                        if(oldattrs[key] !== val) {
+                        if(!Epitome.isEqual(oldattrs[key], val)) {
                             this.set(key, val);
                         }
                     }, this);
+
+                    //no longer set properties
+                    Object.keys(oldattrs).each(function(key) {
+                        if(!attrs.hasOwnProperty(key)) {
+                            this.unset(key);
+                        }
+                    });
 
                     this.trigger('sync');
                     return this;
                 },
 
                 setupSync: function() {
-                    this._attributes = Object.append({}, this._attributes, this.properties.storage.get(this.options.key));
+                    this._attributes = Object.append(this._attributes, this.properties.storage.get(this.options.key));
+                    this.fireEvent("init");
                     return this;
                 },
 
@@ -61,7 +69,7 @@
                     if(this.validate()) {
                         var defaults = this.options.defaults,
                             data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
-                                return Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
+                                return !Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
                             }) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
                         this.trigger('save');

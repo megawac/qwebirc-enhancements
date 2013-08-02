@@ -326,8 +326,8 @@ irc.BaseIRCClient = new Class({
         return true;
     },
 
-    irc_NOTICE: function(prefix, params) {
-        var user = prefix,
+    irc_NOTICE: function(host, params) {
+        var user = util.hostToNick(host),
             target = params[0],
             message = params.getLast();
 
@@ -337,21 +337,19 @@ irc.BaseIRCClient = new Class({
             fn.call(this, user, message, target, this);
         }, this);
 
-        if ((user === "") || user.contains("!")) {
-            this.serverNotice(user, message);
-
+        if ((user === "") || user.contains("!") || this.options.networkServices.contains(host)) {
+            this.serverNotice(host, message);
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
-
             if (ctcp) {
-                this.userCTCPReply(user, ctcp[0], ctcp[1]);
+                this.userCTCPReply(host, ctcp[0], ctcp[1]);
             } else {
-                this.userNotice(user, message);
+                this.userNotice(host, message);
             }
 
         } else {
-            this.broadcast(user, BROUHAHA, message, target, "CHANNOTICE");
-            this.channelNotice(user, target, message);
+            this.broadcast(host, BROUHAHA, message, target, "CHANNOTICE");
+            this.channelNotice(host, target, message);
         }
 
         return true;

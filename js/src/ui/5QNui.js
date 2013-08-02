@@ -1,6 +1,6 @@
 
 ui.QuakeNetUI = new Class({
-    Extends: ui.NewLoginUI,
+    Extends: ui.LoginUI,
     urlDispatcher: function(name, window) {
         if (name == "qwhois") {
             return ["span", function(auth) {
