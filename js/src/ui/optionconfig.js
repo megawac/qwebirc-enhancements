@@ -26,7 +26,8 @@ config.OptionModel = new Class({
             "notify_on_mention": {flash:true, beep:true},
             "notify_on_pm": {flash:true, beep:true},
             "notify_on_notice": {flash:false, beep:true},
-            "custom_notices": []
+            "custom_notices": [],
+            "volume": 100
         },
         key: "qweboptions",
         minimize: true

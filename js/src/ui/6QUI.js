@@ -207,7 +207,17 @@ ui.QUI = new Class({
         bold: {
             keys: 'ctrl+b',
             description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').key)
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+        },
+        italic: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+        },
+        underline: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
         }
     },
 

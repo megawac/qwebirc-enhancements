@@ -11504,7 +11504,8 @@ Copyright (c) 2010 Arieh Glazer
             autoescape: false,
             trim_url_limit: false,
             //length of a url before it is trimmed
-            target: false
+            target: false,
+            default_parser: true
         },
 
         leading_punctuation: [],
@@ -11526,15 +11527,66 @@ Copyright (c) 2010 Arieh Glazer
 
         initialize: function(opts) {
             this.setOptions(opts);
+
+            if(this.options.default_parser) {
+                this.patterns.push({
+                    pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
+                    //i think this should pass tests on all valid urls... will also pick up things like test.test
+                    entireStr: false,
+                    parse: function(text) {
+                        var options = this.options;
+                        var word = text;
+                        if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                            // Deal with punctuation.
+                            var parsed = this.parsePunctuation(word);
+                            var middle = parsed.mid;
+
+                            // Make URL we want to point to.
+                            var url = undefined;
+                            var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
+                            var target_attr = options.target ? ' target="' + options.target + '"' : '';
+
+                            if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                            else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                            else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
+                                // XXX: Not handling IDN.
+                                url = 'mailto:' + middle;
+                                nofollow_attr = '';
+                            }
+
+                            // Make link.
+                            if (url) {
+                                var trimmed = this.trimURL(middle);
+                                if (options.autoescape) {
+                                    // XXX: Assuming autoscape == false
+                                    parsed.lead = this.htmlescape(parsed.lead);
+                                    parsed.end = this.htmlescape(parsed.end);
+                                    url = this.htmlescape(url);
+                                    trimmed = this.htmlescape(trimmed);
+                                }
+                                middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
+                                word = parsed.lead + middle + parsed.end;
+                            } else {
+                                if (options.autoescape) {
+                                    word = this.htmlescape(word);
+                                }
+                            }
+                        } else if (options.autoescape) {
+                            word = this.htmlescape(word);
+                        }
+                        return word;
+                    }
+                })
+            }
         },
 
         htmlescape: Handlebars.Utils.escapeExpression,
         //shut up i know it exists and its better than what was here before
-        urlerize: function(text) {
+        parse: function(text) {
             var self = this,
                 result = text.split(this.word_split_re),
                 funcs = self.patterns.filter(function(pat) {
-                    return !pat.wholeWord || pat.pattern.test(text);
+                    return !pat.entireStr;
                 });
 
             function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
@@ -11547,14 +11599,14 @@ Copyright (c) 2010 Arieh Glazer
                 item = result[i];
                 funcs.each(parseWord);
             };
+            result = result.join("")
             self.patterns.each(function(pattern) {
-                if (pattern.wholeWord && pattern.pattern.test(result)) {
+                if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
-            return result.join(" ");
+            return result;
         },
-
 
         trimURL: function(x, limit) {
             limit = limit || this.options.trim_url_limit;
@@ -11608,60 +11660,13 @@ Copyright (c) 2010 Arieh Glazer
             };
         },
 
-        patterns: [{
-            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
-            //i think this should pass tests on all valid urls... will also pick up things like test.test
-            wholeWord: false,
-            parse: function(text) {
-                var options = this.options;
-                var word = text;
-                if (word.contains('.') || word.contains('@') || word.contains(':')) {
-                    // Deal with punctuation.
-                    var parsed = this.parsePunctuation(word);
-                    var middle = parsed.mid;
-
-                    // Make URL we want to point to.
-                    var url = undefined;
-                    var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
-                    var target_attr = options.target ? ' target="' + options.target + '"' : '';
-
-                    if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
-                    else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                    else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
-                        // XXX: Not handling IDN.
-                        url = 'mailto:' + middle;
-                        nofollow_attr = '';
-                    }
-
-                    // Make link.
-                    if (url) {
-                        var trimmed = this.trimURL(middle);
-                        if (options.autoescape) {
-                            // XXX: Assuming autoscape == false
-                            parsed.lead = this.htmlescape(parsed.lead);
-                            parsed.end = this.htmlescape(parsed.end);
-                            url = this.htmlescape(url);
-                            trimmed = this.htmlescape(trimmed);
-                        }
-                        middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
-                        word = parsed.lead + middle + parsed.end;
-                    } else {
-                        if (options.autoescape) {
-                            word = this.htmlescape(word);
-                        }
-                    }
-                } else if (options.autoescape) {
-                    word = this.htmlescape(word);
-                }
-                return word;
-            }
-        }],
+        patterns: [],
 
         addPattern: function(reg, action, whole) {
             this.patterns.push({
                 'pattern': reg,
                 'parse': action,
-                'wholeWord': whole || false
+                'entireStr': whole || false
             });
             return this;
         }
@@ -15465,25 +15470,28 @@ irc.Numerics = {
 };
 
 irc.styles = [
-    {
-        name: 'normal',
-        style: '',
-        key: '\x00'
-    },
+    // {
+    //     name: 'normal',
+    //     style: '',
+    //     key: '\x00'
+    // },
     {
         name: 'underline',
         style: 'underline',
-        key: '\x1F'
+        key: '\x1F',
+        bbcode: ['[u]', '[/u]']
     },
     {
         name: 'bold',
         style: 'bold',
-        key: '\x02'
+        key: '\x02',
+        bbcode: ['[b]', '[/b]']
     },
     {
         name: 'italic',
         style: 'italic',
-        key: '\x16'
+        key: '\x16',
+        bbcode: ['[i]', '[/i]']
     }
 ]
 
@@ -15707,7 +15715,7 @@ ui.themes.ThemeControlCodeMap2 = {
     "C": "\x03",
     "B": "\x02",
     "U": "\x1F",
-    "O": "\x0F",
+    "O": "\x03",
     "D": "\x00",
     "[": "qwebirc://whois/",
     "]": "/",
@@ -15943,8 +15951,8 @@ util.removeChannel = Array.erase;
 // };
 
 util.formatCommand = function(cmdline) {
-    if (cmdline.charAt(0) === "/") {
-        cmdline = cmdline.slice(1);
+    if (cmdline.startsWith("/")) {
+        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1);//qweb issue #349
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
@@ -15995,8 +16003,12 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
-util.testForNick = function(nick, name) {
-    return prelude.test(new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"), name);
+util.createNickRegex = Functional.memoize(function(nick) {
+    return new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i");
+})
+
+util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
+    return prelude.test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
@@ -16673,12 +16685,15 @@ util.getCaretPos = Element.getCaretPosition;
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);
 
+    var start = Array.isArray(wrap) ? wrap[0] : wrap,
+        end = Array.isArray(wrap) ? wrap[1] : wrap;
+
     $eles.each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
-            var text = $ele.text();
-            $ele.text(text.slice(0, range.start) + wrap + text.slice(range.start, range.end) + wrap + text.slice(range.end))
-                .setCaretPosition(range.end + wrap.length);
+            var text = $ele.val();
+            $ele.val(text.slice(0, range.start) + start + text.slice(range.start, range.end) + end + text.slice(range.end))
+                .setCaretPosition(range.end + start.length + end.length);
         }
     });
 }
@@ -16763,6 +16778,10 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 };
 
 
+(function() {
+
+//welcome to my dirty corner. Here we welcome regexs and confusing loops
+
 //Parses messages for url strings and creates hyperlinks
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
@@ -16811,6 +16830,57 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             console.log("todo");
             return word;
         });
+
+var inputurl = util.inputParser = new Urlerizer({
+    default_parser: false
+})
+
+var bbmatch = /\[.+?\].+\[\/.+?\]/i;
+inputurl.addPattern(bbmatch,//this pattern needs to be optimized
+    function parsebb(_text) {
+        var stac = [],
+            tag_re = /\[.+?\]/i,
+            tag_m,
+            tag,
+            text = _text,
+
+            bb, style, endTag_re, end_indx, inner;
+
+        while(tag_m = text.match(tag_re)) {
+            tag = tag_m[0];
+            //assume everything before has been processed
+            stac.push(text.slice(0, tag_m.index));
+            text = text.slice(tag_m.index);
+
+
+            style = Array.item(irc.styles.filter(function(sty) {
+                return sty.bbcode[0] === tag;
+            }), 0);
+            if(style) {
+                bb = style.bbcode;
+
+                endTag_re = new RegExp(RegExp.escape(bb[1]), "i");
+                end_indx = text.search(endTag_re);
+                if(end_indx !== -1) {
+                    inner = text.slice(tag.length, end_indx);
+                    if(bbmatch.test(inner)) {//recurse
+                        inner = parsebb(inner);
+                    }
+                    stac.push(style.key + inner + style.key);
+                    text = text.slice(end_indx + bb[1].length);
+                    continue;
+                }
+            }
+
+            stac.push(tag);
+            text = text.slice(tag.length);
+        }
+
+        return stac.join("") + text;
+    }, true)
+
+})()
+
 
 
 
@@ -21072,7 +21142,17 @@ ui.QUI = new Class({
         bold: {
             keys: 'ctrl+b',
             description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').key)
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+        },
+        italic: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+        },
+        underline: {
+            keys: 'ctrl+b',
+            description: '',
+            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
         }
     },
 
@@ -21498,9 +21578,9 @@ ui.Theme = new Class({
                 styled = parseArr[i];
                 var html = templates.ircstyle({
                     'style': style.style,
-                    'text': styled[0]
+                    'text': styled
                 });
-                result.replace(style.key + styled[0] + style.key, html);
+                result = result.replace(style.key + styled + style.key, html);
             };
         });
 
@@ -21508,7 +21588,7 @@ ui.Theme = new Class({
     },
 
     urlerize: function(text) {
-        return urlifier.urlerize(text);
+        return urlifier.parse(text);
     },
 
     messageParsers: [
@@ -22440,7 +22520,8 @@ config.OptionModel = new Class({
             "notify_on_mention": {flash:true, beep:true},
             "notify_on_pm": {flash:true, beep:true},
             "notify_on_notice": {flash:false, beep:true},
-            "custom_notices": []
+            "custom_notices": [],
+            "volume": 100
         },
         key: "qweboptions",
         minimize: true
@@ -23139,10 +23220,9 @@ ui.QUI.Window = new Class({
 
 
         function sendInput(e) {
-            if(e)
-                e.stop();
-            var text = $inputbox.val()
-            if (text.trim() !== "") {
+            if(e) e.stop();
+            var text = util.inputParser.parse($inputbox.val());
+            if (text !== "") {
                 parentO.resetTabComplete();
                 self.historyExec(text);
                 $inputbox.val("");

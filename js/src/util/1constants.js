@@ -143,25 +143,28 @@ irc.Numerics = {
 };
 
 irc.styles = [
-    {
-        name: 'normal',
-        style: '',
-        key: '\x00'
-    },
+    // {
+    //     name: 'normal',
+    //     style: '',
+    //     key: '\x00'
+    // },
     {
         name: 'underline',
         style: 'underline',
-        key: '\x1F'
+        key: '\x1F',
+        bbcode: ['[u]', '[/u]']
     },
     {
         name: 'bold',
         style: 'bold',
-        key: '\x02'
+        key: '\x02',
+        bbcode: ['[b]', '[/b]']
     },
     {
         name: 'italic',
         style: 'italic',
-        key: '\x16'
+        key: '\x16',
+        bbcode: ['[i]', '[/i]']
     }
 ]
 

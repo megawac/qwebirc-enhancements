@@ -39,6 +39,7 @@ TODOs:
 -write socket connection class for when available - needs server coded as well.  
 -fixes for all my blunders  
 -get rid of compile.py + dependencies  
+-Move broadcast to #brouhaha to the ui so each line only needs to be processed once.  
   
   
 KNOWN BUGS:  

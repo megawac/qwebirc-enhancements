@@ -128,9 +128,9 @@ ui.Theme = new Class({
                 styled = parseArr[i];
                 var html = templates.ircstyle({
                     'style': style.style,
-                    'text': styled[0]
+                    'text': styled
                 });
-                result.replace(style.key + styled[0] + style.key, html);
+                result = result.replace(style.key + styled + style.key, html);
             };
         });
 
@@ -138,7 +138,7 @@ ui.Theme = new Class({
     },
 
     urlerize: function(text) {
-        return urlifier.urlerize(text);
+        return urlifier.parse(text);
     },
 
     messageParsers: [

@@ -69,7 +69,8 @@
             autoescape: false,
             trim_url_limit: false,
             //length of a url before it is trimmed
-            target: false
+            target: false,
+            default_parser: true
         },
 
         leading_punctuation: [],
@@ -91,15 +92,66 @@
 
         initialize: function(opts) {
             this.setOptions(opts);
+
+            if(this.options.default_parser) {
+                this.patterns.push({
+                    pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
+                    //i think this should pass tests on all valid urls... will also pick up things like test.test
+                    entireStr: false,
+                    parse: function(text) {
+                        var options = this.options;
+                        var word = text;
+                        if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                            // Deal with punctuation.
+                            var parsed = this.parsePunctuation(word);
+                            var middle = parsed.mid;
+
+                            // Make URL we want to point to.
+                            var url = undefined;
+                            var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
+                            var target_attr = options.target ? ' target="' + options.target + '"' : '';
+
+                            if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
+                            else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
+                            else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
+                                // XXX: Not handling IDN.
+                                url = 'mailto:' + middle;
+                                nofollow_attr = '';
+                            }
+
+                            // Make link.
+                            if (url) {
+                                var trimmed = this.trimURL(middle);
+                                if (options.autoescape) {
+                                    // XXX: Assuming autoscape == false
+                                    parsed.lead = this.htmlescape(parsed.lead);
+                                    parsed.end = this.htmlescape(parsed.end);
+                                    url = this.htmlescape(url);
+                                    trimmed = this.htmlescape(trimmed);
+                                }
+                                middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
+                                word = parsed.lead + middle + parsed.end;
+                            } else {
+                                if (options.autoescape) {
+                                    word = this.htmlescape(word);
+                                }
+                            }
+                        } else if (options.autoescape) {
+                            word = this.htmlescape(word);
+                        }
+                        return word;
+                    }
+                })
+            }
         },
 
         htmlescape: Handlebars.Utils.escapeExpression,
         //shut up i know it exists and its better than what was here before
-        urlerize: function(text) {
+        parse: function(text) {
             var self = this,
                 result = text.split(this.word_split_re),
                 funcs = self.patterns.filter(function(pat) {
-                    return !pat.wholeWord || pat.pattern.test(text);
+                    return !pat.entireStr;
                 });
 
             function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
@@ -112,14 +164,14 @@
                 item = result[i];
                 funcs.each(parseWord);
             };
+            result = result.join("")
             self.patterns.each(function(pattern) {
-                if (pattern.wholeWord && pattern.pattern.test(result)) {
+                if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
-            return result.join(" ");
+            return result;
         },
-
 
         trimURL: function(x, limit) {
             limit = limit || this.options.trim_url_limit;
@@ -173,60 +225,13 @@
             };
         },
 
-        patterns: [{
-            pattern: /[a-zA-Z]\.[a-zA-Z]{2,4}/i,
-            //i think this should pass tests on all valid urls... will also pick up things like test.test
-            wholeWord: false,
-            parse: function(text) {
-                var options = this.options;
-                var word = text;
-                if (word.contains('.') || word.contains('@') || word.contains(':')) {
-                    // Deal with punctuation.
-                    var parsed = this.parsePunctuation(word);
-                    var middle = parsed.mid;
-
-                    // Make URL we want to point to.
-                    var url = undefined;
-                    var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
-                    var target_attr = options.target ? ' target="' + options.target + '"' : '';
-
-                    if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
-                    else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                    else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
-                        // XXX: Not handling IDN.
-                        url = 'mailto:' + middle;
-                        nofollow_attr = '';
-                    }
-
-                    // Make link.
-                    if (url) {
-                        var trimmed = this.trimURL(middle);
-                        if (options.autoescape) {
-                            // XXX: Assuming autoscape == false
-                            parsed.lead = this.htmlescape(parsed.lead);
-                            parsed.end = this.htmlescape(parsed.end);
-                            url = this.htmlescape(url);
-                            trimmed = this.htmlescape(trimmed);
-                        }
-                        middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
-                        word = parsed.lead + middle + parsed.end;
-                    } else {
-                        if (options.autoescape) {
-                            word = this.htmlescape(word);
-                        }
-                    }
-                } else if (options.autoescape) {
-                    word = this.htmlescape(word);
-                }
-                return word;
-            }
-        }],
+        patterns: [],
 
         addPattern: function(reg, action, whole) {
             this.patterns.push({
                 'pattern': reg,
                 'parse': action,
-                'wholeWord': whole || false
+                'entireStr': whole || false
             });
             return this;
         }

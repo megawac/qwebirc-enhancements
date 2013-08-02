@@ -1,4 +1,8 @@
 
+(function() {
+
+//welcome to my dirty corner. Here we welcome regexs and confusing loops
+
 //Parses messages for url strings and creates hyperlinks
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
@@ -47,3 +51,53 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             console.log("todo");
             return word;
         });
+
+var inputurl = util.inputParser = new Urlerizer({
+    default_parser: false
+})
+
+var bbmatch = /\[.+?\].+\[\/.+?\]/i;
+inputurl.addPattern(bbmatch,//this pattern needs to be optimized
+    function parsebb(_text) {
+        var stac = [],
+            tag_re = /\[.+?\]/i,
+            tag_m,
+            tag,
+            text = _text,
+
+            bb, style, endTag_re, end_indx, inner;
+
+        while(tag_m = text.match(tag_re)) {
+            tag = tag_m[0];
+            //assume everything before has been processed
+            stac.push(text.slice(0, tag_m.index));
+            text = text.slice(tag_m.index);
+
+
+            style = Array.item(irc.styles.filter(function(sty) {
+                return sty.bbcode[0] === tag;
+            }), 0);
+            if(style) {
+                bb = style.bbcode;
+
+                endTag_re = new RegExp(RegExp.escape(bb[1]), "i");
+                end_indx = text.search(endTag_re);
+                if(end_indx !== -1) {
+                    inner = text.slice(tag.length, end_indx);
+                    if(bbmatch.test(inner)) {//recurse
+                        inner = parsebb(inner);
+                    }
+                    stac.push(style.key + inner + style.key);
+                    text = text.slice(end_indx + bb[1].length);
+                    continue;
+                }
+            }
+
+            stac.push(tag);
+            text = text.slice(tag.length);
+        }
+
+        return stac.join("") + text;
+    }, true)
+
+})()

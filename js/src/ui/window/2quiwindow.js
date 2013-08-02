@@ -350,10 +350,9 @@ ui.QUI.Window = new Class({
 
 
         function sendInput(e) {
-            if(e)
-                e.stop();
-            var text = $inputbox.val()
-            if (text.trim() !== "") {
+            if(e) e.stop();
+            var text = util.inputParser.parse($inputbox.val());
+            if (text !== "") {
                 parentO.resetTabComplete();
                 self.historyExec(text);
                 $inputbox.val("");

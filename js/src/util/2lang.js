@@ -118,7 +118,7 @@ ui.themes.ThemeControlCodeMap2 = {
     "C": "\x03",
     "B": "\x02",
     "U": "\x1F",
-    "O": "\x0F",
+    "O": "\x03",
     "D": "\x00",
     "[": "qwebirc://whois/",
     "]": "/",

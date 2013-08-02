@@ -26,12 +26,15 @@ util.getCaretPos = Element.getCaretPosition;
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);
 
+    var start = Array.isArray(wrap) ? wrap[0] : wrap,
+        end = Array.isArray(wrap) ? wrap[1] : wrap;
+
     $eles.each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
-            var text = $ele.text();
-            $ele.text(text.slice(0, range.start) + wrap + text.slice(range.start, range.end) + wrap + text.slice(range.end))
-                .setCaretPosition(range.end + wrap.length);
+            var text = $ele.val();
+            $ele.val(text.slice(0, range.start) + start + text.slice(range.start, range.end) + end + text.slice(range.end))
+                .setCaretPosition(range.end + start.length + end.length);
         }
     });
 }

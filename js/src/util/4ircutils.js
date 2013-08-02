@@ -147,8 +147,8 @@ util.removeChannel = Array.erase;
 // };
 
 util.formatCommand = function(cmdline) {
-    if (cmdline.charAt(0) === "/") {
-        cmdline = cmdline.slice(1);
+    if (cmdline.startsWith("/")) {
+        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1);//qweb issue #349
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
@@ -199,8 +199,12 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
-util.testForNick = function(nick, name) {
-    return prelude.test(new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i"), name);
+util.createNickRegex = Functional.memoize(function(nick) {
+    return new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i");
+})
+
+util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
+    return prelude.test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
