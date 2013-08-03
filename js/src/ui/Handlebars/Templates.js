@@ -90,6 +90,7 @@
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
+	source.loadingPage = "<div class='loading'>" + lang.loadingText + " . . .</div>";
     // source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
 
     // source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
@@ -128,9 +129,9 @@
         return checked ? 'checked' : '';
     });
 
-    engine.registerHelper('pad', function(txt) {
-        return txt && txt.length !== 0 ? ' ' + txt : '';
-    });
+    //engine.registerHelper('pad', function(txt) {
+    //    return txt && txt.length !== 0 ? ' ' + txt : '';
+    //});
 
     //https://github.com/wycats/handlebars.js/issues/304
     // engine.registerHelper('chain', function () {

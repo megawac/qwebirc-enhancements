@@ -1,39 +1,6 @@
 //Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
 (function(self) {
 
-    // http://stackoverflow.com/a/7924240/17498
-
-    function occurrences(string, substring) {
-        var n = 0;
-        var pos = 0;
-        while (true) {
-            pos = string.indexOf(substring, pos);
-            if (pos != -1) {
-                n++;
-                pos += substring.length;
-            } else {
-                break;
-            }
-        }
-        return n;
-    }
-
-    var unquoted_percents_re = /%(?![0-9A-Fa-f]{2})/;
-
-    // Quotes a URL if it isn't already quoted.
-
-    function smart_urlquote(url) {
-        // XXX: Not handling IDN.
-        // 
-        // An URL is considered unquoted if it contains no % characters or
-        // contains a % not followed by two hexadecimal digits.
-        if (url.indexOf('%') == -1 || url.match(unquoted_percents_re)) {
-            return encodeURI(url);
-        } else {
-            return url;
-        }
-    }
-
     function getTrailing(text, punc) {
         if (Type.isRegExp(punc)) {
             var match = text.match(punc);
@@ -59,10 +26,8 @@
             }
         }
     }
-    // function htmlescape(html) {
-    //     return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-    // }
-    self.Urlerizer = new Class({
+
+    var urlerizer = self.Urlerizer = new Class({
         Implements: [Options],
         options: {
             nofollow: false,
@@ -73,6 +38,7 @@
             default_parser: true
         },
 
+        //ignored punctuation
         leading_punctuation: [],
         trailing_punctuation: [/[.,.)]$/],
         wrapping_punctuation: [
@@ -84,11 +50,6 @@
             ["'", "'"],
             ['[', ']']
         ],
-
-        word_split_re: /([\s<>"]+)/,
-        simple_url_re: /^https?:\/\/\w/,
-        simple_url_2_re: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
-        simple_email_re: /^\S+@\S+\.\S+$/,
 
         initialize: function(opts) {
             this.setOptions(opts);
@@ -111,9 +72,9 @@
                             var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                             var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                            if (middle.match(this.simple_url_re)) url = smart_urlquote(middle);
-                            else if (middle.match(this.simple_url_2_re)) url = smart_urlquote('http://' + middle);
-                            else if (middle.indexOf(':') == -1 && middle.match(this.simple_email_re)) {
+                            if (middle.match(urlerizer.simple_url)) url = this.urlquote(middle);
+                            else if (middle.match(urlerizer.simple_url_2)) url = this.urlquote('http://' + middle);
+                            else if (middle.contains(':') && middle.match(urlerizer.simple_email)) {
                                 // XXX: Not handling IDN.
                                 url = 'mailto:' + middle;
                                 nofollow_attr = '';
@@ -145,11 +106,27 @@
             }
         },
 
-        htmlescape: Handlebars.Utils.escapeExpression,
+        htmlescape: Handlebars.Utils.escapeExpression,//shhh its here and its better than below one
+        // htmlescape: function(string) {//from underscore
+        //     return (''+string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g,'&#x2F;');
+        // },
+
+        // Quotes a URL if it isn't already quoted.
+        urlquote: function(url) {
+            // XXX: Not handling IDN.
+            // An URL is considered unquoted if it contains no % characters or
+            // contains a % not followed by two hexadecimal digits.
+            if (url.indexOf('%') == -1 || url.match(urlerizer.unquoted_percents)) {
+                return encodeURI(url);
+            } else {
+                return url;
+            }
+        },
+
         //shut up i know it exists and its better than what was here before
         parse: function(text) {
             var self = this,
-                result = text.split(this.word_split_re),
+                result = text.split(urlerizer.word_split),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
                 });
@@ -236,5 +213,13 @@
             return this;
         }
     });
+
+    urlerizer.regexs = {
+        word_split: /([\s<>"]+)/,
+        simple_url: /^https?:\/\/\w/,
+        simple_url_2: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
+        simple_email: /^\S+@\S+\.\S+$/,
+        unquoted_percents: /%(?![0-9A-Fa-f]{2})/
+    }
 
 })(this);

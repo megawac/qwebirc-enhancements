@@ -38,20 +38,20 @@ ui.Theme = new Class({
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
             isobj = Type.isObject(_data),
-            data = isobj ? Object.clone(_data) : _data,
+            data = isobj ? Object.clone(_data) : _data, //sometimes an internal reference
             val;
 
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + data.n + "/";
+                data["N"] = "qwebirc://whois/" + data.n.stripScripts(false) + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             ["N", "m"].each(function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
                     if(Array.isArray(val)) { //modes are given as an array so we need to fold
-                        val = val.join("");
+                        val = val.join("").stripScripts(false);
                     }
                     data[key] = self.urlerize(val);
                 }
@@ -73,7 +73,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line));
+        var result = this.colourise(this.urlerize(line.stripScripts(false)));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -138,7 +138,7 @@ ui.Theme = new Class({
     },
 
     urlerize: function(text) {
-        return urlifier.parse(text);
+        return util.urlifier.parse(text);
     },
 
     messageParsers: [

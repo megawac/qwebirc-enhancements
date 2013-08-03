@@ -72,12 +72,13 @@
         // if (items.length >= max) {
         //     newitems.push(items.slice(max - 1).join(by));
         // }
-        startsWith: function(what) {
-            return this.slice(0, what.length) == what;
+		
+		//see es6 spec
+        startsWith: function(what, pos) {
+            return this.slice((pos || 0), what.length) == what;
         },
-
-        endsWith: function(what) {
-            return this.slice(this.length - what.length) == what;
+        endsWith: function(what, pos) {
+            return this.slice(this.length - what.length - (pos || 0)) == what;
         }
     });
 

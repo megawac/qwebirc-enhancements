@@ -3,8 +3,7 @@ ui.AboutPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -27,8 +26,7 @@ ui.PrivacyPolicyPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -52,8 +50,7 @@ ui.FeedbackPane = new Class({
     initialize: function(parent) {
         this.textboxVisible = false;
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.html(templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -93,7 +90,7 @@ ui.FeedbackPane = new Class({
 
         if (text.length < 25) {
             /* TODO: lie and throw away */
-            mainText.set("text", "I don't suppose you could enter a little bit more? Thanks!");
+            mainText.text("I don't suppose you could enter a little bit more? Thanks!");
             textbox.focus();
             return;
         }
@@ -135,8 +132,7 @@ ui.FAQPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 

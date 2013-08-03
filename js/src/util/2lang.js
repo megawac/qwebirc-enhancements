@@ -45,7 +45,7 @@
 
         
 
-        loadingPage: message("Loading . . .", types.INFO),
+        loadingPage: "Loading . . .",
         submittingPage: message("Submitting . . .", types.INFO),
         fishSlap: message("slaps {nick} with a large fishbot", types.MESSAGE),
 

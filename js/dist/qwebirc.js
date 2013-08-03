@@ -261,16 +261,17 @@ function program3(depth0,data) {
 this["Handlebars"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, stack2, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, functionType="function";
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='message";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.pad || depth0.pad),stack1 ? stack1.call(depth0, depth0['class'], options) : helperMissing.call(depth0, "pad", depth0['class'], options)))
+  buffer += "<div class='message ";
+  if (stack1 = helpers['class']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0['class']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
     + "'><span>";
-  if (stack2 = helpers.message) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.message; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
-  buffer += escapeExpression(stack2)
+  if (stack1 = helpers.message) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.message; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
     + "</span></div>";
   return buffer;
   });
@@ -891,7 +892,7 @@ irc.colours = [//http://www.mirc.com/colors.html
 
         
 
-        loadingPage: message("Loading . . .", types.INFO),
+        loadingPage: "Loading . . .",
         submittingPage: message("Submitting . . .", types.INFO),
         fishSlap: message("slaps {nick} with a large fishbot", types.MESSAGE),
 
@@ -2086,8 +2087,8 @@ var inputurl = util.inputParser = new Urlerizer({
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
 inputurl.addPattern(bbmatch,//this pattern needs to be optimized
-    function parsebb(_text) {
-        var stac = [],
+    function parsebb(_text) {//see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
+        var stac = [],//for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
             tag_re = /\[.+?\]/i,
             tag_m,
             tag,
@@ -5156,67 +5157,6 @@ irc.IRCTracker = new Class({
 });
 
 
-//http://indiegamr.com/the-state-of-audio-in-html5-games/
-//consider switching to soundjs
-//http://www.createjs.com/Docs/SoundJS/modules/SoundJS.html
-
-sound.SoundPlayer = new Class({
-    Implements: [Options, Events],
-    options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
-        sounds: "/sound/",
-        beepsrc: "beep.mp3"
-    },
-    initialize: function(options) {
-        this.setOptions(options);
-        this.loadingSWF = false;
-		this.sm = undefined; //sound manager
-        this.sounds = {};
-    },
-    load: function() {
-        window.addEvent("domready", this.loadSoundManager.bind(this));
-        return this;
-    },
-    loadSoundManager: function() {
-        var self = this,
-			opts = self.options;
-        if (self.loadingSWF !== false)
-            return;
-        self.loadingSWF = true;
-        if ($defined(self.sm)) { //... ugh
-            self.fireEvent("ready");
-            return;
-        }
-
-        var soundinit = function() {
-			//var sm = self.sm = window.soundManager;
-			var sm = self.sm = window.createjs.Sound;
-            sm.url = opts.sounds;
-
-            //load all sounds here
-            self.register("beep", opts.sounds + opts.beepsrc);
-            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
-            self.loadingSWF = undefined;
-        };
-
-		//load sound manager
-        Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
-    },
-	register: function(alias,src) {
-		this.sm.registerSound(src, alias);
-		this.sounds[alias] = this.sm.play.curry(alias);
-	},
-    play: function(src) {
-        this.sm.play(src);
-        return this;
-    },
-
-    isReady: function() {
-        return this.sm.isReady();
-    }
-});
-
-
 (function (engine) {
 
     //where to store these things
@@ -5308,6 +5248,7 @@ sound.SoundPlayer = new Class({
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
+	source.loadingPage = "<div class='loading'>" + lang.loadingText + " . . .</div>";
     // source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
 
     // source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
@@ -5346,9 +5287,9 @@ sound.SoundPlayer = new Class({
         return checked ? 'checked' : '';
     });
 
-    engine.registerHelper('pad', function(txt) {
-        return txt && txt.length !== 0 ? ' ' + txt : '';
-    });
+    //engine.registerHelper('pad', function(txt) {
+    //    return txt && txt.length !== 0 ? ' ' + txt : '';
+    //});
 
     //https://github.com/wycats/handlebars.js/issues/304
     // engine.registerHelper('chain', function () {
@@ -5410,39 +5351,15 @@ ui.BaseUI = new Class({
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
 
-        self.windowFocused = true;
-
-        if (Browser.Engine.trident) {
-            var checkFocus = function() {
-                    var hasFocus = document.hasFocus();
-                    if (hasFocus !== self.windowFocused) {
-                        self.windowFocused = hasFocus;
-                        self.focusChange(hasFocus);
-                    }
-                };
-
-            checkFocus.periodical(100, self);
-        } else {
-            var blur = function() {
-                    if (self.windowFocused) {
-                        self.windowFocused = false;
-                        self.focusChange(false);
-                    }
-                },
-                focus = function() {
-                    if (!self.windowFocused) {
-                        self.windowFocused = true;
-                        self.focusChange(true);
-                    }
-                };
-
-            /* firefox requires both */
-
-            document.addEvent("blur", blur);
-            window.addEvent("blur", blur);
-            document.addEvent("focus", focus);
-            window.addEvent("focus", focus);
-        }
+        //going to assume dom is ready
+        window.addEvents({
+            "blur": function() {
+                self.focusChange(false);
+            },
+            "focus": function() {
+                self.focusChange(true);
+            }
+        });
     },
     newClient: function(client) {
         client.id = this.clientId++;
@@ -6737,20 +6654,20 @@ ui.Theme = new Class({
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
             isobj = Type.isObject(_data),
-            data = isobj ? Object.clone(_data) : _data,
+            data = isobj ? Object.clone(_data) : _data, //sometimes an internal reference
             val;
 
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + data.n + "/";
+                data["N"] = "qwebirc://whois/" + data.n.stripScripts(false) + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             ["N", "m"].each(function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
                     if(Array.isArray(val)) { //modes are given as an array so we need to fold
-                        val = val.join("");
+                        val = val.join("").stripScripts(false);
                     }
                     data[key] = self.urlerize(val);
                 }
@@ -6772,7 +6689,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line));
+        var result = this.colourise(this.urlerize(line.stripScripts(false)));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -6837,7 +6754,7 @@ ui.Theme = new Class({
     },
 
     urlerize: function(text) {
-        return urlifier.parse(text);
+        return util.urlifier.parse(text);
     },
 
     messageParsers: [
@@ -6945,8 +6862,7 @@ ui.AboutPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -6969,8 +6885,7 @@ ui.PrivacyPolicyPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -6994,8 +6909,7 @@ ui.FeedbackPane = new Class({
     initialize: function(parent) {
         this.textboxVisible = false;
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.html(templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -7035,7 +6949,7 @@ ui.FeedbackPane = new Class({
 
         if (text.length < 25) {
             /* TODO: lie and throw away */
-            mainText.set("text", "I don't suppose you could enter a little bit more? Thanks!");
+            mainText.text("I don't suppose you could enter a little bit more? Thanks!");
             textbox.focus();
             return;
         }
@@ -7077,8 +6991,7 @@ ui.FAQPane = new Class({
     Implements: [Events],
     initialize: function(parent) {
         var delayfn = function() {
-            //parent.set("html", "<div class=\"loading\">Loading. . .</div>");
-            parent.set("html", templates.message(Object.clone(lang.loadingPage, {'class': 'loading'})));
+            parent.set("html", templates.loadingPage());
         };
         var cb = delayfn.delay(500);
 
@@ -7862,6 +7775,67 @@ ui.OptionView = new Class({
     }
 });
 })();
+
+
+//http://indiegamr.com/the-state-of-audio-in-html5-games/
+//consider switching to soundjs
+//http://www.createjs.com/Docs/SoundJS/modules/SoundJS.html
+
+sound.SoundPlayer = new Class({
+    Implements: [Options, Events],
+    options: {
+        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
+        sounds: "/sound/",
+        beepsrc: "beep.mp3"
+    },
+    initialize: function(options) {
+        this.setOptions(options);
+        this.loadingSWF = false;
+		this.sm = undefined; //sound manager
+        this.sounds = {};
+    },
+    load: function() {
+        window.addEvent("domready", this.loadSoundManager.bind(this));
+        return this;
+    },
+    loadSoundManager: function() {
+        var self = this,
+			opts = self.options;
+        if (self.loadingSWF !== false)
+            return;
+        self.loadingSWF = true;
+        if ($defined(self.sm)) { //... ugh
+            self.fireEvent("ready");
+            return;
+        }
+
+        var soundinit = function() {
+			//var sm = self.sm = window.soundManager;
+			var sm = self.sm = window.createjs.Sound;
+            sm.url = opts.sounds;
+
+            //load all sounds here
+            self.register("beep", opts.sounds + opts.beepsrc);
+            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
+            self.loadingSWF = undefined;
+        };
+
+		//load sound manager
+        Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+    },
+	register: function(alias,src) {
+		this.sm.registerSound(src, alias);
+		this.sounds[alias] = this.sm.play.curry(alias);
+	},
+    play: function(src) {
+        this.sm.play(src);
+        return this;
+    },
+
+    isReady: function() {
+        return this.sm.isReady();
+    }
+});
 
 
 util.parseStylesheet = function(data) {

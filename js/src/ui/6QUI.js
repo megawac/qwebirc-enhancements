@@ -175,17 +175,12 @@ ui.QUI = new Class({
 
     keyboardEvents: {
         focusInput: {
-            keys: 'ctrl+space',
+            keys: 'space',
             description: '',
             handler: function(e) {
                 e.stop();
                 if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
             }
-        },
-        testEvent: {
-            keys: 'shift+b',
-            description: '',
-            handler: prelude.log
         },
         nextWindow: {
             keys: 'right',

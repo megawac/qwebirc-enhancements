@@ -49,6 +49,9 @@ KNOWN BUGS:
     -move prefix patterns to seperate function and take regex class [\x03-\x15] or something  
 -Notices are sent to the wrong window (always to status window...)  
 
+End Goals (some day...):
+-make client portable enough (maybe with mootools and jquery amd versions) to be enabled as an overlay  
+-make client ui easily extensible by just configuring some MV* view  
 
 DEMO:  
 To run the demo:  

@@ -58,8 +58,8 @@ var inputurl = util.inputParser = new Urlerizer({
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
 inputurl.addPattern(bbmatch,//this pattern needs to be optimized
-    function parsebb(_text) {
-        var stac = [],
+    function parsebb(_text) {//see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
+        var stac = [],//for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
             tag_re = /\[.+?\]/i,
             tag_m,
             tag,

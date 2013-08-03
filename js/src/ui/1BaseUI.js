@@ -16,39 +16,15 @@ ui.BaseUI = new Class({
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
 
-        self.windowFocused = true;
-
-        if (Browser.Engine.trident) {
-            var checkFocus = function() {
-                    var hasFocus = document.hasFocus();
-                    if (hasFocus !== self.windowFocused) {
-                        self.windowFocused = hasFocus;
-                        self.focusChange(hasFocus);
-                    }
-                };
-
-            checkFocus.periodical(100, self);
-        } else {
-            var blur = function() {
-                    if (self.windowFocused) {
-                        self.windowFocused = false;
-                        self.focusChange(false);
-                    }
-                },
-                focus = function() {
-                    if (!self.windowFocused) {
-                        self.windowFocused = true;
-                        self.focusChange(true);
-                    }
-                };
-
-            /* firefox requires both */
-
-            document.addEvent("blur", blur);
-            window.addEvent("blur", blur);
-            document.addEvent("focus", focus);
-            window.addEvent("focus", focus);
-        }
+        //going to assume dom is ready
+        window.addEvents({
+            "blur": function() {
+                self.focusChange(false);
+            },
+            "focus": function() {
+                self.focusChange(true);
+            }
+        });
     },
     newClient: function(client) {
         client.id = this.clientId++;
