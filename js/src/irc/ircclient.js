@@ -115,6 +115,17 @@ irc.IRCClient = new Class({
         }
     },
 
+    broadcast: function(user, channel, message, from, msgtype) {
+        var nick = util.hostToNick(user);
+
+        this.tracker.updateLastSpoke(nick, channel, Date.now());
+        this.newChanLine(channel, msgtype, user, {
+            "m": message,
+            "@": this.getNickStatus(channel, nick),
+            "f": from
+        });
+    },
+
     getWindow: function(name) {
         return this.windows[this.toIRCLower(name)];
     },
@@ -741,17 +752,6 @@ irc.IRCClient = new Class({
         return nickchan.prefixes.charAt(0);
     },
 
-    broadcast: function(user, channel, message, from, msgtype) {
-        var nick = util.hostToNick(user);
-
-        this.tracker.updateLastSpoke(nick, channel, Date.now());
-        this.newChanLine(channel, msgtype, user, {
-            "m": message,
-            "@": this.getNickStatus(channel, nick),
-            "f": from
-        });
-    },
-
     storeChannels: function(channels) {
         var store = prelude.uniq(channels);
         this.channels = channels;
@@ -789,8 +789,7 @@ irc.IRCClient = new Class({
             var maxTime = Math.max.apply(null, chansets.map(function(time, i) {
                 return ((minTime - (currTime - time))/1000).round(1); //to secs/10
             }));
-            this.writeMessages(lang.waitToJoin, {channel: chan,
-                                                time: maxTime});
+            this.writeMessages(lang.waitToJoin, {channel: chan, time: maxTime});
         }
 
         return broken.length === 0;

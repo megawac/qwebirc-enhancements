@@ -143,30 +143,47 @@ irc.Numerics = {
 };
 
 irc.styles = [
-    // {
-    //     name: 'normal',
-    //     style: '',
-    //     key: '\x00'
-    // },
+    {
+        name: 'normal',
+        style: '',
+        key: '\x00'
+    },
     {
         name: 'underline',
         style: 'underline',
         key: '\x1F',
+        keyregex: /\x1F(.*?)\x1F/,
         bbcode: ['[u]', '[/u]']
     },
     {
         name: 'bold',
         style: 'bold',
         key: '\x02',
+        keyregex: /\x02(.*?)\x02/,
         bbcode: ['[b]', '[/b]']
     },
     {
         name: 'italic',
         style: 'italic',
         key: '\x16',
+        keyregex: /\x16(.*?)\x16/,
         bbcode: ['[i]', '[/i]']
+    },
+    {
+        name: 'colour',
+        style: '',//see below
+        key: '\x03',
+        fore_re: /^(\d{1,2})/,
+        back_re: /^((\d{1,2})+,+(\d{1,2}))/,
+        format: "\x03{f},{b}{t}\x03",
+        bbcode: ['[colour fore={f} back={b}]', '[/colour]']
     }
-]
+];
+
+//dirty but better than filtering every time?
+irc.styles.special = irc.styles.filter(function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
+irc.styles.colour = irc.styles.filter(function(sty) { return sty.name == 'colour' } )[0];
+irc.styles.normal = irc.styles.filter(function(sty) { return sty.name == 'normal' } )[0];
 
 irc.colours = [//http://www.mirc.com/colors.html
     {

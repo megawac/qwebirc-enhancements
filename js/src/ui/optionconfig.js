@@ -6,7 +6,7 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "flash_on_mention": ui.supportsFocus().every(Functional.I),
+            "flash_on_mention": true,
             "dedicated_msg_window": false,
             "dedicated_notice_window": true,
             "nick_ov_status": true,

@@ -1,4 +1,5 @@
 
+//mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
     Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
@@ -18,6 +19,14 @@ ui.QUI.Window = new Class({
 
         if(name === BROUHAHA) {
             $tab.addClass('brouhaha');
+            Function.delay(function() {
+                parentObject.windowArray.some(function(win) {
+                    if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
+                        self.properties.text(win.name); //update current channel in brouhaha
+                        self.currentChannel = win.name;
+                    }
+                });
+            }, 1000);
         }
 
 
@@ -41,9 +50,6 @@ ui.QUI.Window = new Class({
         $tabDetach.addEvent('click', self.detach);
 
         if (!isBaseWindow(name)) {
-            // var tabclose = new Element("span");
-            // tabclose.set("text", "X");
-            // tabclose.addClass("tabclose");
             var $tabclose = Element.from(templates.tabClose()),
                 close = self.close;
             //close window
@@ -73,11 +79,6 @@ ui.QUI.Window = new Class({
         } else {
             qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details
         }
-
-        // lines.addEvent("scroll", function() {
-        //     self.scrolleddown = self.scrolledDown();
-        //     self.scrollpos = self.getScrollParent().getScroll();
-        // });
 
         if (type === ui.WINDOW_CHANNEL) {
             qwindow.window.addClass('channel');
@@ -183,8 +184,7 @@ ui.QUI.Window = new Class({
 
             setActive = function(e) {
                 po.windowArray.each(function(win) {
-                    if(win.detached)
-                        win.wrapper.removeClass('active');
+                    if(win.detached) win.wrapper.removeClass('active');
                 });
                 wrapper.addClass('active');
             };
@@ -349,17 +349,6 @@ ui.QUI.Window = new Class({
             $inputbtn = $form.getElement('.send');
 
 
-        function sendInput(e) {
-            if(e) e.stop();
-            var text = util.inputParser.parse($inputbox.val());
-            if (text !== "") {
-                parentO.resetTabComplete();
-                self.historyExec(text);
-                $inputbox.val("");
-            }
-            $inputbox.focus();
-        }
-
         if (Browser.isMobile) {
             $inputbtn.addClass("mobile-button");
         }
@@ -376,7 +365,7 @@ ui.QUI.Window = new Class({
                 } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
                     return self.tabComplete($inputbox);
-                } else { /* ideally alt and other keys wouldn't break self */
+                } else {
                     return parentO.resetTabComplete();
                 }
                 e.stop();
@@ -408,8 +397,8 @@ ui.QUI.Window = new Class({
             }
         });
 
-        $inputbtn.addEvent("click", sendInput);
-        $form.addEvent("submit", sendInput);
+        $inputbtn.addEvent("click", self.sendInput);
+        $form.addEvent("submit", self.sendInput);
         $inputbox.addEvents({
                     "focus": resettab,
                     "mousedown": resettab,
@@ -502,34 +491,6 @@ ui.QUI.Window = new Class({
         }
     },
 
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
-        var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
-
-
-        if (this.parentObject.uiOptions2.get("nick_colours")) {
-            var colour = util.toHSBColour(realNick, this.client);
-            if ($defined(colour))
-                span.setStyle("color", colour.rgbToHex());
-        }
-
-        this.nicklist.insertAt(nickele, position);
-        this.moveMenuClass();
-
-        return nickele;
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            this.nicklist.removeChild(stored);
-            this.moveMenuClass();
-        } catch (e) {
-        }
-    },
-
     updateTopic: function(topic) {
         var topice = this.topic.empty();
 
@@ -555,7 +516,6 @@ ui.QUI.Window = new Class({
         if (state == this.hilighted)
             return;
 
-        //inefficient as fuck
         this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
 
         switch (state) {

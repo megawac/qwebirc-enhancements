@@ -2,23 +2,11 @@
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            theme = self.__theme = Object.clone(ui.themes.Default2);
-
-        if (themeDict) {
-            // for (var k in themeDict) {
-            //     theme[k] = themeDict[k];
-            // }
-            Object.append(theme, themeDict);
-        }
-        Object.each(theme, function(data, key) {
-            if (key === "PREFIX")
-                return;
-
-            if (data[1]) {
-                theme[key] = theme.PREFIX + data[0];
-            } else {
-                theme[key] = data[0];
-            }
+            defaults = Object.append({}, ui.themes.Default2, themeDict),
+            prefix = defaults.PREFIX[0];
+        
+        self.__theme = Object.map(defaults, function(data, key) {
+            return data[1] ? prefix + data[0] : data[0];
         });
 
         self.highlightClasses.channels = {};
@@ -32,8 +20,10 @@ ui.Theme = new Class({
     },
 
     __dollarSubstitute: function(str, data, mapper) {
-        return str.substitute(Object.append(data||{}, mapper||{}))
+        return str.substitute(Object.append({}, data, mapper))
     },
+
+//I'm under the assumption i dont need to strip tags as handlebars should escape them for me
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
@@ -44,23 +34,29 @@ ui.Theme = new Class({
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + data.n.stripScripts(false) + "/";
+                data["N"] = "qwebirc://whois/" + String.escapeHTML(data.n) + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             ["N", "m"].each(function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
                     if(Array.isArray(val)) { //modes are given as an array so we need to fold
-                        val = val.join("").stripScripts(false);
+                        val = val.join("");
                     }
-                    data[key] = self.urlerize(val);
+                    data[key] = self.urlerize(String.escapeHTML(val));
                 }
             });
         }
 
-
         var themed = type ? self.message(type, data, highlight) : data;
         var result = self.colourise(themed);
+        $ele.addClass('colourline')
+            .insertAdjacentHTML('beforeend', result);
+        return result;
+    },
+
+    formatElement: function(line, $ele) {
+        var result = this.colourise(this.urlerize(String.escapeHTML(line)));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -72,24 +68,19 @@ ui.Theme = new Class({
         return this.__dollarSubstitute(this.__theme[type], data, map);
     },
 
-    formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line.stripScripts(false)));
-        $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
-        return result;
-    },
-
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
 
         var result = line;
 
-        var parseArr = result.split("\x03").filter( $chk );
+        var styles = irc.styles;
+
+        var parseArr = result.split(styles.colour.key).filter( $chk );
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
 
-        parseArr.each(function(str) {
+        parseArr.each(function(str) {//help
             if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
                 colouredarr.push([]);
             } else { //^C1***
@@ -99,8 +90,8 @@ ui.Theme = new Class({
 
         colouredarr.each(function(colourarr) {
             colourarr.each(function(str) {
-                var colourMatch = str.match(/^(\d{1,2})/),
-                    backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
+                var colourMatch = str.match(styles.colour.fore_re),
+                    backgroundMatch = str.match(styles.colour.back_re),
                     colour = util.getColourByKey(Array.item(colourMatch, 0)),
                     background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
 
@@ -111,27 +102,18 @@ ui.Theme = new Class({
                 });
 
 
-                result = result.replace("\x03" + str, html);
-            })
+                result = result.replace(styles.colour.key + str, html);
+            });
         });
 
         //matching styles (italics bold under)
-        irc.styles.each(function(style) {
-            parseArr = result.split(style.key);
-
-            if(parseArr.length % 2 != 1) {
-                console.log(parseArr);
-            }
-
-            //seems cleaner than filtering by index and then doing an each i think
-            for (var i = 1, styled; i < parseArr.length; i+=2) {
-                styled = parseArr[i];
-                var html = templates.ircstyle({
+        styles.special.each(function(style) {//i wish colours were this easy
+            result = result.replace(style.keyregex, function(match, text) {
+                return templates.ircstyle({
                     'style': style.style,
-                    'text': styled
+                    'text': text
                 });
-                result = result.replace(style.key + styled + style.key, html);
-            };
+            });
         });
 
         return result;
@@ -218,7 +200,7 @@ ui.Theme = new Class({
                     (!parser.nic || parser.nic.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
                 {
-                    if(win.active && win.name !== BROUHAHA) {
+                    if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
                             win.parentObject.flash();
                         }

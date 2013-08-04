@@ -40,15 +40,6 @@ ui.Interface = new Class({
             channel: '',
             last: 1
         };
-        window.hasfocus = true;
-        window.addEvents({
-            'focus': function() {
-                this.hasfocus = true;
-            },
-            'blur': function() {
-                this.hasfocus = false;
-            }
-        });
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {

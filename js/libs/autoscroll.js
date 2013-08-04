@@ -45,7 +45,7 @@ Fx.AutoScroll = new Class({
                 "resize": self.updatePosition
             }
         }
-        this.$events["scroll:throttle(" + interval + ")"] = throttleToggler;
+        this.$events.element["scroll:throttle(" + interval + ")"] = throttleToggler;
 
         this.element.addEvents(this.$events.element);
         window.addEvents(this.$events.window);

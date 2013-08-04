@@ -15,16 +15,6 @@ ui.BaseUI = new Class({
         self.parentElement.addClass("qwebirc-" + uiName);
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
-
-        //going to assume dom is ready
-        window.addEvents({
-            "blur": function() {
-                self.focusChange(false);
-            },
-            "focus": function() {
-                self.focusChange(true);
-            }
-        });
     },
     newClient: function(client) {
         client.id = this.clientId++;
@@ -137,10 +127,5 @@ ui.BaseUI = new Class({
     */
     loginBox: function(callback, initialNickname, initialChannels, autoConnect, autoNick, storage) {
         ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
-    },
-    focusChange: function(newValue) {
-        var win = this.getActiveWindow();
-        if ($defined(win))
-            win.focusChange(newValue);
     }
 });

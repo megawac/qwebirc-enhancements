@@ -57,7 +57,8 @@ module.exports = function(grunt) {
                 //'js/functional+.js',
                 // //'js/to-function.js',
                 // 'js/src/Templates.js',
-                'js/dist/qwebirc.js'],
+                'js/dist/qwebirc.js'
+                ],
                 // the location of the resulting JS file
                 dest: 'js/dist/qwebirc-0.93dev.js'
             }

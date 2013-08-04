@@ -1,6 +1,7 @@
 
 ui.Window = new Class({
     Implements: [Events],
+    Binds: ["sendInput"],
     initialize: function(parentObject, client, type, name, identifier) {
         this.parentObject = parentObject;
         this.type = type;
@@ -17,11 +18,6 @@ ui.Window = new Class({
         this.lastSelected = null;
         this.subWindow = null;
         this.closed = false;
-
-        if (this.type & parentObject.uiOptions2.get("lastpos_line")) {
-            this.lastPositionLine = Element.from(templates.messageLine());
-            this.lastPositionLineInserted = false;
-        }
 
         this.window = this.parentObject.qjsui.createWindow();
     },
@@ -50,7 +46,6 @@ ui.Window = new Class({
 
     select: function() {
         if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
-            this.lines.disown(this.lastPositionLine);
             this.lastPositionLineInserted = false;
         }
 
@@ -66,15 +61,6 @@ ui.Window = new Class({
 
     deselect: function() {
         this.subEvent("deselect");
-
-        // this.setScrollPos();
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
-        if (this.type & ui.WINDOW_LASTLINE)
-            this.replaceLastPositionLine();
 
         this.active = false;
     },
@@ -111,6 +97,10 @@ ui.Window = new Class({
         var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
         // self.scrollAdd($ele);
         self.lines.adopt($ele);
+
+        if(uiobj.uiOptions2.get("lastpos_line")) {
+            this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
+        }
     },
     errorMessage: function(message) {
         this.addLine("", message, "warncolour");
@@ -119,8 +109,9 @@ ui.Window = new Class({
         this.addLine("", message, "infocolour");
     },
     highlightTab: function(state) {
-        if (state == ui.HILIGHT_NONE || state >= this.hilighted)
+        if (state == ui.HILIGHT_NONE || state >= this.hilighted) {
             this.hilighted = state;
+        }
     },
 
     //holy shit i got this to actually make sense
@@ -144,32 +135,46 @@ ui.Window = new Class({
         }, this);
     },
 
-    nickListAdd: function(nick, position) {},
-    nickListRemove: function(nick, stored) {},
-    historyExec: function(line) {
-        this.commandhistory.addLine(line);
-        this.client.exec(line, this.currentChannel);
-    },
-    focusChange: function(newValue) {
-        if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))
-            this.replaceLastPositionLine();
-    },
-    replaceLastPositionLine: function() {
-        if (this.parentObject.uiOptions2.get("lastpos_line")) {
-            if (!this.lastPositionLineInserted) {
-                // this.scrollAdd(this.lastPositionLine);
-            } else if (this.lines.lastChild !== this.lastPositionLine) {
-                try {
-                    this.lines.disown(this.lastPositionLine);
-                } catch (e) { /* IGNORE, /clear removes lastPositionLine from the dom without resetting it. */
-                }
-                // this.scrollAdd(this.lastPositionLine);
-            }
-        } else {
-            if (this.lastPositionLineInserted)
-                this.lines.disown(this.lastPositionLine);
+    
+    nickListAdd: function(nick, position) {
+        var realNick = util.stripPrefix(this.client.prefixes, nick);
+
+        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+        var span = nickele.getElement('span');
+        nickele.store("nick", realNick);
+
+
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
+            var colour = util.toHSBColour(realNick, this.client);
+            if ($defined(colour))
+                span.setStyle("color", colour.rgbToHex());
         }
 
-        this.lastPositionLineInserted = this.parentObject.uiOptions2.get("lastpos_line");
+        this.nicklist.insertAt(nickele, position);
+        this.moveMenuClass();
+
+        return nickele;
+    },
+
+    nickListRemove: function(nick, stored) {
+        try {
+            this.nicklist.removeChild(stored);
+            this.moveMenuClass();
+        } catch (e) {
+        }
+    },
+
+    sendInput: function(e, target) {
+        e.stop();
+        var target = e.target.tagName !== "INPUT" ? e.target.getElement('input[type="text"]') : e.target,
+            unparsed = target.val(),
+            parsed = util.inputParser.parse(unparsed);
+        if (parsed !== "") {
+            this.parentObject.resetTabComplete();
+            this.commandhistory.addLine(unparsed || parsed);
+            this.client.exec(line, this.currentChannel);
+            target.val("");
+        }
+        target.focus();
     }
 });

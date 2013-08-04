@@ -282,11 +282,11 @@ var force = function(name, object, methods){
 force('String', String, [
 	'charAt', 'charCodeAt', 'concat', 'indexOf', 'lastIndexOf', 'match', 'quote', 'replace', 'search',
 	'slice', 'split', 'substr', 'substring', 'trim', 'toLowerCase', 'toUpperCase',
-	'startsWith', 'endsWith' //todo contains
+	'startsWith', 'endsWith'/*, 'contains'*/
 ])('Array', Array, [
 	'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'concat', 'join', 'slice',
 	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight',
-	'isArray', 'from'//ES6
+	'isArray'/*, 'from'*///ES6
 ])('Number', Number, [
 	'toExponential', 'toFixed', 'toLocaleString', 'toPrecision'
 ])('Function', Function, [
@@ -414,123 +414,6 @@ String.extend('uniqueID', function(){
 	return (UID++).toString(36);
 });
 
-// //<1.2compat>
-
-// var Hash = this.Hash = new Type('Hash', function(object){
-// 	if (typeOf(object) == 'hash') object = Object.clone(object.getClean());
-// 	for (var key in object) this[key] = object[key];
-// 	return this;
-// });
-
-// Hash.implement({
-
-// 	forEach: function(fn, bind){
-// 		Object.forEach(this, fn, bind);
-// 	},
-
-// 	getClean: function(){
-// 		var clean = {};
-// 		for (var key in this){
-// 			if (this.hasOwnProperty(key)) clean[key] = this[key];
-// 		}
-// 		return clean;
-// 	},
-
-// 	getLength: function(){
-// 		var length = 0;
-// 		for (var key in this){
-// 			if (this.hasOwnProperty(key)) length++;
-// 		}
-// 		return length;
-// 	}
-
-// });
-
-// Hash.alias('each', 'forEach');
-
-// Object.type = Type.isObject;
-
-// var Native = this.Native = function(properties){
-// 	return new Type(properties.name, properties.initialize);
-// };
-
-// Native.type = Type.type;
-
-// Native.implement = function(objects, methods){
-// 	for (var i = 0; i < objects.length; i++) objects[i].implement(methods);
-// 	return Native;
-// };
-
-// var arrayType = Array.type;
-// Array.type = function(item){
-// 	return instanceOf(item, Array) || arrayType(item);
-// };
-
-// this.$A = Array.from;
-
-// this.$arguments = function(i){
-// 	return function(){
-// 		return arguments[i];
-// 	};
-// };
-
-// this.$chk = function(obj){
-// 	return !!(obj || obj === 0);
-// };
-
-// this.$clear = function(timer){
-// 	clearTimeout(timer);
-// 	clearInterval(timer);
-// 	return null;
-// };
-
-// this.$defined = function(obj){
-// 	return (obj != null);
-// };
-
-// this.$each = function(iterable, fn, bind){
-// 	var type = typeOf(iterable);
-// 	((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-// };
-
-// this.$empty = function(){};
-
-// this.$extend = function(original, extended){
-// 	return Object.append(original, extended);
-// };
-
-// this.$H = function(object){
-// 	return new Hash(object);
-// };
-
-// this.$merge = function(){
-// 	var args = Array.slice(arguments);
-// 	args.unshift({});
-// 	return Object.merge.apply(null, args);
-// };
-
-// this.$lambda = Function.from;
-// this.$mixin = Object.merge;
-// this.$random = Number.random;
-// this.$splat = Array.from;
-// this.$time = Date.now;
-
-// this.$type = function(object){
-// 	var type = typeOf(object);
-// 	if (type == 'elements') return 'array';
-// 	return (type == 'null') ? false : type;
-// };
-
-// this.$unlink = function(object){
-// 	switch (typeOf(object)){
-// 		case 'object': return Object.clone(object);
-// 		case 'array': return Array.clone(object);
-// 		case 'hash': return new Hash(object);
-// 		default: return object;
-// 	}
-// };
-
-//</1.2compat>
 
 })();
 
@@ -704,16 +587,6 @@ Array.implement({
 	}
 
 });
-
-//<1.2compat>
-
-// Array.alias('extend', 'append');
-
-// var $pick = function(){
-// 	return Array.from(arguments).pick();
-// };
-
-//</1.2compat>
 
 
 /*
@@ -931,58 +804,7 @@ Function.implement({
 		return setInterval(this.pass((args == null ? [] : args), bind), periodical);
 	},
 
-// });
-
-//<1.2compat>
-
-// delete Function.prototype.bind;
-
-// Function.implement({
-
-	// create: function(options){
-	// 	var self = this;
-	// 	options = options || {};
-	// 	return function(event){
-	// 		var args = options.arguments;
-	// 		args = (args != null) ? Array.from(args) : Array.slice(arguments, (options.event) ? 1 : 0);
-	// 		if (options.event) args = [event || window.event].extend(args);
-	// 		var returns = function(){
-	// 			return self.apply(options.bind || null, args);
-	// 		};
-	// 		if (options.delay) return setTimeout(returns, options.delay);
-	// 		if (options.periodical) return setInterval(returns, options.periodical);
-	// 		if (options.attempt) return Function.attempt(returns);
-	// 		return returns();
-	// 	};
-	// },
-
-	// // bind: function(bind, args){
-	// // 	var self = this;
-	// // 	if (args != null) args = Array.from(args);
-	// // 	return function(){
-	// // 		return self.apply(bind, args || arguments);
-	// // 	};
-	// // },
-
-	// bindWithEvent: function(bind, args){
-	// 	var self = this;
-	// 	if (args != null) args = Array.from(args);
-	// 	return function(event){
-	// 		return self.apply(bind, (args == null) ? arguments : [event].concat(args));
-	// 	};
-	// },
-
-	// run: function(args, bind){
-	// 	return this.apply(bind, Array.from(args));
-	// }
-
 });
-
-// if (Object.create == Function.prototype.create) Object.create = null;
-
-// var $try = Function.attempt;
-
-//</1.2compat>
 
 
 /*
@@ -1104,97 +926,6 @@ Object.extend({
 });
 
 })();
-
-// //<1.2compat>
-
-// Hash.implement({
-
-// 	has: Object.prototype.hasOwnProperty,
-
-// 	keyOf: function(value){
-// 		return Object.keyOf(this, value);
-// 	},
-
-// 	hasValue: function(value){
-// 		return Object.contains(this, value);
-// 	},
-
-// 	extend: function(properties){
-// 		Hash.each(properties || {}, function(value, key){
-// 			Hash.set(this, key, value);
-// 		}, this);
-// 		return this;
-// 	},
-
-// 	combine: function(properties){
-// 		Hash.each(properties || {}, function(value, key){
-// 			Hash.include(this, key, value);
-// 		}, this);
-// 		return this;
-// 	},
-
-// 	erase: function(key){
-// 		if (this.hasOwnProperty(key)) delete this[key];
-// 		return this;
-// 	},
-
-// 	get: function(key){
-// 		return (this.hasOwnProperty(key)) ? this[key] : null;
-// 	},
-
-// 	set: function(key, value){
-// 		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-// 		return this;
-// 	},
-
-// 	empty: function(){
-// 		Hash.each(this, function(value, key){
-// 			delete this[key];
-// 		}, this);
-// 		return this;
-// 	},
-
-// 	include: function(key, value){
-// 		if (this[key] == null) this[key] = value;
-// 		return this;
-// 	},
-
-// 	map: function(fn, bind){
-// 		return new Hash(Object.map(this, fn, bind));
-// 	},
-
-// 	filter: function(fn, bind){
-// 		return new Hash(Object.filter(this, fn, bind));
-// 	},
-
-// 	every: function(fn, bind){
-// 		return Object.every(this, fn, bind);
-// 	},
-
-// 	some: function(fn, bind){
-// 		return Object.some(this, fn, bind);
-// 	},
-
-// 	getKeys: function(){
-// 		return Object.keys(this);
-// 	},
-
-// 	getValues: function(){
-// 		return Object.values(this);
-// 	},
-
-// 	toQueryString: function(base){
-// 		return Object.toQueryString(this, base);
-// 	}
-
-// });
-
-// Hash.extend = Object.append;
-
-// Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
-
-// //</1.2compat>
-
 
 /*
 ---
@@ -1566,16 +1297,6 @@ DOMEvent.defineKeys({
 
 })();
 
-/*<1.3compat>*/
-// var Event = DOMEvent;
-// Event.Keys = {};
-/*</1.3compat>*/
-
-/*<1.2compat>*/
-
-// Event.Keys = new Hash(Event.Keys);
-
-/*</1.2compat>*/
 
 
 /*
@@ -1888,36 +1609,7 @@ var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steve
 	});
 };
 
-var regexp = new RegExp(
-/*
-#!/usr/bin/env ruby
-puts "\t\t" + DATA.read.gsub(/\(\?x\)|\s+#.*$|\s+|\\$|\\n/,'')
-__END__
-	"(?x)^(?:\
-	  \\s* ( , ) \\s*               # Separator          \n\
-	| \\s* ( <combinator>+ ) \\s*   # Combinator         \n\
-	|      ( \\s+ )                 # CombinatorChildren \n\
-	|      ( <unicode>+ | \\* )     # Tag                \n\
-	| \\#  ( <unicode>+       )     # ID                 \n\
-	| \\.  ( <unicode>+       )     # ClassName          \n\
-	|                               # Attribute          \n\
-	\\[  \
-		\\s* (<unicode1>+)  (?:  \
-			\\s* ([*^$!~|]?=)  (?:  \
-				\\s* (?:\
-					([\"']?)(.*?)\\9 \
-				)\
-			)  \
-		)?  \\s*  \
-	\\](?!\\]) \n\
-	|   :+ ( <unicode>+ )(?:\
-	\\( (?:\
-		(?:([\"'])([^\\12]*)\\12)|((?:\\([^)]+\\)|[^()]*)+)\
-	) \\)\
-	)?\
-	)"
-*/
-	"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|(:+)(<unicode>+)(?:\\((?:(?:([\"'])([^\\13]*)\\13)|((?:\\([^)]+\\)|[^()]*)+))\\))?)"
+var regexp = new RegExp("^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|(:+)(<unicode>+)(?:\\((?:(?:([\"'])([^\\13]*)\\13)|((?:\\([^)]+\\)|[^()]*)+))\\))?)"
 	.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 	.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	.replace(/<unicode1>/g, '(?:[:\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -11224,6 +10916,384 @@ Handlebars.template = Handlebars.VM.template;
 // lib/handlebars/browser-suffix.js
 })(Handlebars);
 ;
+(function() {
+
+    Array.implement({
+        /*
+        Function: Array.first
+          Returns the first item.
+        */
+        // first: function() {
+        //     return this[0];
+        // },
+        // last: function() {
+        //     return this[this.length - 1];
+        // },
+        /*
+        Returns the item at index n
+        */
+        item: function(n) {
+            return this[n];
+        },
+
+        //returns next item in array with overflow
+        next: function(pos, dir) {
+            var index = pos + (dir || 1);
+            if (index >= this.length) {
+                index %= this.length;
+            }
+            if (index < 0) {
+                index = this.length + (index % this.length);
+            }
+            return this[index];
+        }
+
+        // rest: function(n) {
+        //     return this.slice(n || 1 /*, this.length*/ );
+        // }
+    }).extend({
+        isArray: Type.isArray
+    });
+
+    String.implement({
+
+        //replaces all occurences of the tofind string in this string with
+        //alternatively call replace with a regex global
+        //http://jsperf.com/replaceall-escape
+        replaceAll: function(tofind, torep) { //gross
+            var ns = this;
+            while (ns.indexOf(tofind) > -1) {
+                ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
+            }
+            return ns;
+        },
+
+        //splits string into array of with a max length of max
+        // useful for seperating names from messages
+        // "test!willsplit!into!1".splitMax('!', 1) => ["test!willsplit!into!1"]
+        // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
+        // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
+        //http://jsperf.com/string-splitmax-implementations
+        splitMax: function(by, max) { //wtf
+            var items = this.split(by),
+                len = max - 1,
+                newitems = items.slice(0, len);
+            if (items.length >= max) {
+                newitems.push(items.slice(len).join(by));
+            }
+            return newitems;
+        },
+
+        // var items = this.split(by);
+        // var newitems = items.slice(0, max - 1);
+        // if (items.length >= max) {
+        //     newitems.push(items.slice(max - 1).join(by));
+        // }
+		
+		//see es6 spec
+        startsWith: function(what, pos) {
+            return this.slice((pos || 0), what.length) == what;
+        },
+        endsWith: function(what, pos) {
+            return this.slice(this.length - what.length - (pos || 0)) == what;
+        }
+    })
+    .extend({
+        escapeHTML: Handlebars.Utils.escapeExpression
+    });
+
+    if(!Object.equal) {
+        var eq = function(a, b, stack) {//this is Epitome.isEqual I just moved it here
+            // this is a modified version of eq func from _.js
+
+            // Identical objects are equal. `0 === -0`, but they aren't identical.
+            // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+            // stack = stack || [];
+
+            if (a === b) return a !== 0 || 1 / a == 1 / b;
+
+            // A strict comparison is necessary because `null == undefined`.
+            if (a == null || b == null) return a === b;
+
+            // use MooTools types instead of toString.call(a),
+            // this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
+            var typeA = typeOf(a),
+                typeB = typeOf(b);
+
+            if (typeA != typeB) return false;
+
+            switch (typeA) {
+                // Strings, numbers, dates, and booleans are compared by value.
+                case 'string':
+                    // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+                    // equivalent to `new String("5")`.
+                    return a == String(b);
+                case 'number':
+                    // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+                    // other numeric values.
+                    return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
+                case 'date':
+                case 'boolean':
+                    // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+                    // millisecond representations. Note that invalid dates with millisecond representations
+                    // of `NaN` are not equivalent.
+                    return +a == +b;
+                    // RegExps are compared by their source patterns and flags.
+                case 'regexp':
+                    return a.source == b.source &&
+                        a.global == b.global &&
+                        a.multiline == b.multiline &&
+                        a.ignoreCase == b.ignoreCase;
+            }
+
+            if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+            // Assume equality for cyclic structures. The algorithm for detecting cyclic
+            // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+            var length = stack.length;
+            while (length--) {
+                // Linear search. Performance is inversely proportional to the number of
+                // unique nested structures.
+                if (stack[length] == a) return true;
+            }
+
+            // Add the first object to the stack of traversed objects.
+            stack.push(a);
+            var size = 0,
+                result = true;
+            // Recursively compare objects and arrays.
+            if (typeA == 'array') {
+                // Compare array lengths to determine if a deep comparison is necessary.
+                size = a.length;
+                result = size == b.length;
+                if (result) {
+                    // Deep compare the contents, ignoring non-numeric properties.
+                    while (size--) {
+                        // Ensure commutative equality for sparse arrays.
+                        if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
+                    }
+                }
+            } else {
+                // Objects with different constructors are not equivalent.
+                if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
+                // Deep compare objects.
+                for (var key in a) {
+                    if (a.hasOwnProperty(key)) {
+                        // Count the expected number of properties.
+                        size++;
+                        // Deep compare each member.
+                        if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
+                    }
+                }
+                // Ensure that both objects contain the same number of properties.
+                if (result) {
+                    for (key in b) {
+                        if (b.hasOwnProperty(key) && !(size--)) break;
+                    }
+                    result = !size;
+                }
+            }
+
+            // Remove the first object from the stack of traversed objects.
+            stack.pop();
+            return result;
+        }
+        Object.equal = function() {
+            var args = arguments;
+            if(args.length > 1) {
+                for (var comp = args[0], stack = [], i = args.length - 1; i >= 0; i--) {
+                    if(!eq(args[i], comp, stack))
+                        return false;
+                }
+            }
+            return true;
+        }
+    }
+
+
+    Object.extend({
+        get: Object.getFromPath,
+
+        set: function(object, path, value) {
+            path = (typeof path == 'string') ? path.split('.') : path.slice(0);
+            var key = path.pop(),
+                len = path.length,
+                i = 0,
+                current;
+            while (len--) {
+                current = path[i++];
+                object = current in object ? object[current] : (object[current] = {});
+            }
+            object[key] = value;
+        },
+
+        isEmpty: function(hash) {
+            return Object.getLength(hash) === 0;
+        }
+    });
+
+
+    var adopt = Element.prototype.adopt,
+        inject = Element.prototype.inject;
+
+
+    ["html", "text"].each(function(fn) {
+            Element.implement(fn, function(data) {
+                if (data) return this.set(fn, data);
+                return this.get(fn);
+            });
+        });
+
+    Element.implement({
+
+        adopt: function() {
+            //just mootools adopt method which fires an event when called
+            return adopt.apply(this, arguments).fireEvent("adopt", arguments);
+        },
+
+        //removes all elements in arguments from array if found - opposite of adopt
+        disown: function() {
+            Array.each(arguments, function(element) {
+                element = document.id(element, true);
+                if (element) element.dispose();
+            });
+            this.fireEvent("disown", arguments);
+            return this;
+        },
+
+        inject: function(el) {
+            var ret = inject.apply(this, arguments);
+            el.fireEvent('adopt', arguments);
+            return ret;
+        },
+
+        maxChildren: function(n) {
+            for (var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
+                ele.destroy();
+            }
+            return this;
+        },
+
+        val: function(val) {
+            var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
+
+            if (val != null) {
+                return this.set(key, val);
+            }
+            return this.get(key);
+        },
+
+        insertAt: function(element, position) {
+            //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
+            return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
+        },
+
+        isDisplayed: function() {
+            return !this.hasClass('hidden');
+        },
+
+        // normal mootool version uses display property - this way helps with selectors
+        show: function() {
+            return this.removeClass('hidden');
+        },
+
+        hide: function() {
+            return this.addClass('hidden');
+        },
+
+        toggle: function(state) {
+            if (state == null) state = !this.isDisplayed();
+            return this[state ? 'show' : 'hide']();
+        },
+
+        swapParent: function(parent) {
+            this.dispose();
+            return parent.adopt(this);
+        },
+
+        addClasses: function() {
+            Array.each(arguments, this.addClass, this);
+            return this;
+        },
+
+        removeClasses: function() {
+            Array.each(arguments, this.removeClass, this);
+            return this;
+        },
+
+        hasClasses: function() {
+            Array.every(arguments, this.hasClass, this);
+        }
+
+    });
+
+    //By Eli Grey, https://gist.github.com/eligrey/1276030
+    if (this.document && !("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
+        HTMLElement.implement("insertAdjacentHTML", function(position, html) {
+            var ref = this,
+                container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
+                ref_parent = ref.parentNode,
+                node, first_child, next_sibling;
+
+            container.innerHTML = html;
+
+            switch (position.toLowerCase()) {
+                case "beforebegin":
+                    while ((node = container.firstChild)) {
+                        ref_parent.insertBefore(node, ref);
+                    }
+                    break;
+                case "afterbegin":
+                    first_child = ref.firstChild;
+                    while ((node = container.lastChild)) {
+                        first_child = ref.insertBefore(node, first_child);
+                    }
+                    break;
+                case "beforeend":
+                    while ((node = container.firstChild)) {
+                        ref.appendChild(node);
+                    }
+                    break;
+                case "afterend":
+                    next_sibling = ref.nextSibling;
+                    while ((node = container.lastChild)) {
+                        next_sibling = ref_parent.insertBefore(node, next_sibling);
+                    }
+                    break;
+            }
+        });
+    }
+
+    this.$lambda = Function.from;
+
+    this.$chk = function(obj) {
+        return !!(obj || obj === 0);
+    };
+
+    this.$clear = function(timer) {
+        clearTimeout(timer);
+        clearInterval(timer);
+        return null;
+    };
+
+    this.$defined = function(obj) {
+        return (obj != null);
+    };
+
+    this.$each = function(iterable, fn, bind) {
+        var type = typeOf(iterable);
+        ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
+    };
+
+    this.$empty = function() {};
+
+    this.$extend = function(original, extended) {
+        return Object.append(original, extended);
+    };
+
+    this.$A = Array.from;
+
+})();
 //adapted version to use native parser if available
 
 //Changes from Mootools spec: excludeScripts defaults to to false because fuck you
@@ -11461,8 +11531,8 @@ Copyright (c) 2010 Arieh Glazer
             }
         }
     }
-    
-    self.Urlerizer = new Class({
+
+    var urlerizer = self.Urlerizer = new Class({
         Implements: [Options],
         options: {
             nofollow: false,
@@ -11470,7 +11540,8 @@ Copyright (c) 2010 Arieh Glazer
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
-            default_parser: true
+            default_parser: true,
+            hide_servers:true
         },
 
         //ignored punctuation
@@ -11486,14 +11557,6 @@ Copyright (c) 2010 Arieh Glazer
             ['[', ']']
         ],
 
-        regexs: {
-            word_split: /([\s<>"]+)/,
-            simple_url: /^https?:\/\/\w/,
-            simple_url_2: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
-            simple_email: /^\S+@\S+\.\S+$/,
-            unquoted_percents: /%(?![0-9A-Fa-f]{2})/
-        },
-
         initialize: function(opts) {
             this.setOptions(opts);
 
@@ -11505,7 +11568,8 @@ Copyright (c) 2010 Arieh Glazer
                     parse: function(text) {
                         var options = this.options;
                         var word = text;
-                        if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                        if ((word.contains('.') || word.contains('@') || word.contains(':')) &&
+                                (!options.hide_servers || !(urlerizer.regexs.server.test(word))) ) {//dont match google.com:510
                             // Deal with punctuation.
                             var parsed = this.parsePunctuation(word);
                             var middle = parsed.mid;
@@ -11515,9 +11579,9 @@ Copyright (c) 2010 Arieh Glazer
                             var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                             var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                            if (middle.match(this.regexs.simple_url)) url = this.urlquote(middle);
-                            else if (middle.match(this.regexs.simple_url_2)) url = this.urlquote('http://' + middle);
-                            else if (middle.indexOf(':') == -1 && middle.match(this.regexs.simple_email)) {
+                            if (middle.match(urlerizer.regexs.simple_url)) url = this.urlquote(middle);
+                            else if (middle.match(urlerizer.regexs.url_improved)) url = this.urlquote('http://' + middle);
+                            else if (middle.contains(':') && middle.match(urlerizer.regexs.simple_email)) {
                                 // XXX: Not handling IDN.
                                 url = 'mailto:' + middle;
                                 nofollow_attr = '';
@@ -11525,23 +11589,23 @@ Copyright (c) 2010 Arieh Glazer
 
                             // Make link.
                             if (url) {
-                                var trimmed = this.trimURL(middle);
+                                var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
                                 if (options.autoescape) {
                                     // XXX: Assuming autoscape == false
-                                    parsed.lead = this.htmlescape(parsed.lead);
-                                    parsed.end = this.htmlescape(parsed.end);
-                                    url = this.htmlescape(url);
-                                    trimmed = this.htmlescape(trimmed);
+                                    parsed.lead = String.escapeHTML(parsed.lead);
+                                    parsed.end = String.escapeHTML(parsed.end);
+                                    url = String.escapeHTML(url);
+                                    trimmed = String.escapeHTML(trimmed);
                                 }
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
                             } else {
                                 if (options.autoescape) {
-                                    word = this.htmlescape(word);
+                                    word = String.escapeHTML(word);
                                 }
                             }
                         } else if (options.autoescape) {
-                            word = this.htmlescape(word);
+                            word = String.escapeHTML(word);
                         }
                         return word;
                     }
@@ -11559,7 +11623,7 @@ Copyright (c) 2010 Arieh Glazer
             // XXX: Not handling IDN.
             // An URL is considered unquoted if it contains no % characters or
             // contains a % not followed by two hexadecimal digits.
-            if (url.indexOf('%') == -1 || url.match(this.regexs.unquoted_percents)) {
+            if (url.indexOf('%') == -1 || url.match(urlerizer.regexs.unquoted_percents)) {
                 return encodeURI(url);
             } else {
                 return url;
@@ -11569,7 +11633,7 @@ Copyright (c) 2010 Arieh Glazer
         //shut up i know it exists and its better than what was here before
         parse: function(text) {
             var self = this,
-                result = text.split(this.regexs.word_split),
+                result = text.split(" "),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
                 });
@@ -11584,19 +11648,13 @@ Copyright (c) 2010 Arieh Glazer
                 item = result[i];
                 funcs.each(parseWord);
             };
-            result = result.join("")
+            result = result.join(" ")
             self.patterns.each(function(pattern) {
                 if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
             return result;
-        },
-
-        trimURL: function(x, limit) {
-            limit = limit || this.options.trim_url_limit;
-            if (limit && x.length > limit) return x.substr(0, limit - 3) + '...';
-            return x;
         },
 
         parsePunctuation: function(text) {
@@ -11657,6 +11715,14 @@ Copyright (c) 2010 Arieh Glazer
         }
     });
 
+    urlerizer.regexs = {
+        simple_url: /^https?:\/\/\w/,
+        url_improved: /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/,//matches anything thats urlish- even bit.ly/a
+        simple_email: /^\S+@\S+\.\S+$/,
+        unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
+        server: /\:(\d{2})/
+    }
+
 })(this);
 
 
@@ -11706,7 +11772,7 @@ Fx.AutoScroll = new Class({
                 "resize": self.updatePosition
             }
         }
-        this.$events["scroll:throttle(" + interval + ")"] = throttleToggler;
+        this.$events.element["scroll:throttle(" + interval + ")"] = throttleToggler;
 
         this.element.addEvents(this.$events.element);
         window.addEvents(this.$events.window);
@@ -12284,382 +12350,6 @@ Fx.AutoScroll = new Class({
         // }
     };
 })(this);
-(function() {
-
-    Array.implement({
-        /*
-        Function: Array.first
-          Returns the first item.
-        */
-        // first: function() {
-        //     return this[0];
-        // },
-        // last: function() {
-        //     return this[this.length - 1];
-        // },
-        /*
-        Returns the item at index n
-        */
-        item: function(n) {
-            return this[n];
-        },
-
-        //returns next item in array with overflow
-        next: function(pos, dir) {
-            var index = pos + (dir || 1);
-            if (index >= this.length) {
-                index %= this.length;
-            }
-            if (index < 0) {
-                index = this.length + (index % this.length);
-            }
-            return this[index];
-        }
-
-        // rest: function(n) {
-        //     return this.slice(n || 1 /*, this.length*/ );
-        // }
-    }).extend({
-        isArray: Type.isArray
-    });
-
-    String.implement({
-
-        //replaces all occurences of the tofind string in this string with
-        //torep
-        //torep may be another string or a callback which takes a single string
-        //http://jsperf.com/replaceall-escape
-        replaceAll: function(tofind, torep) { //gross
-            var ns = this;
-            while (ns.indexOf(tofind) > -1) {
-                ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
-            }
-            return ns;
-        },
-
-        //splits string into array of with a max length of max
-        // useful for seperating names from messages
-        // "test!willsplit!into!1".splitMax('!', 1) => ["test!willsplit!into!1"]
-        // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
-        // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
-        //http://jsperf.com/string-splitmax-implementations
-        splitMax: function(by, max) { //wtf
-            var items = this.split(by),
-                len = max - 1,
-                newitems = items.slice(0, len);
-            if (items.length >= max) {
-                newitems.push(items.slice(len).join(by));
-            }
-            return newitems;
-        },
-
-        // var items = this.split(by);
-        // var newitems = items.slice(0, max - 1);
-        // if (items.length >= max) {
-        //     newitems.push(items.slice(max - 1).join(by));
-        // }
-		
-		//see es6 spec
-        startsWith: function(what, pos) {
-            return this.slice((pos || 0), what.length) == what;
-        },
-        endsWith: function(what, pos) {
-            return this.slice(this.length - what.length - (pos || 0)) == what;
-        }
-    });
-
-    if(!Object.equal) {
-        var eq = function(a, b, stack) {//this is Epitome.isEqual I just moved it here
-            // this is a modified version of eq func from _.js
-
-            // Identical objects are equal. `0 === -0`, but they aren't identical.
-            // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
-            // stack = stack || [];
-
-            if (a === b) return a !== 0 || 1 / a == 1 / b;
-
-            // A strict comparison is necessary because `null == undefined`.
-            if (a == null || b == null) return a === b;
-
-            // use MooTools types instead of toString.call(a),
-            // this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
-            var typeA = typeOf(a),
-                typeB = typeOf(b);
-
-            if (typeA != typeB) return false;
-
-            switch (typeA) {
-                // Strings, numbers, dates, and booleans are compared by value.
-                case 'string':
-                    // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-                    // equivalent to `new String("5")`.
-                    return a == String(b);
-                case 'number':
-                    // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
-                    // other numeric values.
-                    return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
-                case 'date':
-                case 'boolean':
-                    // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-                    // millisecond representations. Note that invalid dates with millisecond representations
-                    // of `NaN` are not equivalent.
-                    return +a == +b;
-                    // RegExps are compared by their source patterns and flags.
-                case 'regexp':
-                    return a.source == b.source &&
-                        a.global == b.global &&
-                        a.multiline == b.multiline &&
-                        a.ignoreCase == b.ignoreCase;
-            }
-
-            if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-            // Assume equality for cyclic structures. The algorithm for detecting cyclic
-            // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-            var length = stack.length;
-            while (length--) {
-                // Linear search. Performance is inversely proportional to the number of
-                // unique nested structures.
-                if (stack[length] == a) return true;
-            }
-
-            // Add the first object to the stack of traversed objects.
-            stack.push(a);
-            var size = 0,
-                result = true;
-            // Recursively compare objects and arrays.
-            if (typeA == 'array') {
-                // Compare array lengths to determine if a deep comparison is necessary.
-                size = a.length;
-                result = size == b.length;
-                if (result) {
-                    // Deep compare the contents, ignoring non-numeric properties.
-                    while (size--) {
-                        // Ensure commutative equality for sparse arrays.
-                        if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
-                    }
-                }
-            } else {
-                // Objects with different constructors are not equivalent.
-                if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
-                // Deep compare objects.
-                for (var key in a) {
-                    if (a.hasOwnProperty(key)) {
-                        // Count the expected number of properties.
-                        size++;
-                        // Deep compare each member.
-                        if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
-                    }
-                }
-                // Ensure that both objects contain the same number of properties.
-                if (result) {
-                    for (key in b) {
-                        if (b.hasOwnProperty(key) && !(size--)) break;
-                    }
-                    result = !size;
-                }
-            }
-
-            // Remove the first object from the stack of traversed objects.
-            stack.pop();
-            return result;
-        }
-        Object.equal = function() {
-            var args = arguments;
-            if(args.length > 1) {
-                for (var comp = args[0], stack = [], i = args.length - 1; i >= 0; i--) {
-                    if(!eq(args[i], comp, stack))
-                        return false;
-                }
-            }
-            return true;
-        }
-    }
-
-
-    Object.extend({
-        get: Object.getFromPath,
-
-        set: function(object, path, value) {
-            path = (typeof path == 'string') ? path.split('.') : path.slice(0);
-            var key = path.pop(),
-                len = path.length,
-                i = 0,
-                current;
-            while (len--) {
-                current = path[i++];
-                object = current in object ? object[current] : (object[current] = {});
-            }
-            object[key] = value;
-        },
-
-        isEmpty: function(hash) {
-            return Object.getLength(hash) === 0;
-        }
-    });
-
-
-    var adopt = Element.prototype.adopt,
-        inject = Element.prototype.inject;
-
-
-    ["html", "text"].each(function(fn) {
-            Element.implement(fn, function(data) {
-                if (data) return this.set(fn, data);
-                return this.get(fn);
-            });
-        });
-
-    Element.implement({
-
-        adopt: function() {
-            //just mootools adopt method which fires an event when called
-            return adopt.apply(this, arguments).fireEvent("adopt", arguments);
-        },
-
-        //removes all elements in arguments from array if found - opposite of adopt
-        disown: function() {
-            Array.each(arguments, function(element) {
-                element = document.id(element, true);
-                if (element) element.dispose();
-            });
-            this.fireEvent("disown", arguments);
-            return this;
-        },
-
-        inject: function(el) {
-            var ret = inject.apply(this, arguments);
-            el.fireEvent('adopt', arguments);
-            return ret;
-        },
-
-        maxChildren: function(n) {
-            for (var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
-                ele.destroy();
-            }
-            return this;
-        },
-
-        val: function(val) {
-            var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
-
-            if (val != null) {
-                return this.set(key, val);
-            }
-            return this.get(key);
-        },
-
-        insertAt: function(element, position) {
-            //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
-            return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
-        },
-
-        isDisplayed: function() {
-            return !this.hasClass('hidden');
-        },
-
-        // normal mootool version uses display property - this way helps with selectors
-        show: function() {
-            return this.removeClass('hidden');
-        },
-
-        hide: function() {
-            return this.addClass('hidden');
-        },
-
-        toggle: function(state) {
-            if (state == null) state = !this.isDisplayed();
-            return this[state ? 'show' : 'hide']();
-        },
-
-        swapParent: function(parent) {
-            this.dispose();
-            return parent.adopt(this);
-        },
-
-        addClasses: function() {
-            Array.each(arguments, this.addClass, this);
-            return this;
-        },
-
-        removeClasses: function() {
-            Array.each(arguments, this.removeClass, this);
-            return this;
-        },
-
-        hasClasses: function() {
-            Array.every(arguments, this.hasClass, this);
-        }
-
-    });
-
-    //By Eli Grey, https://gist.github.com/eligrey/1276030
-    if (this.document && !("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
-        HTMLElement.implement("insertAdjacentHTML", function(position, html) {
-            var ref = this,
-                container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
-                ref_parent = ref.parentNode,
-                node, first_child, next_sibling;
-
-            container.innerHTML = html;
-
-            switch (position.toLowerCase()) {
-                case "beforebegin":
-                    while ((node = container.firstChild)) {
-                        ref_parent.insertBefore(node, ref);
-                    }
-                    break;
-                case "afterbegin":
-                    first_child = ref.firstChild;
-                    while ((node = container.lastChild)) {
-                        first_child = ref.insertBefore(node, first_child);
-                    }
-                    break;
-                case "beforeend":
-                    while ((node = container.firstChild)) {
-                        ref.appendChild(node);
-                    }
-                    break;
-                case "afterend":
-                    next_sibling = ref.nextSibling;
-                    while ((node = container.lastChild)) {
-                        next_sibling = ref_parent.insertBefore(node, next_sibling);
-                    }
-                    break;
-            }
-        });
-    }
-
-    this.$lambda = Function.from;
-
-    this.$chk = function(obj) {
-        return !!(obj || obj === 0);
-    };
-
-    this.$clear = function(timer) {
-        clearTimeout(timer);
-        clearInterval(timer);
-        return null;
-    };
-
-    this.$defined = function(obj) {
-        return (obj != null);
-    };
-
-    this.$each = function(iterable, fn, bind) {
-        var type = typeOf(iterable);
-        ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-    };
-
-    this.$empty = function() {};
-
-    this.$extend = function(original, extended) {
-        return Object.append(original, extended);
-    };
-
-    this.$A = Array.from;
-
-})();
 // /*
 // ---
 // description: You can resize elements easilly with Drag
@@ -14834,6 +14524,34 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
+this["Handlebars"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+
+
+  buffer += "<div class=\"controls\">\r\n<label class=\"control-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.CUSTOM_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"text\" class=\"custom-notice\" placehold=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTICE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" value=\"";
+  if (stack2 = helpers.text) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.text; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</div>";
+  return buffer;
+  });
+
 this["Handlebars"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
@@ -15132,7 +14850,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
-    + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div id=\"custom-notices\" class=\"controls\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -15457,30 +15175,47 @@ irc.Numerics = {
 };
 
 irc.styles = [
-    // {
-    //     name: 'normal',
-    //     style: '',
-    //     key: '\x00'
-    // },
+    {
+        name: 'normal',
+        style: '',
+        key: '\x00'
+    },
     {
         name: 'underline',
         style: 'underline',
         key: '\x1F',
+        keyregex: /\x1F(.*?)\x1F/,
         bbcode: ['[u]', '[/u]']
     },
     {
         name: 'bold',
         style: 'bold',
         key: '\x02',
+        keyregex: /\x02(.*?)\x02/,
         bbcode: ['[b]', '[/b]']
     },
     {
         name: 'italic',
         style: 'italic',
         key: '\x16',
+        keyregex: /\x16(.*?)\x16/,
         bbcode: ['[i]', '[/i]']
+    },
+    {
+        name: 'colour',
+        style: '',//see below
+        key: '\x03',
+        fore_re: /^(\d{1,2})/,
+        back_re: /^((\d{1,2})+,+(\d{1,2}))/,
+        format: "\x03{f},{b}{t}\x03",
+        bbcode: ['[colour fore={f} back={b}]', '[/colour]']
     }
-]
+];
+
+//dirty but better than filtering every time?
+irc.styles.special = irc.styles.filter(function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
+irc.styles.colour = irc.styles.filter(function(sty) { return sty.name == 'colour' } )[0];
+irc.styles.normal = irc.styles.filter(function(sty) { return sty.name == 'normal' } )[0];
 
 irc.colours = [//http://www.mirc.com/colors.html
     {
@@ -15583,213 +15318,6 @@ irc.colours = [//http://www.mirc.com/colors.html
 ];
 
 
-(function() {
-
-    var types = {
-        ERROR: 0,
-        INFO: 1,
-        SERVER: 2,
-        CHAN: 3,
-        MISC: 4,
-
-        MESSAGE: 5
-    };
-
-    var message = function(msg, type) {
-        return {
-            message: msg,
-            type: type
-        };
-    };
-
-    //language specific stuff. right now just an object
-    // can either be a message or array of messages
-    qwebirc.lang = lang = {
-        TYPES: types,
-        message: message,
-
-        loginMessages: [message("Hint #1! When you close a channel this one will be deleted from your favorites and won't come back on the next connection.", types.INFO),
-                        message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],
-        joinAfterAuth: message("Waiting for login before joining channels...", types.INFO),
-        authFailed: [message("Could not auth with IRC network - waited 5 seconds.", types.ERROR),
-                    message("Otherwise reattempt authing by typing: \"/authserv AUTH <your username> <your password>\"", types.ERROR),
-                    message("To ignore the error and join channels, unauthed, type: \"/autojoin\".", types.ERROR)],
-        signOn: message("SIGNON", types.SERVER),
-        joinChans: message("Joining channels...", types.INFO),
-        noTopic: message("(No topic set.)", types.INFO),
-
-        needOp: message("Sorry, you need to be a channel operator to change the topic!", types.ERROR),
-        changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
-
-        poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
-        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
-        invalidCommand: message("Can't use this command in this window", types.ERROR),
-        invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
-        insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
-
-        
-
-        loadingPage: "Loading . . .",
-        submittingPage: message("Submitting . . .", types.INFO),
-        fishSlap: message("slaps {nick} with a large fishbot", types.MESSAGE),
-
-        copyright: [message("qwebirc v" + qwebirc.VERSION, types.INFO),
-                    message("Copyright (C) 2008-2011 Chris Porter and the qwebirc project.", types.INFO),
-                    message("Current version by Emanuel \"megawac\" Jackstare"),
-                    message("http://www.qwebirc.org", types.INFO),
-                    message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
-
-        activityNotice: message("Activity!", types.MISC),
-        partChan: message("Part", types.MESSAGE),
-        logOut: message("Logged out", types.MESSAGE),
-        quit: message("Page closed", types.MESSAGE),
-        disconnected: message("Client has been disconnected", types.INFO),
-
-        uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
-        connError: message("An error occured: {1}", types.ERROR),
-        connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
-        connectionFail: message("Couldn't connect to remote server.", types.ERROR),
-
-        closeTab: "Close tab",
-        detachWindow: "Detach Window",
-
-        invalidNick: "Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.",
-        missingNick: "You must supply a nickname",
-        missingPass: "You must supply a password.",
-        missingAuthInfo: "You must supply your username and password in auth mode.",
-
-
-        //options
-        DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
-        DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
-        NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
-        ACCEPT_SERVICE_INVITES: "Automatically join channels when invited",
-        USE_HIDDENHOST: "Hide your hostmask when authed (+x)",
-        LASTPOS_LINE: "Show a last position indicator for each window",
-        NICK_COLOURS: "Automatically colour nicknames",
-        HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
-        STYLE_HUE: "Adjust user interface hue",
-        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
-        SHOW_NICKLIST: "Show nickname list in channels",
-        SHOW_TIMESTAMPS: "Show timestamps",
-        FONT_SIZE: "Set font size",
-
-
-        NOTIFY_ON_MENTION: "When nick mentioned:",
-        NOTIFY_ON_PM: "When private messaged:",
-        NOTIFY_ON_NOTICE: "When channel notice:",
-        FLASH: "flash",
-        BEEP: "beep"
-    };
-
-
-    // lang.IRC_COMMAND_HELPERS = {
-    //     "JOIN": "/JOIN <channel>",
-    //     "NICK": "/NICK <new nickname>",
-    //     "PART": "/PART <channel>",
-    //     "QUIT": "/QUIT <message>",
-    //     "TOPIC": "/TOPIC <channel> <topic>",
-    //     "AWAY": "/AWAY <message>",
-    //     "ME": "/ME <message>",
-    //     "NOTICE": "/NOTICE <message>",
-    //     "MODE": "/MODE <target(chan/user)> <mode>",
-    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
-    // };
-
-
-
-ui.themes.ThemeControlCodeMap2 = {
-    "C": "\x03",
-    "B": "\x02",
-    "U": "\x1F",
-    "O": "\x03",
-    "D": "\x00",
-    "[": "qwebirc://whois/",
-    "]": "/",
-    "$": "$"
-};
-
-ui.themes.Default2 = {
-    "SIGNON": ["Signed on!", true],
-    "CONNECT": ["Connected to server.", true],
-
-    "RAW": ["{m}", true],
-    "DISCONNECT": ["Disconnected from server: {m}", true],
-    "ERROR": ["ERROR: {m}", true],
-    "SERVERNOTICE": ["{m}", true],
-
-    "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
-    "KICK": ["{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]", true],
-    "MODE": ["mode/{c} [{m}] by {D}{N}{D}", true],
-    "QUIT": ["{D}{N}{D} [{h}] has quit [{m}]", true],
-    "NICK": ["{D}{n}{D} has changed nick to {D}{[}{w}{]}{D}", true],
-    "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
-    "UMODE": ["Usermode change: {m}", true],
-    "INVITE": ["{N} invites you to join {c}", true],
-
-    "PREFIX": ["{C}4=={O} "],
-    "HILIGHT": ["{C}4"],
-    "HILIGHTEND": ["{O}"],
-
-    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
-    "PRIVMSG": ["{(}{N}{)} {m}"],
-    "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
-    "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
-
-    "OURCHANMSG": ["{@}{N} {m}"],
-    "OURPRIVMSG": ["{N} {m}"],
-    "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
-    "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
-    "OURCHANNOTICE": ["-{N}:{t}- {m}"],
-    "OURPRIVNOTICE": ["-{N}- {m}"],
-    "OURCHANACTION": [" * {N} {m}"],
-    "OURPRIVACTION": [" * {N} {m}"],
-
-    "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
-    "PRIVACTION": [" * {(}{N}{)} {m}"],
-    "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
-    "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
-    "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
-
-    "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
-
-    "WHOISUSER": ["{B}{N}{B} [{h}]", true],
-    "WHOISREALNAME": [" realname : {m}", true],
-    "WHOISCHANNELS": [" channels : {m}", true],
-    "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account  : m", true],
-    "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
-    "WHOISAWAY": [" away     : {m}", true],
-    "WHOISOPER": ["          : {B}IRC Operator{B}", true],
-    "WHOISOPERNAME": [" operedas : {m}", true],
-    "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
-    "WHOISGENERICTEXT": ["          : {m}", true],
-    "WHOISEND": ["End of WHOIS", true],
-
-    "AWAY": ["{N} is away: {m}", true],
-    "GENERICERROR": ["{m}: {t}", true],
-    "GENERICMESSAGE": ["{m}", true],
-    "WALLOPS": ["WALLOP {n}: {t}", true],
-    "CHANNELCREATIONTIME": ["Channel {c} was created at: {m}", true],
-    "CHANNELMODEIS": ["Channel modes on {c} are: {m}", true]
-};
-
-ui.UI_COMMANDS = [
-    ["Options", "options"],
-    ["Add webchat to your site", "embedded"],
-    ["Privacy policy", "privacy"],
-    ["Feedback", "feedback"],
-    ["Frequently asked questions", "faq"],
-    ["About qwebirc", "about"]
-];
-
-
-})();
-
 
 
 var whitespace = /\s/,
@@ -15859,12 +15387,6 @@ util.formatter = String.substitute;
 //     return str;
 // };
 
-//takes a string and escapes characters... not sure what for
-// escape('w-d') => "w\-d"
-//probably a little intense as its only used to escape a nick
-// most useful for removing regex special chars
-// RegExp.escape = prelude.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-RegExp.escape = String.escapeRegExp;
 
 // util.mapA = function(object, fn, bind) {
 //     var results = [];
@@ -15991,7 +15513,7 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
 util.createNickRegex = Functional.memoize(function(nick) {
-    return new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i");
+    return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
 util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
@@ -16126,25 +15648,15 @@ util.IRCTimestamp = function(date) {
 };
 
 util.IRCDate = function(date) {
-    // return lang.DaysOfWeek[date.getDay()] + " " + lang.MonthsOfYear[date.getMonth()] + " " + util.padzero(date.getDate()) + " " + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + ":" + util.padzero(date.getSeconds()) + " " + date.getFullYear();
     return date.format("%c");
 };
 
-//silly fn
-util.wasKicked = function() {
-    return Date.now() - window.lastkick.last <= 100;
-};
-
-
-irc.nickChanEntry = function() {
-    // this.prefixes = "";
-    // this.lastSpoke = 0;
+irc.nickChanEntry = function(p, l) {
     return {
-        prefixes: "",
-        lastSpoke: 0
+        prefixes: p || "",
+        lastSpoke: l || 0
     };
 };
-
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
@@ -16156,6 +15668,211 @@ util.generateID = (function() {
 })();
 
 
+
+(function() {
+
+    var types = {
+        ERROR: 0,
+        INFO: 1,
+        SERVER: 2,
+        CHAN: 3,
+        MISC: 4,
+
+        MESSAGE: 5
+    };
+
+    var message = function(msg, type) {
+        return {
+            message: msg,
+            type: type
+        };
+    };
+
+    //language specific stuff. right now just an object
+    // can either be a message or array of messages
+    qwebirc.lang = lang = {
+        TYPES: types,
+        message: message,
+
+        loginMessages: [message("Hint #1! When you close a channel this one will be deleted from your favorites and won't come back on the next connection.", types.INFO),
+                        message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],
+        joinAfterAuth: message("Waiting for login before joining channels...", types.INFO),
+        authFailed: [message("Could not auth with IRC network - waited 5 seconds.", types.ERROR),
+                    message("Otherwise reattempt authing by typing: \"/authserv AUTH <your username> <your password>\"", types.ERROR),
+                    message("To ignore the error and join channels, unauthed, type: \"/autojoin\".", types.ERROR)],
+        signOn: message("SIGNON", types.SERVER),
+        joinChans: message("Joining channels...", types.INFO),
+        noTopic: message("(No topic set.)", types.INFO),
+
+        needOp: message("Sorry, you need to be a channel operator to change the topic!", types.ERROR),
+        changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
+
+        poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
+        waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
+        invalidCommand: message("Can't use this command in this window", types.ERROR),
+        invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
+        insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
+
+        
+
+        loadingPage: "Loading . . .",
+        submittingPage: message("Submitting . . .", types.INFO),
+        fishSlap: message("slaps {nick} with a large fishbot", types.MESSAGE),
+
+        copyright: [message("qwebirc v" + qwebirc.VERSION, types.INFO),
+                    message("Copyright (C) 2008-2011 Chris Porter and the qwebirc project.", types.INFO),
+                    message("Current version by Emanuel \"megawac\" Jackstare"),
+                    message("http://www.qwebirc.org", types.INFO),
+                    message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
+
+        activityNotice: message("Activity!", types.MISC),
+        partChan: message("Part", types.MESSAGE),
+        logOut: message("Logged out", types.MESSAGE),
+        quit: message("Page closed", types.MESSAGE),
+        disconnected: message("Client has been disconnected", types.INFO),
+
+        uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
+        connError: message("An error occured: {1}", types.ERROR),
+        connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
+        connectionFail: message("Couldn't connect to remote server.", types.ERROR),
+
+        closeTab: "Close tab",
+        detachWindow: "Detach Window",
+
+        invalidNick: "Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.",
+        missingNick: "You must supply a nickname",
+        missingPass: "You must supply a password.",
+        missingAuthInfo: "You must supply your username and password in auth mode.",
+
+
+        //options
+        DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
+        DEDICATED_NOTICE_WINDOW: "Send notices to dedicated message window",
+        NICK_OV_STATUS: "Show status (@/+) before nicknames in channel lines",
+        ACCEPT_SERVICE_INVITES: "Automatically join channels when invited",
+        USE_HIDDENHOST: "Hide your hostmask when authed (+x)",
+        LASTPOS_LINE: "Show a last position indicator for each window",
+        NICK_COLOURS: "Automatically colour nicknames",
+        HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
+        STYLE_HUE: "Adjust user interface hue",
+        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
+        SHOW_NICKLIST: "Show nickname list in channels",
+        SHOW_TIMESTAMPS: "Show timestamps",
+        FONT_SIZE: "Set font size",
+
+
+        NOTIFY_ON_MENTION: "When nick mentioned:",
+        NOTIFY_ON_PM: "When private messaged:",
+        NOTIFY_ON_NOTICE: "When channel notice:",
+        FLASH: "flash",
+        BEEP: "beep"
+    };
+
+
+    // lang.IRC_COMMAND_HELPERS = {
+    //     "JOIN": "/JOIN <channel>",
+    //     "NICK": "/NICK <new nickname>",
+    //     "PART": "/PART <channel>",
+    //     "QUIT": "/QUIT <message>",
+    //     "TOPIC": "/TOPIC <channel> <topic>",
+    //     "AWAY": "/AWAY <message>",
+    //     "ME": "/ME <message>",
+    //     "NOTICE": "/NOTICE <message>",
+    //     "MODE": "/MODE <target(chan/user)> <mode>",
+    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
+    // };
+
+
+ui.themes.ThemeControlCodeMap2 = {
+    "C": irc.styles.colour.key,
+    "B": util.getStyleByName('bold').key,
+    "U": util.getStyleByName('underline').key,
+    "O": irc.styles.colour.key,
+    "D": irc.styles.normal.key,
+    "[": "qwebirc://whois/",
+    "]": "/"
+};
+
+ui.themes.Default2 = {
+    "SIGNON": ["Signed on!", true],
+    "CONNECT": ["Connected to server.", true],
+
+    "RAW": ["{m}", true],
+    "DISCONNECT": ["Disconnected from server: {m}", true],
+    "ERROR": ["ERROR: {m}", true],
+    "SERVERNOTICE": ["{m}", true],
+
+    "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
+    "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
+    "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
+    "KICK": ["{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]", true],
+    "MODE": ["mode/{c} [{m}] by {D}{N}{D}", true],
+    "QUIT": ["{D}{N}{D} [{h}] has quit [{m}]", true],
+    "NICK": ["{D}{n}{D} has changed nick to {D}{[}{w}{]}{D}", true],
+    "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
+    "UMODE": ["Usermode change: {m}", true],
+    "INVITE": ["{N} invites you to join {c}", true],
+
+    "PREFIX": ["{C}4=={O} "],
+    "HILIGHT": ["{C}4"],
+    "HILIGHTEND": ["{O}"],
+
+    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
+    "PRIVMSG": ["{(}{N}{)} {m}"],
+    "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
+    "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
+
+    "OURCHANMSG": ["{@}{N} {m}"],
+    "OURPRIVMSG": ["{N} {m}"],
+    "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
+    "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
+    "OURCHANNOTICE": ["-{N}:{t}- {m}"],
+    "OURPRIVNOTICE": ["-{N}- {m}"],
+    "OURCHANACTION": [" * {N} {m}"],
+    "OURPRIVACTION": [" * {N} {m}"],
+
+    "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
+    "PRIVACTION": [" * {(}{N}{)} {m}"],
+    "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
+    "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
+    "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
+
+    "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
+    "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
+    "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
+
+    "WHOISUSER": ["{B}{N}{B} [{h}]", true],
+    "WHOISREALNAME": [" realname : {m}", true],
+    "WHOISCHANNELS": [" channels : {m}", true],
+    "WHOISSERVER": [" server   : {x} [{m}]", true],
+    "WHOISACCOUNT": [" account : m", true],
+    "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
+    "WHOISAWAY": [" away     : {m}", true],
+    "WHOISOPER": ["          : {B}IRC Operator{B}", true],
+    "WHOISOPERNAME": [" operedas : {m}", true],
+    "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
+    "WHOISGENERICTEXT": [" note  : {m}", true],
+    "WHOISEND": ["End of WHOIS", true],
+
+    "AWAY": ["{N} is away: {m}", true],
+    "GENERICERROR": ["{m}: {t}", true],
+    "GENERICMESSAGE": ["{m}", true],
+    "WALLOPS": ["WALLOP {n}: {t}", true],
+    "CHANNELCREATIONTIME": ["Channel {c} was created at: {m}", true],
+    "CHANNELMODEIS": ["Channel modes on {c} are: {m}", true]
+};
+
+ui.UI_COMMANDS = [
+    ["Options", "options"],
+    ["Add webchat to your site", "embedded"],
+    ["Privacy policy", "privacy"],
+    ["Feedback", "feedback"],
+    ["Frequently asked questions", "faq"],
+    ["About qwebirc", "about"]
+];
+
+
+})();
 //minor updates for edge cases
 
 /**
@@ -16653,14 +16370,6 @@ ui.setTitle = function(title, options) {
     }
 };
 
-ui.supportsFocus = function() {
-    var result = (util.isMobile || Browser.name === "Konqueror") ?  [false, false] : [true];
-
-    ui.supportsFocus = $lambda(result);
-    return result;
-};
-
-
 util.setCaretPos = Element.setCaretPosition;
 
 util.setAtEnd = function($el) {
@@ -16812,10 +16521,6 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             }
 
             return parsed.lead + res + parsed.end;
-        })
-        .addPattern(/connect [a-zA-Z0-9_]*\..*[a-zA-Z0-9_]*.*;.*password [a-zA-Z0-9_]*/i, function(word) {
-            console.log("todo");
-            return word;
         });
 
 var inputurl = util.inputParser = new Urlerizer({
@@ -16823,30 +16528,55 @@ var inputurl = util.inputParser = new Urlerizer({
 })
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
+var colour_re = /\[colo(u)?r+(.*?)\](.*?)\[\/colo(u)?r\b\]/ig;
 inputurl.addPattern(bbmatch,//this pattern needs to be optimized
     function parsebb(_text) {//see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
         var stac = [],//for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
             tag_re = /\[.+?\]/i,
-            tag_m,
+            tag_m, col_m,
             tag,
             text = _text,
 
             bb, style, endTag_re, end_indx, inner;
 
-        while(tag_m = text.match(tag_re)) {
+        var colours = irc.styles.colour; //replacing colours [colour fore=red back=2]ya[/colour] => \x034,2ya\x03
+        text = text.replace(colour_re, function(match, zZz, attributes, text) {
+            var attrs = attributes.clean().split(" "), //will split into cey value pairs ["te=a", "b=a"]
+                attrso = {},
+                fore, bac;
+
+            attrs.each(function(attr) { //map the obj
+                if(attr.contains("=")) {
+                    attr = attr.split("=")
+                    attrso[attr[0]] = attr[1]; 
+                }
+            });
+
+            if(attrso.fore || attrso.bac){
+                fore = util.getColourByName(attrso.fore) || util.getColourByKey(attrso.fore) || util.getColourByName('black');
+                bac = util.getColourByName(attrso.back) || util.getColourByKey(attrso.back) || util.getColourByName('white');
+                return colours.format.substitute({
+                    f: fore.key,
+                    b: bac.key,
+                    t: text
+                })
+            }
+            return match;
+        });
+
+        while(tag_m = text.match(tag_re)) { //todo do the matching as above
             tag = tag_m[0];
             //assume everything before has been processed
             stac.push(text.slice(0, tag_m.index));
             text = text.slice(tag_m.index);
 
-
-            style = Array.item(irc.styles.filter(function(sty) {
+            style = Array.item(irc.styles.special.filter(function(sty) {
                 return sty.bbcode[0] === tag;
             }), 0);
             if(style) {
                 bb = style.bbcode;
 
-                endTag_re = new RegExp(RegExp.escape(bb[1]), "i");
+                endTag_re = new RegExp(String.escapeRegExp(bb[1]), "i");
                 end_indx = text.search(endTag_re);
                 if(end_indx !== -1) {
                     inner = text.slice(tag.length, end_indx);
@@ -16956,15 +16686,6 @@ ui.Interface = new Class({
             channel: '',
             last: 1
         };
-        window.hasfocus = true;
-        window.addEvents({
-            'focus': function() {
-                this.hasfocus = true;
-            },
-            'blur': function() {
-                this.hasfocus = false;
-            }
-        });
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
@@ -17328,16 +17049,6 @@ irc.BaseIRCClient = new Class({
 
                     fn = this["irc_" + (irc.Numerics[command] || command)];
 
-                // //this block doesnt do anything?...
-                // var cmd = irc.Numerics[command];
-                // if (!cmd) {
-                //     cmd = command;
-                // }
-
-                // var cmd = "irc_".concat(irc.Numerics[command] || command);
-
-                // var fn = this["irc_" + cmd];
-
                 if (fn) {
                     var result = fn.call(this, prefix, sl);
                     if (result) {
@@ -17391,11 +17102,6 @@ irc.BaseIRCClient = new Class({
     __killChannel: function(name) {
         return this.channels.erase(name);
     },
-
-    // __nowOnChannel: function(name) {
-    //     //this.channels[this.toIRCLower(name)] = 1;
-    //     console.log('what lol');
-    // },
 
     processCTCP: function(message) {
         if (message.charAt(0) !== "\x01")
@@ -17525,7 +17231,6 @@ irc.BaseIRCClient = new Class({
             if(this.__signedOn) {
                 this.currentChannel = newchan;
             }
-            // this.__nowOnChannel(newchan);
         }
 
         this.userJoined(user, newchan);
@@ -18481,6 +18186,17 @@ irc.IRCClient = new Class({
         }
     },
 
+    broadcast: function(user, channel, message, from, msgtype) {
+        var nick = util.hostToNick(user);
+
+        this.tracker.updateLastSpoke(nick, channel, Date.now());
+        this.newChanLine(channel, msgtype, user, {
+            "m": message,
+            "@": this.getNickStatus(channel, nick),
+            "f": from
+        });
+    },
+
     getWindow: function(name) {
         return this.windows[this.toIRCLower(name)];
     },
@@ -19107,17 +18823,6 @@ irc.IRCClient = new Class({
         return nickchan.prefixes.charAt(0);
     },
 
-    broadcast: function(user, channel, message, from, msgtype) {
-        var nick = util.hostToNick(user);
-
-        this.tracker.updateLastSpoke(nick, channel, Date.now());
-        this.newChanLine(channel, msgtype, user, {
-            "m": message,
-            "@": this.getNickStatus(channel, nick),
-            "f": from
-        });
-    },
-
     storeChannels: function(channels) {
         var store = prelude.uniq(channels);
         this.channels = channels;
@@ -19155,8 +18860,7 @@ irc.IRCClient = new Class({
             var maxTime = Math.max.apply(null, chansets.map(function(time, i) {
                 return ((minTime - (currTime - time))/1000).round(1); //to secs/10
             }));
-            this.writeMessages(lang.waitToJoin, {channel: chan,
-                                                time: maxTime});
+            this.writeMessages(lang.waitToJoin, {channel: chan, time: maxTime});
         }
 
         return broken.length === 0;
@@ -20087,16 +19791,6 @@ ui.BaseUI = new Class({
         self.parentElement.addClass("qwebirc-" + uiName);
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
-
-        //going to assume dom is ready
-        window.addEvents({
-            "blur": function() {
-                self.focusChange(false);
-            },
-            "focus": function() {
-                self.focusChange(true);
-            }
-        });
     },
     newClient: function(client) {
         client.id = this.clientId++;
@@ -20209,11 +19903,6 @@ ui.BaseUI = new Class({
     */
     loginBox: function(callback, initialNickname, initialChannels, autoConnect, autoNick, storage) {
         ui.GenericLoginBox(this.parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, this.options.networkName, storage);
-    },
-    focusChange: function(newValue) {
-        var win = this.getActiveWindow();
-        if ($defined(win))
-            win.focusChange(newValue);
     }
 });
 
@@ -21011,58 +20700,60 @@ ui.QUI = new Class({
         return dropdown;
     },
 
-    keyboardEvents: {
-        focusInput: {
-            keys: 'ctrl+space',
-            description: '',
-            handler: function(e) {
-                e.stop();
-                if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+    hotkeys: {
+        keyboard: {
+            focusInput: {
+                keys: 'space',
+                description: '',
+                handler: function(e) {
+                    e.stop();
+                    if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+                }
+            },
+            nextWindow: {
+                keys: 'right',
+                description: '',
+                handler: function() {
+                    this.scope.nextWindow();
+                }
+            },
+            prevWindow: {
+                keys: 'left',
+                description: '',
+                handler: function() {
+                    this.scope.prevWindow();
+                }
             }
         },
-        testEvent: {
-            keys: 'shift+b',
-            description: '',
-            handler: prelude.log
-        },
-        nextWindow: {
-            keys: 'right',
-            description: '',
-            handler: function() {
-                this.scope.nextWindow();
-            }
-        },
-        prevWindow: {
-            keys: 'left',
-            description: '',
-            handler: function() {
-                this.scope.prevWindow();
-            }
-        }
-    },
 
-    inputHotkeys: {
-        bold: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
-        },
-        italic: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
-        },
-        underline: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+        input: {
+            bold: {
+                keys: 'ctrl+b',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+            },
+            italic: {
+                keys: 'ctrl+i',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+            },
+            underline: {
+                keys: 'ctrl+u',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+            },
+            colour: {
+                keys: 'ctrl+c',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+            }
         }
     },
 
     setHotKeys: function () {
         var self = this, 
-            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.keyboardEvents),
-            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.inputHotkeys);;
+            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
+            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);;
             keyboard.scope = self;
 
 
@@ -21355,23 +21046,11 @@ ui.QUI.JSUI = new Class({
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            theme = self.__theme = Object.clone(ui.themes.Default2);
-
-        if (themeDict) {
-            // for (var k in themeDict) {
-            //     theme[k] = themeDict[k];
-            // }
-            Object.append(theme, themeDict);
-        }
-        Object.each(theme, function(data, key) {
-            if (key === "PREFIX")
-                return;
-
-            if (data[1]) {
-                theme[key] = theme.PREFIX + data[0];
-            } else {
-                theme[key] = data[0];
-            }
+            defaults = Object.append({}, ui.themes.Default2, themeDict),
+            prefix = defaults.PREFIX[0];
+        
+        self.__theme = Object.map(defaults, function(data, key) {
+            return data[1] ? prefix + data[0] : data[0];
         });
 
         self.highlightClasses.channels = {};
@@ -21385,8 +21064,10 @@ ui.Theme = new Class({
     },
 
     __dollarSubstitute: function(str, data, mapper) {
-        return str.substitute(Object.append(data||{}, mapper||{}))
+        return str.substitute(Object.append({}, data, mapper))
     },
+
+//I'm under the assumption i dont need to strip tags as handlebars should escape them for me
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
@@ -21397,23 +21078,29 @@ ui.Theme = new Class({
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + data.n.stripScripts(false) + "/";
+                data["N"] = "qwebirc://whois/" + String.escapeHTML(data.n) + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             ["N", "m"].each(function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
                     if(Array.isArray(val)) { //modes are given as an array so we need to fold
-                        val = val.join("").stripScripts(false);
+                        val = val.join("");
                     }
-                    data[key] = self.urlerize(val);
+                    data[key] = self.urlerize(String.escapeHTML(val));
                 }
             });
         }
 
-
         var themed = type ? self.message(type, data, highlight) : data;
         var result = self.colourise(themed);
+        $ele.addClass('colourline')
+            .insertAdjacentHTML('beforeend', result);
+        return result;
+    },
+
+    formatElement: function(line, $ele) {
+        var result = this.colourise(this.urlerize(String.escapeHTML(line)));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -21425,24 +21112,19 @@ ui.Theme = new Class({
         return this.__dollarSubstitute(this.__theme[type], data, map);
     },
 
-    formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line.stripScripts(false)));
-        $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
-        return result;
-    },
-
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //regexs are cruel to parse this thing
 
         var result = line;
 
-        var parseArr = result.split("\x03").filter( $chk );
+        var styles = irc.styles;
+
+        var parseArr = result.split(styles.colour.key).filter( $chk );
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
 
-        parseArr.each(function(str) {
+        parseArr.each(function(str) {//help
             if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
                 colouredarr.push([]);
             } else { //^C1***
@@ -21452,8 +21134,8 @@ ui.Theme = new Class({
 
         colouredarr.each(function(colourarr) {
             colourarr.each(function(str) {
-                var colourMatch = str.match(/^(\d{1,2})/),
-                    backgroundMatch = str.match(/^((\d{1,2})+,+(\d{1,2}))/),
+                var colourMatch = str.match(styles.colour.fore_re),
+                    backgroundMatch = str.match(styles.colour.back_re),
                     colour = util.getColourByKey(Array.item(colourMatch, 0)),
                     background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
 
@@ -21464,27 +21146,18 @@ ui.Theme = new Class({
                 });
 
 
-                result = result.replace("\x03" + str, html);
-            })
+                result = result.replace(styles.colour.key + str, html);
+            });
         });
 
         //matching styles (italics bold under)
-        irc.styles.each(function(style) {
-            parseArr = result.split(style.key);
-
-            if(parseArr.length % 2 != 1) {
-                console.log(parseArr);
-            }
-
-            //seems cleaner than filtering by index and then doing an each i think
-            for (var i = 1, styled; i < parseArr.length; i+=2) {
-                styled = parseArr[i];
-                var html = templates.ircstyle({
+        styles.special.each(function(style) {//i wish colours were this easy
+            result = result.replace(style.keyregex, function(match, text) {
+                return templates.ircstyle({
                     'style': style.style,
-                    'text': styled
+                    'text': text
                 });
-                result = result.replace(style.key + styled + style.key, html);
-            };
+            });
         });
 
         return result;
@@ -21571,7 +21244,7 @@ ui.Theme = new Class({
                     (!parser.nic || parser.nic.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
                 {
-                    if(win.active && win.name !== BROUHAHA) {
+                    if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
                             win.parentObject.flash();
                         }
@@ -22399,7 +22072,7 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "flash_on_mention": ui.supportsFocus().every(Functional.I),
+            "flash_on_mention": true,
             "dedicated_msg_window": false,
             "dedicated_notice_window": true,
             "nick_ov_status": true,
@@ -22655,6 +22328,7 @@ ui.style.ModifiableStylesheet = new Class({
 
 ui.Window = new Class({
     Implements: [Events],
+    Binds: ["sendInput"],
     initialize: function(parentObject, client, type, name, identifier) {
         this.parentObject = parentObject;
         this.type = type;
@@ -22671,11 +22345,6 @@ ui.Window = new Class({
         this.lastSelected = null;
         this.subWindow = null;
         this.closed = false;
-
-        if (this.type & parentObject.uiOptions2.get("lastpos_line")) {
-            this.lastPositionLine = Element.from(templates.messageLine());
-            this.lastPositionLineInserted = false;
-        }
 
         this.window = this.parentObject.qjsui.createWindow();
     },
@@ -22704,7 +22373,6 @@ ui.Window = new Class({
 
     select: function() {
         if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
-            this.lines.disown(this.lastPositionLine);
             this.lastPositionLineInserted = false;
         }
 
@@ -22720,15 +22388,6 @@ ui.Window = new Class({
 
     deselect: function() {
         this.subEvent("deselect");
-
-        // this.setScrollPos();
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
-        if (this.type & ui.WINDOW_LASTLINE)
-            this.replaceLastPositionLine();
 
         this.active = false;
     },
@@ -22765,6 +22424,10 @@ ui.Window = new Class({
         var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
         // self.scrollAdd($ele);
         self.lines.adopt($ele);
+
+        if(uiobj.uiOptions2.get("lastpos_line")) {
+            this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
+        }
     },
     errorMessage: function(message) {
         this.addLine("", message, "warncolour");
@@ -22773,8 +22436,9 @@ ui.Window = new Class({
         this.addLine("", message, "infocolour");
     },
     highlightTab: function(state) {
-        if (state == ui.HILIGHT_NONE || state >= this.hilighted)
+        if (state == ui.HILIGHT_NONE || state >= this.hilighted) {
             this.hilighted = state;
+        }
     },
 
     //holy shit i got this to actually make sense
@@ -22798,37 +22462,52 @@ ui.Window = new Class({
         }, this);
     },
 
-    nickListAdd: function(nick, position) {},
-    nickListRemove: function(nick, stored) {},
-    historyExec: function(line) {
-        this.commandhistory.addLine(line);
-        this.client.exec(line, this.currentChannel);
-    },
-    focusChange: function(newValue) {
-        if (!(newValue !== true || (this.type & ui.WINDOW_LASTLINE)))
-            this.replaceLastPositionLine();
-    },
-    replaceLastPositionLine: function() {
-        if (this.parentObject.uiOptions2.get("lastpos_line")) {
-            if (!this.lastPositionLineInserted) {
-                // this.scrollAdd(this.lastPositionLine);
-            } else if (this.lines.lastChild !== this.lastPositionLine) {
-                try {
-                    this.lines.disown(this.lastPositionLine);
-                } catch (e) { /* IGNORE, /clear removes lastPositionLine from the dom without resetting it. */
-                }
-                // this.scrollAdd(this.lastPositionLine);
-            }
-        } else {
-            if (this.lastPositionLineInserted)
-                this.lines.disown(this.lastPositionLine);
+    
+    nickListAdd: function(nick, position) {
+        var realNick = util.stripPrefix(this.client.prefixes, nick);
+
+        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+        var span = nickele.getElement('span');
+        nickele.store("nick", realNick);
+
+
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
+            var colour = util.toHSBColour(realNick, this.client);
+            if ($defined(colour))
+                span.setStyle("color", colour.rgbToHex());
         }
 
-        this.lastPositionLineInserted = this.parentObject.uiOptions2.get("lastpos_line");
+        this.nicklist.insertAt(nickele, position);
+        this.moveMenuClass();
+
+        return nickele;
+    },
+
+    nickListRemove: function(nick, stored) {
+        try {
+            this.nicklist.removeChild(stored);
+            this.moveMenuClass();
+        } catch (e) {
+        }
+    },
+
+    sendInput: function(e, target) {
+        e.stop();
+        var target = e.target.tagName !== "INPUT" ? e.target.getElement('input[type="text"]') : e.target,
+            unparsed = target.val(),
+            parsed = util.inputParser.parse(unparsed);
+        if (parsed !== "") {
+            this.parentObject.resetTabComplete();
+            this.commandhistory.addLine(unparsed || parsed);
+            this.client.exec(line, this.currentChannel);
+            target.val("");
+        }
+        target.focus();
     }
 });
 
 
+//mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
     Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
@@ -22848,6 +22527,14 @@ ui.QUI.Window = new Class({
 
         if(name === BROUHAHA) {
             $tab.addClass('brouhaha');
+            Function.delay(function() {
+                parentObject.windowArray.some(function(win) {
+                    if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
+                        self.properties.text(win.name); //update current channel in brouhaha
+                        self.currentChannel = win.name;
+                    }
+                });
+            }, 1000);
         }
 
 
@@ -22871,9 +22558,6 @@ ui.QUI.Window = new Class({
         $tabDetach.addEvent('click', self.detach);
 
         if (!isBaseWindow(name)) {
-            // var tabclose = new Element("span");
-            // tabclose.set("text", "X");
-            // tabclose.addClass("tabclose");
             var $tabclose = Element.from(templates.tabClose()),
                 close = self.close;
             //close window
@@ -22903,11 +22587,6 @@ ui.QUI.Window = new Class({
         } else {
             qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details
         }
-
-        // lines.addEvent("scroll", function() {
-        //     self.scrolleddown = self.scrolledDown();
-        //     self.scrollpos = self.getScrollParent().getScroll();
-        // });
 
         if (type === ui.WINDOW_CHANNEL) {
             qwindow.window.addClass('channel');
@@ -23013,8 +22692,7 @@ ui.QUI.Window = new Class({
 
             setActive = function(e) {
                 po.windowArray.each(function(win) {
-                    if(win.detached)
-                        win.wrapper.removeClass('active');
+                    if(win.detached) win.wrapper.removeClass('active');
                 });
                 wrapper.addClass('active');
             };
@@ -23179,17 +22857,6 @@ ui.QUI.Window = new Class({
             $inputbtn = $form.getElement('.send');
 
 
-        function sendInput(e) {
-            if(e) e.stop();
-            var text = util.inputParser.parse($inputbox.val());
-            if (text !== "") {
-                parentO.resetTabComplete();
-                self.historyExec(text);
-                $inputbox.val("");
-            }
-            $inputbox.focus();
-        }
-
         if (Browser.isMobile) {
             $inputbtn.addClass("mobile-button");
         }
@@ -23206,7 +22873,7 @@ ui.QUI.Window = new Class({
                 } else if (e.key === "tab" && !e.ctrl) {
                     e.stop();
                     return self.tabComplete($inputbox);
-                } else { /* ideally alt and other keys wouldn't break self */
+                } else {
                     return parentO.resetTabComplete();
                 }
                 e.stop();
@@ -23238,8 +22905,8 @@ ui.QUI.Window = new Class({
             }
         });
 
-        $inputbtn.addEvent("click", sendInput);
-        $form.addEvent("submit", sendInput);
+        $inputbtn.addEvent("click", self.sendInput);
+        $form.addEvent("submit", self.sendInput);
         $inputbox.addEvents({
                     "focus": resettab,
                     "mousedown": resettab,
@@ -23332,34 +22999,6 @@ ui.QUI.Window = new Class({
         }
     },
 
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
-        var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
-
-
-        if (this.parentObject.uiOptions2.get("nick_colours")) {
-            var colour = util.toHSBColour(realNick, this.client);
-            if ($defined(colour))
-                span.setStyle("color", colour.rgbToHex());
-        }
-
-        this.nicklist.insertAt(nickele, position);
-        this.moveMenuClass();
-
-        return nickele;
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            this.nicklist.removeChild(stored);
-            this.moveMenuClass();
-        } catch (e) {
-        }
-    },
-
     updateTopic: function(topic) {
         var topice = this.topic.empty();
 
@@ -23385,7 +23024,6 @@ ui.QUI.Window = new Class({
         if (state == this.hilighted)
             return;
 
-        //inefficient as fuck
         this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
 
         switch (state) {

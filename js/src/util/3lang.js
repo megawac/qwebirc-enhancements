@@ -113,16 +113,14 @@
     // };
 
 
-
 ui.themes.ThemeControlCodeMap2 = {
-    "C": "\x03",
-    "B": "\x02",
-    "U": "\x1F",
-    "O": "\x03",
-    "D": "\x00",
+    "C": irc.styles.colour.key,
+    "B": util.getStyleByName('bold').key,
+    "U": util.getStyleByName('underline').key,
+    "O": irc.styles.colour.key,
+    "D": irc.styles.normal.key,
     "[": "qwebirc://whois/",
-    "]": "/",
-    "$": "$"
+    "]": "/"
 };
 
 ui.themes.Default2 = {
@@ -177,13 +175,13 @@ ui.themes.Default2 = {
     "WHOISREALNAME": [" realname : {m}", true],
     "WHOISCHANNELS": [" channels : {m}", true],
     "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account  : m", true],
+    "WHOISACCOUNT": [" account : m", true],
     "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
     "WHOISAWAY": [" away     : {m}", true],
     "WHOISOPER": ["          : {B}IRC Operator{B}", true],
     "WHOISOPERNAME": [" operedas : {m}", true],
     "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
-    "WHOISGENERICTEXT": ["          : {m}", true],
+    "WHOISGENERICTEXT": [" note  : {m}", true],
     "WHOISEND": ["End of WHOIS", true],
 
     "AWAY": ["{N} is away: {m}", true],

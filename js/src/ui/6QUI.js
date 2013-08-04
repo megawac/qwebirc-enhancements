@@ -173,53 +173,60 @@ ui.QUI = new Class({
         return dropdown;
     },
 
-    keyboardEvents: {
-        focusInput: {
-            keys: 'space',
-            description: '',
-            handler: function(e) {
-                e.stop();
-                if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+    hotkeys: {
+        keyboard: {
+            focusInput: {
+                keys: 'space',
+                description: '',
+                handler: function(e) {
+                    e.stop();
+                    if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
+                }
+            },
+            nextWindow: {
+                keys: 'right',
+                description: '',
+                handler: function() {
+                    this.scope.nextWindow();
+                }
+            },
+            prevWindow: {
+                keys: 'left',
+                description: '',
+                handler: function() {
+                    this.scope.prevWindow();
+                }
             }
         },
-        nextWindow: {
-            keys: 'right',
-            description: '',
-            handler: function() {
-                this.scope.nextWindow();
-            }
-        },
-        prevWindow: {
-            keys: 'left',
-            description: '',
-            handler: function() {
-                this.scope.prevWindow();
-            }
-        }
-    },
 
-    inputHotkeys: {
-        bold: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
-        },
-        italic: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
-        },
-        underline: {
-            keys: 'ctrl+b',
-            description: '',
-            handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+        input: {
+            bold: {
+                keys: 'ctrl+b',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+            },
+            italic: {
+                keys: 'ctrl+i',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+            },
+            underline: {
+                keys: 'ctrl+u',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+            },
+            colour: {
+                keys: 'ctrl+c',
+                description: '',
+                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+            }
         }
     },
 
     setHotKeys: function () {
         var self = this, 
-            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.keyboardEvents),
-            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.inputHotkeys);;
+            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
+            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);;
             keyboard.scope = self;
 
 

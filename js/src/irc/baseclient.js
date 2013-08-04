@@ -73,16 +73,6 @@ irc.BaseIRCClient = new Class({
 
                     fn = this["irc_" + (irc.Numerics[command] || command)];
 
-                // //this block doesnt do anything?...
-                // var cmd = irc.Numerics[command];
-                // if (!cmd) {
-                //     cmd = command;
-                // }
-
-                // var cmd = "irc_".concat(irc.Numerics[command] || command);
-
-                // var fn = this["irc_" + cmd];
-
                 if (fn) {
                     var result = fn.call(this, prefix, sl);
                     if (result) {
@@ -136,11 +126,6 @@ irc.BaseIRCClient = new Class({
     __killChannel: function(name) {
         return this.channels.erase(name);
     },
-
-    // __nowOnChannel: function(name) {
-    //     //this.channels[this.toIRCLower(name)] = 1;
-    //     console.log('what lol');
-    // },
 
     processCTCP: function(message) {
         if (message.charAt(0) !== "\x01")
@@ -270,7 +255,6 @@ irc.BaseIRCClient = new Class({
             if(this.__signedOn) {
                 this.currentChannel = newchan;
             }
-            // this.__nowOnChannel(newchan);
         }
 
         this.userJoined(user, newchan);

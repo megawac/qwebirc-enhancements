@@ -35,7 +35,8 @@
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
-            default_parser: true
+            default_parser: true,
+            hide_servers:true
         },
 
         //ignored punctuation
@@ -62,7 +63,8 @@
                     parse: function(text) {
                         var options = this.options;
                         var word = text;
-                        if (word.contains('.') || word.contains('@') || word.contains(':')) {
+                        if ((word.contains('.') || word.contains('@') || word.contains(':')) &&
+                                (!options.hide_servers || !(urlerizer.regexs.server.test(word))) ) {//dont match google.com:510
                             // Deal with punctuation.
                             var parsed = this.parsePunctuation(word);
                             var middle = parsed.mid;
@@ -72,9 +74,9 @@
                             var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                             var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
-                            if (middle.match(urlerizer.simple_url)) url = this.urlquote(middle);
-                            else if (middle.match(urlerizer.simple_url_2)) url = this.urlquote('http://' + middle);
-                            else if (middle.contains(':') && middle.match(urlerizer.simple_email)) {
+                            if (middle.match(urlerizer.regexs.simple_url)) url = this.urlquote(middle);
+                            else if (middle.match(urlerizer.regexs.url_improved)) url = this.urlquote('http://' + middle);
+                            else if (middle.contains(':') && middle.match(urlerizer.regexs.simple_email)) {
                                 // XXX: Not handling IDN.
                                 url = 'mailto:' + middle;
                                 nofollow_attr = '';
@@ -82,23 +84,23 @@
 
                             // Make link.
                             if (url) {
-                                var trimmed = this.trimURL(middle);
+                                var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
                                 if (options.autoescape) {
                                     // XXX: Assuming autoscape == false
-                                    parsed.lead = this.htmlescape(parsed.lead);
-                                    parsed.end = this.htmlescape(parsed.end);
-                                    url = this.htmlescape(url);
-                                    trimmed = this.htmlescape(trimmed);
+                                    parsed.lead = String.escapeHTML(parsed.lead);
+                                    parsed.end = String.escapeHTML(parsed.end);
+                                    url = String.escapeHTML(url);
+                                    trimmed = String.escapeHTML(trimmed);
                                 }
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
                             } else {
                                 if (options.autoescape) {
-                                    word = this.htmlescape(word);
+                                    word = String.escapeHTML(word);
                                 }
                             }
                         } else if (options.autoescape) {
-                            word = this.htmlescape(word);
+                            word = String.escapeHTML(word);
                         }
                         return word;
                     }
@@ -116,7 +118,7 @@
             // XXX: Not handling IDN.
             // An URL is considered unquoted if it contains no % characters or
             // contains a % not followed by two hexadecimal digits.
-            if (url.indexOf('%') == -1 || url.match(urlerizer.unquoted_percents)) {
+            if (url.indexOf('%') == -1 || url.match(urlerizer.regexs.unquoted_percents)) {
                 return encodeURI(url);
             } else {
                 return url;
@@ -126,7 +128,7 @@
         //shut up i know it exists and its better than what was here before
         parse: function(text) {
             var self = this,
-                result = text.split(urlerizer.word_split),
+                result = text.split(" "),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
                 });
@@ -141,19 +143,13 @@
                 item = result[i];
                 funcs.each(parseWord);
             };
-            result = result.join("")
+            result = result.join(" ")
             self.patterns.each(function(pattern) {
                 if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
             })
             return result;
-        },
-
-        trimURL: function(x, limit) {
-            limit = limit || this.options.trim_url_limit;
-            if (limit && x.length > limit) return x.substr(0, limit - 3) + '...';
-            return x;
         },
 
         parsePunctuation: function(text) {
@@ -215,11 +211,11 @@
     });
 
     urlerizer.regexs = {
-        word_split: /([\s<>"]+)/,
         simple_url: /^https?:\/\/\w/,
-        simple_url_2: /^www\.|^(?!http)\w[^@]+\.(com|edu|gov|int|mil|net|org)$/,
+        url_improved: /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/,//matches anything thats urlish- even bit.ly/a
         simple_email: /^\S+@\S+\.\S+$/,
-        unquoted_percents: /%(?![0-9A-Fa-f]{2})/
+        unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
+        server: /\:(\d{2})/
     }
 
 })(this);

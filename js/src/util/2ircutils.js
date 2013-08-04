@@ -68,12 +68,6 @@ util.formatter = String.substitute;
 //     return str;
 // };
 
-//takes a string and escapes characters... not sure what for
-// escape('w-d') => "w\-d"
-//probably a little intense as its only used to escape a nick
-// most useful for removing regex special chars
-// RegExp.escape = prelude.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-RegExp.escape = String.escapeRegExp;
 
 // util.mapA = function(object, fn, bind) {
 //     var results = [];
@@ -200,7 +194,7 @@ util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
 util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
 
 util.createNickRegex = Functional.memoize(function(nick) {
-    return new RegExp('(^|[\\s\\.,;:])' + RegExp.escape(nick) + '([\\s\\.,;:]|$)', "i");
+    return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
 util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
@@ -335,25 +329,15 @@ util.IRCTimestamp = function(date) {
 };
 
 util.IRCDate = function(date) {
-    // return lang.DaysOfWeek[date.getDay()] + " " + lang.MonthsOfYear[date.getMonth()] + " " + util.padzero(date.getDate()) + " " + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + ":" + util.padzero(date.getSeconds()) + " " + date.getFullYear();
     return date.format("%c");
 };
 
-//silly fn
-util.wasKicked = function() {
-    return Date.now() - window.lastkick.last <= 100;
-};
-
-
-irc.nickChanEntry = function() {
-    // this.prefixes = "";
-    // this.lastSpoke = 0;
+irc.nickChanEntry = function(p, l) {
     return {
-        prefixes: "",
-        lastSpoke: 0
+        prefixes: p || "",
+        lastSpoke: l || 0
     };
 };
-
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 

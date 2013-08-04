@@ -7,14 +7,6 @@ ui.setTitle = function(title, options) {
     }
 };
 
-ui.supportsFocus = function() {
-    var result = (util.isMobile || Browser.name === "Konqueror") ?  [false, false] : [true];
-
-    ui.supportsFocus = $lambda(result);
-    return result;
-};
-
-
 util.setCaretPos = Element.setCaretPosition;
 
 util.setAtEnd = function($el) {

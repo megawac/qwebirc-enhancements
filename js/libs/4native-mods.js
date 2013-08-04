@@ -40,8 +40,7 @@
     String.implement({
 
         //replaces all occurences of the tofind string in this string with
-        //torep
-        //torep may be another string or a callback which takes a single string
+        //alternatively call replace with a regex global
         //http://jsperf.com/replaceall-escape
         replaceAll: function(tofind, torep) { //gross
             var ns = this;
@@ -80,6 +79,9 @@
         endsWith: function(what, pos) {
             return this.slice(this.length - what.length - (pos || 0)) == what;
         }
+    })
+    .extend({
+        escapeHTML: Handlebars.Utils.escapeExpression
     });
 
     if(!Object.equal) {
