@@ -27,9 +27,7 @@ project name and URL in the about dialog, thanks!*/
 
     //common globals
     var document = window.document,
-        $ = document.id,
-        Functional = window.Functional,
-        prelude = window.prelude;
+        $ = document.id;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 

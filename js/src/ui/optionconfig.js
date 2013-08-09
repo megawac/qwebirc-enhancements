@@ -22,15 +22,32 @@ config.OptionModel = new Class({
             "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
+            "volume": 100,
 
-            "notify_on_mention": {flash:true, beep:true},
-            "notify_on_pm": {flash:true, beep:true},
-            "notify_on_notice": {flash:false, beep:true},
+            "notices": {
+                "on_mention": {flash:true, beep:true},
+                "on_pm": {flash:true, beep:true},
+                "on_notice": {flash:false, beep:true}
+            },
             "custom_notices": [],
-            "volume": 100
+            "default_notice": function() {
+                return {
+                        nick: null,
+                        msg: '',
+                        flash: false,
+                        beep: false,
+                        id: String.uniqueID(),
+                        autoescape: true
+                    }
+                }
         },
         key: "qweboptions",
         minimize: true
+    },
+
+    save: function() {
+        this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) { return data.msg.trim() === "" }));//cleanup
+        return this.parent();
     }
 });
 
@@ -45,18 +62,47 @@ ui.OptionView = new Class({
         template: templates.options,
         // 'onChange:model': render,
         events: {
-            'change:relay(#options input)': 'inputChange'
+            'change:relay(#options input)': 'inputChange',
+            'change:relay(#options #standard-notices input)': 'snoticeChange',
+            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'click:relay(#options #add-notice)': 'addNotifier',
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier'
+
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
-                // sub = split.slice(1).join('.'),
-                // item = this.model.get(id);
 
             //handle sub props
-            if($defined(this.model.get(id))) {
+            if(id && $defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
+        },
+
+        onSnoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('notices'));
+            _.assign(notices, target.get('id'), target.val());
+            this.model.set('notices', notices);
+        },
+
+        onNoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('custom_notices'));
+            var par = target.getParent('.custom-notice');
+            _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+            this.model.set('custom_notices', notices);
+        },
+
+        onAddNotifier: function(e) {
+            e.stop();
+            this.addNotifier();
+        },
+
+        onRemoveNotifier: function(e, target) {
+            e.stop();
+            var par = target.getParent('.custom-notice').dispose();
+            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})))
         },
 
         onReady: render
@@ -64,15 +110,18 @@ ui.OptionView = new Class({
 
     render: function() {
         var model = this.model,
-            data = model.toJSON();
-        data.lang = lang;
-        this.empty();
+            data = this.getData();
         this.element.html(this.template(data));
 
-        this.tabs = new MGFX.Tabs(this.element, {
-            tabs: '.option-tabs li',
-            content: '.tab-content .control-group'
-        });
+        _.each(data.custom_notices, function(notice) {
+            notice.lang = lang;
+            this.addNotifier(notice)
+        }, this);
+
+        // this.tabs = new MGFX.Tabs(this.element, {
+        //     tabs: '.option-tabs li',
+        //     content: '.tab-content .control-group'
+        // });
 
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
@@ -93,8 +142,34 @@ ui.OptionView = new Class({
             'reset': this.reset
         });
 
+        self.behavior = new Behavior().apply(this.element);
+
         this.parent();
         return this;
+    },
+
+    addNotifier: function(data) {
+        if(!data) {
+            data = this.model.get("default_notice")();
+            var n = _.clone(this.model.get("custom_notices"));
+            n.push(data);
+            this.model.set("custom_notices", n);
+        }
+
+        var parent = this.element.getElement('#custom-notices');
+
+        var _data = _.clone(data);
+        _data.lang = lang;
+
+        var temp = templates.customNotice(_data);
+
+        parent.insertAdjacentHTML('beforeend', temp);
+    },
+
+    getData: function() {
+        var data = this.model.toJSON();
+        data.lang = lang;
+        return data;
     },
 
     empty: function() {

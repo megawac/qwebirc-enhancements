@@ -6,31 +6,51 @@ var whitespace = /\s/,
 
 //my helper functions
 //returns itself
-var $identity = Functional.I,
+var join = function(by, xs) {
+        return xs.join(by);
+    },
 
-    // notEqual = Functional.compose(Functional.not, Functional.eq),
+    split = function(by, str) {
+        return str.split(by);
+    },
 
-    charAt = function(n, str) { return str.charAt(n); }.autoCurry(),
+    restRight = _.autoCurry(function(xs) {
+        return xs.slice(0, xs.length-1);
+    }),
 
-    splitBang = prelude.split("!"),
+    test = _.autoCurry(function(reg, str) {
+        return str.test(reg);
+    }),
 
-    joinBang = prelude.join("!"),
+    replace = _.autoCurry(function(reg, rep, str) {
+        return str.replace(reg, rep);
+    }),
 
-    joinEmpty = prelude.join(""),
+    startsWith = function(what, str) {
+        return str.startsWith(what);
+    },
 
-    splitEmpty = prelude.split(""),
+    $identity = _.identity,
 
-    joinComma = util.joinChans = prelude.join(","),
+    splitBang = _.partial(split, "!"),
 
-    splitComma = prelude.split(","),
+    joinBang = _.partial(join, "!"),
 
-    concatUnique = Functional.compose(prelude.uniq, prelude.concat),
+    joinEmpty = _.partial(join, ""),
 
-    concatSep = function(sep, s1, s2) {
-        if(Array.isArray(s1)) {
+    // splitEmpty = split(""),
+
+    joinComma = util.joinChans = _.partial(join,","),
+
+    // splitComma = split(","),
+
+    concatUnique = _.compose(_.uniq, Array.concat),
+
+    concatSep = _.autoCurry(function(sep, s1, s2) {
+        if(_.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(Array.isArray(s2)) {
+        if(_.isArray(s2)) {
             s2 = s2.join(sep);
         }
         if(s1 !== "" && s2 !== "") {
@@ -39,52 +59,22 @@ var $identity = Functional.I,
         else {
             return s1 + s2;
         }
-    }.autoCurry(),
+    }),
 
-    concatSpace = concatSep(" "),
+    concatSpace = concatSep(" ");
 
-    startsWith = function(what, str) {
-        return str.startsWith(what);
-    }.autoCurry(),
-
-    each = Array.each.flip().autoCurry(2);
-
-//little formatter i wrote in 10 mins you can prob find a better one
-//formatter("{test} a {wa} {repl} {test}",{test:1, repl:'replaced'})
-// => "1 a {wa} replaced 1"
-// http://jsperf.com/stringformat/3
-util.formatter = String.substitute;
-// function(str, hash) {
-//     var curly = /{(.*?)}/g, //match all substrings wrapped in '{ }'
-//         prop;
-
-//     str.match(curly)
-//         .each(function (propstr) {
-//             prop = propstr.substring(1, propstr.length - 1); //remove curlys
-//             if(typeof hash[prop] !== 'undefined') {
-//                 str = str.replace(propstr, hash[prop]);
-//             }
-//         });
-//     return str;
-// };
-
-
-// util.mapA = function(object, fn, bind) {
-//     var results = [];
-//     for (var key in object) {
-//         if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
-//     }
-//     return results;
-// };
+util.formatter = function(message, data) {
+    return (message.message || message).substitute(data);
+};
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = Functional.compose(joinBang, prelude.restRight, splitBang);
+util.hostToNick = _.compose(joinBang, restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = Functional.compose(prelude.last, splitBang);
+util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
+var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
 
     formatChannel = util.formatChannel = function(chan) {
         if(chan.length >= 1 && !isChannel(chan)) {
@@ -105,40 +95,34 @@ var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(Array.isArray(xs))
+        if(_.isArray(xs))
             return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
 
     //function to determine if a string is one of the stock windows
-    isBaseWindow = util.isBaseWindow = prelude.contains(BASE_WINDOWS),
+    isBaseWindow = util.isBaseWindow = _.partial(_.contains, BASE_WINDOWS),
 
-    isChannelType = util.isChannelType = prelude.contains(CHANNEL_TYPES);
+    isChannelType = util.isChannelType = _.partial(_.contains, CHANNEL_TYPES);
 
 
-util.windowNeedsInput = prelude.contains(INPUT_TYPES);
+util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
-util.formatChannelString = Functional.compose(joinComma, prelude.uniq, Functional.map(formatChannel), splitChan);
-util.unformatChannelString = Functional.compose(prelude.uniq, Functional.map(unformatChannel), splitChan);
+util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
 
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
-util.addChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel);
+util.addChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */appendChannel);
 //adds channel to front of list of channels
-util.prependChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel.flip());
+util.prependChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */_.flip(appendChannel));
 
-
-//filter an array to not contain main window or dubs then joins it
-// util.arrayToChanString = Functional.compose(joinComma, prelude.uniq, Functional.filter.curry(Functional.not(isBaseWindow)));
 
 //calls splits string by comma then calls array.erase on value
 util.removeChannel = Array.erase;
-// function(chans, chan) {
-//     return joinComma( splitChan(chans).erase(chan) );
-// };
 
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
@@ -162,16 +146,14 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) {
+util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b')
     return function(nick) {
         return nickHash[nick].prefixes + nick;
     };
-    //return Functional.compose(prelude.concat, prelude.getProp(nickHash));
 };
 
-util.validPrefix = prelude.contains;
+util.validPrefix = _.contains;
 
-//equilvalent Functional.compose(joinEmpty, concatUnique)
 util.addPrefix = function(nc, pref, prefs) {
     if(prefs && !util.validPrefix(prefs, pref))
         return nc.prefixes;
@@ -184,21 +166,21 @@ util.removePrefix = function(nc, pref) {
 
 //if theres a prefix it gets returned
 //i dont think its possible to have multiple prefixes
-util.prefixOnNick = function(prefixes, nick) {
+util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
     var c = nick.charAt(0);
     return util.validPrefix(prefixes, c) ? [c, nick.slice(1)] : ['', nick];
-}.autoCurry();
+});
 
-util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
+util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
+util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = Functional.memoize(function(nick) {
+util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
 util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
-    return prelude.test(util.createNickRegex(nick), text);
+    return test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
@@ -217,41 +199,33 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = Functional.compose(Array.item.curry(irc.IRCLowercaseTable), String.charCodeAt.partial(_, 0));
+var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda('x.charCodeAt(0)'));
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
-irc.RFC1459toIRCLower = Functional.memoize(Functional.compose(prelude.join(""), Functional.map(charIRCLower)));
+irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_.func.map, charIRCLower)));
 
 //not really sure
 //takes a irc client object and string and returns something
-irc.toIRCCompletion = Functional.compose(prelude.replace(/[^\w]+/g, ""), Functional.invoke("toIRCLower"));
+irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke, "toIRCLower"));
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
 util.getStyleByName = function(name) {
-    return irc.styles.filter(function(style) {
-        return style.name === name;
-    })[0];
-}
+    return _.findWhere(irc.styles, {name:name});
+};
 
 util.getStyleByKey = function(key) {
-    return irc.styles.filter(function(style) {
-        return style.key === key;
-    })[0];
-}
+    return _.findWhere(irc.styles, {key: _.toInt(key)});
+};
 
 util.getColourByName = function(name) {
-    return irc.colours.filter(function(colour) {
-        return colour.name == name;
-    })[0];
-}
+    return _.findWhere(irc.colours, {name:name});
+};
 
 util.getColourByKey = function(key) {
-    return irc.colours.filter(function(colour) {
-        return colour.key == key;
-    })[0];
-}
+    return _.findWhere(irc.colours, {key: _.toInt(key)});
+};
 
 // returns the arguments 
 util.parseURI = function(uri) {
@@ -285,13 +259,13 @@ util.longtoduration = function(l) {
 };
 
 //pads based on the ret of a condition
-var pad = util.pad = function(cond, padding, str) {
+var pad = util.pad = _.autoCurry(function(cond, padding, str) {
     str = String(str);
     return cond(str) ? padding + str : str;
-}.autoCurry();
+});
 
-util.padzero = pad('.length<=1'.lambda(), "0");
-util.padspace = pad('.length!==0'.lambda(), " ");
+util.padzero = pad(_.lambda('.length<=1'), "0");
+util.padspace = pad(_.lambda('.length!==0'), " ");
 
 
 util.browserVersion = $lambda(navigator.userAgent);

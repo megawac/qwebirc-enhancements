@@ -73,14 +73,14 @@
 				if (this.properties[key] && this.properties[key]['set'])
 					return this.properties[key]['set'].call(this, value);
 
-				var attr = Object.get(this._attributes, path)
+				var attr = _.lookup(this._attributes, path)
 				// no change? this is crude and works for primitives.
 				if (attr && isEqual(attr, value))
 					return this;
 
 				// basic validator support
 				var validator = this.validate(path, value);
-				if (Object.get(this.validators, path) && validator !== true){
+				if (_.lookup(this.validators, path) && validator !== true){
 					var obj = {};
 					obj[key] = {
 						key: key,
@@ -97,7 +97,7 @@
 					delete this._attributes[key]; // delete = null.
 				}
 				else {
-					Object.set(this._attributes, path, value);
+					_.assign(this._attributes, path, value);
 				}
 
 				// fire an event.
@@ -118,7 +118,7 @@
 				}
 
 				// else, return from attributes or return null when undefined.
-				var attr = Object.get(this._attributes, key);
+				var attr = _.lookup(this._attributes, key);
 				return (typeof attr !== 'undefined') ? attr : null;
 			}.overloadGetter(),
 

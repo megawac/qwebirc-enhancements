@@ -35,12 +35,6 @@ ui.Interface = new Class({
         var self = this,
             opts = self.options;
 
-        window.steamlink = 0;
-        window.lastkick = {
-            channel: '',
-            last: 1
-        };
-
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
             dynamicBaseURL: opts.dynamicBaseURL,

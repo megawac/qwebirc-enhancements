@@ -27,23 +27,23 @@ ui.Theme = new Class({
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
-            isobj = Type.isObject(_data),
-            data = isobj ? Object.clone(_data) : _data, //sometimes an internal reference
+            isobj = _.isObject(_data),
+            data = isobj ? _.clone(_data) : _data, //sometimes an internal reference
             val;
 
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + String.escapeHTML(data.n) + "/";
+                data["N"] = "qwebirc://whois/" + data.n + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
-            ["N", "m"].each(function(key) {//urlerize message and nick
+            _.each(["N", "m", "c"], function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
-                    if(Array.isArray(val)) { //modes are given as an array so we need to fold
+                    if(_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
                     }
-                    data[key] = self.urlerize(String.escapeHTML(val));
+                    data[key] = self.urlerize(val);
                 }
             });
         }
@@ -56,7 +56,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(String.escapeHTML(line)));
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -80,20 +80,20 @@ ui.Theme = new Class({
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
 
-        parseArr.each(function(str) {//help
+        _.each(parseArr, function(str) {//help
             if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
                 colouredarr.push([]);
             } else { //^C1***
-                colouredarr.getLast().push(str);
+                _.last(colouredarr).push(str);
             }
         });
 
-        colouredarr.each(function(colourarr) {
-            colourarr.each(function(str) {
+        _.each(colouredarr, function(colourarr) {
+            _.each(colourarr, function(str) {
                 var colourMatch = str.match(styles.colour.fore_re),
                     backgroundMatch = str.match(styles.colour.back_re),
-                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
-                    background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
+                    colour = util.getColourByKey(_.item(colourMatch, 0)),
+                    background = util.getColourByKey(_.last(backgroundMatch));//num aft num + comma
 
                 var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
@@ -107,7 +107,7 @@ ui.Theme = new Class({
         });
 
         //matching styles (italics bold under)
-        styles.special.each(function(style) {//i wish colours were this easy
+        _.each(styles.special, function(style) {//i wish colours were this easy
             result = result.replace(style.keyregex, function(match, text) {
                 return templates.ircstyle({
                     'style': style.style,
@@ -129,14 +129,14 @@ ui.Theme = new Class({
             classes: '',
             flash: true,
             beep: true,
-            id: 'notify_on_notice',
+            id: 'on_notice',
             highlight: ui.HILIGHT_SPEECH
         },
         {
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
-            id: 'notify_on_pm',
+            id: 'on_pm',
             highlight: ui.HILIGHT_SPEECH
         },
         {
@@ -144,7 +144,7 @@ ui.Theme = new Class({
             classes: 'our-msg'
         },
         {//match bots
-            nic: /(^tf2)|((serv|bot)$)/i,
+            nick: /(^tf2)|((serv|bot)$)/i,
             classes: 'bot',
             types: [ui.WINDOW_CHANNEL]
         },
@@ -160,16 +160,16 @@ ui.Theme = new Class({
             tabhl: ui.HILIGHT_US
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             mentioned: true,
             classes: '',
             beep: true,
             flash: true,
             notus: true,
-            id: 'notify_on_mention'//for filtering
+            id: 'on_mention'//for filtering
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
             highlight: true,
@@ -186,18 +186,19 @@ ui.Theme = new Class({
         var self = this,
             tabHighlight = ui.HILIGHT_NONE,
             highlights = self.highlightClasses,
-            notus = !(/^OUR/.test(type));//wish we could just use not selector
+            notus = !(/^OUR/.test(type)),
+            parsers = _.clone(self.messageParsers).concat(self.customNotices);
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m)
                 $ele.addClass('message');
-            self.messageParsers.each(function(parser) {
+            _.each( parsers , function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
                     (!parser.type || parser.type.test(type)) && 
                     (!parser.msg || parser.msg.test(data.m)) &&
-                    (!parser.nic || parser.nic.test(data.n)) &&
+                    (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
@@ -217,7 +218,7 @@ ui.Theme = new Class({
                     }
                     tabHighlight = Math.max(tabHighlight, parser.tabhl);
                 }
-            })
+            });
         }
         return tabHighlight;
     }

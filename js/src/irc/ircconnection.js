@@ -88,7 +88,7 @@ irc.IRCConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", irc.IRCConnection.setXHRHeaders.curry(request.xhr));
+        request.addEvent("request", _.partial(irc.IRCConnection.setXHRHeaders, request.xhr));
         if (Browser.Engine.trident) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -156,7 +156,7 @@ irc.IRCConnection = new Class({
         if (request === null) {
             return;
         }
-        request.addEvent("complete", this.__completeRequest.curry(async))
+        request.addEvent("complete", _.partial(this.__completeRequest, async))
                 .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
     },
 
@@ -305,7 +305,7 @@ irc.IRCConnection = new Class({
     //     // new CookieMonster(xhr);
     // };
 
-    conn.setXHRHeaders = Array.each.curry(kill, removeHeaders);
+    conn.setXHRHeaders = _.partial(_.each, kill, removeHeaders);
 
     // conn.setXHRHeaders = function(xhr) {
     //     kill.each(removeHeaders, xhr);

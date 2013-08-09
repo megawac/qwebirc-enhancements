@@ -133,32 +133,16 @@
     //    return txt && txt.length !== 0 ? ' ' + txt : '';
     //});
 
-    //https://github.com/wycats/handlebars.js/issues/304
-    // engine.registerHelper('chain', function () {
-    //     var helpers = [], value;
-    //     $each(arguments,function (arg, i) {
-    //         if (engine.helpers[arg]) {
-    //             helpers.push(engine.helpers[arg]);
-    //         } else {
-    //             value = arg;
-    //             $each(helpers, function (helper, j) {
-    //                 value = helper(value, arguments[i + 1]);
-    //             });
-    //             return false;
-    //         }
-    //     });
-    //     return value;
-    // });
 
     /******************
         Compiliation
     *********************/
 
     function compileAll(source,compiled) {
-        Object.each(source, function(item, key) {
+        _.each(source, function(item, key) {
             try {
                 // compiled[key] = engine.compile(item);
-                compiled[key] = Function.from(item)
+                compiled[key] = Function.from(item);
             } catch(err) {
                 console.log(err);
             }

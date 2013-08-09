@@ -43,7 +43,7 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "slap",
         fn: function(nick) {
-            this.client.exec("/ME " + util.formatter(lang.fishbot, {
+            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
                 'nick': nick
             }));
         },
@@ -58,19 +58,19 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "op",
         fn: command("op"),
-        predicate: prelude.andand(isOpped, Functional.not(targetOpped))
+        predicate: _.and(isOpped, _.not(targetOpped))
     }, {
         text: "deop",
         fn: command("deop"),
-        predicate: prelude.andand(isOpped, targetOpped)
+        predicate: _.and(isOpped, targetOpped)
     }, {
         text: "voice",
         fn: command("voice"),
-        predicate: prelude.andand(isOpped, Functional.not(targetVoiced))
+        predicate: _.and(isOpped, _.not(targetVoiced))
     }, {
         text: "devoice",
         fn: command("devoice"),
-        predicate: prelude.andand(isOpped, targetVoiced)
+        predicate: _.and(isOpped, targetVoiced)
     }];
 })();
 
@@ -210,17 +210,7 @@ ui.TabIterator = new Class({
         } else {
             var prefixes = irc.toIRCCompletion(client, prefix);
 
-            /* convert the nick list to IRC lower case, stripping all non letters
-             * before comparisions */
-            // for (var i = 0; i < list.length; i++) {
-            //     var l2 = irc.toIRCCompletion(client, list[i]);
-
-            //     if (l2.startsWith(prefixes))
-            //         l.push(list[i]);
-            // }
-            var listf = list.filter(Functional.compose(util.prefixOnNick(prefixes), irc.toIRCCompletion.curry(client)));
-
-            this.list = listf;
+            this.list = _.filter(list, _.compose(util.prefixOnNick(prefixes), _.partial(irc.toIRCCompletion, client)));
         }
 
         this.pos = -1;
@@ -275,31 +265,30 @@ ui.QueryNickTabCompleter = new Class({
 
 ui.ChannelNameTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
+    initialize: function(prefix, existingText, suffix, win) {
 
         var l = [];
-        Object.each(window.client.channels, function(chan, name) {
-            if($defined(chan)) {
+        _.each(win.client.channels, function(chan, name) {
+            if(chan && chan.lastSelected) {
                 chan = chan.lastSelected;
             }
             l.push([chan, name]);
         });
 
-        var l2 = l.sort(function(a, b) {
+        var l2 = _.sort(l, function(a, b) {
             return b[0] - a[0];
-        }).map(prelude.item(1));
+        }).map(item(1));
 
-        this.parent(window.client, prefix, existingText, suffix, l2);
-        // this.parent.apply(this, Array.concat(window.client, arguments, l2));
+        this.parent(win.client, prefix, existingText, suffix, l2);
     }
 });
 
 ui.ChannelUsersTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
-        var nc = window.client.tracker.getSortedByLastSpoke(irc.activeChannel);
+    initialize: function(prefix, existingText, suffix, win) {
+        var nc = win.client.tracker.getSortedByLastSpoke(irc.activeChannel);
 
-        this.parent(window.client, prefix, existingText, suffix, nc);
+        this.parent(win.client, prefix, existingText, suffix, nc);
     }
 });
 

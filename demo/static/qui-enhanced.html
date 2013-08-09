@@ -1,34 +1,34 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
   <base>
   <title>WebIRC Using QWebirc V0.93-dev</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
   <link rel="shortcut icon" type="image/png" href="images/favicon.png">
-<link href="css/bootstrap.css" rel="stylesheet">
-<link href="css/qwebirc.css" rel="stylesheet">
-<link href="css/jqueryui_icons.css" rel="stylesheet">
-<script>window.ircoptions = {stylesheet: 'css/modifiablecss.mcss'}</script>
-<script src="js/dist/qwebirc-0.93dev.js"></script>
-<script>
+  <link href="css/bootstrap.css" rel="stylesheet">
+  <link href="css/qwebirc.css" rel="stylesheet">
+  <link href="css/jqueryui_icons.css" rel="stylesheet">
+  <script>window.ircoptions = {stylesheet: 'css/modifiablecss.mcss'}</script>
+  <script src="js/dist/qwebirc-0.93dev.js"></script>
+  <script>
     var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {
-        "appTitle": "GameSurge Web IRC",
-        "networkServices": ["AuthServ!AuthServ@Services.GameSurge.net", "ChanServ!ChanServ@Services.GameSurge.net"],
-        "loginRegex": /^I recogni[sz]e you/,
-        "dynamicBaseURL": "",
-        "staticBaseURL": "",
-        "networkName": "GameSurge",
-        "baseURL": "https://webchat.gamesurge.net/"
+      "appTitle": "GameSurge Web IRC",
+      "networkServices": ["AuthServ!AuthServ@Services.GameSurge.net", "ChanServ!ChanServ@Services.GameSurge.net"],
+      "loginRegex": /^I recogni[sz]e you/,
+      "dynamicBaseURL": "",
+      "staticBaseURL": "",
+      "networkName": "GameSurge",
+      "baseURL": "https://webchat.gamesurge.net/"
     });
   </script>
 </head>
-    <body>
-        <div id="ircui">
-            <noscript>
-                <div id="noscript">
-                    Javascript is required to use IRC.
-                </div>
-            </noscript>
-        </div>
-    </body>
+<body>
+  <div id="ircui">
+    <noscript>
+      <div id="noscript">
+        Javascript is required to use IRC.
+      </div>
+    </noscript>
+  </div>
+</body>
 </html>

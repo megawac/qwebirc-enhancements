@@ -4,9 +4,7 @@
 	// wrapper function for requirejs or normal object
 	var wrap = function(){
 
-		var eq = Object.equal;
-
-		return eq;
+		return _.isEqual;
 	}; // end wrap
 
 	if (typeof define === 'function' && define.amd){

@@ -753,7 +753,7 @@ irc.IRCClient = new Class({
     },
 
     storeChannels: function(channels) {
-        var store = prelude.uniq(channels);
+        var store = _.uniq(channels);
         this.channels = channels;
         this.options.channels.set(store);
     },
@@ -813,16 +813,6 @@ irc.IRCClient = new Class({
         }
         var getPrefixes = util.prefixOnNick(this.prefixes);
         names.each(function(prenick) {
-            //var splitnick = nick.split("");
-            //var hasPrefix = Functional.compose(">0".lambda(), String.indexOf.curry("+@"), prelude.item(0));
-            // splitnick.every(function(c, i) {
-            //     if (this.prefixes.indexOf(c) == -1) {
-            //         nick = nick.substr(i);
-            //         return false;
-            //     }
-            //     prefixes.push(c);
-            //     return true;
-            // }, this);
             var prefixNick = getPrefixes(prenick),
                 prefixes = prefixNick[0],
                 nick = prefixNick[1];

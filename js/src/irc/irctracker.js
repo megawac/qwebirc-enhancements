@@ -60,12 +60,12 @@ irc.IRCTracker = new Class({
         if (!nickchan)
             return;
 
-        Object.keys(nickchan).each(function(chan) {
+        _.each(_.keys(nickchan), function(chan) {
             var lchannel = this.toIRCLower(chan),
                 channel = this.channels[lchannel];
 
             delete channel[nick];
-            if (Object.isEmpty(channel)) {
+            if (_.size(channel) === 0) {
                 delete this.channels[lchannel];
             }
         }, this);
@@ -80,12 +80,10 @@ irc.IRCTracker = new Class({
         var lchannel = this.toIRCLower(channel);
 
 
-        Object.keys(chan).each(function(nick) {
+        _.each(_.keys(chan), function(nick) {
             var nc = this.nicknames[nick];
-
             delete nc[lchannel];
-
-            if (Object.isEmpty(nc)) { //in no more channels
+            if (_.size(nc)) { //in no more channels
                 delete this.nicknames[nick];
             }
         }, this);
@@ -103,10 +101,10 @@ irc.IRCTracker = new Class({
         delete nickchan[lchannel];
         delete chan[nick];
 
-        if (Object.isEmpty(nickchan)) {
+        if (_.size(nickchan) === 0) {
             delete this.nicknames[nick];
         }
-        if (Object.isEmpty(chan)) {
+        if (_.size(chan) === 0) {
             delete this.channels[lchannel];
         }
     },
@@ -116,7 +114,7 @@ irc.IRCTracker = new Class({
         if (!nickchans)
             return;
 
-        Object.keys(nickchans).each(function(channel) {
+        _.each(_.keys(nickchans), function(channel) {
             var lchannel = this.toIRCLower(channel);
             this.channels[lchannel][newnick] = this.channels[lchannel][oldnick];
             delete this.channels[lchannel][oldnick];

@@ -10916,6 +10916,1317 @@ Handlebars.template = Handlebars.VM.template;
 // lib/handlebars/browser-suffix.js
 })(Handlebars);
 ;
+//Wrote this when drunk and bored as a step to rewriting qwebirc to be compatible with jquery underscore builds
+// should be drop in replacable with underscore - I literally just removed polyfills that Mootools gaurentees
+
+//     Underscore.js 1.5.1
+//     http://underscorejs.org
+//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     Underscore may be freely distributed under the MIT license.
+
+(function() {
+
+    // Baseline setup
+    // --------------
+
+    // Establish the root object, `window` in the browser, or `exports` on the server.
+    var root = this;
+
+    // Save the previous value of the `_` variable.
+    var previousUnderscore = root._;
+
+    // Establish the object that gets returned to break out of a loop iteration.
+    var breaker = {};
+
+    // Save bytes in the minified (but not gzipped) version:
+    var ArrayProto = Array.prototype,
+        ObjProto = Object.prototype,
+        FuncProto = Function.prototype;
+
+    // Create quick reference variables for speed access to core prototypes.
+    var
+    push = ArrayProto.push,
+        slice = ArrayProto.slice,
+        concat = ArrayProto.concat,
+        toString = ObjProto.toString,
+        hasOwnProperty = ObjProto.hasOwnProperty;
+
+    // All **ECMAScript 5** native function implementations that we hope to use
+    // are declared here.
+    var
+    // nativeForEach = ArrayProto.forEach,
+    //     nativeMap = ArrayProto.map,
+    //     nativeReduce = ArrayProto.reduce,
+    //     nativeReduceRight = ArrayProto.reduceRight,
+    //     nativeFilter = ArrayProto.filter,
+    //     nativeEvery = ArrayProto.every,
+    //     nativeSome = ArrayProto.some,
+        nativeIndexOf = ArrayProto.indexOf,
+        nativeLastIndexOf = ArrayProto.lastIndexOf,
+        // nativeIsArray = Array.isArray,
+        // nativeKeys = Object.keys,
+        nativeBind = FuncProto.bind;
+
+    // Create a safe reference to the Underscore object for use below.
+    var _ = function(obj) {
+        if (obj instanceof _) return obj;
+        if (!(this instanceof _)) return new _(obj);
+        this._wrapped = obj;
+    };
+
+    // Export the Underscore object for **Node.js**, with
+    // backwards-compatibility for the old `require()` API. If we're in
+    // the browser, add `_` as a global object via a string identifier,
+    // for Closure Compiler "advanced" mode.
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            exports = module.exports = _;
+        }
+        exports._ = _;
+    } else {
+        root._ = _;
+    }
+
+    // Current version.
+    _.VERSION = '1.5.1';
+
+    var isEnumerable = _.isEnumerable = Type.isEnumerable;
+
+    // Collection Functions
+    // --------------------
+
+    // The cornerstone, an `each` implementation, aka `forEach`.
+    // Handles objects with the built-in `forEach`, arrays, and raw objects.
+    // Delegates to **ECMAScript 5**'s native `forEach` if available.
+    var each = _.each = _.forEach = function(obj, iterator, context) {
+        return (isEnumerable(obj) ? Array : Object).forEach(obj, iterator, context);
+    };
+
+    // Return the results of applying the iterator to each element.
+    // Delegates to **ECMAScript 5**'s native `map` if available.
+    _.map = _.collect = function(obj, iterator, context) {
+        return (isEnumerable(obj) ? Array : Object).map(obj, iterator, context);
+    };
+
+
+    // **Reduce** builds up a single result from a list of values, aka `inject`,
+    // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
+    _.reduce = _.foldl = _.inject = Array.reduce;
+
+    // The right-associative version of reduce, also known as `foldr`.
+    // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
+    _.reduceRight = _.foldr = Array.reduceRight;
+
+    // Return the first value which passes a truth test. Aliased as `detect`.
+    _.find = _.detect = function(obj, iterator, context) {
+        var result;
+        any(obj, function(value, index, list) {
+            if (iterator.call(context, value, index, list)) {
+                result = value;
+                return true;
+            }
+        });
+        return result;
+    };
+
+    // Return all the elements that pass a truth test.
+    // Delegates to **ECMAScript 5**'s native `filter` if available.
+    // Aliased as `select`.
+    _.filter = _.select = function(obj, iterator, context) {
+        return (isEnumerable(obj) ? Array : Object).filter(obj, iterator, context);
+    };
+
+    // Return all the elements for which a truth test fails.
+    _.reject = function(obj, iterator, context) {
+        return _.filter(obj, function(value, index, list) {
+            return !iterator.call(context, value, index, list);
+        }, context);
+    };
+
+    // Determine whether all of the elements match a truth test.
+    // Delegates to **ECMAScript 5**'s native `every` if available.
+    // Aliased as `all`.
+    _.every = _.all = function(obj, iterator, context) {
+        return (isEnumerable(obj) ? Array : Object).every(obj, iterator, context);
+    };
+
+    // Determine if at least one element in the object matches a truth test.
+    // Delegates to **ECMAScript 5**'s native `some` if available.
+    // Aliased as `any`.
+    var any = _.some = _.any = function(obj, iterator, context) {
+        return (isEnumerable(obj) ? Array : Object).some(obj, iterator, context);
+    };
+
+    // Determine if the array or object contains a given value (using `===`).
+    // Aliased as `include`.
+    _.contains = _.include = function(obj, target) {
+        if (obj == null) return false;
+        if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+        return any(obj, function(value) {
+            return value === target;
+        });
+    };
+
+    // Invoke a method (with arguments) on every item in a collection.
+    _.invoke = function(obj, method) {
+        var args = slice.call(arguments, 2);
+        var isFunc = _.isFunction(method);
+        return _.map(obj, function(value) {
+            return (isFunc ? method : value[method]).apply(value, args);
+        });
+    };
+
+    // Convenience version of a common use case of `map`: fetching a property.
+    _.pluck = function(obj, key) {
+        return _.map(obj, function(value) {
+            return value[key];
+        });
+    };
+
+    // Convenience version of a common use case of `filter`: selecting only objects
+    // containing specific `key:value` pairs.
+    _.where = function(obj, attrs, first) {
+        if (_.isEmpty(attrs)) return first ? void 0 : [];
+        return _[first ? 'find' : 'filter'](obj, function(value) {
+            for (var key in attrs) {
+                if (attrs[key] !== value[key]) return false;
+            }
+            return true;
+        });
+    };
+
+    // Convenience version of a common use case of `find`: getting the first object
+    // containing specific `key:value` pairs.
+    _.findWhere = function(obj, attrs) {
+        return _.where(obj, attrs, true);
+    };
+
+    // Return the maximum element or (element-based computation).
+    // Can't optimize arrays of integers longer than 65,535 elements.
+    // See [WebKit Bug 80797](https://bugs.webkit.org/show_bug.cgi?id=80797)
+    _.max = function(obj, iterator, context) {
+        if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+            return Math.max.apply(Math, obj);
+        }
+        if (!iterator && _.isEmpty(obj)) return -Infinity;
+        var result = {
+            computed: -Infinity,
+            value: -Infinity
+        };
+        each(obj, function(value, index, list) {
+            var computed = iterator ? iterator.call(context, value, index, list) : value;
+            computed > result.computed && (result = {
+                value: value,
+                computed: computed
+            });
+        });
+        return result.value;
+    };
+
+    // Return the minimum element (or element-based computation).
+    _.min = function(obj, iterator, context) {
+        if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+            return Math.min.apply(Math, obj);
+        }
+        if (!iterator && _.isEmpty(obj)) return Infinity;
+        var result = {
+            computed: Infinity,
+            value: Infinity
+        };
+        each(obj, function(value, index, list) {
+            var computed = iterator ? iterator.call(context, value, index, list) : value;
+            computed < result.computed && (result = {
+                value: value,
+                computed: computed
+            });
+        });
+        return result.value;
+    };
+
+    // Shuffle an array.
+    _.shuffle = function(obj) {
+        var rand;
+        var index = 0;
+        var shuffled = [];
+        each(obj, function(value) {
+            rand = _.random(index++);
+            shuffled[index - 1] = shuffled[rand];
+            shuffled[rand] = value;
+        });
+        return shuffled;
+    };
+
+    // An internal function to generate lookup iterators.
+    var lookupIterator = function(value) {
+        return _.isFunction(value) ? value : function(obj) {
+            return obj[value];
+        };
+    };
+
+    // Sort the object's values by a criterion produced by an iterator.
+    _.sortBy = function(obj, value, context) {
+        var iterator = lookupIterator(value);
+        return _.pluck(_.map(obj, function(value, index, list) {
+            return {
+                value: value,
+                index: index,
+                criteria: iterator.call(context, value, index, list)
+            };
+        }).sort(function(left, right) {
+            var a = left.criteria;
+            var b = right.criteria;
+            if (a !== b) {
+                if (a > b || a === void 0) return 1;
+                if (a < b || b === void 0) return -1;
+            }
+            return left.index < right.index ? -1 : 1;
+        }), 'value');
+    };
+
+    // An internal function used for aggregate "group by" operations.
+    var group = function(behavior) {
+        return function(obj, value, context) {
+            var result = {};
+            var iterator = value == null ? _.identity : lookupIterator(value);
+            each(obj, function(value, index) {
+                var key = iterator.call(context, value, index, obj);
+                behavior(result, key, value);
+            });
+            return result;
+        };
+    };
+
+    // Groups the object's values by a criterion. Pass either a string attribute
+    // to group by, or a function that returns the criterion.
+    _.groupBy = group(function(result, key, value) {
+        (_.has(result, key) ? result[key] : (result[key] = [])).push(value);
+    });
+
+    // Indexes the object's values by a criterion, similar to `groupBy`, but for
+    // when you know that your index values will be unique.
+    _.indexBy = group(function(result, key, value) {
+        result[key] = value;
+    });
+
+    // Counts instances of an object that group by a certain criterion. Pass
+    // either a string attribute to count by, or a function that returns the
+    // criterion.
+    _.countBy = group(function(result, key, value) {
+        _.has(result, key) ? result[key]++ : result[key] = 1;
+    });
+
+    // Use a comparator function to figure out the smallest index at which
+    // an object should be inserted so as to maintain order. Uses binary search.
+    _.sortedIndex = function(array, obj, iterator, context) {
+        iterator = iterator == null ? _.identity : lookupIterator(iterator);
+        var value = iterator.call(context, obj);
+        var low = 0,
+            high = array.length;
+        while (low < high) {
+            var mid = (low + high) >>> 1;
+            iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+        }
+        return low;
+    };
+
+    // Safely create a real, live array from anything iterable.
+    _.toArray = function(obj) {
+        if (!obj) return [];
+        if (_.isArray(obj)) return slice.call(obj);
+        if (obj.length === +obj.length) return _.map(obj, _.identity);
+        return _.values(obj);
+    };
+
+    // Return the number of elements in an object.
+    _.size = function(obj) {
+        if (obj == null) return 0;
+        return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+    };
+
+    // Array Functions
+    // ---------------
+
+    // Get the first element of an array. Passing **n** will return the first N
+    // values in the array. Aliased as `head` and `take`. The **guard** check
+    // allows it to work with `_.map`.
+    _.first = _.head = _.take = function(array, n, guard) {
+        if (array == null) return void 0;
+        return (n == null) || guard ? array[0] : slice.call(array, 0, n);
+    };
+
+    // Returns everything but the last entry of the array. Especially useful on
+    // the arguments object. Passing **n** will return all the values in
+    // the array, excluding the last N. The **guard** check allows it to work with
+    // `_.map`.
+    _.initial = function(array, n, guard) {
+        return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+    };
+
+    // Get the last element of an array. Passing **n** will return the last N
+    // values in the array. The **guard** check allows it to work with `_.map`.
+    _.last = function(array, n, guard) {
+        if (array == null) return void 0;
+        if ((n == null) || guard) {
+            return array[array.length - 1];
+        } else {
+            return slice.call(array, Math.max(array.length - n, 0));
+        }
+    };
+
+    // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+    // Especially useful on the arguments object. Passing an **n** will return
+    // the rest N values in the array. The **guard**
+    // check allows it to work with `_.map`.
+    _.rest = _.tail = _.drop = function(array, n, guard) {
+        return slice.call(array, (n == null) || guard ? 1 : n);
+    };
+
+    // Trim out all falsy values from an array.
+    _.compact = function(array) {
+        return _.filter(array, _.identity);
+    };
+
+    // Internal implementation of a recursive `flatten` function.
+    var flatten = function(input, shallow, output) {
+        if (shallow && _.every(input, _.isArray)) {
+            return concat.apply(output, input);
+        }
+        each(input, function(value) {
+            if (_.isArray(value) || _.isArguments(value)) {
+                shallow ? push.apply(output, value) : flatten(value, shallow, output);
+            } else {
+                output.push(value);
+            }
+        });
+        return output;
+    };
+
+    // Flatten out an array, either recursively (by default), or just one level.
+    _.flatten = function(array, shallow) {
+        return flatten(array, shallow, []);
+    };
+
+    // Return a version of the array that does not contain the specified value(s).
+    _.without = function(array) {
+        return _.difference(array, slice.call(arguments, 1));
+    };
+
+    // Produce a duplicate-free version of the array. If the array has already
+    // been sorted, you have the option of using a faster algorithm.
+    // Aliased as `unique`.
+    _.uniq = _.unique = function(array, isSorted, iterator, context) {
+        if (_.isFunction(isSorted)) {
+            context = iterator;
+            iterator = isSorted;
+            isSorted = false;
+        }
+        var initial = iterator ? _.map(array, iterator, context) : array;
+        var results = [];
+        var seen = [];
+        each(initial, function(value, index) {
+            if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {
+                seen.push(value);
+                results.push(array[index]);
+            }
+        });
+        return results;
+    };
+
+    // Produce an array that contains the union: each distinct element from all of
+    // the passed-in arrays.
+    _.union = function() {
+        return _.uniq(_.flatten(arguments, true));
+    };
+
+    // Produce an array that contains every item shared between all the
+    // passed-in arrays.
+    _.intersection = function(array) {
+        var rest = slice.call(arguments, 1);
+        return _.filter(_.uniq(array), function(item) {
+            return _.every(rest, function(other) {
+                return _.indexOf(other, item) >= 0;
+            });
+        });
+    };
+
+    // Take the difference between one array and a number of other arrays.
+    // Only the elements present in just the first array will remain.
+    _.difference = function(array) {
+        var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+        return _.filter(array, function(value) {
+            return !_.contains(rest, value);
+        });
+    };
+
+    // Zip together multiple lists into a single array -- elements that share
+    // an index go together.
+    _.zip = function() {
+        var length = _.max(_.pluck(arguments, "length").concat(0));
+        var results = new Array(length);
+        for (var i = 0; i < length; i++) {
+            results[i] = _.pluck(arguments, '' + i);
+        }
+        return results;
+    };
+
+    // Converts lists into objects. Pass either a single array of `[key, value]`
+    // pairs, or two parallel arrays of the same length -- one of keys, and one of
+    // the corresponding values.
+    _.object = function(list, values) {
+        if (list == null) return {};
+        var result = {};
+        for (var i = 0, length = list.length; i < length; i++) {
+            if (values) {
+                result[list[i]] = values[i];
+            } else {
+                result[list[i][0]] = list[i][1];
+            }
+        }
+        return result;
+    };
+
+    // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),
+    // we need this function. Return the position of the first occurrence of an
+    // item in an array, or -1 if the item is not included in the array.
+    // Delegates to **ECMAScript 5**'s native `indexOf` if available.
+    // If the array is large and already in sort order, pass `true`
+    // for **isSorted** to use binary search.
+    _.indexOf = function(array, item, isSorted) {
+        if (array == null) return -1;
+        var i = 0,
+            length = array.length;
+        if (isSorted) {
+            if (typeof isSorted == 'number') {
+                i = (isSorted < 0 ? Math.max(0, length + isSorted) : isSorted);
+            } else {
+                i = _.sortedIndex(array, item);
+                return array[i] === item ? i : -1;
+            }
+        }
+        if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);
+        for (; i < length; i++)
+            if (array[i] === item) return i;
+        return -1;
+    };
+
+    // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
+    _.lastIndexOf = function(array, item, from) {
+        if (array == null) return -1;
+        var hasIndex = from != null;
+        if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {
+            return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);
+        }
+        var i = (hasIndex ? from : array.length);
+        while (i--)
+            if (array[i] === item) return i;
+        return -1;
+    };
+
+    // Generate an integer Array containing an arithmetic progression. A port of
+    // the native Python `range()` function. See
+    // [the Python documentation](http://docs.python.org/library/functions.html#range).
+    _.range = function(start, stop, step) {
+        if (arguments.length <= 1) {
+            stop = start || 0;
+            start = 0;
+        }
+        step = arguments[2] || 1;
+
+        var length = Math.max(Math.ceil((stop - start) / step), 0);
+        var idx = 0;
+        var range = new Array(length);
+
+        while (idx < length) {
+            range[idx++] = start;
+            start += step;
+        }
+
+        return range;
+    };
+
+    // Function (ahem) Functions
+    // ------------------
+
+    // Reusable constructor function for prototype setting.
+    var ctor = function() {};
+
+    // Create a function bound to a given object (assigning `this`, and arguments,
+    // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+    // available.
+    _.bind = function(fn) {
+        return nativeBind.apply(fn, slice.call(arguments, 1));
+    };
+
+    // Partially apply a function by creating a version that has had some of its
+    // arguments pre-filled, without changing its dynamic `this` context.
+    _.partial = function(func) {
+        var args = slice.call(arguments, 1);
+        return function() {
+            return func.apply(this, args.concat(slice.call(arguments)));
+        };
+    };
+
+    // Bind all of an object's methods to that object. Useful for ensuring that
+    // all callbacks defined on an object belong to it.
+    _.bindAll = function(obj) {
+        var funcs = slice.call(arguments, 1);
+        if (funcs.length === 0) throw new Error("bindAll must be passed function names");
+        each(funcs, function(f) {
+            obj[f] = _.bind(obj[f], obj);
+        });
+        return obj;
+    };
+
+    // Memoize an expensive function by storing its results.
+    _.memoize = function(func, hasher) {
+        var memo = {};
+        hasher || (hasher = _.identity);
+        return function() {
+            var key = hasher.apply(this, arguments);
+            return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
+        };
+    };
+
+    // Delays a function for the given number of milliseconds, and then calls
+    // it with the arguments supplied.
+    _.delay = Function.delay;
+
+    // Defers a function, scheduling it to run after the current call stack has
+    // cleared.
+    _.defer = function(func) {
+        return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
+    };
+
+    // Returns a function, that, when invoked, will only be triggered at most once
+    // during a given window of time. Normally, the throttled function will run
+    // as much as it can, without ever going more than once per `wait` duration;
+    // but if you'd like to disable the execution on the leading edge, pass
+    // `{leading: false}`. To disable execution on the trailing edge, ditto.
+    _.throttle = function(func, wait, options) {
+        var context, args, result;
+        var timeout = null;
+        var previous = 0;
+        options || (options = {});
+        var later = function() {
+            previous = options.leading === false ? 0 : new Date;
+            timeout = null;
+            result = func.apply(context, args);
+        };
+        return function() {
+            var now = new Date;
+            if (!previous && options.leading === false) previous = now;
+            var remaining = wait - (now - previous);
+            context = this;
+            args = arguments;
+            if (remaining <= 0) {
+                clearTimeout(timeout);
+                timeout = null;
+                previous = now;
+                result = func.apply(context, args);
+            } else if (!timeout && options.trailing !== false) {
+                timeout = setTimeout(later, remaining);
+            }
+            return result;
+        };
+    };
+
+    // Returns a function, that, as long as it continues to be invoked, will not
+    // be triggered. The function will be called after it stops being called for
+    // N milliseconds. If `immediate` is passed, trigger the function on the
+    // leading edge, instead of the trailing.
+    _.debounce = function(func, wait, immediate) {
+        var result;
+        var timeout = null;
+        return function() {
+            var context = this,
+                args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) result = func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) result = func.apply(context, args);
+            return result;
+        };
+    };
+
+    // Returns a function that will be executed at most one time, no matter how
+    // often you call it. Useful for lazy initialization.
+    _.once = function(func) {
+        var ran = false,
+            memo;
+        return function() {
+            if (ran) return memo;
+            ran = true;
+            memo = func.apply(this, arguments);
+            func = null;
+            return memo;
+        };
+    };
+
+    // Returns the first function passed as an argument to the second,
+    // allowing you to adjust arguments, run code before and after, and
+    // conditionally execute the original function.
+    _.wrap = function(func, wrapper) {
+        return function() {
+            var args = [func];
+            push.apply(args, arguments);
+            return wrapper.apply(this, args);
+        };
+    };
+
+    // Returns a function that is the composition of a list of functions, each
+    // consuming the return value of the function that follows.
+    _.compose = function() {
+        var funcs = arguments;
+        return function() {
+            var args = arguments;
+            for (var i = funcs.length - 1; i >= 0; i--) {
+                args = [funcs[i].apply(this, args)];
+            }
+            return args[0];
+        };
+    };
+
+    // Returns a function that will only be executed after being called N times.
+    _.after = function(times, func) {
+        return function() {
+            if (--times < 1) {
+                return func.apply(this, arguments);
+            }
+        };
+    };
+
+    // Object Functions
+    // ----------------
+
+    // Retrieve the names of an object's properties.
+    // Delegates to **ECMAScript 5**'s native `Object.keys`
+    _.keys = Object.keys;
+
+    // Retrieve the values of an object's properties.
+    _.values = Object.values;
+
+    // Convert an object into a list of `[key, value]` pairs.
+    _.pairs = function(obj) {
+        var keys = _.keys(obj);
+        var length = keys.length;
+        var pairs = new Array(length);
+        for (var i = 0; i < length; i++) {
+            pairs[i] = [keys[i], obj[keys[i]]];
+        }
+        return pairs;
+    };
+
+    // Invert the keys and values of an object. The values must be serializable.
+    _.invert = function(obj) {
+        var result = {};
+        var keys = _.keys(obj);
+        for (var i = 0, length = keys.length; i < length; i++) {
+            result[obj[keys[i]]] = keys[i];
+        }
+        return result;
+    };
+
+    // Return a sorted list of the function names available on the object.
+    // Aliased as `methods`
+    _.functions = _.methods = function(obj) {
+        var names = [];
+        for (var key in obj) {
+            if (_.isFunction(obj[key])) names.push(key);
+        }
+        return names.sort();
+    };
+
+    // Extend a given object with all the properties in passed-in object(s).
+    _.extend = Object.append;
+
+    // Return a copy of the object only containing the whitelisted properties.
+    _.pick = function(obj) {
+        return Object.subset(obj, slice.call(arguments, 1));
+    };
+
+    // Return a copy of the object without the blacklisted properties.
+    _.omit = function(obj) {
+        var copy = {};
+        var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+        for (var key in obj) {
+            if (!_.contains(keys, key)) copy[key] = obj[key];
+        }
+        return copy;
+    };
+
+    // Fill in a given object with default properties.
+    _.defaults = function(obj) {
+        each(slice.call(arguments, 1), function(source) {
+            if (source) {
+                for (var prop in source) {
+                    if (obj[prop] === void 0) obj[prop] = source[prop];
+                }
+            }
+        });
+        return obj;
+    };
+
+    // Create a (shallow-cloned) duplicate of an object.
+    _.clone = function(obj) {
+        return (isEnumerable(obj) ? Array : Object).clone(obj);
+    };
+
+    // Invokes interceptor with the obj, and then returns obj.
+    // The primary purpose of this method is to "tap into" a method chain, in
+    // order to perform operations on intermediate results within the chain.
+    _.tap = function(obj, interceptor) {
+        interceptor(obj);
+        return obj;
+    };
+
+    // Internal recursive comparison function for `isEqual`.
+    var eq = function(a, b, aStack, bStack) {
+        // Identical objects are equal. `0 === -0`, but they aren't identical.
+        // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+        if (a === b) return a !== 0 || 1 / a == 1 / b;
+        // A strict comparison is necessary because `null == undefined`.
+        if (a == null || b == null) return a === b;
+        // Unwrap any wrapped objects.
+        if (a instanceof _) a = a._wrapped;
+        if (b instanceof _) b = b._wrapped;
+        // Compare `[[Class]]` names.
+        var className = toString.call(a);
+        if (className != toString.call(b)) return false;
+        switch (className) {
+            // Strings, numbers, dates, and booleans are compared by value.
+            case '[object String]':
+                // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+                // equivalent to `new String("5")`.
+                return a == String(b);
+            case '[object Number]':
+                // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+                // other numeric values.
+                return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
+            case '[object Date]':
+            case '[object Boolean]':
+                // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+                // millisecond representations. Note that invalid dates with millisecond representations
+                // of `NaN` are not equivalent.
+                return +a == +b;
+                // RegExps are compared by their source patterns and flags.
+            case '[object RegExp]':
+                return a.source == b.source &&
+                    a.global == b.global &&
+                    a.multiline == b.multiline &&
+                    a.ignoreCase == b.ignoreCase;
+        }
+        if (typeof a != 'object' || typeof b != 'object') return false;
+        // Assume equality for cyclic structures. The algorithm for detecting cyclic
+        // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+        var length = aStack.length;
+        while (length--) {
+            // Linear search. Performance is inversely proportional to the number of
+            // unique nested structures.
+            if (aStack[length] == a) return bStack[length] == b;
+        }
+        // Objects with different constructors are not equivalent, but `Object`s
+        // from different frames are.
+        var aCtor = a.constructor,
+            bCtor = b.constructor;
+        if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&
+            _.isFunction(bCtor) && (bCtor instanceof bCtor))) {
+            return false;
+        }
+        // Add the first object to the stack of traversed objects.
+        aStack.push(a);
+        bStack.push(b);
+        var size = 0,
+            result = true;
+        // Recursively compare objects and arrays.
+        if (className == '[object Array]') {
+            // Compare array lengths to determine if a deep comparison is necessary.
+            size = a.length;
+            result = size == b.length;
+            if (result) {
+                // Deep compare the contents, ignoring non-numeric properties.
+                while (size--) {
+                    if (!(result = eq(a[size], b[size], aStack, bStack))) break;
+                }
+            }
+        } else {
+            // Deep compare objects.
+            for (var key in a) {
+                if (_.has(a, key)) {
+                    // Count the expected number of properties.
+                    size++;
+                    // Deep compare each member.
+                    if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
+                }
+            }
+            // Ensure that both objects contain the same number of properties.
+            if (result) {
+                for (key in b) {
+                    if (_.has(b, key) && !(size--)) break;
+                }
+                result = !size;
+            }
+        }
+        // Remove the first object from the stack of traversed objects.
+        aStack.pop();
+        bStack.pop();
+        return result;
+    };
+
+    // Perform a deep comparison to check if two objects are equal.
+    _.isEqual = function(a, b) {
+        return eq(a, b, [], []);
+    };
+
+    // Is a given array, string, or object empty?
+    // An "empty" object has no enumerable own-properties.
+    _.isEmpty = function(obj) {
+        if (obj == null) return true;
+        if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
+        for (var key in obj)
+            if (_.has(obj, key)) return false;
+        return true;
+    };
+
+
+    // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+    each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+        _['is' + name] = function(obj) {
+            return toString.call(obj) == '[object ' + name + ']';
+        };
+    });
+
+    each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Element', 'Array', 'Object', 'Boolean'], function(name) {
+        _['is' + name] = Type['is' + name];
+    })
+
+    each(['Finite', 'NaN'], function(name) {
+        _['is' + name] = Number['is' + name];
+    })
+
+    // Is a given value equal to null?
+    _.isNull = function(obj) {
+        return obj === null;
+    };
+
+    // Is a given variable undefined?
+    _.isUndefined = function(obj) {
+        return obj === void 0;
+    };
+
+    // Shortcut function for checking if an object has a given property directly
+    // on itself (in other words, not on a prototype).
+    _.has = function(obj, key) {
+        return hasOwnProperty.call(obj, key);
+    };
+
+    // Utility Functions
+    // -----------------
+
+    // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+    // previous owner. Returns a reference to the Underscore object.
+    _.noConflict = function() {
+        root._ = previousUnderscore;
+        return this;
+    };
+
+    // Keep the identity function around for default iterators.
+    _.identity = function(value) {
+        return value;
+    };
+
+    // Run a function **n** times.
+    _.times = Number.times;
+
+    // Return a random integer between min and max (inclusive).
+    _.random = Number.random;
+
+    // List of HTML entities for escaping.
+    var entityMap = {
+        escape: {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;'
+        }
+    };
+    entityMap.unescape = _.invert(entityMap.escape);
+
+    // Regexes containing the keys and values listed immediately above.
+    var entityRegexes = {
+        escape: new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),
+        unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')
+    };
+
+    // Functions for escaping and unescaping strings to/from HTML interpolation.
+    _.each(['escape', 'unescape'], function(method) {
+        _[method] = function(string) {
+            if (string == null) return '';
+            return ('' + string).replace(entityRegexes[method], function(match) {
+                return entityMap[method][match];
+            });
+        };
+    });
+
+    // If the value of the named `property` is a function then invoke it with the
+    // `object` as context; otherwise, return it.
+    _.result = function(object, property) {
+        if (object == null) return void 0;
+        var value = object[property];
+        return _.isFunction(value) ? value.call(object) : value;
+    };
+
+    // Add your own custom functions to the Underscore object.
+
+    _.mixin = function(obj) {
+        each(_.functions(obj), function(name) {
+            var func = _[name] = obj[name];
+            _.prototype[name] = function() {
+                var args = [this._wrapped];
+                push.apply(args, arguments);
+                return result.call(this, func.apply(_, args));
+            };
+        });
+    }
+
+    // Generate a unique integer id (unique within the entire client session).
+    // Useful for temporary DOM ids.
+    _.uniqueId = String.uniqueID;
+
+    // By default, Underscore uses ERB-style template delimiters, change the
+    // following template settings to use alternative delimiters.
+    _.templateSettings = {
+        evaluate: /<%([\s\S]+?)%>/g,
+        interpolate: /<%=([\s\S]+?)%>/g,
+        escape: /<%-([\s\S]+?)%>/g
+    };
+
+    // When customizing `templateSettings`, if you don't want to define an
+    // interpolation, evaluation or escaping regex, we need one that is
+    // guaranteed not to match.
+    var noMatch = /(.)^/;
+
+    // Certain characters need to be escaped so that they can be put into a
+    // string literal.
+    var escapes = {
+        "'": "'",
+        '\\': '\\',
+        '\r': 'r',
+        '\n': 'n',
+        '\t': 't',
+        '\u2028': 'u2028',
+        '\u2029': 'u2029'
+    };
+
+    var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+
+    // JavaScript micro-templating, similar to John Resig's implementation.
+    // Underscore templating handles arbitrary delimiters, preserves whitespace,
+    // and correctly escapes quotes within interpolated code.
+    _.template = function(text, data, settings) {
+        var render;
+        settings = _.defaults({}, settings, _.templateSettings);
+
+        // Combine delimiters into one regular expression via alternation.
+        var matcher = new RegExp([
+            (settings.escape || noMatch).source, (settings.interpolate || noMatch).source, (settings.evaluate || noMatch).source
+        ].join('|') + '|$', 'g');
+
+        // Compile the template source, escaping string literals appropriately.
+        var index = 0;
+        var source = "__p+='";
+        text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+            source += text.slice(index, offset)
+                .replace(escaper, function(match) {
+                    return '\\' + escapes[match];
+                });
+
+            if (escape) {
+                source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+            }
+            if (interpolate) {
+                source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+            }
+            if (evaluate) {
+                source += "';\n" + evaluate + "\n__p+='";
+            }
+            index = offset + match.length;
+            return match;
+        });
+        source += "';\n";
+
+        // If a variable is not specified, place data values in local scope.
+        if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+        source = "var __t,__p='',__j=Array.prototype.join," +
+            "print=function(){__p+=__j.call(arguments,'');};\n" +
+            source + "return __p;\n";
+
+        try {
+            render = new Function(settings.variable || 'obj', '_', source);
+        } catch (e) {
+            e.source = source;
+            throw e;
+        }
+
+        if (data) return render(data, _);
+        var template = function(data) {
+            return render.call(this, data, _);
+        };
+
+        // Provide the compiled function source as a convenience for precompilation.
+        template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+
+        return template;
+    };
+
+    // Add a "chain" function, which will delegate to the wrapper.
+    _.chain = function(obj) {
+        return _(obj).chain();
+    };
+
+    // OOP
+    // ---------------
+    // If Underscore is called as a function, it returns a wrapped object that
+    // can be used OO-style. This wrapper holds altered versions of all the
+    // underscore functions. Wrapped objects may be chained.
+
+    // Helper function to continue chaining intermediate results.
+    var result = function(obj) {
+        return this._chain ? _(obj).chain() : obj;
+    };
+
+    // Add all of the Underscore functions to the wrapper object.
+    _.mixin(_);
+
+    // Add all mutator Array functions to the wrapper.
+    each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+        var method = ArrayProto[name];
+        _.prototype[name] = function() {
+            var obj = this._wrapped;
+            method.apply(obj, arguments);
+            if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];
+            return result.call(this, obj);
+        };
+    });
+
+    // Add all accessor Array functions to the wrapper.
+    each(['concat', 'join', 'slice'], function(name) {
+        var method = ArrayProto[name];
+        _.prototype[name] = function() {
+            return result.call(this, method.apply(this._wrapped, arguments));
+        };
+    });
+
+    _.extend(_.prototype, {
+
+        // Start chaining a wrapped Underscore object.
+        chain: function() {
+            this._chain = true;
+            return this;
+        },
+
+        // Extracts the result from a wrapped and chained object.
+        value: function() {
+            return this._wrapped;
+        }
+
+    });
+
+}).call(this);
+/*
+ A collection of functional helpers for underscore
+
+*/
+
+; (function(_, undefined) {
+
+    var //+ ECMAsplit :: String -> Int -> String
+    // ECMAsplit is an ECMAScript-compliant `split`, although only for
+    // one argument.
+    //uses the function if String.prototype.split isnt compliant
+    ECMAspit = ('ab'.split(/a*/).length) > 1 ? String.prototype.split : function(separator, limit) {
+            if (typeof limit != 'undefined') {
+                throw "ECMAsplit: limit is unimplemented";
+            }
+            var result = this.split.apply(this, arguments),
+                re = RegExp(separator),
+                savedIndex = re.lastIndex,
+                match = re.exec(this);
+            if (match && match.index == 0) {
+                result.unshift('');
+            }
+            re.lastIndex = savedIndex;
+            return result;
+        },
+
+        //+ stringLambda :: _ -> f
+        stringLambda = function(str) {
+            var params = [],
+                expr = str,
+                sections = ECMAspit.call(expr, /\s*->\s*/m);
+            if (sections.length > 1) {
+                while (sections.length) {
+                    expr = sections.pop();
+                    params = sections.pop().split(/\s*,\s*|\s+/m);
+                    sections.length && sections.push('(function(' + params + '){return (' + expr + ')})');
+                }
+            } else if (expr.match(/\b_\b/)) {
+                params = '_';
+            } else {
+                var leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m),
+                    rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
+                if (leftSection || rightSection) {
+                    if (leftSection) {
+                        params.push('$1');
+                        expr = '$1' + expr;
+                    }
+                    if (rightSection) {
+                        params.push('$2');
+                        expr = expr + '$2';
+                    }
+                } else {
+                    var regex = /(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g,
+                        vars = str.replace(regex, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
+                    for (var i = 0, v; v = vars[i++];)
+                    params.indexOf(v) >= 0 || params.push(v);
+                }
+            }
+            return new Function(params, 'return (' + expr + ')');
+        },
+
+        //+ stringToFunction :: _ -> f
+        stringToFunction = function(str) {
+            if (str.match(/\breturn\b/)) {
+                return new Function(str);
+            }
+            return stringLambda(str);
+        };
+
+    var functional = _.func = {},
+        slice = Array.prototype.slice,
+        concat = Array.prototype.concat;
+
+    _.each(['each', 'map', 'filter', 'some', 'every', 'find', 'sortBy', 'groupBy', 'invoke', 'lookup'], function(name) { //useful for partials
+        functional[name] = function(fn, list) {
+            return _[name].apply(this, [list, fn].concat(slice.call(arguments, 2))); //could just call _.flip
+        };
+    });
+
+    _.mixin({
+        autoCurry: function(fn, numArgs) {
+            numArgs = numArgs || fn.length;
+            return function wrapper(prev_args) {
+                return function() {
+                    var args = concat.call(prev_args, slice.call(arguments));
+                    return args.length < numArgs ? wrapper(args) : fn.apply(this, args);
+                };
+            }([]);
+        },
+
+        //+ until :: a -> f -> (b -> c)
+        //keep calling til a test passes
+        until: function(pred, fn) {
+            fn = _.lambda(fn);
+            pred = _.lambda(pred);
+            return function(value) {
+                while (!pred.call(this, value)) {
+                    value = fn.call(this, value);
+                }
+                return value;
+            };
+        },
+
+        merge: Object.merge,
+
+        //f(a,b//) -> f(b,a..)
+        flip: function(f) {
+            return function() {
+                var args = Array.from(arguments);
+                args = args.slice(1, 2).concat(args.slice(0, 1)).concat(args.slice(2));
+                return f.apply(null, args);
+            };
+        },
+
+        //+ and :: _ -> (_ -> Bool)
+        and: function() {
+            var args = _.map(arguments, _.identity);
+            return function() {
+                var theseargs = arguments;
+                return _.every(args, function(arg) {
+                    return _.lambda(arg).apply(this, theseargs);
+                }, this);
+            };
+        },
+
+        //+ or :: _ -> (_ -> Bool)
+        or: function() {
+            var args = _.map(arguments, _.identity);
+            return function() {
+                var theseargs = arguments;
+                return _.some(args, function(arg) {
+                    return _.lambda(arg).apply(this, theseargs);
+                }, this);
+            };
+        },
+
+        //+ not :: f -> (_ -> Bool)
+        not: function(fn) {
+            fn = _.lambda(fn);
+            return function() {
+                return !fn.apply(this, arguments);
+            };
+        },
+
+        lambda: function(obj) {
+            if (_.isFunction(obj)) return obj;
+            else if (_.isString(obj)) return stringToFunction(obj);
+            else return _.toFunction(obj);
+        },
+
+        toFunction: Function.from,
+
+        arrayarize: Array.from,
+
+        toInt: Number.toInt,
+
+        //https://gist.github.com/rjz/2815273
+        assign: function(obj, key, value) {
+            var keys = key.split('.'),
+                cur, ptr = obj;
+
+            while ((cur = keys.shift()) && keys.length) {
+                if (!_.isObject(ptr[cur])) {
+                    ptr[cur] = {};
+                }
+                ptr = ptr[cur];
+            }
+            ptr[cur] = value;
+            return obj;
+        },
+
+        lookup: function (obj, key){
+            var type = typeof key;
+            if (type == 'string' || type == "number") key = (""+key).split('.');
+            for (var i = 0, l = key.length; i < l; i++){
+                if (hasOwnProperty.call(obj, key[i])) obj = obj[key[i]];
+                else return undefined;
+            }
+            return obj;
+        },
+
+        item: function(xs, n) {
+            return xs == null ? null : xs[n];
+        },
+        last: Array.getLast
+    });
+
+})(this._);
+
 (function() {
 
     Array.implement({
@@ -10932,9 +12243,6 @@ Handlebars.template = Handlebars.VM.template;
         /*
         Returns the item at index n
         */
-        item: function(n) {
-            return this[n];
-        },
 
         //returns next item in array with overflow
         next: function(pos, dir) {
@@ -10948,11 +12256,6 @@ Handlebars.template = Handlebars.VM.template;
             return this[index];
         }
 
-        // rest: function(n) {
-        //     return this.slice(n || 1 /*, this.length*/ );
-        // }
-    }).extend({
-        isArray: Type.isArray
     });
 
     String.implement({
@@ -10989,7 +12292,7 @@ Handlebars.template = Handlebars.VM.template;
         // if (items.length >= max) {
         //     newitems.push(items.slice(max - 1).join(by));
         // }
-		
+	
 		//see es6 spec
         startsWith: function(what, pos) {
             return this.slice((pos || 0), what.length) == what;
@@ -10999,137 +12302,25 @@ Handlebars.template = Handlebars.VM.template;
         }
     })
     .extend({
-        escapeHTML: Handlebars.Utils.escapeExpression
+        escapeHTML: _.escape
     });
-
-    if(!Object.equal) {
-        var eq = function(a, b, stack) {//this is Epitome.isEqual I just moved it here
-            // this is a modified version of eq func from _.js
-
-            // Identical objects are equal. `0 === -0`, but they aren't identical.
-            // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
-            // stack = stack || [];
-
-            if (a === b) return a !== 0 || 1 / a == 1 / b;
-
-            // A strict comparison is necessary because `null == undefined`.
-            if (a == null || b == null) return a === b;
-
-            // use MooTools types instead of toString.call(a),
-            // this fixes FF returning [xpconnect wrapped native prototype] for all w/ MooTools
-            var typeA = typeOf(a),
-                typeB = typeOf(b);
-
-            if (typeA != typeB) return false;
-
-            switch (typeA) {
-                // Strings, numbers, dates, and booleans are compared by value.
-                case 'string':
-                    // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-                    // equivalent to `new String("5")`.
-                    return a == String(b);
-                case 'number':
-                    // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
-                    // other numeric values.
-                    return a != +a ? b != +b : (a === 0 ? 1 / a == 1 / b : a == +b);
-                case 'date':
-                case 'boolean':
-                    // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-                    // millisecond representations. Note that invalid dates with millisecond representations
-                    // of `NaN` are not equivalent.
-                    return +a == +b;
-                    // RegExps are compared by their source patterns and flags.
-                case 'regexp':
-                    return a.source == b.source &&
-                        a.global == b.global &&
-                        a.multiline == b.multiline &&
-                        a.ignoreCase == b.ignoreCase;
-            }
-
-            if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-            // Assume equality for cyclic structures. The algorithm for detecting cyclic
-            // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-            var length = stack.length;
-            while (length--) {
-                // Linear search. Performance is inversely proportional to the number of
-                // unique nested structures.
-                if (stack[length] == a) return true;
-            }
-
-            // Add the first object to the stack of traversed objects.
-            stack.push(a);
-            var size = 0,
-                result = true;
-            // Recursively compare objects and arrays.
-            if (typeA == 'array') {
-                // Compare array lengths to determine if a deep comparison is necessary.
-                size = a.length;
-                result = size == b.length;
-                if (result) {
-                    // Deep compare the contents, ignoring non-numeric properties.
-                    while (size--) {
-                        // Ensure commutative equality for sparse arrays.
-                        if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
-                    }
-                }
-            } else {
-                // Objects with different constructors are not equivalent.
-                if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
-                // Deep compare objects.
-                for (var key in a) {
-                    if (a.hasOwnProperty(key)) {
-                        // Count the expected number of properties.
-                        size++;
-                        // Deep compare each member.
-                        if (!(result = b.hasOwnProperty(key) && eq(a[key], b[key], stack))) break;
-                    }
-                }
-                // Ensure that both objects contain the same number of properties.
-                if (result) {
-                    for (key in b) {
-                        if (b.hasOwnProperty(key) && !(size--)) break;
-                    }
-                    result = !size;
-                }
-            }
-
-            // Remove the first object from the stack of traversed objects.
-            stack.pop();
-            return result;
-        }
-        Object.equal = function() {
-            var args = arguments;
-            if(args.length > 1) {
-                for (var comp = args[0], stack = [], i = args.length - 1; i >= 0; i--) {
-                    if(!eq(args[i], comp, stack))
-                        return false;
-                }
-            }
-            return true;
-        }
-    }
 
 
     Object.extend({
-        get: Object.getFromPath,
+        // get: Object.getFromPath,
 
-        set: function(object, path, value) {
-            path = (typeof path == 'string') ? path.split('.') : path.slice(0);
-            var key = path.pop(),
-                len = path.length,
-                i = 0,
-                current;
-            while (len--) {
-                current = path[i++];
-                object = current in object ? object[current] : (object[current] = {});
-            }
-            object[key] = value;
-        },
-
-        isEmpty: function(hash) {
-            return Object.getLength(hash) === 0;
-        }
+        // set: function(object, path, value) {
+        //     path = (typeof path == 'string') ? path.split('.') : path.slice(0);
+        //     var key = path.pop(),
+        //         len = path.length,
+        //         i = 0,
+        //         current;
+        //     while (len--) {
+        //         current = path[i++];
+        //         object = current in object ? object[current] : (object[current] = {});
+        //     }
+        //     object[key] = value;
+        // },
     });
 
 
@@ -11227,41 +12418,53 @@ Handlebars.template = Handlebars.VM.template;
 
     });
 
-    //By Eli Grey, https://gist.github.com/eligrey/1276030
-    if (this.document && !("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
-        HTMLElement.implement("insertAdjacentHTML", function(position, html) {
-            var ref = this,
-                container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
-                ref_parent = ref.parentNode,
-                node, first_child, next_sibling;
+    if (this.document) {
+        //By Eli Grey, https://gist.github.com/eligrey/1276030
+        if(!("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
+            HTMLElement.implement("insertAdjacentHTML", function(position, html) {
+                var ref = this,
+                    container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
+                    ref_parent = ref.parentNode,
+                    node, first_child, next_sibling;
 
-            container.innerHTML = html;
+                container.innerHTML = html;
 
-            switch (position.toLowerCase()) {
-                case "beforebegin":
-                    while ((node = container.firstChild)) {
-                        ref_parent.insertBefore(node, ref);
-                    }
-                    break;
-                case "afterbegin":
-                    first_child = ref.firstChild;
-                    while ((node = container.lastChild)) {
-                        first_child = ref.insertBefore(node, first_child);
-                    }
-                    break;
-                case "beforeend":
-                    while ((node = container.firstChild)) {
-                        ref.appendChild(node);
-                    }
-                    break;
-                case "afterend":
-                    next_sibling = ref.nextSibling;
-                    while ((node = container.lastChild)) {
-                        next_sibling = ref_parent.insertBefore(node, next_sibling);
-                    }
-                    break;
-            }
-        });
+                switch (position.toLowerCase()) {
+                    case "beforebegin":
+                        while ((node = container.firstChild)) {
+                            ref_parent.insertBefore(node, ref);
+                        }
+                        break;
+                    case "afterbegin":
+                        first_child = ref.firstChild;
+                        while ((node = container.lastChild)) {
+                            first_child = ref.insertBefore(node, first_child);
+                        }
+                        break;
+                    case "beforeend":
+                        while ((node = container.firstChild)) {
+                            ref.appendChild(node);
+                        }
+                        break;
+                    case "afterend":
+                        next_sibling = ref.nextSibling;
+                        while ((node = container.lastChild)) {
+                            next_sibling = ref_parent.insertBefore(node, next_sibling);
+                        }
+                        break;
+                }
+            });
+        }
+        if(!(Type.isFunction(document.hasFocus))) {//crude focus polyfill
+            var focus = true;
+            window.addEvents({
+                focus: function() {focus = true},
+                blur: function() {focus = false}
+            });
+            document.hasFocus = function() {
+                return focus;
+            };
+        }
     }
 
     this.$lambda = Function.from;
@@ -11280,20 +12483,12 @@ Handlebars.template = Handlebars.VM.template;
         return (obj != null);
     };
 
-    this.$each = function(iterable, fn, bind) {
-        var type = typeOf(iterable);
-        ((type == 'arguments' || type == 'collection' || type == 'array' || type == 'elements') ? Array : Object).each(iterable, fn, bind);
-    };
-
     this.$empty = function() {};
-
-    this.$extend = function(original, extended) {
-        return Object.append(original, extended);
-    };
 
     this.$A = Array.from;
 
 })();
+
 //adapted version to use native parser if available
 
 //Changes from Mootools spec: excludeScripts defaults to to false because fuck you
@@ -11536,7 +12731,7 @@ Copyright (c) 2010 Arieh Glazer
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: false,
+            autoescape: true,
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
@@ -11590,33 +12785,17 @@ Copyright (c) 2010 Arieh Glazer
                             // Make link.
                             if (url) {
                                 var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
-                                if (options.autoescape) {
-                                    // XXX: Assuming autoscape == false
-                                    parsed.lead = String.escapeHTML(parsed.lead);
-                                    parsed.end = String.escapeHTML(parsed.end);
-                                    url = String.escapeHTML(url);
-                                    trimmed = String.escapeHTML(trimmed);
-                                }
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
-                            } else {
-                                if (options.autoescape) {
-                                    word = String.escapeHTML(word);
-                                }
                             }
                         } else if (options.autoescape) {
-                            word = String.escapeHTML(word);
+                            word = _.escape(word);
                         }
                         return word;
                     }
-                })
+                });
             }
         },
-
-        htmlescape: Handlebars.Utils.escapeExpression,//shhh its here and its better than below one
-        // htmlescape: function(string) {//from underscore
-        //     return (''+string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g,'&#x2F;');
-        // },
 
         // Quotes a URL if it isn't already quoted.
         urlquote: function(url) {
@@ -11630,23 +12809,25 @@ Copyright (c) 2010 Arieh Glazer
             }
         },
 
-        //shut up i know it exists and its better than what was here before
         parse: function(text) {
             var self = this,
-                result = text.split(" "),
+                result = (self.options.autoescape ? _.escape(text) : text).split(" "),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
-                });
+                }),
 
-            function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                i = result.length - 1, item;
+
+            function parseWord(pattern) {
+                item = result[i];
                 if (pattern.pattern.test(item)) {
                     result[i] = pattern.parse.call(self, item);
+                    return result[i] !== item;
                 }
             }
 
-            for (var i = result.length - 1, item; i >= 0; i--) {
-                item = result[i];
-                funcs.each(parseWord);
+            for (; i >= 0; i--) {
+                funcs.some(parseWord);//one pattern per word or it gets too complicated
             };
             result = result.join(" ")
             self.patterns.each(function(pattern) {
@@ -11720,7 +12901,7 @@ Copyright (c) 2010 Arieh Glazer
         url_improved: /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/,//matches anything thats urlish- even bit.ly/a
         simple_email: /^\S+@\S+\.\S+$/,
         unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
-        server: /\:(\d{2})/
+        server: /(\:(\d{2}))|(qwebirc\:\/)/
     }
 
 })(this);
@@ -11840,516 +13021,2212 @@ Fx.AutoScroll = new Class({
     }
 });
 
-//functional js adapted library. read the comments in the osteels library for better comments on functions and examples
-// source: 
+// MooTools: the javascript framework.
+// Load this file's selection again by visiting: http://mootools.net/more/db53fa168c584b0b434828eef6a9d4b3 
+// Or build this file again with packager using: packager build More/Table More/Mask
 /*
- * Author: Oliver Steele
- * Copyright: Copyright 2007 by Oliver Steele.  All rights reserved.
- * License: MIT License
- * Homepage: http://osteele.com/javascripts/functional
- * Created: 2007-07-11
- * Version: 1.0.2
- *
- *
- * This file defines some higher-order methods and functions for
- * functional and function-level programming.
- */
+---
+name: Table
+description: LUA-Style table implementation.
+license: MIT-style license
+authors:
+  - Valerio Proietti
+requires: [Core/Array]
+provides: [Table]
+...
+*/
 
- //todo moo version
-; var Functional = (function(parent, undefined) {
-    // TODO see if '_' can be removed without breaking partial() function
-    //- _ :: used for partial() function
-    var _ = parent._ = Function._ = {},
+(function(){
 
-        unshift = function(xs, i) {
-            Array.unshift(xs, i);
-            return xs;
-        },
+var Table = this.Table = function(){
 
-        //- from wu.js <http://fitzgen.github.com/wu.js/>
-        //+ curry :: f -> ? -> g
-        curry = function(fn /* variadic number of args */ ) {
-            var args = Array.slice(arguments, 1);
-            curried = function() {
-                return fn.apply(this, args.concat(Array.from(arguments)));
-            };
-            ////sugar for console
-            // curried.toString = function() {
-            //     return fn.toString();
-            // };
-            curried.curried = true;
-            return curried;
-        },
+    this.length = 0;
+    var keys = [],
+        values = [];
+    
+    this.set = function(key, value){
+        var index = keys.indexOf(key);
+        if (index == -1){
+            var length = keys.length;
+            keys[length] = key;
+            values[length] = value;
+            this.length++;
+        } else {
+            values[index] = value;
+        }
+        return this;
+    };
 
-        //- from wu.js <http://fitzgen.github.com/wu.js/>
-        //+ autoCurry :: f -> Int -> g
-        autoCurry = function(fn, numArgs, bind) {
-            numArgs = numArgs || fn.length;
-            curried = function() {
-                bind = bind || this;
-                if (arguments.length < numArgs) {
-                    return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(arguments, fn)), numArgs - arguments.length) : 
-                                                                    curry.apply(bind, unshift(arguments, fn));
-                } else {
-                    return fn.apply(bind, arguments);
-                }
-            };
-            //sugar for console 
-            curried.toString = function() {
-                return fn.toString();
-            };
-            curried.curried = true;
-            return curried;
-        },
+    this.get = function(key){
+        var index = keys.indexOf(key);
+        return (index == -1) ? null : values[index];
+    };
 
-        //+ decorateFunctionPrototypeWithCurry :: IO
-        decorateFunctionPrototypeWithCurry = (function() {
-            Function.prototype.autoCurry = function(n) {
-                return autoCurry(this, n);
-            }
+    this.erase = function(key){
+        var index = keys.indexOf(key);
+        if (index != -1){
+            this.length--;
+            keys.splice(index, 1);
+            return values.splice(index, 1)[0];
+        }
+        return null;
+    };
 
-            Function.prototype.curry = function( /*args...*/ ) {
-                return curry.apply(this, unshift(arguments, this)); //[this].concat(Array.from(arguments)));
-            }
+    this.each = this.forEach = function(fn, bind){
+        for (var i = 0, l = this.length; i < l; i++) fn.call(bind, keys[i], values[i], this);
+    };
+    
+};
 
-        })(),
+if (this.Type) new Type('Table', Table);
 
-        //+ map :: f -> [a] -> [b]
-        map = function(fn, sequence, bind) {
-            fn = Function.toFunction(fn);
-            return Array.map(sequence, fn, bind);
-        }.autoCurry(2),
+})();
 
-        //+ compose :: f -> g -> h 
-        compose = function() {
-            var fns = map(Function.toFunction, arguments),
-                arglen = fns.length;
-            return function() {
-                for (var i = arglen; --i >= 0;) {
-                    arguments = [fns[i].apply(this, arguments)];
-                }
-                return arguments[0];
-            };
-        },
 
-        //+ sequence :: f -> g -> h
-        sequence = function() {
-            var fns = map(Function.toFunction, arguments),
-                arglen = fns.length;
-            return function() {
-                var i;
-                for (i = 0; i < arglen; i++) {
-                    arguments = [fns[i].apply(this, arguments)];
-                }
-                return arguments[0];
-            };
-        },
 
-        //+ memoize :: f -> g
-        //good shit :D http://jsperf.com/comparison-of-memoization-implementations/28
-        memoize = function(fn) {
-            return function() {
-                var args = Array.from(arguments),
-                    //Array.prototype.slice.call(arguments),
-                    hash = "",
-                    i = args.length;
-                currentArg = null;
-                while (i--) {
-                    currentArg = args[i];
-                    hash += (currentArg === Object(currentArg)) ? JSON.stringify(currentArg) : currentArg;
-                    fn.memoize || (fn.memoize = {});
-                }
-                return (hash in fn.memoize) ? fn.memoize[hash] : fn.memoize[hash] = fn.apply(this, args);
-            };
-        },
 
-        // //+ reduce :: f -> a -> [a] -> a
-        // reduce = function(fn, init, sequence) {
-        //     var len = sequence.length,
-        //         result = init,
-        //         i;
-        //     fn = Function.toFunction(fn);
-        //     for (i = 0; i < len; i++) {
-        //         result = fn.apply(null, [result, sequence[i]]);
-        //     }
-        //     return result;
-        // }.autoCurry(),
+/*
+---
 
-        //+ select :: f -> [a] -> [a]
-        select = function(fn, sequence, bind) {
-            // var len = sequence.length,
-            //     result = [],
-            //     i, x;
-            // fn = Function.toFunction(fn);
-            // for (i = 0; i < len; i++) {
-            //     x = sequence[i];
-            //     fn.apply(null, [x, i]) && result.push(x);
-            // }
-            // return result;
-            return Array.filter(sequence, fn, bind);
-        }.autoCurry(2),
+script: Class.Occlude.js
 
-        //+ guard :: (_ -> Bool) -> f -> g -> h
-        guard = function(guard, fn, otherwise) {
-            guard = Function.toFunction(guard || I);
-            fn = Function.toFunction(fn);
-            otherwise = Function.toFunction(otherwise || I);
-            return function() {
-                return (guard.apply(this, arguments) ? fn : otherwise).apply(this, arguments);
-            };
-        }.autoCurry(),
+name: Class.Occlude
 
-        //+ flip :: f -> g 
-        flip = function(f) {
-            return function() {
-                var args = Array.from(arguments);
-                args = args.slice(1, 2).concat(args.slice(0, 1)).concat(args.slice(2));
-                return f.apply(null, args);
-            };
-        },
+description: Prevents a class from being applied to a DOM element twice.
 
-        // //+ foldr :: f -> a -> [a] -> a
-        // foldr = function(fn, init, sequence) {
-        //     var len = sequence.length,
-        //         result = init,
-        //         i;
-        //     fn = Function.toFunction(fn);
-        //     for (i = len; --i >= 0;) {
-        //         result = fn.apply(null, [sequence[i], result]);
-        //     }
-        //     return result;
-        // }.autoCurry(),
+license: MIT-style license.
 
-        //+ and :: _ -> (_ -> Bool)
-        and = function() {
-            var args = map(Function.toFunction, arguments),
-                arglen = args.length;
-            return function() {
-                var value = true,
-                    i;
-                for (i = 0; i < arglen; i++) {
-                    if (!(value = args[i].apply(this, arguments))) break;
-                }
-                return !!value;
-            };
-        },
+authors:
+  - Aaron Newton
 
-        //+ or :: _ -> (_ -> Bool)
-        or = function() {
-            var args = map(Function.toFunction, arguments),
-                arglen = args.length;
-            return function() {
-                var value = false,
-                    i;
-                for (i = 0; i < arglen; i++) {
-                    if ((value = args[i].apply(this, arguments))) break;
-                }
-                return !!value;
-            };
-        },
+requires:
+  - Core/Class
+  - Core/Element
+  - /MooTools.More
 
-        // //+ some :: f -> [a] -> Bool
-        // some = function(fn, sequence) {
-        //     fn = Function.toFunction(fn);
-        //     var len = sequence.length,
-        //         value = false,
-        //         i;
-        //     for (i = 0; i < len; i++) {
-        //         if ((value = fn.call(this, sequence[i]))) break;
-        //     }
-        //     return value;
-        // }.autoCurry(),
+provides: [Class.Occlude]
 
-        // //+ every :: f -> [a] -> Bool
-        // every = function(fn, sequence) {
-        //     fn = Function.toFunction(fn);
-        //     var len = sequence.length,
-        //         value = true,
-        //         i;
-        //     for (i = 0; i < len; i++) {
-        //         if (!(value = fn.call(this, sequence[i]))) break;
-        //     }
-        //     return value;
-        // }.autoCurry(),
+...
+*/
 
-        //+ not :: f -> (_ -> Bool)
-        not = function(fn) {
-            fn = Function.toFunction(fn);
-            return function() {
-                return !fn.apply(this, arguments);
-            };
-        },
+Class.Occlude = new Class({
 
-        //Determines whether all arguments are equal to the first argument x
-        //eq(1)(1,2,3) => false
-        //eq(1)(1,1,1) => true
-        //eq(1,1,1,1,2)=>false
-        // eq = function(x) {
-        //     var equal = function() {
-        //             return every(function(t) {
-        //                 return x === t;
-        //             }, arguments);
-        //         };
-        //     return arguments.length === 1 ? equal : equal.apply(this, arguments); //if 1 arg returns curried function otherwise compares immediately
-        // },
+    occlude: function(property, element){
+        element = document.id(element || this.element);
+        var instance = element.retrieve(property || this.property);
+        if (instance && !this.occluded)
+            return (this.occluded = instance);
 
-        //+ equal :: _ -> (_ -> Bool)
-        equal = function() {
-            var arglen = arguments.length,
-                args = map(Function.toFunction, arguments);
-            if (!arglen) {
-                return K(true);
-            }
-            return function() {
-                var value = args[0].apply(this, arguments),
-                    i;
-                for (i = 1; i < arglen; i++) {
-                    if (value != args[i].apply(this, args)) return false;
-                }
-                return true;
-            };
-        },
-
-        //+ lamda :: a -> f
-        lambda = function(object) {
-            return object.toFunction();
-        },
-
-        //+ invoke :: String -> (a -> b)
-        invoke = function(methodName) {
-            var args = Array.slice(arguments, 1);
-            return function(object) {
-                return object[methodName].apply(object, Array.slice(arguments, 1).concat(args));
-            };
-        },
-
-        //+ pluck :: String -> a -> b
-        pluck = function(name, obj) {
-            return obj[name];
-        }.autoCurry(),
-
-        //+ until :: a -> f -> (b -> c)
-        until = function(pred, fn) {
-            fn = Function.toFunction(fn);
-            pred = Function.toFunction(pred);
-            return function(value) {
-                while (!pred.call(this, value)) {
-                    value = fn.call(this, value);
-                }
-                return value;
-            }
-        }.autoCurry(),
-
-        //+ zip :: (List ...) => [a] -> [b] -> ... -> [[a, b, ...]]
-        zip = function() {
-            var n = Math.min.apply(this, map('.length', arguments)),
-                results = new Array(n),
-                key, i;
-            for (i = 0; i < n; i++) {
-                key = String(i);
-                results[key] = map(pluck(key), arguments);
-            };
-            return results;
-        },
-
-        //+ I :: a -> a
-        I = function(x) {
-            return x;
-        },
-
-        //+ K :: a -> (_ -> a)
-        K = function(x) {
-            return function() {
-                return x;
-            }
-        },
-
-        // //+ S :: f -> g -> (_ -> b)
-        // S = function(f, g) {
-        //     var toFunction = Function.toFunction;
-        //     f = toFunction(f);
-        //     g = toFunction(g);
-        //     return function() {
-        //         var return_value_of_g = g.apply(this, arguments),
-        //             original_args = Array.slice(arguments, 0),
-        //             all_args = unshift(original_args, return_value_of_g);
-        //         return f.apply(this, all_args);
-        //     };
-        // },
-
-        //+ partial :: _ -> f
-        partial = function() {
-            var fn = this,
-                args = Array.from(arguments),
-                subpos = [],
-                i, value;
-
-            for (i = 0; i < arguments.length; i++) {
-                arguments[i] == _ && subpos.push(i);
-            }
-
-            return function() {
-                var specialized = args.concat(Array.slice(arguments, subpos.length)),
-                    i;
-                for (i = 0; i < Math.min(subpos.length, arguments.length); i++) {
-                    specialized[subpos[i]] = arguments[i];
-                }
-                for (i = 0; i < specialized.length; i++) {
-                    if (specialized[i] === _) {
-                        return fn.partial.apply(fn, specialized);
-                    }
-                }
-                return fn.apply(this, specialized);
-            };
-        },
-
-        //+ ECMAsplit :: String -> Int -> String
-        // ECMAsplit is an ECMAScript-compliant `split`, although only for
-        // one argument.
-        //uses the function if String.prototype.split isnt compliant
-        ECMAspit = ('ab'.split(/a*/).length) > 1 ? String.prototype.split :
-        function(separator, limit) {
-            if (typeof limit != 'undefined') {
-                throw "ECMAsplit: limit is unimplemented";
-            }
-            var result = this.split.apply(this, arguments),
-                re = RegExp(separator),
-                savedIndex = re.lastIndex,
-                match = re.exec(this);
-            if (match && match.index == 0) {
-                result.unshift('');
-            }
-            re.lastIndex = savedIndex;
-            return result;
-        },
-
-        //+ stringLambda :: _ -> f
-        stringLambda = function() {
-            var params = [],
-                expr = this,
-                sections = ECMAspit.call(expr, /\s*->\s*/m);
-            if (sections.length > 1) {
-                while (sections.length) {
-                    expr = sections.pop();
-                    params = sections.pop().split(/\s*,\s*|\s+/m);
-                    sections.length && sections.push('(function(' + params + '){return (' + expr + ')})');
-                }
-            } else if (expr.match(/\b_\b/)) {
-                params = '_';
-            } else {
-                var leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m),
-                    rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
-                if (leftSection || rightSection) {
-                    if (leftSection) {
-                        params.push('$1');
-                        expr = '$1' + expr;
-                    }
-                    if (rightSection) {
-                        params.push('$2');
-                        expr = expr + '$2';
-                    }
-                } else {
-                    var regex = /(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g,
-                        vars = this.replace(regex, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
-                    for (var i = 0, v; v = vars[i++];)
-                    params.indexOf(v) >= 0 || params.push(v);
-                }
-            }
-            return new Function(params, 'return (' + expr + ')');
-        },
-
-        //+ cacheStringLambda :: IO
-        cacheStringLambda = function() {
-            var proto = String.prototype,
-                cache = {},
-                uncached = proto.lambda,
-                cached;
-            cached = function() {
-                var key = '#' + this;
-                return cache[key] || (cache[key] = uncached.call(this));
-            };
-            cached.cached = function() {};
-            cached.uncache = function() {
-                proto.lambda = uncached
-            };
-            proto.lambda = cached;
-        },
-
-        //+ stringToFunction :: _ -> f
-        stringToFunction = function() {
-            var body = this;
-            if (body.match(/\breturn\b/)) {
-                return new Function(this);
-            }
-            return this.lambda();
-        };
-
-    //+ decorateFunctionPrototypeWithPartial :: IO
-    Function.prototype.partial = partial;
-
-    Function.prototype.flip = function( /*args...*/ ) {
-        return flip.apply(this, unshift(arguments, this));
+        this.occluded = false;
+        element.store(property || this.property, this);
+        return this.occluded;
     }
 
-    //+ decorateFunctionWithToFunction :: IO
-    Function.toFunction = function(value) {
-        return value.toFunction();
-    }
-    Function.prototype.toFunction = function() {
+});
+
+
+/*
+---
+
+script: IframeShim.js
+
+name: IframeShim
+
+description: Defines IframeShim, a class for obscuring select lists and flash objects in IE.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Element.Event
+  - Core/Element.Style
+  - Core/Options
+  - Core/Events
+  - /Element.Position
+  - /Class.Occlude
+
+provides: [IframeShim]
+
+...
+*/
+
+var IframeShim = new Class({
+
+    Implements: [Options, Events, Class.Occlude],
+
+    options: {
+        className: 'iframeShim',
+        src: 'javascript:false;document.write("");',
+        display: false,
+        zIndex: null,
+        margin: 0,
+        offset: {x: 0, y: 0},
+        browsers: (Browser.ie6 || (Browser.firefox && Browser.version < 3 && Browser.Platform.mac))
+    },
+
+    property: 'IframeShim',
+
+    initialize: function(element, options){
+        this.element = document.id(element);
+        if (this.occlude()) return this.occluded;
+        this.setOptions(options);
+        this.makeShim();
+        return this;
+    },
+
+    makeShim: function(){
+        if (this.options.browsers){
+            var zIndex = this.element.getStyle('zIndex').toInt();
+
+            if (!zIndex){
+                zIndex = 1;
+                var pos = this.element.getStyle('position');
+                if (pos == 'static' || !pos) this.element.setStyle('position', 'relative');
+                this.element.setStyle('zIndex', zIndex);
+            }
+            zIndex = ((this.options.zIndex != null || this.options.zIndex === 0) && zIndex > this.options.zIndex) ? this.options.zIndex : zIndex - 1;
+            if (zIndex < 0) zIndex = 1;
+            this.shim = new Element('iframe', {
+                src: this.options.src,
+                scrolling: 'no',
+                frameborder: 0,
+                styles: {
+                    zIndex: zIndex,
+                    position: 'absolute',
+                    border: 'none',
+                    filter: 'progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)'
+                },
+                'class': this.options.className
+            }).store('IframeShim', this);
+            var inject = (function(){
+                this.shim.inject(this.element, 'after');
+                this[this.options.display ? 'show' : 'hide']();
+                this.fireEvent('inject');
+            }).bind(this);
+            if (!IframeShim.ready) window.addEvent('load', inject);
+            else inject();
+        } else {
+            this.position = this.hide = this.show = this.dispose = Function.from(this);
+        }
+    },
+
+    position: function(){
+        if (!IframeShim.ready || !this.shim) return this;
+        var size = this.element.measure(function(){
+            return this.getSize();
+        });
+        if (this.options.margin != undefined){
+            size.x = size.x - (this.options.margin * 2);
+            size.y = size.y - (this.options.margin * 2);
+            this.options.offset.x += this.options.margin;
+            this.options.offset.y += this.options.margin;
+        }
+        this.shim.set({width: size.x, height: size.y}).position({
+            relativeTo: this.element,
+            offset: this.options.offset
+        });
+        return this;
+    },
+
+    hide: function(){
+        if (this.shim) this.shim.setStyle('display', 'none');
+        return this;
+    },
+
+    show: function(){
+        if (this.shim) this.shim.setStyle('display', 'block');
+        return this.position();
+    },
+
+    dispose: function(){
+        if (this.shim) this.shim.dispose();
+        return this;
+    },
+
+    destroy: function(){
+        if (this.shim) this.shim.destroy();
         return this;
     }
 
-    String.prototype.lambda = stringLambda;
-    String.prototype.lambda.cache = cacheStringLambda;
-    String.prototype.toFunction = stringToFunction;
-    // String.prototype.ECMAsplit = ('ab'.split(/a*/).length > 1 ? String.prototype.split : ECMAspit);
+});
 
-    // Add public functions to the module namespace,
-    return {
-        map: map,
-        curry: curry,
-        compose: compose,
-        sequence: sequence,
-        memoize: memoize,
+window.addEvent('load', function(){
+    IframeShim.ready = true;
+});
 
-        // reduce: reduce,
-        // foldl: reduce,
-        // foldr: foldr,
 
-        // select: select,
-        filter: select,
-        guard: guard,
-        flip: flip,
-        and: and,
-        // and_: and, // alias reserved word for coffeescript
-        or: or,
-        // or_: or, // alias reserved word for coffeescript
-        // some: some,
-        // every: every,
-        // eq: eq,
-        not: not,
-        // not_: not, // alias reserved word for coffeescript
-        equal: equal,
-        lambda: lambda,
-        invoke: invoke,
-        pluck: pluck,
-        until: until,
-        // until_: until, // alias reserved word for coffeescript
-        zip: zip,
-        I: I,
-        // id: I,
-        K: K,
-        // konst: K,
-        // S: S//,
+/*
+---
 
-        // install: function(except) {
-        //     var source = functional,
-        //         target = parent;
-        //     for (var name in source)
-        //     if (!(name == 'install' || name.charAt(0) == '_' || (except && except.contains(name)))) target[name] = source[name];
-        // }
+script: Mask.js
+
+name: Mask
+
+description: Creates a mask element to cover another.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Options
+  - Core/Events
+  - Core/Element.Event
+  - /Class.Binds
+  - /Element.Position
+  - /IframeShim
+
+provides: [Mask]
+
+...
+*/
+
+var Mask = new Class({
+
+    Implements: [Options, Events],
+
+    Binds: ['position'],
+
+    options: {/*
+        onShow: function(){},
+        onHide: function(){},
+        onDestroy: function(){},
+        onClick: function(event){},
+        inject: {
+            where: 'after',
+            target: null,
+        },
+        hideOnClick: false,
+        id: null,
+        destroyOnHide: false,*/
+        style: {},
+        'class': 'mask',
+        maskMargins: false,
+        useIframeShim: true,
+        iframeShimOptions: {}
+    },
+
+    initialize: function(target, options){
+        this.target = document.id(target) || document.id(document.body);
+        this.target.store('mask', this);
+        this.setOptions(options);
+        this.render();
+        this.inject();
+    },
+
+    render: function(){
+        this.element = new Element('div', {
+            'class': this.options['class'],
+            id: this.options.id || 'mask-' + String.uniqueID(),
+            styles: Object.merge({}, this.options.style, {
+                display: 'none'
+            }),
+            events: {
+                click: function(event){
+                    this.fireEvent('click', event);
+                    if (this.options.hideOnClick) this.hide();
+                }.bind(this)
+            }
+        });
+
+        this.hidden = true;
+    },
+
+    toElement: function(){
+        return this.element;
+    },
+
+    inject: function(target, where){
+        where = where || (this.options.inject ? this.options.inject.where : '') || this.target == document.body ? 'inside' : 'after';
+        target = target || (this.options.inject && this.options.inject.target) || this.target;
+
+        this.element.inject(target, where);
+
+        if (this.options.useIframeShim){
+            this.shim = new IframeShim(this.element, this.options.iframeShimOptions);
+
+            this.addEvents({
+                show: this.shim.show.bind(this.shim),
+                hide: this.shim.hide.bind(this.shim),
+                destroy: this.shim.destroy.bind(this.shim)
+            });
+        }
+    },
+
+    position: function(){
+        this.resize(this.options.width, this.options.height);
+
+        this.element.position({
+            relativeTo: this.target,
+            position: 'topLeft',
+            ignoreMargins: !this.options.maskMargins,
+            ignoreScroll: this.target == document.body
+        });
+
+        return this;
+    },
+
+    resize: function(x, y){
+        var opt = {
+            styles: ['padding', 'border']
+        };
+        if (this.options.maskMargins) opt.styles.push('margin');
+
+        var dim = this.target.getComputedSize(opt);
+        if (this.target == document.body){
+            this.element.setStyles({width: 0, height: 0});
+            var win = window.getScrollSize();
+            if (dim.totalHeight < win.y) dim.totalHeight = win.y;
+            if (dim.totalWidth < win.x) dim.totalWidth = win.x;
+        }
+        this.element.setStyles({
+            width: Array.pick([x, dim.totalWidth, dim.x]),
+            height: Array.pick([y, dim.totalHeight, dim.y])
+        });
+
+        return this;
+    },
+
+    show: function(){
+        if (!this.hidden) return this;
+
+        window.addEvent('resize', this.position);
+        this.position();
+        this.showMask.apply(this, arguments);
+
+        return this;
+    },
+
+    showMask: function(){
+        this.element.setStyle('display', 'block');
+        this.hidden = false;
+        this.fireEvent('show');
+    },
+
+    hide: function(){
+        if (this.hidden) return this;
+
+        window.removeEvent('resize', this.position);
+        this.hideMask.apply(this, arguments);
+        if (this.options.destroyOnHide) return this.destroy();
+
+        return this;
+    },
+
+    hideMask: function(){
+        this.element.setStyle('display', 'none');
+        this.hidden = true;
+        this.fireEvent('hide');
+    },
+
+    toggle: function(){
+        this[this.hidden ? 'show' : 'hide']();
+    },
+
+    destroy: function(){
+        this.hide();
+        this.element.destroy();
+        this.fireEvent('destroy');
+        this.target.eliminate('mask');
+    }
+
+});
+
+Element.Properties.mask = {
+
+    set: function(options){
+        var mask = this.retrieve('mask');
+        if (mask) mask.destroy();
+        return this.eliminate('mask').store('mask:options', options);
+    },
+
+    get: function(){
+        var mask = this.retrieve('mask');
+        if (!mask){
+            mask = new Mask(this, this.retrieve('mask:options'));
+            this.store('mask', mask);
+        }
+        return mask;
+    }
+
+};
+
+Element.implement({
+
+    mask: function(options){
+        if (options) this.set('mask', options);
+        this.get('mask').show();
+        return this;
+    },
+
+    unmask: function(){
+        this.get('mask').hide();
+        return this;
+    }
+
+});
+
+
+
+
+//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.Popup&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FBehavior.BS.Tooltip&require=Bootstrap%2FPopup&excludeLibs=More
+//Contents: Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/Behaviors/Behavior.BS.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/Behaviors/Behavior.BS.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
+
+// Begin: Source/UI/Bootstrap.js
+/*
+---
+
+name: Bootstrap
+
+description: The BootStrap namespace.
+
+authors: [Aaron Newton]
+
+license: MIT-style license.
+
+provides: [Bootstrap]
+
+...
+*/
+var Bootstrap = {};
+
+// Begin: Source/UI/CSSEvents.js
+/*
+---
+
+name: CSSEvents
+
+license: MIT-style
+
+authors: [Aaron Newton]
+
+requires: [Core/DomReady]
+
+provides: CSSEvents
+...
+*/
+
+Browser.Features.getCSSTransition = function(){
+    Browser.Features.cssTransition = (function () {
+        var thisBody = document.body || document.documentElement
+            , thisStyle = thisBody.style
+            , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+        return support;
+    })();
+
+    // set CSS transition event type
+    if ( Browser.Features.cssTransition ) {
+        Browser.Features.transitionEnd = "TransitionEnd";
+        if ( Browser.safari || Browser.chrome ) {
+            Browser.Features.transitionEnd = "webkitTransitionEnd";
+        } else if ( Browser.firefox ) {
+            Browser.Features.transitionEnd = "transitionend";
+        } else if ( Browser.opera ) {
+            Browser.Features.transitionEnd = "oTransitionEnd";
+        }
+    }
+    Browser.Features.getCSSTransition = Function.from(Browser.Features.transitionEnd);
+};
+
+window.addEvent("domready", Browser.Features.getCSSTransition);
+
+// Begin: Source/Element.Data.js
+/*
+---
+name: Element.Data
+description: Stores data in HTML5 data properties
+provides: [Element.Data]
+requires: [Core/Element, Core/JSON]
+script: Element.Data.js
+
+...
+*/
+(function(){
+
+    JSON.isSecure = function(string){
+        //this verifies that the string is parsable JSON and not malicious (borrowed from JSON.js in MooTools, which in turn borrowed it from Crockford)
+        //this version is a little more permissive, as it allows single quoted attributes because forcing the use of double quotes
+        //is a pain when this stuff is used as HTML properties
+        return (/^[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]*$/).test(string.replace(/\\./g, '@').replace(/"[^"\\\n\r]*"/g, '').replace(/'[^'\\\n\r]*'/g, ''));
     };
-})(this);
+
+    Element.implement({
+        /*
+            sets an HTML5 data property.
+            arguments:
+                name - (string) the data name to store; will be automatically prefixed with 'data-'.
+                value - (string, number) the value to store.
+        */
+        setData: function(name, value){
+            return this.set('data-' + name.hyphenate(), value);
+        },
+
+        getData: function(name, defaultValue){
+            var value = this.get('data-' + name.hyphenate());
+            if (value != undefined){
+                return value;
+            } else if (defaultValue != undefined){
+                this.setData(name, defaultValue);
+                return defaultValue;
+            }
+        },
+
+        /* 
+            arguments:
+                name - (string) the data name to store; will be automatically prefixed with 'data-'
+                value - (string, array, or object) if an object or array the object will be JSON encoded; otherwise stored as provided.
+        */
+        setJSONData: function(name, value){
+            return this.setData(name, JSON.encode(value));
+        },
+
+        /*
+            retrieves a property from HTML5 data property you specify
+        
+            arguments:
+                name - (retrieve) the data name to store; will be automatically prefixed with 'data-'
+                strict - (boolean) if true, will set the JSON.decode's secure flag to true; otherwise the value is still tested but allows single quoted attributes.
+                defaultValue - (string, array, or object) the value to set if no value is found (see storeData above)
+        */
+        getJSONData: function(name, strict, defaultValue){
+            var value = this.get('data-' + name);
+            if (value != undefined){
+                if (value && JSON.isSecure(value)) {
+                    return JSON.decode(value, strict);
+                } else {
+                    return value;
+                }
+            } else if (defaultValue != undefined){
+                this.setJSONData(name, defaultValue);
+                return defaultValue;
+            }
+        }
+
+    });
+
+})();
+
+// Begin: Source/BehaviorAPI.js
+/*
+---
+name: BehaviorAPI
+description: HTML getters for Behavior's API model.
+requires: [Core/Class, /Element.Data]
+provides: [BehaviorAPI]
+...
+*/
+
+
+(function(){
+    //see Docs/BehaviorAPI.md for documentation of public methods.
+
+    var reggy = /[^a-z0-9\-]/gi,
+        dots = /\./g;
+
+    window.BehaviorAPI = new Class({
+        element: null,
+        prefix: '',
+        defaults: {},
+
+        initialize: function(element, prefix){
+            this.element = element;
+            this.prefix = prefix.toLowerCase().replace(dots, '-').replace(reggy, '');
+        },
+
+        /******************
+         * PUBLIC METHODS
+         ******************/
+
+        get: function(/* name[, name, name, etc] */){
+            if (arguments.length > 1) return this._getObj(Array.from(arguments));
+            return this._getValue(arguments[0]);
+        },
+
+        getAs: function(/*returnType, name, defaultValue OR {name: returnType, name: returnType, etc}*/){
+            if (typeOf(arguments[0]) == 'object') return this._getValuesAs.apply(this, arguments);
+            return this._getValueAs.apply(this, arguments);
+        },
+
+        require: function(/* name[, name, name, etc] */){
+            for (var i = 0; i < arguments.length; i++){
+                if (this._getValue(arguments[i]) == undefined) throw new Error('Could not retrieve ' + this.prefix + '-' + arguments[i] + ' option from element.');
+            }
+            return this;
+        },
+
+        requireAs: function(returnType, name /* OR {name: returnType, name: returnType, etc}*/){
+            var val;
+            if (typeOf(arguments[0]) == 'object'){
+                for (var objName in arguments[0]){
+                    val = this._getValueAs(arguments[0][objName], objName);
+                    if (val === undefined || val === null) throw new Error("Could not retrieve " + this.prefix + '-' + objName + " option from element.");
+                }
+            } else {
+                val = this._getValueAs(returnType, name);
+                if (val === undefined || val === null) throw new Error("Could not retrieve " + this.prefix + '-' + name + " option from element.");
+            }
+            return this;
+        },
+
+        setDefault: function(name, value /* OR {name: value, name: value, etc }*/){
+            if (typeOf(arguments[0]) == 'object'){
+                for (var objName in arguments[0]){
+                    this.setDefault(objName, arguments[0][objName]);
+                }
+                return;
+            }
+            name = name.camelCase();
+            this.defaults[name] = value;
+            if (this._getValue(name) == null){
+                var options = this._getOptions();
+                options[name] = value;
+            }
+            return this;
+        },
+
+        refreshAPI: function(){
+            delete this.options;
+            this.setDefault(this.defaults);
+            return;
+        },
+
+        /******************
+         * PRIVATE METHODS
+         ******************/
+
+        //given an array of names, returns an object of key/value pairs for each name
+        _getObj: function(names){
+            var obj = {};
+            names.each(function(name){
+                var value = this._getValue(name);
+                if (value !== undefined) obj[name] = value;
+            }, this);
+            return obj;
+        },
+        //gets the data-behaviorname-options object and parses it as JSON
+        _getOptions: function(){
+            try {
+                if (!this.options){
+                    var options = this.element.getData(this.prefix + '-options', '{}');
+                    if (options === "") return this.options = {};
+                    if (options && options.substring(0,1) != '{') options = '{' + options + '}';
+                    var isSecure = JSON.isSecure(options);
+                    if (!isSecure) throw new Error('warning, options value for element is not parsable, check your JSON format for quotes, etc.');
+                    this.options = isSecure ? JSON.decode(options) : {};
+                    for (option in this.options) {
+                        this.options[option.camelCase()] = this.options[option];
+                    }
+                }
+            } catch (e){
+                throw new Error('Could not get options from element; check your syntax. ' + this.prefix + '-options: "' + this.element.getData(this.prefix + '-options', '{}') + '"');
+            }
+            return this.options;
+        },
+        //given a name (string) returns the value for it
+        _getValue: function(name){
+            name = name.camelCase();
+            var options = this._getOptions();
+            if (!options.hasOwnProperty(name)){
+                var inline = this.element.getData(this.prefix + '-' + name.hyphenate());
+                if (inline) options[name] = inline;
+            }
+            return options[name];
+        },
+        //given a Type and a name (string) returns the value for it coerced to that type if possible
+        //else returns the defaultValue or null
+        _getValueAs: function(returnType, name, defaultValue){
+            var value = this._getValue(name);
+            if (value == null || value == undefined) return defaultValue;
+            var coerced = this._coerceFromString(returnType, value);
+            if (coerced == null) throw new Error("Could not retrieve value '" + name + "' as the specified type. Its value is: " + value);
+            return coerced;
+        },
+        //given an object of name/Type pairs, returns those as an object of name/value (as specified Type) pairs
+        _getValuesAs: function(obj){
+            var returnObj = {};
+            for (var name in obj){
+                returnObj[name] = this._getValueAs(obj[name], name);
+            }
+            return returnObj;
+        },
+        //attempts to run a value through the JSON parser. If the result is not of that type returns null.
+        _coerceFromString: function(toType, value){
+            if (typeOf(value) == 'string' && toType != String){
+                if (JSON.isSecure(value)) value = JSON.decode(value);
+            }
+            if (instanceOf(value, toType)) return value;
+            return null;
+        }
+    });
+
+})();
+
+// Begin: Source/Behavior.js
+/*
+---
+name: Behavior
+description: Auto-instantiates widgets/classes based on parsed, declarative HTML.
+requires: [Core/Class.Extras, Core/Element.Event, Core/Selectors, More/Table, /Element.Data, /BehaviorAPI]
+provides: [Behavior]
+...
+*/
+
+(function(){
+
+    var getLog = function(method){
+        return function(){
+            if (window.console && console[method]){
+                if(console[method].apply) console[method].apply(console, arguments);
+                else console[method](Array.from(arguments).join(' '));
+            }
+        };
+    };
+
+    var PassMethods = new Class({
+        //pass a method pointer through to a filter
+        //by default the methods for add/remove events are passed to the filter
+        //pointed to this instance of behavior. you could use this to pass along
+        //other methods to your filters. For example, a method to close a popup
+        //for filters presented inside popups.
+        passMethod: function(method, fn){
+            if (this.API.prototype[method]) throw new Error('Cannot overwrite API method ' + method + ' as it already exists');
+            this.API.implement(method, fn);
+            return this;
+        },
+
+        passMethods: function(methods){
+            for (method in methods) this.passMethod(method, methods[method]);
+            return this;
+        }
+
+    });
+
+    var spaceOrCommaRegex = /\s*,\s*|\s+/g;
+
+    BehaviorAPI.implement({
+        deprecate: function(deprecated, asJSON){
+            var set,
+                values = {};
+            Object.each(deprecated, function(prop, key){
+                var value = this.element[ asJSON ? 'getJSONData' : 'getData'](prop);
+                if (value !== undefined){
+                    set = true;
+                    values[key] = value;
+                }
+            }, this);
+            this.setDefault(values);
+            return this;
+        }
+    });
+
+    this.Behavior = new Class({
+
+        Implements: [Options, Events, PassMethods],
+
+        options: {
+            //by default, errors thrown by filters are caught; the onError event is fired.
+            //set this to *true* to NOT catch these errors to allow them to be handled by the browser.
+            // breakOnErrors: false,
+            // container: document.body,
+
+            //default error behavior when a filter cannot be applied
+            onLog: getLog('info'),
+            onError: getLog('error'),
+            onWarn: getLog('warn'),
+            enableDeprecation: true,
+            selector: '[data-behavior]'
+        },
+
+        initialize: function(options){
+            this.setOptions(options);
+            this.API = new Class({ Extends: BehaviorAPI });
+            this.passMethods({
+                getDelegator: this.getDelegator.bind(this),
+                addEvent: this.addEvent.bind(this),
+                removeEvent: this.removeEvent.bind(this),
+                addEvents: this.addEvents.bind(this),
+                removeEvents: this.removeEvents.bind(this),
+                fireEvent: this.fireEvent.bind(this),
+                applyFilters: this.apply.bind(this),
+                applyFilter: this.applyFilter.bind(this),
+                getContentElement: this.getContentElement.bind(this),
+                cleanup: this.cleanup.bind(this),
+                getContainerSize: function(){
+                    return this.getContentElement().measure(function(){
+                        return this.getSize();
+                    });
+                }.bind(this),
+                error: function(){ this.fireEvent('error', arguments); }.bind(this),
+                fail: function(){
+                    var msg = Array.join(arguments, ' ');
+                    throw new Error(msg);
+                },
+                warn: function(){
+                    this.fireEvent('warn', arguments);
+                }.bind(this)
+            });
+        },
+
+        getDelegator: function(){
+            return this.delegator;
+        },
+
+        setDelegator: function(delegator){
+            if (!instanceOf(delegator, Delegator)) throw new Error('Behavior.setDelegator only accepts instances of Delegator.');
+            this.delegator = delegator;
+            return this;
+        },
+
+        getContentElement: function(){
+            return this.options.container || document.body;
+        },
+
+        //Applies all the behavior filters for an element.
+        //container - (element) an element to apply the filters registered with this Behavior instance to.
+        //force - (boolean; optional) passed through to applyFilter (see it for docs)
+        apply: function(container, force){
+          this._getElements(container).each(function(element){
+                var plugins = [];
+                element.getBehaviors().each(function(name){
+                    var filter = this.getFilter(name);
+                    if (!filter){
+                        this.fireEvent('error', ['There is no filter registered with this name: ', name, element]);
+                    } else {
+                        var config = filter.config;
+                        if (config.delay !== undefined){
+                            this.applyFilter.delay(filter.config.delay, this, [element, filter, force]);
+                        } else if(config.delayUntil){
+                            this._delayFilterUntil(element, filter, force);
+                        } else if(config.initializer){
+                            this._customInit(element, filter, force);
+                        } else {
+                            plugins.append(this.applyFilter(element, filter, force, true));
+                        }
+                    }
+                }, this);
+                plugins.each(function(plugin){
+                    if (this.options.verbose) this.fireEvent('log', ['Firing plugin...']);
+                    plugin();
+                }, this);
+            }, this);
+            return this;
+        },
+
+        _getElements: function(container){
+            if (typeOf(this.options.selector) == 'function') return this.options.selector(container);
+            else return document.id(container).getElements(this.options.selector);
+        },
+
+        //delays a filter until the event specified in filter.config.delayUntil is fired on the element
+        _delayFilterUntil: function(element, filter, force){
+            var events = filter.config.delayUntil.split(','),
+                attached = {},
+                inited = false;
+            var clear = function(){
+                events.each(function(event){
+                    element.removeEvent(event, attached[event]);
+                });
+                clear = function(){};
+            };
+            events.each(function(event){
+                var init = function(e){
+                    clear();
+                    if (inited) return;
+                    inited = true;
+                    var setup = filter.setup;
+                    filter.setup = function(element, api, _pluginResult){
+                        api.event = e;
+                        return setup.apply(filter, [element, api, _pluginResult]);
+                    };
+                    this.applyFilter(element, filter, force);
+                    filter.setup = setup;
+                }.bind(this);
+                element.addEvent(event, init);
+                attached[event] = init;
+            }, this);
+        },
+
+        //runs custom initiliazer defined in filter.config.initializer
+        _customInit: function(element, filter, force){
+            var api = new this.API(element, filter.name);
+            api.runSetup = this.applyFilter.pass([element, filter, force], this);
+            filter.config.initializer(element, api);
+        },
+
+        //Applies a specific behavior to a specific element.
+        //element - the element to which to apply the behavior
+        //filter - (object) a specific behavior filter, typically one registered with this instance or registered globally.
+        //force - (boolean; optional) apply the behavior to each element it matches, even if it was previously applied. Defaults to *false*.
+        //_returnPlugins - (boolean; optional; internal) if true, plugins are not rendered but instead returned as an array of functions
+        //_pluginTargetResult - (obj; optional internal) if this filter is a plugin for another, this is whatever that target filter returned
+        //                      (an instance of a class for example)
+        applyFilter: function(element, filter, force, _returnPlugins, _pluginTargetResult){
+            var pluginsToReturn = [];
+            if (this.options.breakOnErrors){
+                pluginsToReturn = this._applyFilter.apply(this, arguments);
+            } else {
+                try {
+                    pluginsToReturn = this._applyFilter.apply(this, arguments);
+                } catch (e){
+                    this.fireEvent('error', ['Could not apply the behavior ' + filter.name, e.message]);
+                }
+            }
+            return _returnPlugins ? pluginsToReturn : this;
+        },
+
+        //see argument list above for applyFilter
+        _applyFilter: function(element, filter, force, _returnPlugins, _pluginTargetResult){
+            var pluginsToReturn = [];
+            element = document.id(element);
+            //get the filters already applied to this element
+            var applied = getApplied(element);
+            //if this filter is not yet applied to the element, or we are forcing the filter
+            if (!applied[filter.name] || force){
+                if (this.options.verbose) this.fireEvent('log', ['Applying behavior: ', filter.name, element]);
+                //if it was previously applied, garbage collect it
+                if (applied[filter.name]) applied[filter.name].cleanup(element);
+                var api = new this.API(element, filter.name);
+
+                //deprecated
+                api.markForCleanup = filter.markForCleanup.bind(filter);
+                api.onCleanup = function(fn){
+                    filter.markForCleanup(element, fn);
+                };
+
+                if (filter.config.deprecated && this.options.enableDeprecation) api.deprecate(filter.config.deprecated);
+                if (filter.config.deprecateAsJSON && this.options.enableDeprecation) api.deprecate(filter.config.deprecatedAsJSON, true);
+
+                //deal with requirements and defaults
+                if (filter.config.requireAs){
+                    api.requireAs(filter.config.requireAs);
+                } else if (filter.config.require){
+                    api.require.apply(api, Array.from(filter.config.require));
+                }
+
+                if (filter.config.defaults) api.setDefault(filter.config.defaults);
+
+                //apply the filter
+                if (Behavior.debugging && Behavior.debugging.contains(filter.name)) debugger;
+                var result = filter.setup(element, api, _pluginTargetResult);
+                if (filter.config.returns && !instanceOf(result, filter.config.returns)){
+                    throw new Error("Filter " + filter.name + " did not return a valid instance.");
+                }
+                element.store('Behavior Filter result:' + filter.name, result);
+                if (this.options.verbose){
+                    if (result && !_pluginTargetResult) this.fireEvent('log', ['Successfully applied behavior: ', filter.name, element, result]);
+                    else this.fireEvent('warn', ['Behavior applied, but did not return result: ', filter.name, element, result]);
+                }
+
+                //and mark it as having been previously applied
+                applied[filter.name] = filter;
+                //apply all the plugins for this filter
+                var plugins = this.getPlugins(filter.name);
+                if (plugins){
+                    for (var name in plugins){
+                        if (_returnPlugins){
+                            pluginsToReturn.push(this.applyFilter.pass([element, plugins[name], force, null, result], this));
+                        } else {
+                            this.applyFilter(element, plugins[name], force, null, result);
+                        }
+                    }
+                }
+            }
+            return pluginsToReturn;
+        },
+
+        //given a name, returns a registered behavior
+        getFilter: function(name){
+            return this._registered[name] || Behavior.getFilter(name);
+        },
+
+        getPlugins: function(name){
+            return this._plugins[name] || Behavior._plugins[name];
+        },
+
+        //Garbage collects all applied filters for an element and its children.
+        //element - (*element*) container to cleanup
+        //ignoreChildren - (*boolean*; optional) if *true* only the element will be cleaned, otherwise the element and all the
+        //    children with filters applied will be cleaned. Defaults to *false*.
+        cleanup: function(element, ignoreChildren){
+            element = document.id(element);
+            var applied = getApplied(element);
+            for (var filter in applied){
+                applied[filter].cleanup(element);
+                element.eliminate('Behavior Filter result:' + filter);
+                delete applied[filter];
+            }
+            if (!ignoreChildren) this._getElements(element).each(this.cleanup, this);
+            return this;
+        }
+
+    });
+
+    //Export these for use elsewhere (notabily: Delegator).
+    Behavior.getLog = getLog;
+    Behavior.PassMethods = PassMethods;
+
+
+    //Returns the applied behaviors for an element.
+    var getApplied = function(el){
+        return el.retrieve('_appliedBehaviors', {});
+    };
+
+    //Registers a behavior filter.
+    //name - the name of the filter
+    //fn - a function that applies the filter to the given element
+    //overwrite - (boolean) if true, will overwrite existing filter if one exists; defaults to false.
+    var addFilter = function(name, fn, overwrite){
+        if (!this._registered[name] || overwrite) this._registered[name] = new Behavior.Filter(name, fn);
+        else throw new Error('Could not add the Behavior filter "' + name  +'" as a previous trigger by that same name exists.');
+    };
+
+    var addFilters = function(obj, overwrite){
+        for (var name in obj){
+            addFilter.apply(this, [name, obj[name], overwrite]);
+        }
+    };
+
+    //Registers a behavior plugin
+    //filterName - (*string*) the filter (or plugin) this is a plugin for
+    //name - (*string*) the name of this plugin
+    //setup - a function that applies the filter to the given element
+    var addPlugin = function(filterName, name, setup, overwrite){
+        if (!this._plugins[filterName]) this._plugins[filterName] = {};
+        if (!this._plugins[filterName][name] || overwrite) this._plugins[filterName][name] = new Behavior.Filter(name, setup);
+        else throw new Error('Could not add the Behavior filter plugin "' + name  +'" as a previous trigger by that same name exists.');
+    };
+
+    var addPlugins = function(obj, overwrite){
+        for (var name in obj){
+            addPlugin.apply(this, [obj[name].fitlerName, obj[name].name, obj[name].setup], overwrite);
+        }
+    };
+
+    var setFilterDefaults = function(name, defaults){
+        var filter = this.getFilter(name);
+        if (!filter.config.defaults) filter.config.defaults = {};
+        Object.append(filter.config.defaults, defaults);
+    };
+
+    //Add methods to the Behavior namespace for global registration.
+    Object.append(Behavior, {
+        _registered: {},
+        _plugins: {},
+        addGlobalFilter: addFilter,
+        addGlobalFilters: addFilters,
+        addGlobalPlugin: addPlugin,
+        addGlobalPlugins: addPlugins,
+        setFilterDefaults: setFilterDefaults,
+        getFilter: function(name){
+            return this._registered[name];
+        }
+    });
+    //Add methods to the Behavior class for instance registration.
+    Behavior.implement({
+        _registered: {},
+        _plugins: {},
+        addFilter: addFilter,
+        addFilters: addFilters,
+        addPlugin: addPlugin,
+        addPlugins: addPlugins,
+        setFilterDefaults: setFilterDefaults
+    });
+
+    //This class is an actual filter that, given an element, alters it with specific behaviors.
+    Behavior.Filter = new Class({
+
+        config: {
+            /**
+                returns: Foo,
+                require: ['req1', 'req2'],
+                //or
+                requireAs: {
+                    req1: Boolean,
+                    req2: Number,
+                    req3: String
+                },
+                defaults: {
+                    opt1: false,
+                    opt2: 2
+                },
+                //simple example:
+                setup: function(element, API){
+                    var kids = element.getElements(API.get('selector'));
+                    //some validation still has to occur here
+                    if (!kids.length) API.fail('there were no child elements found that match ', API.get('selector'));
+                    if (kids.length < 2) API.warn("there weren't more than 2 kids that match", API.get('selector'));
+                    var fooInstance = new Foo(kids, API.get('opt1', 'opt2'));
+                    API.onCleanup(function(){
+                        fooInstance.destroy();
+                    });
+                    return fooInstance;
+                },
+                delayUntil: 'mouseover',
+                //OR
+                delay: 100,
+                //OR
+                initializer: function(element, API){
+                    element.addEvent('mouseover', API.runSetup); //same as specifying event
+                    //or
+                    API.runSetup.delay(100); //same as specifying delay
+                    //or something completely esoteric
+                    var timer = (function(){
+                        if (element.hasClass('foo')){
+                            clearInterval(timer);
+                            API.runSetup();
+                        }
+                    }).periodical(100);
+                    //or
+                    API.addEvent('someBehaviorEvent', API.runSetup);
+                });
+                */
+        },
+
+        //Pass in an object with the following properties:
+        //name - the name of this filter
+        //setup - a function that applies the filter to the given element
+        initialize: function(name, setup){
+            this.name = name;
+            if (typeOf(setup) == "function"){
+                this.setup = setup;
+            } else {
+                Object.append(this.config, setup);
+                this.setup = this.config.setup;
+            }
+            this._cleanupFunctions = new Table();
+        },
+
+        //Stores a garbage collection pointer for a specific element.
+        //Example: if your filter enhances all the inputs in the container
+        //you might have a function that removes that enhancement for garbage collection.
+        //You would mark each input matched with its own cleanup function.
+        //NOTE: this MUST be the element passed to the filter - the element with this filters
+        //      name in its data-behavior property. I.E.:
+        //<form data-behavior="FormValidator">
+        //  <input type="text" name="email"/>
+        //</form>
+        //If this filter is FormValidator, you can mark the form for cleanup, but not, for example
+        //the input. Only elements that match this filter can be marked.
+        markForCleanup: function(element, fn){
+            var functions = this._cleanupFunctions.get(element);
+            if (!functions) functions = [];
+            functions.include(fn);
+            this._cleanupFunctions.set(element, functions);
+            return this;
+        },
+
+        //Garbage collect a specific element.
+        //NOTE: this should be an element that has a data-behavior property that matches this filter.
+        cleanup: function(element){
+            var marks = this._cleanupFunctions.get(element);
+            if (marks){
+                marks.each(function(fn){ fn(); });
+                this._cleanupFunctions.erase(element);
+            }
+            return this;
+        }
+
+    });
+
+    Behavior.debug = function(name){
+        if (!Behavior.debugging) Behavior.debugging = [];
+        Behavior.debugging.push(name);
+    };
+
+    Behavior.elementDataProperty = 'behavior';
+
+    Element.implement({
+
+        addBehaviorFilter: function(name){
+            return this.setData(Behavior.elementDataProperty, this.getBehaviors().include(name).join(' '));
+        },
+
+        removeBehaviorFilter: function(name){
+            return this.setData(Behavior.elementDataProperty, this.getBehaviors().erase(name).join(' '));
+        },
+
+        getBehaviors: function(){
+            var filters = this.getData(Behavior.elementDataProperty);
+            if (!filters) return [];
+            return filters.trim().split(spaceOrCommaRegex);
+        },
+
+        hasBehavior: function(name){
+            return this.getBehaviors().contains(name);
+        },
+
+        getBehaviorResult: function(name){
+            return this.retrieve('Behavior Filter result:' + name);
+        }
+
+    });
+
+
+})();
+
+
+// Begin: Source/UI/Bootstrap.Tooltip.js
+/*
+---
+
+name: Bootstrap.Tooltip
+
+description: A simple tooltip implementation that works with the Twitter Bootstrap css framework.
+
+authors: [Aaron Newton]
+
+license: MIT-style license.
+
+requires:
+ - /Bootstrap
+ - /CSSEvents
+ - More/Element.Position
+ - More/Element.Shortcuts
+ - Behavior/Behavior
+
+provides: [Bootstrap.Twipsy, Bootstrap.Tooltip]
+
+...
+*/
+
+Bootstrap.Tooltip = Bootstrap.Twipsy = new Class({
+
+    Implements: [Options, Events],
+
+    options: {
+        location: 'above', //below, left, right, bottom, top
+        animate: true,
+        delayIn: 200,
+        delayOut: 0,
+        fallback: '',
+        override: '',
+        onOverflow: false,
+        offset: 0,
+        title: 'title', //element property
+        trigger: 'hover', //focus, manual
+        getContent: function(el){
+            return el.get(this.options.title);
+        }
+    },
+
+    initialize: function(el, options){
+        this.element = document.id(el);
+        this.setOptions(options);
+        var location = this.options.location;
+        if (location == 'above') this.options.location = 'top';    //bootstrap 2.0
+        if (location == 'below') this.options.location = 'bottom'; //bootstrap 2.0
+        this._attach();
+    },
+
+    show: function(){
+        this._clear();
+        this._makeTip();
+        var pos, edge, offset = {x: 0, y: 0};
+        switch(this.options.location){
+            case 'below': case 'bottom':
+                pos = 'centerBottom';
+                edge = 'centerTop';
+                offset.y = this.options.offset;
+                break;
+            case 'left':
+                pos = 'centerLeft';
+                edge = 'centerRight';
+                offset.x = this.options.offset;
+                break;
+            case 'right':
+                pos = 'centerRight';
+                edge = 'centerLeft';
+                offset.x = this.options.offset;
+                break;
+            default: //top
+                pos = 'centerTop';
+                edge = 'centerBottom';
+                offset.y = this.options.offset;
+        }
+        if (typeOf(this.options.offset) == "object") offset = this.options.offset;
+        this.tip.inject(document.body).show().position({
+            relativeTo: this.element,
+            position: pos,
+            edge: edge,
+            offset: offset
+        }).removeClass('out').addClass('in');
+        this.visible = true;
+        if (!Browser.Features.cssTransition || !this.options.animate) this._complete();
+        this.fireEvent('show');
+        return this;
+    },
+
+    hide: function(){
+        this._makeTip();
+        this.tip.removeClass('in').addClass('out');
+        this.visible = false;
+        if (!Browser.Features.cssTransition || !this.options.animate) this._complete();
+        this.fireEvent('hide');
+        return this;
+    },
+
+    destroy: function(){
+        this._detach();
+        if (this.tip) this.tip.destroy();
+        this.destroyed = true;
+        return this;
+    },
+
+    // PRIVATE METHODS
+
+    _makeTip: function(){
+        if (!this.tip){
+            var location = this.options.location;
+            if (location == 'above') location = 'top';    //bootstrap 2.0
+            if (location == 'below') location = 'bottom'; //bootstrap 2.0
+            this.tip = new Element('div.tooltip').addClass(location)
+                 .adopt(new Element('div.tooltip-arrow'))
+                 .adopt(
+                   new Element('div.tooltip-inner', {
+                     html: this.options.override || this.options.getContent.apply(this, [this.element]) || this.options.fallback
+                   })
+                 );
+            if (this.options.animate) this.tip.addClass('fade');
+            if (Browser.Features.cssTransition && this.tip.addEventListener){
+                this.tip.addEventListener(Browser.Features.transitionEnd, this.bound.complete);
+            }
+            this.element.set('alt', '').set('title', '');
+        }
+        return this.tip;
+    },
+
+    _attach: function(method){
+        method = method || 'addEvents';
+        this.bound = {
+            enter: this._enter.bind(this),
+            leave: this._leave.bind(this),
+            complete: this._complete.bind(this)
+        };
+
+        if (this.options.trigger == 'hover') {
+            this.element[method]({
+                mouseenter: this.bound.enter,
+                mouseleave: this.bound.leave
+            });
+        } else if (this.options.trigger == 'focus'){
+            this.element[method]({
+                focus: this.bound.enter,
+                blur: this.bound.leave
+            });
+        }
+    },
+
+    _detach: function(){
+        this._attach('removeEvents');
+    },
+
+    _clear: function(){
+        clearTimeout(this._inDelay);
+        clearTimeout(this._outDelay);
+    },
+
+    _enter: function(){
+        if (this.options.onOverflow){
+            var scroll = this.element.getScrollSize(),
+                size = this.element.getSize();
+            if (scroll.x <= size.x && scroll.y <= size.y) return;
+        }
+        this._clear();
+        if (this.options.delayIn){
+            this._inDelay = this.show.delay(this.options.delayIn, this);
+        } else {
+            this.show();
+        }
+    },
+
+    _leave: function(){
+        this._clear();
+        if (this.options.delayOut){
+            this._outDelay = this.hide.delay(this.options.delayOut, this);
+        } else {
+            this.hide();
+        }
+    },
+
+    _complete: function(){
+        if (!this.visible){
+            this.tip.dispose();
+        }
+        this.fireEvent('complete', this.visible);
+    }
+
+});
+
+// Begin: Source/Behaviors/Behavior.BS.Tooltip.js
+/*
+---
+
+name: Behavior.BS.Tooltip
+
+description: Instantiates Bootstrap.Tooltip based on HTML markup.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - /Bootstrap.Tooltip
+ - Behavior/Behavior
+ - More/Object.Extras
+
+provides: [Behavior.BS.Twipsy, Behavior.BS.Tooltip]
+
+...
+*/
+(function(){
+    var filter = {
+        defaults: {
+            location: 'above', //below, left, right
+            animate: true,
+            delayIn: 200,
+            delayOut: 0,
+            onOverflow: false,
+            offset: 0,
+            trigger: 'hover' //focus, manual
+        },
+        delayUntil: 'mouseover,focus',
+        returns: Bootstrap.Tooltip,
+        setup: function(el, api){
+            var options = Object.cleanValues(
+                api.getAs({
+                    onOverflow: Boolean,
+                    location: String,
+                    animate: Boolean,
+                    delayIn: Number,
+                    delayOut: Number,
+                    fallback: String,
+                    override: String,
+                    html: Boolean,
+                    offset: Number,
+                    trigger: String
+                })
+            );
+            options.getTitle = Function.from(api.get('content') || el.get('title'));
+            var tip = new Bootstrap.Tooltip(el, options);
+            api.onCleanup(tip.destroy.bind(tip));
+            if (api.event) tip.show();
+            return tip;
+        }
+    };
+    Behavior.addGlobalFilters({
+        'BS.Tooltip': filter,
+        'BS.Twipsy': filter
+    });
+})();
+
+// Begin: Source/UI/Bootstrap.Popup.js
+/*
+---
+
+name: Popup
+
+description: A simple Popup class for the Twitter Bootstrap CSS framework.
+
+authors: [Aaron Newton]
+
+license: MIT-style license.
+
+requires:
+ - Core/Element.Delegation
+ - Core/Fx.Tween
+ - Core/Fx.Transitions
+ - More/Mask
+ - More/Elements.From
+ - More/Element.Position
+ - More/Element.Shortcuts
+ - More/Events.Pseudos
+ - /CSSEvents
+ - /Bootstrap
+
+provides: [Bootstrap.Popup]
+
+...
+*/
+
+Bootstrap.Popup = new Class({
+
+    Implements: [Options, Events],
+
+    options: {
+        /*
+            onShow: function(){},
+            onHide: function(){},
+            animate: function(){},
+            destroy: function(){},
+        */
+        persist: true,
+        closeOnClickOut: true,
+        closeOnEsc: true,
+        mask: true,
+        animate: true,
+        changeDisplayValue: true
+    },
+
+    initialize: function(element, options){
+        this.element = document.id(element).store('Bootstrap.Popup', this);
+        this.setOptions(options);
+        this.bound = {
+            hide: this.hide.bind(this),
+            bodyClick: function(e){
+                if (!this.element.contains(e.target)){
+                    this.hide();
+                }
+            }.bind(this),
+            keyMonitor: function(e){
+                if (e.key == 'esc') this.hide();
+            }.bind(this),
+            animationEnd: this._animationEnd.bind(this)
+        };
+        if ((this.element.hasClass('fade') && this.element.hasClass('in')) ||
+            (!this.element.hasClass('hide') && !this.element.hasClass('fade'))){
+            if (this.element.hasClass('fade')) this.element.removeClass('in');
+            this.show();
+        }
+    },
+
+    toElement: function(){
+        return this.element;
+    },
+
+    _checkAnimate: function(){
+        var check = this.options.animate !== false && Browser.Features.getCSSTransition() && (this.options.animate || this.element.hasClass('fade'));
+        if (!check) {
+            this.element.removeClass('fade').addClass('hide');
+            if (this._mask) this._mask.removeClass('fade').addClass('hide');
+        } else if (check) {
+            this.element.addClass('fade').removeClass('hide');
+            if (this._mask) this._mask.addClass('fade').removeClass('hide');
+        }
+        return check;
+    },
+
+    show: function(){
+        if (this.visible || this.animating) return;
+        this.element.addEvent('click:relay(.close, .dismiss)', this.bound.hide);
+        if (this.options.closeOnEsc) document.addEvent('keyup', this.bound.keyMonitor);
+        this._makeMask();
+        if (this._mask) this._mask.inject(document.body);
+        this.animating = true;
+        if (this.options.changeDisplayValue) this.element.show();
+        if (this._checkAnimate()){
+            this.element.offsetWidth; // force reflow
+            this.element.addClass('in');
+            if (this._mask) this._mask.addClass('in');
+        } else {
+            this.element.show();
+            if (this._mask) this._mask.show();
+        }
+        this.visible = true;
+        this._watch();
+    },
+
+    _watch: function(){
+        if (this._checkAnimate()) this.element.addEventListener(Browser.Features.getCSSTransition(), this.bound.animationEnd);
+        else this._animationEnd();
+    },
+
+    _animationEnd: function(){
+        if (Browser.Features.getCSSTransition()) this.element.removeEventListener(Browser.Features.getCSSTransition(), this.bound.animationEnd);
+        this.animating = false;
+        if (this.visible){
+            this.fireEvent('show', this.element);
+        } else {
+            this.fireEvent('hide', this.element);
+            if (this.options.changeDisplayValue) this.element.hide();
+            if (!this.options.persist){
+                this.destroy();
+            } else if (this._mask) {
+                this._mask.dispose();
+            }
+        }
+    },
+
+    destroy: function(){
+        if (this._mask) this._mask.destroy();
+        this.fireEvent('destroy', this.element);
+        this.element.destroy();
+        this._mask = null;
+        this.destroyed = true;
+    },
+
+    hide: function(event, clicked){
+        if (clicked) {
+            var immediateParentPopup = clicked.getParent('[data-behavior~=BS.Popup]');
+            if (immediateParentPopup && immediateParentPopup != this.element) return;
+        }
+        if (!this.visible || this.animating) return;
+        this.animating = true;
+        if (event && clicked && clicked.hasClass('stopEvent')){
+            event.preventDefault();
+        }
+        document.id(document.body).removeEvent('click', this.bound.hide);
+        document.removeEvent('keyup', this.bound.keyMonitor);
+        this.element.removeEvent('click:relay(.close, .dismiss)', this.bound.hide);
+
+        if (this._checkAnimate()){
+            this.element.removeClass('in');
+            if (this._mask) this._mask.removeClass('in');
+        } else {
+            this.element.hide();
+            if (this._mask) this._mask.hide();
+        }
+        this.visible = false;
+        this._watch();
+    },
+
+    // PRIVATE
+
+    _makeMask: function(){
+        if (this.options.mask){
+            if (!this._mask){
+                this._mask = new Element('div.modal-backdrop');
+                if (this._checkAnimate()) this._mask.addClass('fade');
+            }
+        }
+        if (this.options.closeOnClickOut){
+            if (this._mask) this._mask.addEvent('click', this.bound.hide);
+            else document.id(document.body).addEvent('click', this.bound.hide);
+        }
+    }
+
+});
+
+// Begin: Source/Behaviors/Behavior.BS.Popup.js
+/*
+---
+
+name: Behavior.Popup
+
+description: Creates a bootstrap popup based on HTML markup.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - Behavior/Behavior
+ - More/Object.Extras
+ - Bootstrap.Popup
+
+provides: [Behavior.BS.Popup]
+
+...
+*/
+
+Behavior.addGlobalFilters({
+    'BS.Popup': {
+        defaults: {
+            focusOnShow: "input[type=text], select, textarea, .modal-footer .btn-primary, .modal-footer .btn",
+            hide: false,
+            animate: true,
+            closeOnEsc: true,
+            closeOnClickOut: true,
+            mask: true,
+            persist: true
+        },
+        returns: Bootstrap.Popup,
+        setup: function(el, api){
+            var popup = new Bootstrap.Popup(el,
+                Object.cleanValues(
+                    api.getAs({
+                        persist: Boolean,
+                        animate: Boolean,
+                        closeOnEsc: Boolean,
+                        closeOnClickOut: Boolean,
+                        mask: Boolean
+                    })
+                )
+            );
+            popup.addEvent('destroy', function(){
+                api.cleanup(el);
+            });
+            popup.addEvent('show', function(){
+                var focus = document.id(popup).getElement(api.get('focusOnShow'));
+                if (focus) focus.select();
+            });
+            if (!el.hasClass('hide') && !api.getAs(Boolean, 'hide') && (!el.hasClass('in') && !el.hasClass('fade'))) {
+                popup.show();
+            }
+            return popup;
+        }
+    }
+});
+
+// Begin: Source/UI/Bootstrap.Dropdown.js
+/*
+---
+
+name: Bootstrap.Dropdown
+
+description: A simple dropdown menu that works with the Twitter Bootstrap css framework.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - /Bootstrap
+ - Core/Element.Event
+ - More/Element.Shortcuts
+
+provides: Bootstrap.Dropdown
+
+...
+*/
+Bootstrap.Dropdown = new Class({
+
+    Implements: [Options, Events],
+
+    options: {
+        /*
+            onShow: function(element){},
+            onHide: function(elements){},
+        */
+        ignore: 'input, select, label'
+    },
+
+    initialize: function(container, options){
+        this.element = document.id(container);
+        this.setOptions(options);
+        this.boundHandle = this._handle.bind(this);
+        document.id(document.body).addEvent('click', this.boundHandle);
+    },
+
+    hideAll: function(){
+        var els = this.element.getElements('.open').removeClass('open');
+        this.fireEvent('hide', els);
+        return this;
+    },
+
+    show: function(subMenu){
+        this.hideAll();
+        this.fireEvent('show', subMenu);
+        subMenu.addClass('open');
+        return this;
+    },
+
+    destroy: function(){
+        this.hideAll();
+        document.body.removeEvent('click', this.boundHandle);
+        return this;
+    },
+
+    // PRIVATE
+
+    _handle: function(e){
+        var el = e.target;
+        var open = el.getParent('.open');
+        if (!el.match(this.options.ignore) || !open) this.hideAll();
+        if (this.element.contains(el)) {
+            var parent = null;
+            if (el.match('[data-toggle="dropdown"]') || el.getParent('[data-toggle="dropdown"] !')) {
+                parent = el.getParent('.dropdown, .btn-group');
+            }
+            // backwards compatibility
+            if (!parent) parent = el.match('.dropdown-toggle') ? el.getParent() : el.getParent('.dropdown-toggle !');
+            if (parent) {
+                e.preventDefault();
+                if (!open) this.show(parent);
+            }
+        }
+    }
+});
+
+// Begin: Source/Behaviors/Behavior.BS.Dropdown.js
+/*
+---
+
+name: Behavior.BS.Dropdown
+
+description: Instantiates Bootstrap.Dropdown based on HTML markup.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - Behavior/Behavior
+ - Bootstrap.Dropdown
+
+provides: [Behavior.BS.Dropdown]
+
+...
+*/
+Behavior.addGlobalFilters({
+    'BS.Dropdown': {
+        returns: Bootstrap.Dropdown,
+        setup: function(el, api){
+            return new Bootstrap.Dropdown(el);
+        }
+    }
+});
+
+// Begin: Source/Layout/TabSwapper.js
+/*
+---
+
+name: TabSwapper
+
+description: Handles the scripting for a common UI layout; the tabbed box.
+
+license: MIT-Style License
+
+requires: [Core/Element.Event, Core/Fx.Tween, Core/Fx.Morph, Core/Element.Dimensions, More/Element.Shortcuts, More/Element.Measure]
+
+provides: TabSwapper
+
+...
+*/
+var TabSwapper = new Class({
+    Implements: [Options, Events],
+    options: {
+        // initPanel: null,
+        // smooth: false,
+        // smoothSize: false,
+        // maxSize: null,
+        // onActive: function(){},
+        // onActiveAfterFx: function(){},
+        // onBackground: function(){}
+        // cookieName: null,
+        preventDefault: true,
+        selectedClass: 'tabSelected',
+        mouseoverClass: 'tabOver',
+        deselectedClass: '',
+        rearrangeDOM: true,
+        effectOptions: {
+            duration: 500
+        },
+        cookieDays: 999
+    },
+    tabs: [],
+    sections: [],
+    clickers: [],
+    sectionFx: [],
+    initialize: function(options){
+        this.setOptions(options);
+        var prev = this.setup();
+        if (prev) return prev;
+        if (this.options.initPanel != null) this.show(this.options.initPanel);
+        else if (this.options.cookieName && this.recall()) this.show(this.recall().toInt());
+        else this.show(0);
+
+    },
+    setup: function(){
+        var opt = this.options,
+            sections = $$(opt.sections),
+            tabs = $$(opt.tabs);
+        if (tabs[0] && tabs[0].retrieve('tabSwapper')) return tabs[0].retrieve('tabSwapper');
+        var clickers = $$(opt.clickers);
+        tabs.each(function(tab, index){
+            this.addTab(tab, sections[index], clickers[index], index);
+        }, this);
+    },
+    addTab: function(tab, section, clicker, index){
+        tab = document.id(tab); clicker = document.id(clicker); section = document.id(section);
+        //if the tab is already in the interface, just move it
+        if (this.tabs.indexOf(tab) >= 0 && tab.retrieve('tabbered')
+             && this.tabs.indexOf(tab) != index && this.options.rearrangeDOM) {
+            this.moveTab(this.tabs.indexOf(tab), index);
+            return this;
+        }
+        //if the index isn't specified, put the tab at the end
+        if (index == null) index = this.tabs.length;
+        //if this isn't the first item, and there's a tab
+        //already in the interface at the index 1 less than this
+        //insert this after that one
+        if (index > 0 && this.tabs[index-1] && this.options.rearrangeDOM) {
+            tab.inject(this.tabs[index-1], 'after');
+            section.inject(this.tabs[index-1].retrieve('section'), 'after');
+        }
+        this.tabs.splice(index, 0, tab);
+        clicker = clicker || tab;
+
+        tab.addEvents({
+            mouseout: function(){
+                tab.removeClass(this.options.mouseoverClass);
+            }.bind(this),
+            mouseover: function(){
+                tab.addClass(this.options.mouseoverClass);
+            }.bind(this)
+        });
+
+        clicker.addEvent('click', function(e){
+            if (this.options.preventDefault) e.preventDefault();
+            this.show(index);
+        }.bind(this));
+
+        tab.store('tabbered', true);
+        tab.store('section', section);
+        tab.store('clicker', clicker);
+        this.hideSection(index);
+        return this;
+    },
+    removeTab: function(index){
+        var now = this.tabs[this.now];
+        if (this.now == index){
+            if (index > 0) this.show(index - 1);
+            else if (index < this.tabs.length) this.show(index + 1);
+        }
+        this.now = this.tabs.indexOf(now);
+        return this;
+    },
+    moveTab: function(from, to){
+        var tab = this.tabs[from];
+        var clicker = tab.retrieve('clicker');
+        var section = tab.retrieve('section');
+
+        var toTab = this.tabs[to];
+        var toClicker = toTab.retrieve('clicker');
+        var toSection = toTab.retrieve('section');
+
+        this.tabs.erase(tab).splice(to, 0, tab);
+
+        tab.inject(toTab, 'before');
+        clicker.inject(toClicker, 'before');
+        section.inject(toSection, 'before');
+        return this;
+    },
+    show: function(i){
+        if (this.now == null) {
+            this.tabs.each(function(tab, idx){
+                if (i != idx)
+                    this.hideSection(idx);
+            }, this);
+        }
+        this.showSection(i).save(i);
+        return this;
+    },
+    save: function(index){
+        if (this.options.cookieName)
+            Cookie.write(this.options.cookieName, index, {duration:this.options.cookieDays});
+        return this;
+    },
+    recall: function(){
+        return (this.options.cookieName) ? Cookie.read(this.options.cookieName) : false;
+    },
+    hideSection: function(idx) {
+        var tab = this.tabs[idx];
+        if (!tab) return this;
+        var sect = tab.retrieve('section');
+        if (!sect) return this;
+        if (sect.getStyle('display') != 'none') {
+            this.lastHeight = sect.getSize().y;
+            sect.setStyle('display', 'none');
+            tab.swapClass(this.options.selectedClass, this.options.deselectedClass);
+            this.fireEvent('onBackground', [idx, sect, tab]);
+        }
+        return this;
+    },
+    showSection: function(idx) {
+        var tab = this.tabs[idx];
+        if (!tab) return this;
+        var sect = tab.retrieve('section');
+        if (!sect) return this;
+        var smoothOk = this.options.smooth && !Browser.ie;
+        if (this.now != idx) {
+            if (!tab.retrieve('tabFx'))
+                tab.store('tabFx', new Fx.Morph(sect, this.options.effectOptions));
+            var overflow = sect.getStyle('overflow');
+            var start = {
+                display:'block',
+                overflow: 'hidden'
+            };
+            if (smoothOk) start.opacity = 0;
+            var effect = false;
+            if (smoothOk) {
+                effect = {opacity: 1};
+            } else if (sect.getStyle('opacity').toInt() < 1) {
+                sect.setStyle('opacity', 1);
+                if (!this.options.smoothSize) this.fireEvent('onActiveAfterFx', [idx, sect, tab]);
+            }
+            if (this.options.smoothSize) {
+                var size = sect.getDimensions().height;
+                if (this.options.maxSize != null && this.options.maxSize < size)
+                    size = this.options.maxSize;
+                if (!effect) effect = {};
+                effect.height = size;
+            }
+            if (this.now != null) this.hideSection(this.now);
+            if (this.options.smoothSize && this.lastHeight) start.height = this.lastHeight;
+            sect.setStyles(start);
+            var finish = function(){
+                this.fireEvent('onActiveAfterFx', [idx, sect, tab]);
+                sect.setStyles({
+                    height: this.options.maxSize == effect.height ? this.options.maxSize : "auto",
+                    overflow: overflow
+                });
+                sect.getElements('input, textarea').setStyle('opacity', 1);
+            }.bind(this);
+            if (effect) {
+                tab.retrieve('tabFx').start(effect).chain(finish);
+            } else {
+                finish();
+            }
+            this.now = idx;
+            this.fireEvent('onActive', [idx, sect, tab]);
+        }
+        tab.swapClass(this.options.deselectedClass, this.options.selectedClass);
+        return this;
+    }
+});
+
+
+// Begin: Source/Behaviors/Behavior.Tabs.js
+/*
+---
+name: Behavior.Tabs
+description: Adds a tab interface (TabSwapper instance) for elements with .css-tab_ui. Matched with tab elements that are .tabs and sections that are .tab_sections.
+provides: [Behavior.Tabs]
+requires: [Behavior/Behavior, /TabSwapper, More/String.QueryString, More/Object.Extras]
+script: Behavior.Tabs.js
+
+...
+*/
+
+Behavior.addGlobalFilters({
+
+    Tabs: {
+        defaults: {
+            'tabs-selector': '.tabs>li',
+            'sections-selector': '.tab_sections>li',
+            smooth: true,
+            smoothSize: true,
+            rearrangeDOM: false,
+            preventDefault: true
+        },
+        setup: function(element, api) {
+            var tabs = element.getElements(api.get('tabs-selector'));
+            var sections = element.getElements(api.get('sections-selector'));
+            if (tabs.length != sections.length || tabs.length == 0) {
+                api.fail('warning; sections and sections are not of equal number. tabs: ' + tabs.length + ', sections: ' + sections.length);
+            }
+            var getHash = function(){
+                return window.location.hash.substring(1, window.location.hash.length).parseQueryString();
+            };
+
+            var ts = new TabSwapper(
+                Object.merge(
+                    {
+                        tabs: tabs,
+                        sections: sections,
+                        initPanel: api.get('hash') ? getHash()[api.get('hash')] : null
+                    },
+                    Object.cleanValues(
+                        api.getAs({
+                            smooth: Boolean,
+                            smoothSize: Boolean,
+                            rearrangeDOM: Boolean,
+                            selectedClass: String,
+                            initPanel: Number,
+                            preventDefault: Boolean
+                        })
+                    )
+                )
+            );
+            ts.addEvent('active', function(index){
+                if (api.get('hash')) {
+                    var hash = getHash();
+                    hash[api.get('hash')] = index;
+                    window.location.hash = Object.cleanValues(Object.toQueryString(hash));
+                }
+                api.fireEvent('layout:display', sections[0].getParent());
+            });
+            element.store('TabSwapper', ts);
+            return ts;
+        }
+    }
+});
+
+
+// Begin: Source/Behaviors/Behavior.BS.Tabs.js
+/*
+---
+
+name: Behavior.BS.Tabs
+
+description: Instantiates Bootstrap.Tabs based on HTML markup.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - Behavior/Behavior
+ - Clientcide/Behavior.Tabs
+
+provides: [Behavior.BS.Tabs]
+
+...
+*/
+(function(){
+
+    // start with the base options from the tabs behavior
+    var tabs = Object.clone(Behavior.getFilter('Tabs'));
+
+    // customizing it here for Bootstrap, we start by duplicationg the other behavior
+    Behavior.addGlobalFilters({
+        'BS.Tabs': tabs.config
+    });
+
+    // set custom defaults specific to bootstrap
+    Behavior.setFilterDefaults('BS.Tabs', {
+        'tabs-selector': 'a:not(.dropdown-toggle)',
+        'sections-selector': '+.tab-content >',
+        'selectedClass': 'active',
+        smooth: false,
+        smoothSize: false
+    });
+
+    // this plugin configures tabswapper to use bootstrap specific DOM structures
+    Behavior.addGlobalPlugin('BS.Tabs', 'BS.Tabs.CSS', function(el, api, instance){
+        // whenever the tabswapper activates a tab
+        instance.addEvent('active', function(index, section, tab){
+            // get the things in the tabs element that are active and remove that class
+            el.getElements('.active').removeClass('active');
+            // get the parent LI for the tab and add active to it
+            tab.getParent('li').addClass('active');
+            // handle the possibility of a dropdown in the tab.
+            var dropdown = tab.getParent('.dropdown');
+            if (dropdown) dropdown.addClass('active');
+        });
+        // invoke the event for startup
+        var now = instance.now;
+        var tab = instance.tabs[now];
+        var section = tab.retrieve('section');
+        instance.fireEvent('active', [now, section, tab]);
+
+    });
+
+    // this plugin makes links that have #href targets select their target tabs
+    Behavior.addGlobalPlugin('BS.Tabs', 'BS.Tabs.TargetLinks', function(el, api, instance){
+        // whenever the instance activates a tab, find any related #href links and add `active-section-link` to the appropriate ones
+        instance.addEvent('active', function(index, section, tab){
+            document.body.getElements('.active-section-link').removeClass('active-section-link');
+            // if there's a "group controller" go select it.
+            if (tab.get('data-tab-group')) {
+                document.id(tab.get('data-tab-group')).addClass('active-section-link');
+            }
+        });
+
+                // invoke the event for startup
+        var now = instance.now;
+        var tab = instance.tabs[now];
+        var section = tab.retrieve('section');
+        instance.fireEvent('active', [now, section, tab]);
+
+    });
+
+})();
+
+
 // /*
 // ---
 // description: You can resize elements easilly with Drag
@@ -12626,238 +15503,6 @@ Drag.SplitPane = new Class({
     }
 });
 
-/*
----
-script: rotater.js
-description: MGFX.Rotater, the base class that provides slides and transitions. 
-authors: Sean McArthur (http://seanmonstar.com) 
-license: MIT-style license 
-requires:
- core/1.3.0: [Event, Element.Event, Fx.CSS]
- more/1.3.0.1: [Fx.Elements]
-provides: [MGFX.Rotater]
-...
-*/
-
-//MGFX.Rotater. Copyright (c) 2008-2010 Sean McArthur <http://seanmonstar.com/>, MIT Style License.
-
-if(!window.MGFX) MGFX = {};
-
-MGFX.Rotater = new Class({
-	
-	Implements: [Options, Events],
-	
-	options: {
-		slideInterval: 5000,
-		transitionDuration: 250,
-		startIndex: 0,
-		// autoplay: true,
-		hover:true,
-		hash: true
-		/*onAutoPlay: function() {},
-		onRotate: function() {},
-		onShowSlide: function() {},
-		onStop: function() {},
-		onPause: function() {},
-		onResume: function() {}*/
-		//slides
-	},
-	
-	initialize: function(container,options){
-		this.setOptions(options);
-		this.container = container;
-		this.slides = container.getElements(this.options.content);
-		this.createFx();
-		this.showSlide(this.options.startIndex);
-		if(this.slides.length < 2) this.options.autoplay = false;
-		// if(this.options.autoplay) this.autoplay();
-	},
-	
-	createFx: function(){
-		if (!this.slideFx) this.slideFx = new Fx.Elements(this.slides, {
-			duration: this.options.transitionDuration,
-			link: 'cancel'
-		});
-		this.slides.setStyle('opacity', 0);
-	}.protect(),
-	
-	// setupHover: function() {
-	// 	var _timeLastRotate = new Date(),
-	// 		_timeLastPause,
-	// 		_timeTillRotate = this.options.slideInterval;
-
-	// 	this._resumeDelay = null;
-			
-	// 	var onRotate = this._onRotate = function() {
-	// 		if(this.slideshowInt) {
-	// 			_timeLastRotate = new Date();
-	// 			_timeTillRotate = this.options.slideInterval;
-	// 		}
-	// 	};
-	// 	var onMouseEnter = this._onMouseEnter = function() {
-	// 		this.stop();
-	// 		_timeLastPause = new Date();
-	// 		clearTimeout(this._resumeDelay);
-	// 		this.fireEvent('onPause');
-	// 	}.bind(this);
-		
-	// 	var onMouseLeave = this._onMouseLeave = function() {
-	// 		var timePassed = (_timeLastPause - _timeLastRotate);
-	// 		_timeLastRotate = new Date() - timePassed;
-	// 		this._resumeDelay = (function() {
-	// 			this.autoplay();
-	// 			this.rotate();
-	// 			this.fireEvent('onResume');
-	// 		}).delay(_timeTillRotate - timePassed, this);			
-	// 	}.bind(this);
-		
-	// 	this.addEvent('onRotate', onRotate);
-	// 	this.slides.addEvents({
-	// 		'mouseenter': onMouseEnter,
-	// 		'mouseleave': onMouseLeave
-	// 	});
-		
-	// 	this._hoverSet = true;
-	// }.protect(),
-	
-	removeHover: function() {
-		this.removeEvent('onRotate', this._onRotate);
-		this.slides.removeEvents({
-			'mouseenter': this._onMouseEnter,
-			'mouseleave': this._onMouseLeave
-		});
-		clearTimeout(this._resumeDelay);
-		this._hoverSet = false;
-	},
-	
-	showSlide: function(slideIndex){
-		if(slideIndex == this.currentSlide) return this;
-		var action = {},
-			curSlide = this.currentSlide;
-		this.slides.each(function(slide, index){
-			if(index == slideIndex && index != curSlide){ //show
-				action[index.toString()] = {
-					opacity: 1,
-					'z-index': 1
-				};
-				slide.getParent().setStyle('height', slide.getHeight());
-			} else {
-				action[index.toString()] = {
-					opacity: 0,
-					'z-index': -1
-				};
-			}
-		});
-		this.fireEvent('showSlide', slideIndex);
-		this.currentSlide = slideIndex;
-		this.slideFx.start(action);
-		return this;
-	},
-	
-	// autoplay: function(){
-	// 	if(this.slideshowInt) return this;
-	// 	if(this.options.hover && !this._hoverSet) this.setupHover();
-	// 	this.slideshowInt = this.rotate.periodical(this.options.slideInterval, this);
-	// 	this.fireEvent('autoPlay');
-	// 	return this;
-	// },
-	
-	stop: function(not_pause){
-		clearInterval(this.slideshowInt);
-		this.slideshowInt = null;
-		this.fireEvent('stop');
-		if(not_pause && this.options.hover) this.removeHover();
-		return this;
-	},
-	
-	rotate: function(){
-		var next = this.getNext();
-		this.showSlide(next);
-		this.fireEvent('rotate', next);
-		return this;
-	},
-	
-	random: function() {
-		var index = Number.random(0, this.slides.length);
-		index = index == this.currentSlide ? this.getNext() : index;
-		this.showSlide(index);
-		this.fireEvent('random', index);
-		return this;
-	},
-	getNext: function() {
-		var current = this.currentSlide;
-		return (current+1 >= this.slides.length) ? 0 : current+1
-	}.protect()
-	
-});
-
-/*
----
-script: tabs.js
-description: MGFX.Tabs, extension of base class that adds tabs to control the rotater. 
-authors: Sean McArthur (http://seanmonstar.com) 
-license: MIT-style license 
-requires:
- core/1.3.0: [Event, Element.Event, Fx.CSS]
- more/1.3.0.1: [Fx.Elements]
-provides: [MGFX.Tabs]
-...
-*/
-
-//MGFX.Tabs. Copyright (c) 2008-2011 Sean McArthur <http://seanmonstar.com/>, MIT Style License.
-
-// if(!window.MGFX) MGFX = {};
-
-MGFX.Tabs = new Class({
-	
-	Extends: MGFX.Rotater,
-	
-	options: {
-		autoplay: false,
-		onShowSlide: function(slideIndex) {
-			this.tabs.removeClass('active');
-			this.tabs[slideIndex].addClass('active');
-		},
-		tabsClass: 'mgfx-tab',
-		contentClass: 'mgfx-content'
-		// tabs: ... selector
-	},
-	
-	initialize: function(container, options){
-		this.setOptions(options);
-		this.container = container;
-		this.tabs = container.getElements(this.options.tabs);
-		this.tabs.getParent().addClass(this.options.tabsClass);
-		this.createTabs(container);
-		if(options.hash && window.location.hash) {
-			this.getHashIndex(options);
-		}
-		this.parent(container);
-		this.slides.getParent().addClass(this.options.contentClass);
-	},
-	
-	createTabs: function() {
-		var that = this;
-		this.container.addEvent('click:relay(' + this.options.tabs +')', function(event, target) {
-			event.preventDefault();
-			var index = that.tabs.indexOf(target);
-			that.showSlide(index);
-			that.stop(true);
-		});
-	}.protect(),
-	
-	getHashIndex: function(options) {
-		var hash = window.location.hash.substring(1);
-		this.tabs.each(function(el, index) {
-			if(el.get('id') == hash) {
-				options.startIndex = index;
-			}
-		});
-	}.protect()
-	
-});
-
-if(!window.Tabs) var Tabs = MGFX.Tabs;
 ;(function(){
 	'use strict';
 
@@ -12904,7 +15549,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 				self = this;
 
 			if (!events && !subs) return this;
-			args = Array.from(args);
+			args = Type.isArray(args) ? [args] : Array.from(args);
 
 			events.each(function(fn){
 				// local events
@@ -13063,9 +15708,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 	// wrapper function for requirejs or normal object
 	var wrap = function(){
 
-		var eq = Object.equal;
-
-		return eq;
+		return _.isEqual;
 	}; // end wrap
 
 	if (typeof define === 'function' && define.amd){
@@ -13155,14 +15798,14 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 				if (this.properties[key] && this.properties[key]['set'])
 					return this.properties[key]['set'].call(this, value);
 
-				var attr = Object.get(this._attributes, path)
+				var attr = _.lookup(this._attributes, path)
 				// no change? this is crude and works for primitives.
 				if (attr && isEqual(attr, value))
 					return this;
 
 				// basic validator support
 				var validator = this.validate(path, value);
-				if (Object.get(this.validators, path) && validator !== true){
+				if (_.lookup(this.validators, path) && validator !== true){
 					var obj = {};
 					obj[key] = {
 						key: key,
@@ -13179,7 +15822,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 					delete this._attributes[key]; // delete = null.
 				}
 				else {
-					Object.set(this._attributes, path, value);
+					_.assign(this._attributes, path, value);
 				}
 
 				// fire an event.
@@ -13200,7 +15843,7 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 				}
 
 				// else, return from attributes or return null when undefined.
-				var attr = Object.get(this._attributes, key);
+				var attr = _.lookup(this._attributes, key);
 				return (typeof attr !== 'undefined') ? attr : null;
 			}.overloadGetter(),
 
@@ -14111,320 +16754,6 @@ if(!window.Tabs) var Tabs = MGFX.Tabs;
 		this.Epitome.View = wrap(this.Epitome.Template, this.Epitome.Model, this.Epitome.Collection, this.Epitome.Events);
 	}
 }.call(this));
-//small generic functional helper library
-; var prelude = (function(undefined) {
-
-    // Helpers
-    //+ equals :: a -> a -> Bool
-    var funclib = Functional,
-
-        ret = {},
-
-        //+ nTimes :: Integer -> (-> a) -> [a]
-        // nTimes = ret.nTimes = function(times, fun) {
-        //     var result = [];
-        //     for (var i = 0; i < times; i++) {
-        //         result = cons(fun(), result);
-        //     }
-        //     return result;
-        // }.autoCurry(),
-
-        //+ log :: a -> a
-        log = ret.log = function(what) {
-            console.log(what);
-            return what;
-        },
-
-        //+ log2 :: String -> a -> a
-        // log2 = ret. function(one, two) {
-        //     log(one);
-        //     return log(two);
-        // }.autoCurry(),
-
-        // Conditional
-        //+ when :: Boolean -> (? -> a) -> a
-        when = ret.when = function(pred, f) {
-            return function() {
-                if (pred.apply(this, arguments)) return f.apply(this, arguments);
-            }
-        }.autoCurry(),
-
-        //+ ifelse :: (-> Boolean) -> (-> a) -> (-> b) -> a|b
-        ifelse = ret.ifelse = function(pred, f, g) {
-            return function() {
-                return pred.apply(this, arguments) ? f.apply(this, arguments) : g.apply(this, arguments);
-            }
-        }.autoCurry(),
-
-        //+ negate :: Boolean -> Boolean
-        negate = ret.negate = function(bool) {
-            return !bool;
-        },
-
-        //+ andand :: a -> b -> Boolean
-        andand = ret.andand = function(x, y) {
-            return x && y;
-        }.autoCurry(),
-
-        //+ oror :: a -> b -> Boolean
-        oror = ret.oror = function(x, y) {
-            return x || y;
-        }.autoCurry(),
-
-        equals = ret.equals = function(x, y) {
-            return x === y;
-        }.autoCurry(),
-
-        //+ isNumber :: a -> Boolean
-        // isNumber = ret.isNumber = function(n) {
-        //     return !isNaN(parseFloat(n)) && isFinite(n);
-        // },
-
-        // Array
-        //+ take :: Integer -> [a] -> [a]
-        take = ret.take = function(n, xs) {
-            return xs.slice(0, n);
-        }.autoCurry(),
-
-        //+ drop :: Integer -> [a] -> [a]
-        drop = ret.drop = function(n, xs) {
-            return xs.slice(n);
-        }.autoCurry(),
-
-        //+ unshift :: [a] -> b -> [b,a]
-        // unshift = ret. function(xs, x) {
-        //     return x.concat(xs);
-        // }.autoCurry(),
-        //+ cons :: a -> [b] -> [a,b]
-        cons = ret.cons = function(x, xs) {
-            return [x].concat(xs);
-        }.autoCurry(),
-
-        //+ concat :: [a] -> [b] -> [a,b]
-        concat = ret.concat = function(xs, ys) {
-            return xs.concat(ys);
-        }.autoCurry(),
-
-        //+ first :: [a] -> a
-        first = ret.first = function(xs) {
-            return xs[0];
-        },
-
-        item = ret.item = function(n, xs) {
-            return xs[n];
-        }.autoCurry(),
-
-        //+ rest :: [a] -> [a] 
-        rest = ret.rest = function(xs) {
-            return xs.slice(1 /*, xs.length*/ );
-        },
-
-        restRight = ret.restRight = function(xs) {
-            return xs.slice(0, xs.length-1)
-        },
-
-        //+ last :: [a] -> a
-        last = ret.last = function(xs) {
-            return xs[xs.length - 1];
-        },
-
-        //+ join :: String -> [String] -> String
-        join = ret.join = function(token, xs) {
-            return xs.join(token);
-        }.autoCurry(),
-
-        //+ groupsOf :: Integer -> [a] -> [[a]]
-        // groupsOf = ret.groupsOf = function(n, xs) {
-        //     if (!xs.length) return [];
-        //     return cons(take(n, xs), groupsOf(n, drop(n, xs)));
-        // }.autoCurry(),
-
-        //+ zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-        // zipWith = ret. function(f, xs, ys) {
-        //     f = ret. f.toFunction();
-        //     return xs.reduce(function(result, x, i) {
-        //         return result.concat(f(x, ys[i]));
-        //     }, []);
-        // }.autoCurry(),
-
-        //+ uniq :: [a] -> [a] 
-        uniq = ret.uniq = function(xs) {
-            var result = [];
-            for (var i = 0; i < xs.length; i++) {
-                if (result.indexOf(xs[i]) < 0) result.push(xs[i]);
-            }
-            return result;
-        },
-
-        //+ uniqBy :: (a -> b) -> [a] -> [a]
-        // uniqBy = ret.uniqBy = function(fun, xs) {
-        //     var result = [],
-        //         len = xs.length,
-        //         fun = ret.fun.toFunction();
-        //     for (var i = 0; i < len; i++) {
-        //         if (funclib.map(fun)(result).indexOf(fun(xs[i])) < 0) {
-        //             result.push(xs[i]);
-        //         }
-        //     }
-        //     return result;
-        // }.autoCurry(),
-
-        //+ reverse :: [a] -> [a]
-        // reverse = ret.reverse = function(xs) {
-        //     var mempty = (typeof xs == "string") ? "" : [];
-        //     if (isArray(xs)) {
-        //         //destructive
-        //         return xs.reverse();
-        //     } else {
-        //         return funclib.reduce(function(x, acc) {
-        //             return acc.concat(x);
-        //         }, mempty, xs);
-        //     }
-        // }.autoCurry(),
-
-        //+ intersect :: [a] [b] -> [a ∩ b]
-        intersect = ret.intersect = function(xs1, xs2) {
-            return xs1.filter(contains(xs2));
-        }.autoCurry(),
-
-        //+ intersect :: [a] [b] -> [a ∂ b]
-        difference = ret.difference = function(xs1, xs2) {
-            return xs1.filter(funclib.not(contains(xs2)));
-        }.autoCurry(),
-
-        //+ intersect :: [a] [b] -> [a u b]
-        union = ret.union = function(xs1, xs2) {
-            return uniq(concat(xs1, xs2)); //can also call combine
-        }.autoCurry(),
-
-        //destructive
-        // is_num_array = ret. function(arr) {return reduce(andand, true, funclib.map(isNumber, arr))},
-        //+ sort :: [a] -> [a]
-        // sort = ret. function(xs) {
-        //     num_sort_func = ret. function(a, b) {
-        //         return a - b;
-        //     };
-        //     return is_num_array ? xs.sort(num_sort_func) : xs.sort();
-        // },
-        //+ element :: [a] -> b -> Boolean
-        // element = ret. function(arr, x) {
-        //     return arr.indexOf(x) >= 0;
-        // }.autoCurry(),
-        //+ flatten :: [[a]] -> [a]
-        // flatten = ret. funclib.reduce(concat, []),
-        //+ sortBy :: (a -> b) -> [a] -> [a]
-        // sortBy = ret. function(fun, xs) {
-        //     var _sortBy = ret. function(iterator, xs, context) {
-        //             return map('.value', map(function(value, index) {
-        //                 return {
-        //                     value: value,
-        //                     criteria: iterator.call(context, value, index)
-        //                 };
-        //             }, xs).sort(function(left, right) {
-        //                 var a = left.criteria,
-        //                     b = right.criteria;
-        //                 return a < b ? -1 : a > b ? 1 : 0;
-        //             }));
-        //         }
-        //     var f = ret. fun.toFunction();
-        //     return _sortBy(f, xs);
-        // }.autoCurry(),
-        //+ groupBy :: (a -> Boolean) -> [a] -> {false: [a], true: [a]}
-        // groupBy = ret. function(fun, xs) {
-        //     var f = ret. fun.toFunction();
-        //     var _makeHash = ret. function(obj, x) {
-        //             var val = ret. f(x);
-        //             if (!obj[val]) obj[val] = [];
-        //             obj[val].push(x);
-        //             return obj;
-        //         }
-        //     return reduce(_makeHash, {}, xs);
-        // }.autoCurry(),
-
-        // String
-        //+ strip :: String -> String
-        //no whitespace
-        strip = ret.strip = function(str) {
-            return str.replace(/\s+/g, "");
-        },
-
-        //+ split :: String -> String -> [String]
-        split = ret.split = function(token, xs) {
-            return xs.split(token);
-        }.autoCurry(),
-
-        //+ test :: RegEx -> String -> Boolean
-        test = ret.test = function(expr, x) {
-            return expr.test(x);
-        }.autoCurry(),
-
-        //+ match :: RegEx -> String -> [] 
-        match = ret.match = function(expr, x) {
-            return x.match(expr);
-        }.autoCurry(),
-
-        //+ replace :: RegEx -> String -> String -> String
-        replace = ret.replace = function(pattern, sub, str) {
-            return str.replace(pattern, sub);
-        }.autoCurry(),
-
-        indexOf = ret.indexOf = function(par, kid) {
-            return par.indexOf(kid);
-        }.autoCurry(),
-
-        contains = ret.contains = function(par, kid) {
-            return par.indexOf(kid) !== -1;
-        }.autoCurry();
-
-    // Object
-    //+ setVal :: String -> Object -> a -> a
-    // setVal = ret. function(attribute, x, val) {
-    //     x[attribute] = val;
-    //     return val;
-    // }.autoCurry(),
-    // //+ getVal :: String -> Object -> a
-    // getVal = ret. function(attribute, x) {
-    //     return function() {
-    //         return x[attribute];
-    //     };
-    // }.autoCurry(),
-    // getProp = ret. function(x, attr) {
-    //     return x[attr];
-    // }.autoCurry(), //funclib.pluck.flip();
-    // setProp = ret. function(x, attr, val) {
-    //     x[attr] = val;
-    //     return val;
-    // }.autoCurry(),
-
-    // Math
-    //+ random :: Integer-> Integer
-    // random = ret. function(i) {
-    //     return Math.floor(Math.random() * i);
-    // },
-    // //+ subtract :: Number -> Number -> Number
-    // subtract = ret. function(x, y) {
-    //     return y - x;
-    // }.autoCurry(),
-    // //+ sum :: [Number] -> Number
-    // sum = ret. funclib.reduce('+', 0),
-    // //+ div :: Number -> Number -> Number
-    // div = ret. function(x, y) {
-    //     return x / y;
-    // },
-    // //+ average :: [Number] -> Number
-    // average = ret. function(xs) {
-    //     var zerolessArr = ret. filter('!==0', xs);
-    //     return div(sum(zerolessArr), zerolessArr.length);
-    // },
-
-    // Other
-    //+ repeat :: a -> Integer -> [a]
-    // repeat = ret. function(arg, n) {
-    //     return nTimes(n, funclib.id.curry(arg));
-    // }.autoCurry();
-
-    return ret;
-}());
 this["Handlebars"] = this["Handlebars"] || {};
 this["Handlebars"]["templates"] = this["Handlebars"]["templates"] || {};
 
@@ -14530,25 +16859,46 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "<div class=\"controls\">\r\n<label class=\"control-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.CUSTOM_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"text\" class=\"custom-notice\" placehold=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTICE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+  buffer += "<div class=\"controls custom-notice\" id=";
+  if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + ">\r\n<label class=\"control-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USER_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"text\" data-id=\"nick\" placeholder=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" value=\"";
-  if (stack2 = helpers.text) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.text; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  if (stack2 = helpers.nick) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.nick; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
+    + "\">\r\n</label>\r\n<label class=\"control-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"text\" data-id=\"msg\" placeholder=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" value=\"";
+  if (stack2 = helpers.msg) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.msg; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" >"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
+    + "\r\n<input type=\"checkbox\" data-id=\"beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.beep, options) : helperMissing.call(depth0, "check", depth0.beep, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
+    + "\r\n<input type=\"checkbox\" data-id=\"flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
-    + ">\r\n</label>\r\n</div>";
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" title=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"autoescape\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.autoescape, options) : helperMissing.call(depth0, "check", depth0.autoescape, options)))
+    + ">\r\n</label>\r\n<input type=\"button\" value=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DELETE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" class=\"remove-notice btn btn-danger btn-smaller\">\r\n</div>";
   return buffer;
   });
 
@@ -14585,7 +16935,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<form class='input'>\r\n<div class=\"input-group\">\r\n<span class='input-group-addon nickname'><span class='status ";
+  buffer += "<form class='input'>\r\n<div class='input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -14597,7 +16947,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " input-field form-control' type='text'>\r\n<span class=\"input-group-btn\">\r\n<button class=\"btn btn-default send\" type=\"button\">&gt;</button>\r\n</span>\r\n</div>\r\n</form>";
+    + " input-field form-control' type='text'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n<ul class='dropdown-menu'>\r\n<li><a href='#'>Colours</a></li>\r\n<li><a href='#'>Styles</a></li>\r\n<li><a href='#'>IRC Commands</a></li>\r\n<li><a href='#'>Actions</a></li>\r\n</ul>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -14751,7 +17101,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<div class=\"\">\r\n<ul class=\"option-tabs nav nav-tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options disabled\"><a href=\"#\">Notifications(TODO)</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n</div>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
+  buffer += "\r\n<form id=\"options\" class=\"form-horizontal\">\r\n<ul class=\"option-tabs tabs nav nav-tabs\" data-behavior=\"BS.Tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options\"><a href=\"#\">Notifications</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n<div class=\"tab-content\" id=\"my-tab-content\">\r\n<div class=\"ui-options control-group well active\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_COLOURS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<input type=\"checkbox\" id=\"nick_colours\" ";
   options = {hash:{},data:data};
@@ -14814,43 +17164,63 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_mention.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_mention.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_mention.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_pm.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_pm.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_pm.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_pm.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_notice.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_notice.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_notice.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_notice.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
-    + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div id=\"custom-notices\" class=\"controls\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<h3>Custom Notices</h3>\r\n<div id=\"custom-notices\" class=\"controls\">\r\n\r\n</div>\r\n<input type=\"button\" value=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ADD_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" id=\"add-notice\" class=\"btn btn-default btn-small\">\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='hyperlink-page' data-page='";
+  if (stack1 = helpers.page) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.page; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'>";
+  if (stack1 = helpers.page) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.page; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>";
   return buffer;
   });
 
@@ -14997,9 +17367,7 @@ project name and URL in the about dialog, thanks!*/
 
     //common globals
     var document = window.document,
-        $ = document.id,
-        Functional = window.Functional,
-        prelude = window.prelude;
+        $ = document.id;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
@@ -15213,9 +17581,9 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = irc.styles.filter(function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
-irc.styles.colour = irc.styles.filter(function(sty) { return sty.name == 'colour' } )[0];
-irc.styles.normal = irc.styles.filter(function(sty) { return sty.name == 'normal' } )[0];
+irc.styles.special = _.filter(irc.styles, function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
+irc.styles.colour = _.find(irc.styles, function(sty) { return sty.name == 'colour' } );
+irc.styles.normal = _.find(irc.styles, function(sty) { return sty.name == 'normal' } );
 
 irc.colours = [//http://www.mirc.com/colors.html
     {
@@ -15325,31 +17693,51 @@ var whitespace = /\s/,
 
 //my helper functions
 //returns itself
-var $identity = Functional.I,
+var join = function(by, xs) {
+        return xs.join(by);
+    },
 
-    // notEqual = Functional.compose(Functional.not, Functional.eq),
+    split = function(by, str) {
+        return str.split(by);
+    },
 
-    charAt = function(n, str) { return str.charAt(n); }.autoCurry(),
+    restRight = _.autoCurry(function(xs) {
+        return xs.slice(0, xs.length-1);
+    }),
 
-    splitBang = prelude.split("!"),
+    test = _.autoCurry(function(reg, str) {
+        return str.test(reg);
+    }),
 
-    joinBang = prelude.join("!"),
+    replace = _.autoCurry(function(reg, rep, str) {
+        return str.replace(reg, rep);
+    }),
 
-    joinEmpty = prelude.join(""),
+    startsWith = function(what, str) {
+        return str.startsWith(what);
+    },
 
-    splitEmpty = prelude.split(""),
+    $identity = _.identity,
 
-    joinComma = util.joinChans = prelude.join(","),
+    splitBang = _.partial(split, "!"),
 
-    splitComma = prelude.split(","),
+    joinBang = _.partial(join, "!"),
 
-    concatUnique = Functional.compose(prelude.uniq, prelude.concat),
+    joinEmpty = _.partial(join, ""),
 
-    concatSep = function(sep, s1, s2) {
-        if(Array.isArray(s1)) {
+    // splitEmpty = split(""),
+
+    joinComma = util.joinChans = _.partial(join,","),
+
+    // splitComma = split(","),
+
+    concatUnique = _.compose(_.uniq, Array.concat),
+
+    concatSep = _.autoCurry(function(sep, s1, s2) {
+        if(_.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(Array.isArray(s2)) {
+        if(_.isArray(s2)) {
             s2 = s2.join(sep);
         }
         if(s1 !== "" && s2 !== "") {
@@ -15358,52 +17746,22 @@ var $identity = Functional.I,
         else {
             return s1 + s2;
         }
-    }.autoCurry(),
+    }),
 
-    concatSpace = concatSep(" "),
+    concatSpace = concatSep(" ");
 
-    startsWith = function(what, str) {
-        return str.startsWith(what);
-    }.autoCurry(),
-
-    each = Array.each.flip().autoCurry(2);
-
-//little formatter i wrote in 10 mins you can prob find a better one
-//formatter("{test} a {wa} {repl} {test}",{test:1, repl:'replaced'})
-// => "1 a {wa} replaced 1"
-// http://jsperf.com/stringformat/3
-util.formatter = String.substitute;
-// function(str, hash) {
-//     var curly = /{(.*?)}/g, //match all substrings wrapped in '{ }'
-//         prop;
-
-//     str.match(curly)
-//         .each(function (propstr) {
-//             prop = propstr.substring(1, propstr.length - 1); //remove curlys
-//             if(typeof hash[prop] !== 'undefined') {
-//                 str = str.replace(propstr, hash[prop]);
-//             }
-//         });
-//     return str;
-// };
-
-
-// util.mapA = function(object, fn, bind) {
-//     var results = [];
-//     for (var key in object) {
-//         if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
-//     }
-//     return results;
-// };
+util.formatter = function(message, data) {
+    return (message.message || message).substitute(data);
+};
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = Functional.compose(joinBang, prelude.restRight, splitBang);
+util.hostToNick = _.compose(joinBang, restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = Functional.compose(prelude.last, splitBang);
+util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
+var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
 
     formatChannel = util.formatChannel = function(chan) {
         if(chan.length >= 1 && !isChannel(chan)) {
@@ -15424,40 +17782,34 @@ var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(Array.isArray(xs))
+        if(_.isArray(xs))
             return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
 
     //function to determine if a string is one of the stock windows
-    isBaseWindow = util.isBaseWindow = prelude.contains(BASE_WINDOWS),
+    isBaseWindow = util.isBaseWindow = _.partial(_.contains, BASE_WINDOWS),
 
-    isChannelType = util.isChannelType = prelude.contains(CHANNEL_TYPES);
+    isChannelType = util.isChannelType = _.partial(_.contains, CHANNEL_TYPES);
 
 
-util.windowNeedsInput = prelude.contains(INPUT_TYPES);
+util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
-util.formatChannelString = Functional.compose(joinComma, prelude.uniq, Functional.map(formatChannel), splitChan);
-util.unformatChannelString = Functional.compose(prelude.uniq, Functional.map(unformatChannel), splitChan);
+util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
 
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
-util.addChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel);
+util.addChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */appendChannel);
 //adds channel to front of list of channels
-util.prependChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel.flip());
+util.prependChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */_.flip(appendChannel));
 
-
-//filter an array to not contain main window or dubs then joins it
-// util.arrayToChanString = Functional.compose(joinComma, prelude.uniq, Functional.filter.curry(Functional.not(isBaseWindow)));
 
 //calls splits string by comma then calls array.erase on value
 util.removeChannel = Array.erase;
-// function(chans, chan) {
-//     return joinComma( splitChan(chans).erase(chan) );
-// };
 
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
@@ -15481,16 +17833,14 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) {
+util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b')
     return function(nick) {
         return nickHash[nick].prefixes + nick;
     };
-    //return Functional.compose(prelude.concat, prelude.getProp(nickHash));
 };
 
-util.validPrefix = prelude.contains;
+util.validPrefix = _.contains;
 
-//equilvalent Functional.compose(joinEmpty, concatUnique)
 util.addPrefix = function(nc, pref, prefs) {
     if(prefs && !util.validPrefix(prefs, pref))
         return nc.prefixes;
@@ -15503,21 +17853,21 @@ util.removePrefix = function(nc, pref) {
 
 //if theres a prefix it gets returned
 //i dont think its possible to have multiple prefixes
-util.prefixOnNick = function(prefixes, nick) {
+util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
     var c = nick.charAt(0);
     return util.validPrefix(prefixes, c) ? [c, nick.slice(1)] : ['', nick];
-}.autoCurry();
+});
 
-util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
+util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
+util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = Functional.memoize(function(nick) {
+util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
 util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
-    return prelude.test(util.createNickRegex(nick), text);
+    return test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
@@ -15536,41 +17886,33 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = Functional.compose(Array.item.curry(irc.IRCLowercaseTable), String.charCodeAt.partial(_, 0));
+var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda('x.charCodeAt(0)'));
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
-irc.RFC1459toIRCLower = Functional.memoize(Functional.compose(prelude.join(""), Functional.map(charIRCLower)));
+irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_.func.map, charIRCLower)));
 
 //not really sure
 //takes a irc client object and string and returns something
-irc.toIRCCompletion = Functional.compose(prelude.replace(/[^\w]+/g, ""), Functional.invoke("toIRCLower"));
+irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke, "toIRCLower"));
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
 util.getStyleByName = function(name) {
-    return irc.styles.filter(function(style) {
-        return style.name === name;
-    })[0];
-}
+    return _.findWhere(irc.styles, {name:name});
+};
 
 util.getStyleByKey = function(key) {
-    return irc.styles.filter(function(style) {
-        return style.key === key;
-    })[0];
-}
+    return _.findWhere(irc.styles, {key: _.toInt(key)});
+};
 
 util.getColourByName = function(name) {
-    return irc.colours.filter(function(colour) {
-        return colour.name == name;
-    })[0];
-}
+    return _.findWhere(irc.colours, {name:name});
+};
 
 util.getColourByKey = function(key) {
-    return irc.colours.filter(function(colour) {
-        return colour.key == key;
-    })[0];
-}
+    return _.findWhere(irc.colours, {key: _.toInt(key)});
+};
 
 // returns the arguments 
 util.parseURI = function(uri) {
@@ -15604,13 +17946,13 @@ util.longtoduration = function(l) {
 };
 
 //pads based on the ret of a condition
-var pad = util.pad = function(cond, padding, str) {
+var pad = util.pad = _.autoCurry(function(cond, padding, str) {
     str = String(str);
     return cond(str) ? padding + str : str;
-}.autoCurry();
+});
 
-util.padzero = pad('.length<=1'.lambda(), "0");
-util.padspace = pad('.length!==0'.lambda(), " ");
+util.padzero = pad(_.lambda('.length<=1'), "0");
+util.padspace = pad(_.lambda('.length!==0'), " ");
 
 
 util.browserVersion = $lambda(navigator.userAgent);
@@ -15765,7 +18107,15 @@ util.generateID = (function() {
         NOTIFY_ON_PM: "When private messaged:",
         NOTIFY_ON_NOTICE: "When channel notice:",
         FLASH: "flash",
-        BEEP: "beep"
+        BEEP: "beep",
+        MESSAGE_PLACEHOLDER: ' something ... ',
+        NICK_PLACEHOLDER: ' someone ... ',
+        DELETE_NOTICE: 'remove',
+        ADD_NOTICE: 'Add notifier',
+        USER_NOTICE: 'User:',
+        MESSAGE_NOTICE: 'Message:',
+        AUTOESCAPE: 'Escape text',
+        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered'
     };
 
 
@@ -16482,6 +18832,8 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
+var channame_re = /(#|>)[\s\S]*(?=\/)/,
+    chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
 urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
@@ -16495,15 +18847,15 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                 if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
                     var cmd = mid.slice(10);//remove qwebirc://
                     if(cmd.startsWith("whois/")) {
-                        var chan_match = cmd.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
+                        var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = cmd.slice(6, chanlen);
+                        var user = cmd.slice(6, chanlen);//whois to channel
                         cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(cmd.contains("options") || cmd.contains("embedded")) {
-                        console.log("called yo");
-                        console.log(cmd);
+                    else if(cmd.startsWith("options") || cmd.startsWith("embedded")) {
+                        cmd = cmd.match(/.*\//)[0];
+                        cmd = cmd.slice(0, cmd.length);
                     }
                     word = parsed.lead + cmd + parsed.end;
                 }
@@ -16516,7 +18868,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             var parsed = this.parsePunctuation(word),
                 res = parsed.mid;
 
-            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test()) {
                 res = templates.channellink({channel:util.formatChannel(res)});
             }
 
@@ -16524,8 +18876,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         });
 
 var inputurl = util.inputParser = new Urlerizer({
-    default_parser: false
-})
+    default_parser: false,
+    autoescape: false
+});
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
 var colour_re = /\[colo(u)?r+(.*?)\](.*?)\[\/colo(u)?r\b\]/ig;
@@ -16570,9 +18923,9 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
             stac.push(text.slice(0, tag_m.index));
             text = text.slice(tag_m.index);
 
-            style = Array.item(irc.styles.special.filter(function(sty) {
+            style = _.find(irc.styles.special, function(sty) {
                 return sty.bbcode[0] === tag;
-            }), 0);
+            });
             if(style) {
                 bb = style.bbcode;
 
@@ -16680,12 +19033,6 @@ ui.Interface = new Class({
         this.setOptions(options);
         var self = this,
             opts = self.options;
-
-        window.steamlink = 0;
-        window.lastkick = {
-            channel: '',
-            last: 1
-        };
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
@@ -18824,7 +21171,7 @@ irc.IRCClient = new Class({
     },
 
     storeChannels: function(channels) {
-        var store = prelude.uniq(channels);
+        var store = _.uniq(channels);
         this.channels = channels;
         this.options.channels.set(store);
     },
@@ -18884,16 +21231,6 @@ irc.IRCClient = new Class({
         }
         var getPrefixes = util.prefixOnNick(this.prefixes);
         names.each(function(prenick) {
-            //var splitnick = nick.split("");
-            //var hasPrefix = Functional.compose(">0".lambda(), String.indexOf.curry("+@"), prelude.item(0));
-            // splitnick.every(function(c, i) {
-            //     if (this.prefixes.indexOf(c) == -1) {
-            //         nick = nick.substr(i);
-            //         return false;
-            //     }
-            //     prefixes.push(c);
-            //     return true;
-            // }, this);
             var prefixNick = getPrefixes(prenick),
                 prefixes = prefixNick[0],
                 nick = prefixNick[1];
@@ -19211,7 +21548,7 @@ irc.IRCConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", irc.IRCConnection.setXHRHeaders.curry(request.xhr));
+        request.addEvent("request", _.partial(irc.IRCConnection.setXHRHeaders, request.xhr));
         if (Browser.Engine.trident) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -19279,7 +21616,7 @@ irc.IRCConnection = new Class({
         if (request === null) {
             return;
         }
-        request.addEvent("complete", this.__completeRequest.curry(async))
+        request.addEvent("complete", _.partial(this.__completeRequest, async))
                 .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
     },
 
@@ -19428,7 +21765,7 @@ irc.IRCConnection = new Class({
     //     // new CookieMonster(xhr);
     // };
 
-    conn.setXHRHeaders = Array.each.curry(kill, removeHeaders);
+    conn.setXHRHeaders = _.partial(_.each, kill, removeHeaders);
 
     // conn.setXHRHeaders = function(xhr) {
     //     kill.each(removeHeaders, xhr);
@@ -19497,12 +21834,12 @@ irc.IRCTracker = new Class({
         if (!nickchan)
             return;
 
-        Object.keys(nickchan).each(function(chan) {
+        _.each(_.keys(nickchan), function(chan) {
             var lchannel = this.toIRCLower(chan),
                 channel = this.channels[lchannel];
 
             delete channel[nick];
-            if (Object.isEmpty(channel)) {
+            if (_.size(channel) === 0) {
                 delete this.channels[lchannel];
             }
         }, this);
@@ -19517,12 +21854,10 @@ irc.IRCTracker = new Class({
         var lchannel = this.toIRCLower(channel);
 
 
-        Object.keys(chan).each(function(nick) {
+        _.each(_.keys(chan), function(nick) {
             var nc = this.nicknames[nick];
-
             delete nc[lchannel];
-
-            if (Object.isEmpty(nc)) { //in no more channels
+            if (_.size(nc)) { //in no more channels
                 delete this.nicknames[nick];
             }
         }, this);
@@ -19540,10 +21875,10 @@ irc.IRCTracker = new Class({
         delete nickchan[lchannel];
         delete chan[nick];
 
-        if (Object.isEmpty(nickchan)) {
+        if (_.size(nickchan) === 0) {
             delete this.nicknames[nick];
         }
-        if (Object.isEmpty(chan)) {
+        if (_.size(chan) === 0) {
             delete this.channels[lchannel];
         }
     },
@@ -19553,7 +21888,7 @@ irc.IRCTracker = new Class({
         if (!nickchans)
             return;
 
-        Object.keys(nickchans).each(function(channel) {
+        _.each(_.keys(nickchans), function(channel) {
             var lchannel = this.toIRCLower(channel);
             this.channels[lchannel][newnick] = this.channels[lchannel][oldnick];
             delete this.channels[lchannel][oldnick];
@@ -19732,32 +22067,16 @@ irc.IRCTracker = new Class({
     //    return txt && txt.length !== 0 ? ' ' + txt : '';
     //});
 
-    //https://github.com/wycats/handlebars.js/issues/304
-    // engine.registerHelper('chain', function () {
-    //     var helpers = [], value;
-    //     $each(arguments,function (arg, i) {
-    //         if (engine.helpers[arg]) {
-    //             helpers.push(engine.helpers[arg]);
-    //         } else {
-    //             value = arg;
-    //             $each(helpers, function (helper, j) {
-    //                 value = helper(value, arguments[i + 1]);
-    //             });
-    //             return false;
-    //         }
-    //     });
-    //     return value;
-    // });
 
     /******************
         Compiliation
     *********************/
 
     function compileAll(source,compiled) {
-        Object.each(source, function(item, key) {
+        _.each(source, function(item, key) {
             try {
                 // compiled[key] = engine.compile(item);
-                compiled[key] = Function.from(item)
+                compiled[key] = Function.from(item);
             } catch(err) {
                 console.log(err);
             }
@@ -19937,14 +22256,39 @@ ui.StandardUI = new Class({
             }
         });
 
+        function setCustoms(notices) {
+            self.theme.customNotices = _.chain(notices).clone()
+                .reject(function(data) {
+                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
+                })
+                .map(function(notice) {
+                    return {
+                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+                        beep: notice.beep,
+                        flash: notice.flash
+                    };
+                })
+                .value();
+        }
+        function setSNotice(notices) {
+            _.each(self.theme.messageParsers, function(parser) {
+                if( _.has(notices, parser.id) )
+                    _.extend(parser, notices[parser.id]);
+            });
+        }
+
         self.uiOptions2.on({
             "change:style_hue": function(hue) {
                 self.setModifiableStylesheetValues({
                     hue: hue
                 })
             },
-            "change:font_size": self.setModifiableStylesheetValues
+            "change:font_size": self.setModifiableStylesheetValues,
+            "change:custom_notices": setCustoms,
+            "change:notices": setSNotice
         });
+        setCustoms(self.uiOptions2.get("custom_notices"));
+        setSNotice(self.uiOptions2.get("notices"));
 
         self.customWindows = {};
 
@@ -20221,9 +22565,10 @@ ui.Flasher = new Class({
         self.flashing = true;
         // flashA();
         self.flasher = flash.periodical(750);
-        window.addEvents({
+        window.addEvents({//whatever comes first
             "mousedown:once": this.cancelFlash,
-            "keydown:once": this.cancelFlash
+            "keydown:once": this.cancelFlash,
+            "focus:once": this.cancelFlash
         });
     },
     cancelFlash: function() {
@@ -20568,7 +22913,7 @@ ui.QUI = new Class({
             addTab = tabbtns.getElement('.add-chan'),
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
-            resizeTabs = util.fillContainer.curry(tabs, {style: 'max-width'}),
+            resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
             onResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();
@@ -20730,22 +23075,22 @@ ui.QUI = new Class({
             bold: {
                 keys: 'ctrl+b',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
             },
             italic: {
                 keys: 'ctrl+i',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
             },
             underline: {
                 keys: 'ctrl+u',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
             },
             colour: {
                 keys: 'ctrl+c',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
             }
         }
     },
@@ -20800,7 +23145,7 @@ ui.QUI = new Class({
                 });
             }.delay(4000);
 
-        var hider2 = this.hideHint = Element.destroy.curry(dropdownhint);
+        var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
 
         hider2.delay(4000);
 
@@ -21071,23 +23416,23 @@ ui.Theme = new Class({
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
-            isobj = Type.isObject(_data),
-            data = isobj ? Object.clone(_data) : _data, //sometimes an internal reference
+            isobj = _.isObject(_data),
+            data = isobj ? _.clone(_data) : _data, //sometimes an internal reference
             val;
 
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + String.escapeHTML(data.n) + "/";
+                data["N"] = "qwebirc://whois/" + data.n + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
-            ["N", "m"].each(function(key) {//urlerize message and nick
+            _.each(["N", "m", "c"], function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
-                    if(Array.isArray(val)) { //modes are given as an array so we need to fold
+                    if(_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
                     }
-                    data[key] = self.urlerize(String.escapeHTML(val));
+                    data[key] = self.urlerize(val);
                 }
             });
         }
@@ -21100,7 +23445,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(String.escapeHTML(line)));
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -21124,20 +23469,20 @@ ui.Theme = new Class({
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
 
-        parseArr.each(function(str) {//help
+        _.each(parseArr, function(str) {//help
             if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
                 colouredarr.push([]);
             } else { //^C1***
-                colouredarr.getLast().push(str);
+                _.last(colouredarr).push(str);
             }
         });
 
-        colouredarr.each(function(colourarr) {
-            colourarr.each(function(str) {
+        _.each(colouredarr, function(colourarr) {
+            _.each(colourarr, function(str) {
                 var colourMatch = str.match(styles.colour.fore_re),
                     backgroundMatch = str.match(styles.colour.back_re),
-                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
-                    background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
+                    colour = util.getColourByKey(_.item(colourMatch, 0)),
+                    background = util.getColourByKey(_.last(backgroundMatch));//num aft num + comma
 
                 var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
@@ -21151,7 +23496,7 @@ ui.Theme = new Class({
         });
 
         //matching styles (italics bold under)
-        styles.special.each(function(style) {//i wish colours were this easy
+        _.each(styles.special, function(style) {//i wish colours were this easy
             result = result.replace(style.keyregex, function(match, text) {
                 return templates.ircstyle({
                     'style': style.style,
@@ -21173,14 +23518,14 @@ ui.Theme = new Class({
             classes: '',
             flash: true,
             beep: true,
-            id: 'notify_on_notice',
+            id: 'on_notice',
             highlight: ui.HILIGHT_SPEECH
         },
         {
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
-            id: 'notify_on_pm',
+            id: 'on_pm',
             highlight: ui.HILIGHT_SPEECH
         },
         {
@@ -21188,7 +23533,7 @@ ui.Theme = new Class({
             classes: 'our-msg'
         },
         {//match bots
-            nic: /(^tf2)|((serv|bot)$)/i,
+            nick: /(^tf2)|((serv|bot)$)/i,
             classes: 'bot',
             types: [ui.WINDOW_CHANNEL]
         },
@@ -21204,16 +23549,16 @@ ui.Theme = new Class({
             tabhl: ui.HILIGHT_US
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             mentioned: true,
             classes: '',
             beep: true,
             flash: true,
             notus: true,
-            id: 'notify_on_mention'//for filtering
+            id: 'on_mention'//for filtering
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
             highlight: true,
@@ -21230,18 +23575,19 @@ ui.Theme = new Class({
         var self = this,
             tabHighlight = ui.HILIGHT_NONE,
             highlights = self.highlightClasses,
-            notus = !(/^OUR/.test(type));//wish we could just use not selector
+            notus = !(/^OUR/.test(type)),
+            parsers = _.clone(self.messageParsers).concat(self.customNotices);
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m)
                 $ele.addClass('message');
-            self.messageParsers.each(function(parser) {
+            _.each( parsers , function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
                     (!parser.type || parser.type.test(type)) && 
                     (!parser.msg || parser.msg.test(data.m)) &&
-                    (!parser.nic || parser.nic.test(data.n)) &&
+                    (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
@@ -21261,7 +23607,7 @@ ui.Theme = new Class({
                     }
                     tabHighlight = Math.max(tabHighlight, parser.tabhl);
                 }
-            })
+            });
         }
         return tabHighlight;
     }
@@ -21751,14 +24097,6 @@ ui.EmbedWizard = new Class({
 });
 
 
-var keys;
-if(!util.isMobile) {
-    keys = new Keyboard();
-} else {
-    delete window.Keyboard;
-}
-
-
 
 //not a class?
 ui.MENU_ITEMS = (function() {
@@ -21803,7 +24141,7 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "slap",
         fn: function(nick) {
-            this.client.exec("/ME " + util.formatter(lang.fishbot, {
+            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
                 'nick': nick
             }));
         },
@@ -21818,19 +24156,19 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "op",
         fn: command("op"),
-        predicate: prelude.andand(isOpped, Functional.not(targetOpped))
+        predicate: _.and(isOpped, _.not(targetOpped))
     }, {
         text: "deop",
         fn: command("deop"),
-        predicate: prelude.andand(isOpped, targetOpped)
+        predicate: _.and(isOpped, targetOpped)
     }, {
         text: "voice",
         fn: command("voice"),
-        predicate: prelude.andand(isOpped, Functional.not(targetVoiced))
+        predicate: _.and(isOpped, _.not(targetVoiced))
     }, {
         text: "devoice",
         fn: command("devoice"),
-        predicate: prelude.andand(isOpped, targetVoiced)
+        predicate: _.and(isOpped, targetVoiced)
     }];
 })();
 
@@ -21970,17 +24308,7 @@ ui.TabIterator = new Class({
         } else {
             var prefixes = irc.toIRCCompletion(client, prefix);
 
-            /* convert the nick list to IRC lower case, stripping all non letters
-             * before comparisions */
-            // for (var i = 0; i < list.length; i++) {
-            //     var l2 = irc.toIRCCompletion(client, list[i]);
-
-            //     if (l2.startsWith(prefixes))
-            //         l.push(list[i]);
-            // }
-            var listf = list.filter(Functional.compose(util.prefixOnNick(prefixes), irc.toIRCCompletion.curry(client)));
-
-            this.list = listf;
+            this.list = _.filter(list, _.compose(util.prefixOnNick(prefixes), _.partial(irc.toIRCCompletion, client)));
         }
 
         this.pos = -1;
@@ -22035,31 +24363,30 @@ ui.QueryNickTabCompleter = new Class({
 
 ui.ChannelNameTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
+    initialize: function(prefix, existingText, suffix, win) {
 
         var l = [];
-        Object.each(window.client.channels, function(chan, name) {
-            if($defined(chan)) {
+        _.each(win.client.channels, function(chan, name) {
+            if(chan && chan.lastSelected) {
                 chan = chan.lastSelected;
             }
             l.push([chan, name]);
         });
 
-        var l2 = l.sort(function(a, b) {
+        var l2 = _.sort(l, function(a, b) {
             return b[0] - a[0];
-        }).map(prelude.item(1));
+        }).map(item(1));
 
-        this.parent(window.client, prefix, existingText, suffix, l2);
-        // this.parent.apply(this, Array.concat(window.client, arguments, l2));
+        this.parent(win.client, prefix, existingText, suffix, l2);
     }
 });
 
 ui.ChannelUsersTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
-        var nc = window.client.tracker.getSortedByLastSpoke(irc.activeChannel);
+    initialize: function(prefix, existingText, suffix, win) {
+        var nc = win.client.tracker.getSortedByLastSpoke(irc.activeChannel);
 
-        this.parent(window.client, prefix, existingText, suffix, nc);
+        this.parent(win.client, prefix, existingText, suffix, nc);
     }
 });
 
@@ -22088,15 +24415,32 @@ config.OptionModel = new Class({
             "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
+            "volume": 100,
 
-            "notify_on_mention": {flash:true, beep:true},
-            "notify_on_pm": {flash:true, beep:true},
-            "notify_on_notice": {flash:false, beep:true},
+            "notices": {
+                "on_mention": {flash:true, beep:true},
+                "on_pm": {flash:true, beep:true},
+                "on_notice": {flash:false, beep:true}
+            },
             "custom_notices": [],
-            "volume": 100
+            "default_notice": function() {
+                return {
+                        nick: null,
+                        msg: '',
+                        flash: false,
+                        beep: false,
+                        id: String.uniqueID(),
+                        autoescape: true
+                    }
+                }
         },
         key: "qweboptions",
         minimize: true
+    },
+
+    save: function() {
+        this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) { return data.msg.trim() === "" }));//cleanup
+        return this.parent();
     }
 });
 
@@ -22111,18 +24455,47 @@ ui.OptionView = new Class({
         template: templates.options,
         // 'onChange:model': render,
         events: {
-            'change:relay(#options input)': 'inputChange'
+            'change:relay(#options input)': 'inputChange',
+            'change:relay(#options #standard-notices input)': 'snoticeChange',
+            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'click:relay(#options #add-notice)': 'addNotifier',
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier'
+
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
-                // sub = split.slice(1).join('.'),
-                // item = this.model.get(id);
 
             //handle sub props
-            if($defined(this.model.get(id))) {
+            if(id && $defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
+        },
+
+        onSnoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('notices'));
+            _.assign(notices, target.get('id'), target.val());
+            this.model.set('notices', notices);
+        },
+
+        onNoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('custom_notices'));
+            var par = target.getParent('.custom-notice');
+            _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+            this.model.set('custom_notices', notices);
+        },
+
+        onAddNotifier: function(e) {
+            e.stop();
+            this.addNotifier();
+        },
+
+        onRemoveNotifier: function(e, target) {
+            e.stop();
+            var par = target.getParent('.custom-notice').dispose();
+            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})))
         },
 
         onReady: render
@@ -22130,15 +24503,18 @@ ui.OptionView = new Class({
 
     render: function() {
         var model = this.model,
-            data = model.toJSON();
-        data.lang = lang;
-        this.empty();
+            data = this.getData();
         this.element.html(this.template(data));
 
-        this.tabs = new MGFX.Tabs(this.element, {
-            tabs: '.option-tabs li',
-            content: '.tab-content .control-group'
-        });
+        _.each(data.custom_notices, function(notice) {
+            notice.lang = lang;
+            this.addNotifier(notice)
+        }, this);
+
+        // this.tabs = new MGFX.Tabs(this.element, {
+        //     tabs: '.option-tabs li',
+        //     content: '.tab-content .control-group'
+        // });
 
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
@@ -22159,8 +24535,34 @@ ui.OptionView = new Class({
             'reset': this.reset
         });
 
+        self.behavior = new Behavior().apply(this.element);
+
         this.parent();
         return this;
+    },
+
+    addNotifier: function(data) {
+        if(!data) {
+            data = this.model.get("default_notice")();
+            var n = _.clone(this.model.get("custom_notices"));
+            n.push(data);
+            this.model.set("custom_notices", n);
+        }
+
+        var parent = this.element.getElement('#custom-notices');
+
+        var _data = _.clone(data);
+        _data.lang = lang;
+
+        var temp = templates.customNotice(_data);
+
+        parent.insertAdjacentHTML('beforeend', temp);
+    },
+
+    getData: function() {
+        var data = this.model.toJSON();
+        data.lang = lang;
+        return data;
     },
 
     empty: function() {
@@ -22194,7 +24596,7 @@ ui.OptionView = new Class({
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
+        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
         sounds: "/sound/",
         beepsrc: "beep.mp3"
     },
@@ -22235,7 +24637,7 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this.sounds[alias] = this.sm.play.curry(alias);
+		this.sounds[alias] = _.partial(this.sm.play, alias);
 	},
     play: function(src) {
         this.sm.play(src);
@@ -22354,11 +24756,6 @@ ui.Window = new Class({
     close: function() {
         this.closed = true;
 
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
         this.parentObject.__closed(this);
         this.fireEvent("close", this);
     },
@@ -22372,10 +24769,6 @@ ui.Window = new Class({
     },
 
     select: function() {
-        if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
-            this.lastPositionLineInserted = false;
-        }
-
         this.active = true;
         this.parentObject.__setActiveWindow(this);
         if (this.hilighted)
@@ -22393,7 +24786,7 @@ ui.Window = new Class({
     },
 
 
-    /* A line is an object of the form:
+    /* A data is an object of the form:
     -: current nick
     @: opstatus
     c: channel
@@ -22402,7 +24795,6 @@ ui.Window = new Class({
     m: msg
     n: nick
     */
-
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
@@ -22416,16 +24808,11 @@ ui.Window = new Class({
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
-        // $ele.appendChild($ele.from(tsE));
-
-        // var themed = type ? uiobj.theme.message(type, data, hl_line) : data;
-        // ui.Colourise(themed, $ele, self);
 
         var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
-        // self.scrollAdd($ele);
         self.lines.adopt($ele);
 
-        if(uiobj.uiOptions2.get("lastpos_line")) {
+        if(uiobj.uiOptions2.get("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
@@ -22447,16 +24834,16 @@ ui.Window = new Class({
         var lnh = this.lastNickHash,
             oldnames = Object.keys(lnh),
 
-            added = prelude.difference(nicks, oldnames),//users who joined
-            left = prelude.difference(oldnames, nicks); //users who left
+            added = _.difference(nicks, oldnames),//users who joined
+            left = _.difference(oldnames, nicks); //users who left
 
-        left.each(function(nick) {
+        _.each(left, function(nick) {
             var element = lnh[nick];
             this.nickListRemove(nick, element);
             delete lnh[nick];
-        }, this);
+        }, this)
 
-        added.each(function(nick) {
+        _.each(added, function(nick) {
             var index = nicks.indexOf(nick); //indx in sorted array
             lnh[nick] = this.nickListAdd(nick, index) || 1;
         }, this);
@@ -22499,7 +24886,7 @@ ui.Window = new Class({
         if (parsed !== "") {
             this.parentObject.resetTabComplete();
             this.commandhistory.addLine(unparsed || parsed);
-            this.client.exec(line, this.currentChannel);
+            this.client.exec(parsed, this.currentChannel);
             target.val("");
         }
         target.focus();
@@ -22510,14 +24897,18 @@ ui.Window = new Class({
 //mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
-    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
+    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix", "menuClick"],
 
     initialize: function(parentObject, client, type, name, identifier) {
         var self = this;
         self.parent(parentObject, client, type, name, identifier);
 
-
         var qwindow = self.window;
+
+        self.events = {
+            client: {}
+        };
+
         qwindow.detached = self.detached = false;
 
         var $tab = self.tab = Element.from(templates.ircTab({
@@ -22527,8 +24918,8 @@ ui.QUI.Window = new Class({
 
         if(name === BROUHAHA) {
             $tab.addClass('brouhaha');
-            Function.delay(function() {
-                parentObject.windowArray.some(function(win) {
+            _.delay(function() {
+                _.some(parentObject.windowArray, function(win) {
                     if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
                         self.properties.text(win.name); //update current channel in brouhaha
                         self.currentChannel = win.name;
@@ -22625,13 +25016,15 @@ ui.QUI.Window = new Class({
         if (this.closed)
             return;
 
-        if (isChannelType(this.type) && (!isBaseWindow(this.name)) && !util.wasKicked()) {
+        if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
             var client = this.client,
                 channels = util.removeChannel(client.channels, this.name);
 
             client.exec("/PART " + this.name);
             client.storeChannels(channels);
         }
+        if(this.client instanceof irc.IRCClient) 
+            this.client.removeEvents(this.events.client);
         this.parent();
 
         this.parentObject.tabs.disown(this.tab);
@@ -22751,7 +25144,7 @@ ui.QUI.Window = new Class({
     selectTab: function(e) {
         var self = this;
         if(self.name !== BROUHAHA) {
-            self.parentObject.windowArray.each(function(win) {
+            _.each(self.parentObject.windowArray, function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
                     win.tab.removeClass("tab-selected");
                 }
@@ -22807,13 +25200,13 @@ ui.QUI.Window = new Class({
 
                 var nodes = self.nicklist.childNodes;
                 if (parentObject.uiOptions2.get("nick_colours")) {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
                             node.firstChild.setStyle("color", colour.rgbToHex());
                     });
                 } else {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         node.firstChild.setStyle("color", null);
                     });
                 }
@@ -22893,8 +25286,9 @@ ui.QUI.Window = new Class({
             };
 
         if(isChannelType(self.type)) {
+            var e = self.events.client.mode = self.updatePrefix;
             self.client.addEvents({
-                "mode": self.updatePrefix
+                "mode": e
             });
         }
 
@@ -22952,14 +25346,15 @@ ui.QUI.Window = new Class({
         var $menu = Element.from(templates.menuContainer()),
             self = this;
 
-        (ui.MENU_ITEMS.filter(function(item) {
-            var pred = item.predicate;
-            return Type.isFunction(pred) ? pred.call(self, nick) : !!pred;//pred.apply(this, nickArray)
-        })).each(function(item) {
-            Element.from(templates.nickbtn({'nick': "- " + item.text}))
-                    .store("action", item.fn)
-                    .inject($menu);
-        });
+        _.chain(ui.MENU_ITEMS)
+            .filter(function(item) {
+                return Type.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
+            })
+            .each(function(item) {
+                Element.from(templates.nickbtn({'nick': "- " + item.text}))
+                        .store("action", item.fn)
+                        .inject($menu);
+            });
 
         $menu.addEvent('click:relay(.user)', function(e, target) {
                 e.stop();

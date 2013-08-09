@@ -2,14 +2,18 @@
 //mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
-    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
+    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix", "menuClick"],
 
     initialize: function(parentObject, client, type, name, identifier) {
         var self = this;
         self.parent(parentObject, client, type, name, identifier);
 
-
         var qwindow = self.window;
+
+        self.events = {
+            client: {}
+        };
+
         qwindow.detached = self.detached = false;
 
         var $tab = self.tab = Element.from(templates.ircTab({
@@ -19,8 +23,8 @@ ui.QUI.Window = new Class({
 
         if(name === BROUHAHA) {
             $tab.addClass('brouhaha');
-            Function.delay(function() {
-                parentObject.windowArray.some(function(win) {
+            _.delay(function() {
+                _.some(parentObject.windowArray, function(win) {
                     if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
                         self.properties.text(win.name); //update current channel in brouhaha
                         self.currentChannel = win.name;
@@ -117,13 +121,15 @@ ui.QUI.Window = new Class({
         if (this.closed)
             return;
 
-        if (isChannelType(this.type) && (!isBaseWindow(this.name)) && !util.wasKicked()) {
+        if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
             var client = this.client,
                 channels = util.removeChannel(client.channels, this.name);
 
             client.exec("/PART " + this.name);
             client.storeChannels(channels);
         }
+        if(this.client instanceof irc.IRCClient) 
+            this.client.removeEvents(this.events.client);
         this.parent();
 
         this.parentObject.tabs.disown(this.tab);
@@ -243,7 +249,7 @@ ui.QUI.Window = new Class({
     selectTab: function(e) {
         var self = this;
         if(self.name !== BROUHAHA) {
-            self.parentObject.windowArray.each(function(win) {
+            _.each(self.parentObject.windowArray, function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
                     win.tab.removeClass("tab-selected");
                 }
@@ -299,13 +305,13 @@ ui.QUI.Window = new Class({
 
                 var nodes = self.nicklist.childNodes;
                 if (parentObject.uiOptions2.get("nick_colours")) {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
                             node.firstChild.setStyle("color", colour.rgbToHex());
                     });
                 } else {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         node.firstChild.setStyle("color", null);
                     });
                 }
@@ -385,8 +391,9 @@ ui.QUI.Window = new Class({
             };
 
         if(isChannelType(self.type)) {
+            var e = self.events.client.mode = self.updatePrefix;
             self.client.addEvents({
-                "mode": self.updatePrefix
+                "mode": e
             });
         }
 
@@ -444,14 +451,15 @@ ui.QUI.Window = new Class({
         var $menu = Element.from(templates.menuContainer()),
             self = this;
 
-        (ui.MENU_ITEMS.filter(function(item) {
-            var pred = item.predicate;
-            return Type.isFunction(pred) ? pred.call(self, nick) : !!pred;//pred.apply(this, nickArray)
-        })).each(function(item) {
-            Element.from(templates.nickbtn({'nick': "- " + item.text}))
-                    .store("action", item.fn)
-                    .inject($menu);
-        });
+        _.chain(ui.MENU_ITEMS)
+            .filter(function(item) {
+                return Type.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
+            })
+            .each(function(item) {
+                Element.from(templates.nickbtn({'nick': "- " + item.text}))
+                        .store("action", item.fn)
+                        .inject($menu);
+            });
 
         $menu.addEvent('click:relay(.user)', function(e, target) {
                 e.stop();

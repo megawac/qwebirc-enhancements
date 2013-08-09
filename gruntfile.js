@@ -53,7 +53,7 @@ module.exports = function(grunt) {
                 src: [
                 'js/libs/*.js',
                 'js/libs/Epitome/*.js',
-                'js/src/prelude.js',
+                // 'js/src/prelude.js',
                 //'js/functional+.js',
                 // //'js/to-function.js',
                 // 'js/src/Templates.js',

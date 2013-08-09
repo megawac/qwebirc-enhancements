@@ -44,7 +44,7 @@
 				self = this;
 
 			if (!events && !subs) return this;
-			args = Array.from(args);
+			args = Type.isArray(args) ? [args] : Array.from(args);
 
 			events.each(function(fn){
 				// local events

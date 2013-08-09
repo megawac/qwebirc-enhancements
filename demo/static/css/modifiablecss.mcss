@@ -518,8 +518,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
 .qui hr.lastpos {
   border: none;
   border-top: 1px solid $(lastpositionbar);
-  margin-left: 3em;
-  margin-right: 3em;
+  margin: .5em 3em;
 }
 
 .qwebirc-init-channels {

@@ -31,7 +31,7 @@
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: false,
+            autoescape: true,
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
@@ -85,33 +85,17 @@
                             // Make link.
                             if (url) {
                                 var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
-                                if (options.autoescape) {
-                                    // XXX: Assuming autoscape == false
-                                    parsed.lead = String.escapeHTML(parsed.lead);
-                                    parsed.end = String.escapeHTML(parsed.end);
-                                    url = String.escapeHTML(url);
-                                    trimmed = String.escapeHTML(trimmed);
-                                }
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
-                            } else {
-                                if (options.autoescape) {
-                                    word = String.escapeHTML(word);
-                                }
                             }
                         } else if (options.autoescape) {
-                            word = String.escapeHTML(word);
+                            word = _.escape(word);
                         }
                         return word;
                     }
-                })
+                });
             }
         },
-
-        htmlescape: Handlebars.Utils.escapeExpression,//shhh its here and its better than below one
-        // htmlescape: function(string) {//from underscore
-        //     return (''+string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g,'&#x2F;');
-        // },
 
         // Quotes a URL if it isn't already quoted.
         urlquote: function(url) {
@@ -125,23 +109,25 @@
             }
         },
 
-        //shut up i know it exists and its better than what was here before
         parse: function(text) {
             var self = this,
-                result = text.split(" "),
+                result = (self.options.autoescape ? _.escape(text) : text).split(" "),
                 funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
-                });
+                }),
 
-            function parseWord(pattern) { //TODO: important optimization - split words and apply only one fn to each word
+                i = result.length - 1, item;
+
+            function parseWord(pattern) {
+                item = result[i];
                 if (pattern.pattern.test(item)) {
                     result[i] = pattern.parse.call(self, item);
+                    return result[i] !== item;
                 }
             }
 
-            for (var i = result.length - 1, item; i >= 0; i--) {
-                item = result[i];
-                funcs.each(parseWord);
+            for (; i >= 0; i--) {
+                funcs.some(parseWord);//one pattern per word or it gets too complicated
             };
             result = result.join(" ")
             self.patterns.each(function(pattern) {
@@ -215,7 +201,7 @@
         url_improved: /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/,//matches anything thats urlish- even bit.ly/a
         simple_email: /^\S+@\S+\.\S+$/,
         unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
-        server: /\:(\d{2})/
+        server: /(\:(\d{2}))|(qwebirc\:\/)/
     }
 
 })(this);

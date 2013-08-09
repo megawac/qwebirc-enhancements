@@ -41,7 +41,7 @@ ui.QUI = new Class({
             addTab = tabbtns.getElement('.add-chan'),
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
-            resizeTabs = util.fillContainer.curry(tabs, {style: 'max-width'}),
+            resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
             onResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();
@@ -203,22 +203,22 @@ ui.QUI = new Class({
             bold: {
                 keys: 'ctrl+b',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
             },
             italic: {
                 keys: 'ctrl+i',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
             },
             underline: {
                 keys: 'ctrl+u',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
             },
             colour: {
                 keys: 'ctrl+c',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
             }
         }
     },
@@ -273,7 +273,7 @@ ui.QUI = new Class({
                 });
             }.delay(4000);
 
-        var hider2 = this.hideHint = Element.destroy.curry(dropdownhint);
+        var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
 
         hider2.delay(4000);
 

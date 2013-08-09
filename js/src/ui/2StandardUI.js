@@ -29,14 +29,39 @@ ui.StandardUI = new Class({
             }
         });
 
+        function setCustoms(notices) {
+            self.theme.customNotices = _.chain(notices).clone()
+                .reject(function(data) {
+                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
+                })
+                .map(function(notice) {
+                    return {
+                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+                        beep: notice.beep,
+                        flash: notice.flash
+                    };
+                })
+                .value();
+        }
+        function setSNotice(notices) {
+            _.each(self.theme.messageParsers, function(parser) {
+                if( _.has(notices, parser.id) )
+                    _.extend(parser, notices[parser.id]);
+            });
+        }
+
         self.uiOptions2.on({
             "change:style_hue": function(hue) {
                 self.setModifiableStylesheetValues({
                     hue: hue
                 })
             },
-            "change:font_size": self.setModifiableStylesheetValues
+            "change:font_size": self.setModifiableStylesheetValues,
+            "change:custom_notices": setCustoms,
+            "change:notices": setSNotice
         });
+        setCustoms(self.uiOptions2.get("custom_notices"));
+        setSNotice(self.uiOptions2.get("notices"));
 
         self.customWindows = {};
 

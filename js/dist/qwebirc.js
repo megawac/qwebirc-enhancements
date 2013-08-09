@@ -103,25 +103,46 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "<div class=\"controls\">\r\n<label class=\"control-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.CUSTOM_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"text\" class=\"custom-notice\" placehold=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTICE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+  buffer += "<div class=\"controls custom-notice\" id=";
+  if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + ">\r\n<label class=\"control-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USER_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"text\" data-id=\"nick\" placeholder=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" value=\"";
-  if (stack2 = helpers.text) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.text; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  if (stack2 = helpers.nick) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.nick; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
+    + "\">\r\n</label>\r\n<label class=\"control-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"text\" data-id=\"msg\" placeholder=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" value=\"";
+  if (stack2 = helpers.msg) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.msg; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" >"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
+    + "\r\n<input type=\"checkbox\" data-id=\"beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.beep, options) : helperMissing.call(depth0, "check", depth0.beep, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
+    + "\r\n<input type=\"checkbox\" data-id=\"flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
-    + ">\r\n</label>\r\n</div>";
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" title=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"autoescape\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.autoescape, options) : helperMissing.call(depth0, "check", depth0.autoescape, options)))
+    + ">\r\n</label>\r\n<input type=\"button\" value=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DELETE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" class=\"remove-notice btn btn-danger btn-smaller\">\r\n</div>";
   return buffer;
   });
 
@@ -158,7 +179,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<form class='input'>\r\n<div class=\"input-group\">\r\n<span class='input-group-addon nickname'><span class='status ";
+  buffer += "<form class='input'>\r\n<div class='input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -170,7 +191,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " input-field form-control' type='text'>\r\n<span class=\"input-group-btn\">\r\n<button class=\"btn btn-default send\" type=\"button\">&gt;</button>\r\n</span>\r\n</div>\r\n</form>";
+    + " input-field form-control' type='text'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n<ul class='dropdown-menu'>\r\n<li><a href='#'>Colours</a></li>\r\n<li><a href='#'>Styles</a></li>\r\n<li><a href='#'>IRC Commands</a></li>\r\n<li><a href='#'>Actions</a></li>\r\n</ul>\r\n</div>\r\n</form>";
   return buffer;
   });
 
@@ -324,7 +345,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "<form id=\"options\" class=\"form-horizontal\">\r\n<div class=\"\">\r\n<ul class=\"option-tabs nav nav-tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options disabled\"><a href=\"#\">Notifications(TODO)</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n</div>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
+  buffer += "\r\n<form id=\"options\" class=\"form-horizontal\">\r\n<ul class=\"option-tabs tabs nav nav-tabs\" data-behavior=\"BS.Tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options\"><a href=\"#\">Notifications</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n<div class=\"tab-content\" id=\"my-tab-content\">\r\n<div class=\"ui-options control-group well active\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"nick_colours\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_COLOURS)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<input type=\"checkbox\" id=\"nick_colours\" ";
   options = {hash:{},data:data};
@@ -387,43 +408,63 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_mention.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_mention.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_mention.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_mention.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_mention.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_mention),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_mention)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_pm.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_pm.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_pm.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_pm.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_pm.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_pm.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_pm),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_pm)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
     + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.beep\">"
+    + "\r\n<label class=\"checkbox-inline\" for=\"on_notice.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.beep\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_notice.beep\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"notify_on_notice.flash\">"
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.beep), options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" for=\"on_notice.flash\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" id=\"notify_on_notice.flash\" ";
+    + "\r\n<input type=\"checkbox\" id=\"on_notice.flash\" ";
   options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = depth0.notify_on_notice),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
-    + ">\r\n</label>\r\n</label>\r\n</div>\r\n<div id=\"custom-notices\" class=\"controls\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options) : helperMissing.call(depth0, "check", ((stack1 = ((stack1 = depth0.notices),stack1 == null || stack1 === false ? stack1 : stack1.on_notice)),stack1 == null || stack1 === false ? stack1 : stack1.flash), options)))
+    + ">\r\n</label>\r\n</label>\r\n</div>\r\n</div>\r\n<h3>Custom Notices</h3>\r\n<div id=\"custom-notices\" class=\"controls\">\r\n\r\n</div>\r\n<input type=\"button\" value=\""
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ADD_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\" id=\"add-notice\" class=\"btn btn-default btn-small\">\r\n</div>\r\n<div class=\"hotkeys control-group well\">\r\n\r\n</div>\r\n</div>\r\n<div class=\"actions\">\r\n<button type=\"submit\" class=\"btn btn-small btn-primary\" value=\"save\">Save Changes</button>\r\n<button type=\"reset\" class=\"btn btn-small btn-warning\" value=\"reset\">Revert</button>\r\n</div>\r\n</form>";
+  return buffer;
+  });
+
+this["Handlebars"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<span class='hyperlink-page' data-page='";
+  if (stack1 = helpers.page) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.page; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "'>";
+  if (stack1 = helpers.page) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.page; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>";
   return buffer;
   });
 
@@ -570,9 +611,7 @@ project name and URL in the about dialog, thanks!*/
 
     //common globals
     var document = window.document,
-        $ = document.id,
-        Functional = window.Functional,
-        prelude = window.prelude;
+        $ = document.id;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
@@ -786,9 +825,9 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = irc.styles.filter(function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
-irc.styles.colour = irc.styles.filter(function(sty) { return sty.name == 'colour' } )[0];
-irc.styles.normal = irc.styles.filter(function(sty) { return sty.name == 'normal' } )[0];
+irc.styles.special = _.filter(irc.styles, function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
+irc.styles.colour = _.find(irc.styles, function(sty) { return sty.name == 'colour' } );
+irc.styles.normal = _.find(irc.styles, function(sty) { return sty.name == 'normal' } );
 
 irc.colours = [//http://www.mirc.com/colors.html
     {
@@ -898,31 +937,51 @@ var whitespace = /\s/,
 
 //my helper functions
 //returns itself
-var $identity = Functional.I,
+var join = function(by, xs) {
+        return xs.join(by);
+    },
 
-    // notEqual = Functional.compose(Functional.not, Functional.eq),
+    split = function(by, str) {
+        return str.split(by);
+    },
 
-    charAt = function(n, str) { return str.charAt(n); }.autoCurry(),
+    restRight = _.autoCurry(function(xs) {
+        return xs.slice(0, xs.length-1);
+    }),
 
-    splitBang = prelude.split("!"),
+    test = _.autoCurry(function(reg, str) {
+        return str.test(reg);
+    }),
 
-    joinBang = prelude.join("!"),
+    replace = _.autoCurry(function(reg, rep, str) {
+        return str.replace(reg, rep);
+    }),
 
-    joinEmpty = prelude.join(""),
+    startsWith = function(what, str) {
+        return str.startsWith(what);
+    },
 
-    splitEmpty = prelude.split(""),
+    $identity = _.identity,
 
-    joinComma = util.joinChans = prelude.join(","),
+    splitBang = _.partial(split, "!"),
 
-    splitComma = prelude.split(","),
+    joinBang = _.partial(join, "!"),
 
-    concatUnique = Functional.compose(prelude.uniq, prelude.concat),
+    joinEmpty = _.partial(join, ""),
 
-    concatSep = function(sep, s1, s2) {
-        if(Array.isArray(s1)) {
+    // splitEmpty = split(""),
+
+    joinComma = util.joinChans = _.partial(join,","),
+
+    // splitComma = split(","),
+
+    concatUnique = _.compose(_.uniq, Array.concat),
+
+    concatSep = _.autoCurry(function(sep, s1, s2) {
+        if(_.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(Array.isArray(s2)) {
+        if(_.isArray(s2)) {
             s2 = s2.join(sep);
         }
         if(s1 !== "" && s2 !== "") {
@@ -931,52 +990,22 @@ var $identity = Functional.I,
         else {
             return s1 + s2;
         }
-    }.autoCurry(),
+    }),
 
-    concatSpace = concatSep(" "),
+    concatSpace = concatSep(" ");
 
-    startsWith = function(what, str) {
-        return str.startsWith(what);
-    }.autoCurry(),
-
-    each = Array.each.flip().autoCurry(2);
-
-//little formatter i wrote in 10 mins you can prob find a better one
-//formatter("{test} a {wa} {repl} {test}",{test:1, repl:'replaced'})
-// => "1 a {wa} replaced 1"
-// http://jsperf.com/stringformat/3
-util.formatter = String.substitute;
-// function(str, hash) {
-//     var curly = /{(.*?)}/g, //match all substrings wrapped in '{ }'
-//         prop;
-
-//     str.match(curly)
-//         .each(function (propstr) {
-//             prop = propstr.substring(1, propstr.length - 1); //remove curlys
-//             if(typeof hash[prop] !== 'undefined') {
-//                 str = str.replace(propstr, hash[prop]);
-//             }
-//         });
-//     return str;
-// };
-
-
-// util.mapA = function(object, fn, bind) {
-//     var results = [];
-//     for (var key in object) {
-//         if (hasOwnProperty.call(object, key)) results.push(fn.call(bind, object[key], key, object));
-//     }
-//     return results;
-// };
+util.formatter = function(message, data) {
+    return (message.message || message).substitute(data);
+};
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = Functional.compose(joinBang, prelude.restRight, splitBang);
+util.hostToNick = _.compose(joinBang, restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = Functional.compose(prelude.last, splitBang);
+util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
+var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
 
     formatChannel = util.formatChannel = function(chan) {
         if(chan.length >= 1 && !isChannel(chan)) {
@@ -997,40 +1026,34 @@ var isChannel = util.isChannel = Functional.and('.length > 1', startsWith('#')),
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(Array.isArray(xs))
+        if(_.isArray(xs))
             return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
 
     //function to determine if a string is one of the stock windows
-    isBaseWindow = util.isBaseWindow = prelude.contains(BASE_WINDOWS),
+    isBaseWindow = util.isBaseWindow = _.partial(_.contains, BASE_WINDOWS),
 
-    isChannelType = util.isChannelType = prelude.contains(CHANNEL_TYPES);
+    isChannelType = util.isChannelType = _.partial(_.contains, CHANNEL_TYPES);
 
 
-util.windowNeedsInput = prelude.contains(INPUT_TYPES);
+util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
-util.formatChannelString = Functional.compose(joinComma, prelude.uniq, Functional.map(formatChannel), splitChan);
-util.unformatChannelString = Functional.compose(prelude.uniq, Functional.map(unformatChannel), splitChan);
+util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
 
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
-util.addChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel);
+util.addChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */appendChannel);
 //adds channel to front of list of channels
-util.prependChannel = Functional.compose(/*joinComma, */prelude.uniq,/* splitChan, */appendChannel.flip());
+util.prependChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */_.flip(appendChannel));
 
-
-//filter an array to not contain main window or dubs then joins it
-// util.arrayToChanString = Functional.compose(joinComma, prelude.uniq, Functional.filter.curry(Functional.not(isBaseWindow)));
 
 //calls splits string by comma then calls array.erase on value
 util.removeChannel = Array.erase;
-// function(chans, chan) {
-//     return joinComma( splitChan(chans).erase(chan) );
-// };
 
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
@@ -1054,16 +1077,14 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) {
+util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b')
     return function(nick) {
         return nickHash[nick].prefixes + nick;
     };
-    //return Functional.compose(prelude.concat, prelude.getProp(nickHash));
 };
 
-util.validPrefix = prelude.contains;
+util.validPrefix = _.contains;
 
-//equilvalent Functional.compose(joinEmpty, concatUnique)
 util.addPrefix = function(nc, pref, prefs) {
     if(prefs && !util.validPrefix(prefs, pref))
         return nc.prefixes;
@@ -1076,21 +1097,21 @@ util.removePrefix = function(nc, pref) {
 
 //if theres a prefix it gets returned
 //i dont think its possible to have multiple prefixes
-util.prefixOnNick = function(prefixes, nick) {
+util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
     var c = nick.charAt(0);
     return util.validPrefix(prefixes, c) ? [c, nick.slice(1)] : ['', nick];
-}.autoCurry();
+});
 
-util.getPrefix = Functional.compose(prelude.first, util.prefixOnNick);
+util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = Functional.compose(prelude.item(1), util.prefixOnNick);
+util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = Functional.memoize(function(nick) {
+util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
 util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
-    return prelude.test(util.createNickRegex(nick), text);
+    return test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
@@ -1109,41 +1130,33 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = Functional.compose(Array.item.curry(irc.IRCLowercaseTable), String.charCodeAt.partial(_, 0));
+var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda('x.charCodeAt(0)'));
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
-irc.RFC1459toIRCLower = Functional.memoize(Functional.compose(prelude.join(""), Functional.map(charIRCLower)));
+irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_.func.map, charIRCLower)));
 
 //not really sure
 //takes a irc client object and string and returns something
-irc.toIRCCompletion = Functional.compose(prelude.replace(/[^\w]+/g, ""), Functional.invoke("toIRCLower"));
+irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke, "toIRCLower"));
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
 util.getStyleByName = function(name) {
-    return irc.styles.filter(function(style) {
-        return style.name === name;
-    })[0];
-}
+    return _.findWhere(irc.styles, {name:name});
+};
 
 util.getStyleByKey = function(key) {
-    return irc.styles.filter(function(style) {
-        return style.key === key;
-    })[0];
-}
+    return _.findWhere(irc.styles, {key: _.toInt(key)});
+};
 
 util.getColourByName = function(name) {
-    return irc.colours.filter(function(colour) {
-        return colour.name == name;
-    })[0];
-}
+    return _.findWhere(irc.colours, {name:name});
+};
 
 util.getColourByKey = function(key) {
-    return irc.colours.filter(function(colour) {
-        return colour.key == key;
-    })[0];
-}
+    return _.findWhere(irc.colours, {key: _.toInt(key)});
+};
 
 // returns the arguments 
 util.parseURI = function(uri) {
@@ -1177,13 +1190,13 @@ util.longtoduration = function(l) {
 };
 
 //pads based on the ret of a condition
-var pad = util.pad = function(cond, padding, str) {
+var pad = util.pad = _.autoCurry(function(cond, padding, str) {
     str = String(str);
     return cond(str) ? padding + str : str;
-}.autoCurry();
+});
 
-util.padzero = pad('.length<=1'.lambda(), "0");
-util.padspace = pad('.length!==0'.lambda(), " ");
+util.padzero = pad(_.lambda('.length<=1'), "0");
+util.padspace = pad(_.lambda('.length!==0'), " ");
 
 
 util.browserVersion = $lambda(navigator.userAgent);
@@ -1338,7 +1351,15 @@ util.generateID = (function() {
         NOTIFY_ON_PM: "When private messaged:",
         NOTIFY_ON_NOTICE: "When channel notice:",
         FLASH: "flash",
-        BEEP: "beep"
+        BEEP: "beep",
+        MESSAGE_PLACEHOLDER: ' something ... ',
+        NICK_PLACEHOLDER: ' someone ... ',
+        DELETE_NOTICE: 'remove',
+        ADD_NOTICE: 'Add notifier',
+        USER_NOTICE: 'User:',
+        MESSAGE_NOTICE: 'Message:',
+        AUTOESCAPE: 'Escape text',
+        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered'
     };
 
 
@@ -2055,6 +2076,8 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
+var channame_re = /(#|>)[\s\S]*(?=\/)/,
+    chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
 urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
@@ -2068,15 +2091,15 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                 if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
                     var cmd = mid.slice(10);//remove qwebirc://
                     if(cmd.startsWith("whois/")) {
-                        var chan_match = cmd.match(/(#|>)[\s\S]*(?=\/)/); //matches the chan or user to the dash
+                        var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = cmd.slice(6, chanlen);
+                        var user = cmd.slice(6, chanlen);//whois to channel
                         cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(cmd.contains("options") || cmd.contains("embedded")) {
-                        console.log("called yo");
-                        console.log(cmd);
+                    else if(cmd.startsWith("options") || cmd.startsWith("embedded")) {
+                        cmd = cmd.match(/.*\//)[0];
+                        cmd = cmd.slice(0, cmd.length);
                     }
                     word = parsed.lead + cmd + parsed.end;
                 }
@@ -2089,7 +2112,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
             var parsed = this.parsePunctuation(word),
                 res = parsed.mid;
 
-            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test(/#|\/|\\/)) {
+            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test()) {
                 res = templates.channellink({channel:util.formatChannel(res)});
             }
 
@@ -2097,8 +2120,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         });
 
 var inputurl = util.inputParser = new Urlerizer({
-    default_parser: false
-})
+    default_parser: false,
+    autoescape: false
+});
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
 var colour_re = /\[colo(u)?r+(.*?)\](.*?)\[\/colo(u)?r\b\]/ig;
@@ -2143,9 +2167,9 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
             stac.push(text.slice(0, tag_m.index));
             text = text.slice(tag_m.index);
 
-            style = Array.item(irc.styles.special.filter(function(sty) {
+            style = _.find(irc.styles.special, function(sty) {
                 return sty.bbcode[0] === tag;
-            }), 0);
+            });
             if(style) {
                 bb = style.bbcode;
 
@@ -2253,12 +2277,6 @@ ui.Interface = new Class({
         this.setOptions(options);
         var self = this,
             opts = self.options;
-
-        window.steamlink = 0;
-        window.lastkick = {
-            channel: '',
-            last: 1
-        };
 
         var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
@@ -4397,7 +4415,7 @@ irc.IRCClient = new Class({
     },
 
     storeChannels: function(channels) {
-        var store = prelude.uniq(channels);
+        var store = _.uniq(channels);
         this.channels = channels;
         this.options.channels.set(store);
     },
@@ -4457,16 +4475,6 @@ irc.IRCClient = new Class({
         }
         var getPrefixes = util.prefixOnNick(this.prefixes);
         names.each(function(prenick) {
-            //var splitnick = nick.split("");
-            //var hasPrefix = Functional.compose(">0".lambda(), String.indexOf.curry("+@"), prelude.item(0));
-            // splitnick.every(function(c, i) {
-            //     if (this.prefixes.indexOf(c) == -1) {
-            //         nick = nick.substr(i);
-            //         return false;
-            //     }
-            //     prefixes.push(c);
-            //     return true;
-            // }, this);
             var prefixNick = getPrefixes(prenick),
                 prefixes = prefixNick[0],
                 nick = prefixNick[1];
@@ -4784,7 +4792,7 @@ irc.IRCConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", irc.IRCConnection.setXHRHeaders.curry(request.xhr));
+        request.addEvent("request", _.partial(irc.IRCConnection.setXHRHeaders, request.xhr));
         if (Browser.Engine.trident) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -4852,7 +4860,7 @@ irc.IRCConnection = new Class({
         if (request === null) {
             return;
         }
-        request.addEvent("complete", this.__completeRequest.curry(async))
+        request.addEvent("complete", _.partial(this.__completeRequest, async))
                 .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
     },
 
@@ -5001,7 +5009,7 @@ irc.IRCConnection = new Class({
     //     // new CookieMonster(xhr);
     // };
 
-    conn.setXHRHeaders = Array.each.curry(kill, removeHeaders);
+    conn.setXHRHeaders = _.partial(_.each, kill, removeHeaders);
 
     // conn.setXHRHeaders = function(xhr) {
     //     kill.each(removeHeaders, xhr);
@@ -5070,12 +5078,12 @@ irc.IRCTracker = new Class({
         if (!nickchan)
             return;
 
-        Object.keys(nickchan).each(function(chan) {
+        _.each(_.keys(nickchan), function(chan) {
             var lchannel = this.toIRCLower(chan),
                 channel = this.channels[lchannel];
 
             delete channel[nick];
-            if (Object.isEmpty(channel)) {
+            if (_.size(channel) === 0) {
                 delete this.channels[lchannel];
             }
         }, this);
@@ -5090,12 +5098,10 @@ irc.IRCTracker = new Class({
         var lchannel = this.toIRCLower(channel);
 
 
-        Object.keys(chan).each(function(nick) {
+        _.each(_.keys(chan), function(nick) {
             var nc = this.nicknames[nick];
-
             delete nc[lchannel];
-
-            if (Object.isEmpty(nc)) { //in no more channels
+            if (_.size(nc)) { //in no more channels
                 delete this.nicknames[nick];
             }
         }, this);
@@ -5113,10 +5119,10 @@ irc.IRCTracker = new Class({
         delete nickchan[lchannel];
         delete chan[nick];
 
-        if (Object.isEmpty(nickchan)) {
+        if (_.size(nickchan) === 0) {
             delete this.nicknames[nick];
         }
-        if (Object.isEmpty(chan)) {
+        if (_.size(chan) === 0) {
             delete this.channels[lchannel];
         }
     },
@@ -5126,7 +5132,7 @@ irc.IRCTracker = new Class({
         if (!nickchans)
             return;
 
-        Object.keys(nickchans).each(function(channel) {
+        _.each(_.keys(nickchans), function(channel) {
             var lchannel = this.toIRCLower(channel);
             this.channels[lchannel][newnick] = this.channels[lchannel][oldnick];
             delete this.channels[lchannel][oldnick];
@@ -5305,32 +5311,16 @@ irc.IRCTracker = new Class({
     //    return txt && txt.length !== 0 ? ' ' + txt : '';
     //});
 
-    //https://github.com/wycats/handlebars.js/issues/304
-    // engine.registerHelper('chain', function () {
-    //     var helpers = [], value;
-    //     $each(arguments,function (arg, i) {
-    //         if (engine.helpers[arg]) {
-    //             helpers.push(engine.helpers[arg]);
-    //         } else {
-    //             value = arg;
-    //             $each(helpers, function (helper, j) {
-    //                 value = helper(value, arguments[i + 1]);
-    //             });
-    //             return false;
-    //         }
-    //     });
-    //     return value;
-    // });
 
     /******************
         Compiliation
     *********************/
 
     function compileAll(source,compiled) {
-        Object.each(source, function(item, key) {
+        _.each(source, function(item, key) {
             try {
                 // compiled[key] = engine.compile(item);
-                compiled[key] = Function.from(item)
+                compiled[key] = Function.from(item);
             } catch(err) {
                 console.log(err);
             }
@@ -5510,14 +5500,39 @@ ui.StandardUI = new Class({
             }
         });
 
+        function setCustoms(notices) {
+            self.theme.customNotices = _.chain(notices).clone()
+                .reject(function(data) {
+                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
+                })
+                .map(function(notice) {
+                    return {
+                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+                        beep: notice.beep,
+                        flash: notice.flash
+                    };
+                })
+                .value();
+        }
+        function setSNotice(notices) {
+            _.each(self.theme.messageParsers, function(parser) {
+                if( _.has(notices, parser.id) )
+                    _.extend(parser, notices[parser.id]);
+            });
+        }
+
         self.uiOptions2.on({
             "change:style_hue": function(hue) {
                 self.setModifiableStylesheetValues({
                     hue: hue
                 })
             },
-            "change:font_size": self.setModifiableStylesheetValues
+            "change:font_size": self.setModifiableStylesheetValues,
+            "change:custom_notices": setCustoms,
+            "change:notices": setSNotice
         });
+        setCustoms(self.uiOptions2.get("custom_notices"));
+        setSNotice(self.uiOptions2.get("notices"));
 
         self.customWindows = {};
 
@@ -5794,9 +5809,10 @@ ui.Flasher = new Class({
         self.flashing = true;
         // flashA();
         self.flasher = flash.periodical(750);
-        window.addEvents({
+        window.addEvents({//whatever comes first
             "mousedown:once": this.cancelFlash,
-            "keydown:once": this.cancelFlash
+            "keydown:once": this.cancelFlash,
+            "focus:once": this.cancelFlash
         });
     },
     cancelFlash: function() {
@@ -6141,7 +6157,7 @@ ui.QUI = new Class({
             addTab = tabbtns.getElement('.add-chan'),
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
-            resizeTabs = util.fillContainer.curry(tabs, {style: 'max-width'}),
+            resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
             onResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();
@@ -6303,22 +6319,22 @@ ui.QUI = new Class({
             bold: {
                 keys: 'ctrl+b',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
             },
             italic: {
                 keys: 'ctrl+i',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
             },
             underline: {
                 keys: 'ctrl+u',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
             },
             colour: {
                 keys: 'ctrl+c',
                 description: '',
-                handler: util.wrapSelected.curry('.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
             }
         }
     },
@@ -6373,7 +6389,7 @@ ui.QUI = new Class({
                 });
             }.delay(4000);
 
-        var hider2 = this.hideHint = Element.destroy.curry(dropdownhint);
+        var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
 
         hider2.delay(4000);
 
@@ -6644,23 +6660,23 @@ ui.Theme = new Class({
 
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
-            isobj = Type.isObject(_data),
-            data = isobj ? Object.clone(_data) : _data, //sometimes an internal reference
+            isobj = _.isObject(_data),
+            data = isobj ? _.clone(_data) : _data, //sometimes an internal reference
             val;
 
         if(isobj) {
 
             if (data["n"]){
-                data["N"] = "qwebirc://whois/" + String.escapeHTML(data.n) + "/";
+                data["N"] = "qwebirc://whois/" + data.n + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
-            ["N", "m"].each(function(key) {//urlerize message and nick
+            _.each(["N", "m", "c"], function(key) {//urlerize message and nick
                 val = data[key];
                 if(val) {
-                    if(Array.isArray(val)) { //modes are given as an array so we need to fold
+                    if(_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
                     }
-                    data[key] = self.urlerize(String.escapeHTML(val));
+                    data[key] = self.urlerize(val);
                 }
             });
         }
@@ -6673,7 +6689,7 @@ ui.Theme = new Class({
     },
 
     formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(String.escapeHTML(line)));
+        var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
             .insertAdjacentHTML('beforeend', result);
         return result;
@@ -6697,20 +6713,20 @@ ui.Theme = new Class({
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         var colouredarr = [[]]; //will be an array of subarrays for each coloured string
 
-        parseArr.each(function(str) {//help
+        _.each(parseArr, function(str) {//help
             if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
                 colouredarr.push([]);
             } else { //^C1***
-                colouredarr.getLast().push(str);
+                _.last(colouredarr).push(str);
             }
         });
 
-        colouredarr.each(function(colourarr) {
-            colourarr.each(function(str) {
+        _.each(colouredarr, function(colourarr) {
+            _.each(colourarr, function(str) {
                 var colourMatch = str.match(styles.colour.fore_re),
                     backgroundMatch = str.match(styles.colour.back_re),
-                    colour = util.getColourByKey(Array.item(colourMatch, 0)),
-                    background = util.getColourByKey(Array.getLast(backgroundMatch));//num aft num + comma
+                    colour = util.getColourByKey(_.item(colourMatch, 0)),
+                    background = util.getColourByKey(_.last(backgroundMatch));//num aft num + comma
 
                 var html = templates.ircstyle({
                     'colour': (colour ? colour.fore : ""),
@@ -6724,7 +6740,7 @@ ui.Theme = new Class({
         });
 
         //matching styles (italics bold under)
-        styles.special.each(function(style) {//i wish colours were this easy
+        _.each(styles.special, function(style) {//i wish colours were this easy
             result = result.replace(style.keyregex, function(match, text) {
                 return templates.ircstyle({
                     'style': style.style,
@@ -6746,14 +6762,14 @@ ui.Theme = new Class({
             classes: '',
             flash: true,
             beep: true,
-            id: 'notify_on_notice',
+            id: 'on_notice',
             highlight: ui.HILIGHT_SPEECH
         },
         {
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
-            id: 'notify_on_pm',
+            id: 'on_pm',
             highlight: ui.HILIGHT_SPEECH
         },
         {
@@ -6761,7 +6777,7 @@ ui.Theme = new Class({
             classes: 'our-msg'
         },
         {//match bots
-            nic: /(^tf2)|((serv|bot)$)/i,
+            nick: /(^tf2)|((serv|bot)$)/i,
             classes: 'bot',
             types: [ui.WINDOW_CHANNEL]
         },
@@ -6777,16 +6793,16 @@ ui.Theme = new Class({
             tabhl: ui.HILIGHT_US
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             mentioned: true,
             classes: '',
             beep: true,
             flash: true,
             notus: true,
-            id: 'notify_on_mention'//for filtering
+            id: 'on_mention'//for filtering
         },
         {
-            nic: /^((?!(^tf2|bot$|serv$)).)*$/i,
+            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
             highlight: true,
@@ -6803,18 +6819,19 @@ ui.Theme = new Class({
         var self = this,
             tabHighlight = ui.HILIGHT_NONE,
             highlights = self.highlightClasses,
-            notus = !(/^OUR/.test(type));//wish we could just use not selector
+            notus = !(/^OUR/.test(type)),
+            parsers = _.clone(self.messageParsers).concat(self.customNotices);
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m)
                 $ele.addClass('message');
-            self.messageParsers.each(function(parser) {
+            _.each( parsers , function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
                     (!parser.type || parser.type.test(type)) && 
                     (!parser.msg || parser.msg.test(data.m)) &&
-                    (!parser.nic || parser.nic.test(data.n)) &&
+                    (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
@@ -6834,7 +6851,7 @@ ui.Theme = new Class({
                     }
                     tabHighlight = Math.max(tabHighlight, parser.tabhl);
                 }
-            })
+            });
         }
         return tabHighlight;
     }
@@ -7324,14 +7341,6 @@ ui.EmbedWizard = new Class({
 });
 
 
-var keys;
-if(!util.isMobile) {
-    keys = new Keyboard();
-} else {
-    delete window.Keyboard;
-}
-
-
 
 //not a class?
 ui.MENU_ITEMS = (function() {
@@ -7376,7 +7385,7 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "slap",
         fn: function(nick) {
-            this.client.exec("/ME " + util.formatter(lang.fishbot, {
+            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
                 'nick': nick
             }));
         },
@@ -7391,19 +7400,19 @@ ui.MENU_ITEMS = (function() {
     }, {
         text: "op",
         fn: command("op"),
-        predicate: prelude.andand(isOpped, Functional.not(targetOpped))
+        predicate: _.and(isOpped, _.not(targetOpped))
     }, {
         text: "deop",
         fn: command("deop"),
-        predicate: prelude.andand(isOpped, targetOpped)
+        predicate: _.and(isOpped, targetOpped)
     }, {
         text: "voice",
         fn: command("voice"),
-        predicate: prelude.andand(isOpped, Functional.not(targetVoiced))
+        predicate: _.and(isOpped, _.not(targetVoiced))
     }, {
         text: "devoice",
         fn: command("devoice"),
-        predicate: prelude.andand(isOpped, targetVoiced)
+        predicate: _.and(isOpped, targetVoiced)
     }];
 })();
 
@@ -7543,17 +7552,7 @@ ui.TabIterator = new Class({
         } else {
             var prefixes = irc.toIRCCompletion(client, prefix);
 
-            /* convert the nick list to IRC lower case, stripping all non letters
-             * before comparisions */
-            // for (var i = 0; i < list.length; i++) {
-            //     var l2 = irc.toIRCCompletion(client, list[i]);
-
-            //     if (l2.startsWith(prefixes))
-            //         l.push(list[i]);
-            // }
-            var listf = list.filter(Functional.compose(util.prefixOnNick(prefixes), irc.toIRCCompletion.curry(client)));
-
-            this.list = listf;
+            this.list = _.filter(list, _.compose(util.prefixOnNick(prefixes), _.partial(irc.toIRCCompletion, client)));
         }
 
         this.pos = -1;
@@ -7608,31 +7607,30 @@ ui.QueryNickTabCompleter = new Class({
 
 ui.ChannelNameTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
+    initialize: function(prefix, existingText, suffix, win) {
 
         var l = [];
-        Object.each(window.client.channels, function(chan, name) {
-            if($defined(chan)) {
+        _.each(win.client.channels, function(chan, name) {
+            if(chan && chan.lastSelected) {
                 chan = chan.lastSelected;
             }
             l.push([chan, name]);
         });
 
-        var l2 = l.sort(function(a, b) {
+        var l2 = _.sort(l, function(a, b) {
             return b[0] - a[0];
-        }).map(prelude.item(1));
+        }).map(item(1));
 
-        this.parent(window.client, prefix, existingText, suffix, l2);
-        // this.parent.apply(this, Array.concat(window.client, arguments, l2));
+        this.parent(win.client, prefix, existingText, suffix, l2);
     }
 });
 
 ui.ChannelUsersTabCompleter = new Class({
     Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, window) {
-        var nc = window.client.tracker.getSortedByLastSpoke(irc.activeChannel);
+    initialize: function(prefix, existingText, suffix, win) {
+        var nc = win.client.tracker.getSortedByLastSpoke(irc.activeChannel);
 
-        this.parent(window.client, prefix, existingText, suffix, nc);
+        this.parent(win.client, prefix, existingText, suffix, nc);
     }
 });
 
@@ -7661,15 +7659,32 @@ config.OptionModel = new Class({
             "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
+            "volume": 100,
 
-            "notify_on_mention": {flash:true, beep:true},
-            "notify_on_pm": {flash:true, beep:true},
-            "notify_on_notice": {flash:false, beep:true},
+            "notices": {
+                "on_mention": {flash:true, beep:true},
+                "on_pm": {flash:true, beep:true},
+                "on_notice": {flash:false, beep:true}
+            },
             "custom_notices": [],
-            "volume": 100
+            "default_notice": function() {
+                return {
+                        nick: null,
+                        msg: '',
+                        flash: false,
+                        beep: false,
+                        id: String.uniqueID(),
+                        autoescape: true
+                    }
+                }
         },
         key: "qweboptions",
         minimize: true
+    },
+
+    save: function() {
+        this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) { return data.msg.trim() === "" }));//cleanup
+        return this.parent();
     }
 });
 
@@ -7684,18 +7699,47 @@ ui.OptionView = new Class({
         template: templates.options,
         // 'onChange:model': render,
         events: {
-            'change:relay(#options input)': 'inputChange'
+            'change:relay(#options input)': 'inputChange',
+            'change:relay(#options #standard-notices input)': 'snoticeChange',
+            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'click:relay(#options #add-notice)': 'addNotifier',
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier'
+
         },
 
         onInputChange: function(e, target) {//set model values when inputs are clicked
             var id = target.get('id');
-                // sub = split.slice(1).join('.'),
-                // item = this.model.get(id);
 
             //handle sub props
-            if($defined(this.model.get(id))) {
+            if(id && $defined(this.model.get(id))) {
                 this.model.set(id, target.val());
             }
+        },
+
+        onSnoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('notices'));
+            _.assign(notices, target.get('id'), target.val());
+            this.model.set('notices', notices);
+        },
+
+        onNoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('custom_notices'));
+            var par = target.getParent('.custom-notice');
+            _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+            this.model.set('custom_notices', notices);
+        },
+
+        onAddNotifier: function(e) {
+            e.stop();
+            this.addNotifier();
+        },
+
+        onRemoveNotifier: function(e, target) {
+            e.stop();
+            var par = target.getParent('.custom-notice').dispose();
+            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})))
         },
 
         onReady: render
@@ -7703,15 +7747,18 @@ ui.OptionView = new Class({
 
     render: function() {
         var model = this.model,
-            data = model.toJSON();
-        data.lang = lang;
-        this.empty();
+            data = this.getData();
         this.element.html(this.template(data));
 
-        this.tabs = new MGFX.Tabs(this.element, {
-            tabs: '.option-tabs li',
-            content: '.tab-content .control-group'
-        });
+        _.each(data.custom_notices, function(notice) {
+            notice.lang = lang;
+            this.addNotifier(notice)
+        }, this);
+
+        // this.tabs = new MGFX.Tabs(this.element, {
+        //     tabs: '.option-tabs li',
+        //     content: '.tab-content .control-group'
+        // });
 
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
@@ -7732,8 +7779,34 @@ ui.OptionView = new Class({
             'reset': this.reset
         });
 
+        self.behavior = new Behavior().apply(this.element);
+
         this.parent();
         return this;
+    },
+
+    addNotifier: function(data) {
+        if(!data) {
+            data = this.model.get("default_notice")();
+            var n = _.clone(this.model.get("custom_notices"));
+            n.push(data);
+            this.model.set("custom_notices", n);
+        }
+
+        var parent = this.element.getElement('#custom-notices');
+
+        var _data = _.clone(data);
+        _data.lang = lang;
+
+        var temp = templates.customNotice(_data);
+
+        parent.insertAdjacentHTML('beforeend', temp);
+    },
+
+    getData: function() {
+        var data = this.model.toJSON();
+        data.lang = lang;
+        return data;
     },
 
     empty: function() {
@@ -7767,7 +7840,7 @@ ui.OptionView = new Class({
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
+        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
         sounds: "/sound/",
         beepsrc: "beep.mp3"
     },
@@ -7808,7 +7881,7 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this.sounds[alias] = this.sm.play.curry(alias);
+		this.sounds[alias] = _.partial(this.sm.play, alias);
 	},
     play: function(src) {
         this.sm.play(src);
@@ -7927,11 +8000,6 @@ ui.Window = new Class({
     close: function() {
         this.closed = true;
 
-        // if ($defined(this.scrolltimer)) {
-        //     $clear(this.scrolltimer);
-        //     this.scrolltimer = null;
-        // }
-
         this.parentObject.__closed(this);
         this.fireEvent("close", this);
     },
@@ -7945,10 +8013,6 @@ ui.Window = new Class({
     },
 
     select: function() {
-        if (this.lastPositionLineInserted && !this.parentObject.uiOptions2.get("lastpos_line")) {
-            this.lastPositionLineInserted = false;
-        }
-
         this.active = true;
         this.parentObject.__setActiveWindow(this);
         if (this.hilighted)
@@ -7966,7 +8030,7 @@ ui.Window = new Class({
     },
 
 
-    /* A line is an object of the form:
+    /* A data is an object of the form:
     -: current nick
     @: opstatus
     c: channel
@@ -7975,7 +8039,6 @@ ui.Window = new Class({
     m: msg
     n: nick
     */
-
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
@@ -7989,16 +8052,11 @@ ui.Window = new Class({
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
-        // $ele.appendChild($ele.from(tsE));
-
-        // var themed = type ? uiobj.theme.message(type, data, hl_line) : data;
-        // ui.Colourise(themed, $ele, self);
 
         var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
-        // self.scrollAdd($ele);
         self.lines.adopt($ele);
 
-        if(uiobj.uiOptions2.get("lastpos_line")) {
+        if(uiobj.uiOptions2.get("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
@@ -8020,16 +8078,16 @@ ui.Window = new Class({
         var lnh = this.lastNickHash,
             oldnames = Object.keys(lnh),
 
-            added = prelude.difference(nicks, oldnames),//users who joined
-            left = prelude.difference(oldnames, nicks); //users who left
+            added = _.difference(nicks, oldnames),//users who joined
+            left = _.difference(oldnames, nicks); //users who left
 
-        left.each(function(nick) {
+        _.each(left, function(nick) {
             var element = lnh[nick];
             this.nickListRemove(nick, element);
             delete lnh[nick];
-        }, this);
+        }, this)
 
-        added.each(function(nick) {
+        _.each(added, function(nick) {
             var index = nicks.indexOf(nick); //indx in sorted array
             lnh[nick] = this.nickListAdd(nick, index) || 1;
         }, this);
@@ -8072,7 +8130,7 @@ ui.Window = new Class({
         if (parsed !== "") {
             this.parentObject.resetTabComplete();
             this.commandhistory.addLine(unparsed || parsed);
-            this.client.exec(line, this.currentChannel);
+            this.client.exec(parsed, this.currentChannel);
             target.val("");
         }
         target.focus();
@@ -8083,14 +8141,18 @@ ui.Window = new Class({
 //mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
-    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix"],
+    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix", "menuClick"],
 
     initialize: function(parentObject, client, type, name, identifier) {
         var self = this;
         self.parent(parentObject, client, type, name, identifier);
 
-
         var qwindow = self.window;
+
+        self.events = {
+            client: {}
+        };
+
         qwindow.detached = self.detached = false;
 
         var $tab = self.tab = Element.from(templates.ircTab({
@@ -8100,8 +8162,8 @@ ui.QUI.Window = new Class({
 
         if(name === BROUHAHA) {
             $tab.addClass('brouhaha');
-            Function.delay(function() {
-                parentObject.windowArray.some(function(win) {
+            _.delay(function() {
+                _.some(parentObject.windowArray, function(win) {
                     if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
                         self.properties.text(win.name); //update current channel in brouhaha
                         self.currentChannel = win.name;
@@ -8198,13 +8260,15 @@ ui.QUI.Window = new Class({
         if (this.closed)
             return;
 
-        if (isChannelType(this.type) && (!isBaseWindow(this.name)) && !util.wasKicked()) {
+        if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
             var client = this.client,
                 channels = util.removeChannel(client.channels, this.name);
 
             client.exec("/PART " + this.name);
             client.storeChannels(channels);
         }
+        if(this.client instanceof irc.IRCClient) 
+            this.client.removeEvents(this.events.client);
         this.parent();
 
         this.parentObject.tabs.disown(this.tab);
@@ -8324,7 +8388,7 @@ ui.QUI.Window = new Class({
     selectTab: function(e) {
         var self = this;
         if(self.name !== BROUHAHA) {
-            self.parentObject.windowArray.each(function(win) {
+            _.each(self.parentObject.windowArray, function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
                     win.tab.removeClass("tab-selected");
                 }
@@ -8380,13 +8444,13 @@ ui.QUI.Window = new Class({
 
                 var nodes = self.nicklist.childNodes;
                 if (parentObject.uiOptions2.get("nick_colours")) {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
                             node.firstChild.setStyle("color", colour.rgbToHex());
                     });
                 } else {
-                    Array.each(nodes, function(node) {
+                    _.each(nodes, function(node) {
                         node.firstChild.setStyle("color", null);
                     });
                 }
@@ -8466,8 +8530,9 @@ ui.QUI.Window = new Class({
             };
 
         if(isChannelType(self.type)) {
+            var e = self.events.client.mode = self.updatePrefix;
             self.client.addEvents({
-                "mode": self.updatePrefix
+                "mode": e
             });
         }
 
@@ -8525,14 +8590,15 @@ ui.QUI.Window = new Class({
         var $menu = Element.from(templates.menuContainer()),
             self = this;
 
-        (ui.MENU_ITEMS.filter(function(item) {
-            var pred = item.predicate;
-            return Type.isFunction(pred) ? pred.call(self, nick) : !!pred;//pred.apply(this, nickArray)
-        })).each(function(item) {
-            Element.from(templates.nickbtn({'nick': "- " + item.text}))
-                    .store("action", item.fn)
-                    .inject($menu);
-        });
+        _.chain(ui.MENU_ITEMS)
+            .filter(function(item) {
+                return Type.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
+            })
+            .each(function(item) {
+                Element.from(templates.nickbtn({'nick': "- " + item.text}))
+                        .store("action", item.fn)
+                        .inject($menu);
+            });
 
         $menu.addEvent('click:relay(.user)', function(e, target) {
                 e.stop();

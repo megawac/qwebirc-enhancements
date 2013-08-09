@@ -181,9 +181,9 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = irc.styles.filter(function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
-irc.styles.colour = irc.styles.filter(function(sty) { return sty.name == 'colour' } )[0];
-irc.styles.normal = irc.styles.filter(function(sty) { return sty.name == 'normal' } )[0];
+irc.styles.special = _.filter(irc.styles, function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
+irc.styles.colour = _.find(irc.styles, function(sty) { return sty.name == 'colour' } );
+irc.styles.normal = _.find(irc.styles, function(sty) { return sty.name == 'normal' } );
 
 irc.colours = [//http://www.mirc.com/colors.html
     {

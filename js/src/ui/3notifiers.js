@@ -104,9 +104,10 @@ ui.Flasher = new Class({
         self.flashing = true;
         // flashA();
         self.flasher = flash.periodical(750);
-        window.addEvents({
+        window.addEvents({//whatever comes first
             "mousedown:once": this.cancelFlash,
-            "keydown:once": this.cancelFlash
+            "keydown:once": this.cancelFlash,
+            "focus:once": this.cancelFlash
         });
     },
     cancelFlash: function() {

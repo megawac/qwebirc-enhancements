@@ -95,7 +95,15 @@
         NOTIFY_ON_PM: "When private messaged:",
         NOTIFY_ON_NOTICE: "When channel notice:",
         FLASH: "flash",
-        BEEP: "beep"
+        BEEP: "beep",
+        MESSAGE_PLACEHOLDER: ' something ... ',
+        NICK_PLACEHOLDER: ' someone ... ',
+        DELETE_NOTICE: 'remove',
+        ADD_NOTICE: 'Add notifier',
+        USER_NOTICE: 'User:',
+        MESSAGE_NOTICE: 'Message:',
+        AUTOESCAPE: 'Escape text',
+        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered'
     };
 
 

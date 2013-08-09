@@ -25,7 +25,7 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
                         var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
-                        var user = cmd.slice(6, chanlen);
+                        var user = cmd.slice(6, chanlen);//whois to channel
                         cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
                     else if(cmd.startsWith("options") || cmd.startsWith("embedded")) {
@@ -51,8 +51,9 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with d
         });
 
 var inputurl = util.inputParser = new Urlerizer({
-    default_parser: false
-})
+    default_parser: false,
+    autoescape: false
+});
 
 var bbmatch = /\[.+?\].+\[\/.+?\]/i;
 var colour_re = /\[colo(u)?r+(.*?)\](.*?)\[\/colo(u)?r\b\]/ig;
@@ -97,9 +98,9 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
             stac.push(text.slice(0, tag_m.index));
             text = text.slice(tag_m.index);
 
-            style = Array.item(irc.styles.special.filter(function(sty) {
+            style = _.find(irc.styles.special, function(sty) {
                 return sty.bbcode[0] === tag;
-            }), 0);
+            });
             if(style) {
                 bb = style.bbcode;
 

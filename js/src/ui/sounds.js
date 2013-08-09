@@ -6,7 +6,7 @@
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundjs/0.4.1/soundjs.min.js",
+        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
         sounds: "/sound/",
         beepsrc: "beep.mp3"
     },
@@ -47,7 +47,7 @@ sound.SoundPlayer = new Class({
     },
 	register: function(alias,src) {
 		this.sm.registerSound(src, alias);
-		this.sounds[alias] = this.sm.play.curry(alias);
+		this.sounds[alias] = _.partial(this.sm.play, alias);
 	},
     play: function(src) {
         this.sm.play(src);

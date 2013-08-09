@@ -17,9 +17,9 @@
 ; var Functional = (function(parent, undefined) {
     // TODO see if '_' can be removed without breaking partial() function
     //- _ :: used for partial() function
-    var _ = parent._ = Function._ = {},
+    // var _ = parent._ = Function._ = {},
 
-        unshift = function(xs, i) {
+    var unshift = function(xs, i) {
             Array.unshift(xs, i);
             return xs;
         },
@@ -28,9 +28,9 @@
         //+ curry :: f -> ? -> g
         curry = function(fn /* variadic number of args */ ) {
             var args = Array.slice(arguments, 1);
-            curried = function() {
+            function curried() {
                 return fn.apply(this, args.concat(Array.from(arguments)));
-            };
+            }
             ////sugar for console
             // curried.toString = function() {
             //     return fn.toString();
@@ -43,7 +43,7 @@
         //+ autoCurry :: f -> Int -> g
         autoCurry = function(fn, numArgs, bind) {
             numArgs = numArgs || fn.length;
-            curried = function() {
+            function curried() {
                 bind = bind || this;
                 if (arguments.length < numArgs) {
                     return numArgs - arguments.length > 0 ? autoCurry(curry.apply(bind, unshift(arguments, fn)), numArgs - arguments.length) : 
@@ -51,7 +51,7 @@
                 } else {
                     return fn.apply(bind, arguments);
                 }
-            };
+            }
             //sugar for console 
             curried.toString = function() {
                 return fn.toString();
@@ -335,31 +335,31 @@
         //     };
         // },
 
-        //+ partial :: _ -> f
-        partial = function() {
-            var fn = this,
-                args = Array.from(arguments),
-                subpos = [],
-                i, value;
+        // //+ partial :: _ -> f
+        // partial = function() {
+        //     var fn = this,
+        //         args = Array.from(arguments),
+        //         subpos = [],
+        //         i, value;
 
-            for (i = 0; i < arguments.length; i++) {
-                arguments[i] == _ && subpos.push(i);
-            }
+        //     for (i = 0; i < arguments.length; i++) {
+        //         arguments[i] == _ && subpos.push(i);
+        //     }
 
-            return function() {
-                var specialized = args.concat(Array.slice(arguments, subpos.length)),
-                    i;
-                for (i = 0; i < Math.min(subpos.length, arguments.length); i++) {
-                    specialized[subpos[i]] = arguments[i];
-                }
-                for (i = 0; i < specialized.length; i++) {
-                    if (specialized[i] === _) {
-                        return fn.partial.apply(fn, specialized);
-                    }
-                }
-                return fn.apply(this, specialized);
-            };
-        },
+        //     return function() {
+        //         var specialized = args.concat(Array.slice(arguments, subpos.length)),
+        //             i;
+        //         for (i = 0; i < Math.min(subpos.length, arguments.length); i++) {
+        //             specialized[subpos[i]] = arguments[i];
+        //         }
+        //         for (i = 0; i < specialized.length; i++) {
+        //             if (specialized[i] === _) {
+        //                 return fn.partial.apply(fn, specialized);
+        //             }
+        //         }
+        //         return fn.apply(this, specialized);
+        //     };
+        // },
 
         //+ ECMAsplit :: String -> Int -> String
         // ECMAsplit is an ECMAScript-compliant `split`, although only for
@@ -428,7 +428,7 @@
             };
             cached.cached = function() {};
             cached.uncache = function() {
-                proto.lambda = uncached
+                proto.lambda = uncached;
             };
             proto.lambda = cached;
         },
@@ -443,7 +443,7 @@
         };
 
     //+ decorateFunctionPrototypeWithPartial :: IO
-    Function.prototype.partial = partial;
+    // Function.prototype.partial = partial;
 
     Function.prototype.flip = function( /*args...*/ ) {
         return flip.apply(this, unshift(arguments, this));
