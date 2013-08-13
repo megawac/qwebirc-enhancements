@@ -23,7 +23,7 @@ def help_reactors(*args):
   run_twistd(["--help-reactors"])
   sys.exit(1)
 
-DEFAULT_REACTOR = "select" if os.name == "nt" else "poll"  
+DEFAULT_REACTOR = "select" if os.name == "nt" else "poll"
 
 parser = OptionParser()
 parser.add_option("-n", "--no-daemon", help="Don't run in the background.", action="store_false", dest="daemonise", default=True)

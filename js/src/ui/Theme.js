@@ -2,25 +2,16 @@
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            defaults = Object.append({}, ui.themes.Default2, themeDict),
-            prefix = defaults.PREFIX[0];
+            defaults = _.extend({}, ui.themes.Default2, themeDict);
         
-        self.__theme = Object.map(defaults, function(data, key) {
-            return data[1] ? prefix + data[0] : data[0];
+        var thememap = _.map(ui.themes.ThemeControlCodeMap2, function(str) {
+            return util.formatterSafe(str, ui.themes.ThemeControlCodeMap2);
+        });
+        self.__theme = _.map(defaults, function(str) {
+            return util.formatterSafe(str, thememap);
         });
 
         self.highlightClasses.channels = {};
-
-        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
-        self.__ccmaph = Object.clone(self.__ccmap);
-
-        self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
-        self.__ccmaph[")"] = self.message("HILIGHTEND", {}, self.__ccmap);
-        self.__ccmaph["{"] = self.__ccmaph["}"] = "";
-    },
-
-    __dollarSubstitute: function(str, data, mapper) {
-        return str.substitute(Object.append({}, data, mapper))
     },
 
 //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
@@ -51,21 +42,20 @@ ui.Theme = new Class({
         var themed = type ? self.message(type, data, highlight) : data;
         var result = self.colourise(themed);
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
+            .adopt(Elements.from(result));//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
     formatElement: function(line, $ele) {
         var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
+            .adopt(Elements.from(result));
         return result;
     },
 
     message: function(type, data, highlight) {
-        var map = highlight ? this.__ccmaph : this.__ccmap;
-
-        return this.__dollarSubstitute(this.__theme[type], data, map);
+        // if(highlight) data = _.extend({}, data, this.__ccmaph)
+        return util.formatter(this.__theme[type], data);//most formatting done on init
     },
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
@@ -155,7 +145,7 @@ ui.Theme = new Class({
         },
         {
             mentioned: true,
-            classes: 'mentioned',
+            highlight: 'mentioned',
             notus: true,
             tabhl: ui.HILIGHT_US
         },
@@ -203,7 +193,9 @@ ui.Theme = new Class({
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
-                            win.parentObject.flash();
+                            win.parentObject.flash({
+                                body: util.formatter("{nick}{channel}: {message}", data)
+                            });
                         }
                         if(parser.beep) {
                             win.parentObject.beep();
@@ -211,7 +203,7 @@ ui.Theme = new Class({
                     }   
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(highlights.next(highlights.channels[win.name]++));
+                        $ele.addClass(Type.isBoolean(parser.highlight) ? highlights.next(highlights.channels[win.name]++) : parser.highlight);
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);

@@ -67,6 +67,13 @@ util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
 
+util.formatterSafe = function (str, object, regexp){//if property not found string is not replaced
+    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
+        if (match.charAt(0) == '\\') return match.slice(1);
+        return (object[name] != null) ? object[name] : match;
+    });
+}
+
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
 util.hostToNick = _.compose(joinBang, restRight, splitBang);
@@ -312,6 +319,8 @@ irc.nickChanEntry = function(p, l) {
         lastSpoke: l || 0
     };
 };
+
+util.noop = function(){};
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 

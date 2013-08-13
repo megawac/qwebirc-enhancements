@@ -1,5 +1,4 @@
-/* Added event impl many more changes should be made. (TODO) Such as rmeoving cookies from this file for decoupling */
-
+//base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
     Binds: ["dispatch"],
@@ -43,6 +42,11 @@ irc.BaseIRCClient = new Class({
         self.setupGenericErrors();
     },
 
+    trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
+        data["-"] = this.nickname;
+        return this.fireEvent(type, [type, data]);
+    },
+
     connect: function() {
         return this.connection.connect();
     },
@@ -83,11 +87,6 @@ irc.BaseIRCClient = new Class({
             break;
         }
     },
-
-    // isChannel: function(target) {
-    //     var c = target.charAt(0);
-    //     return c === '#';
-    // },
 
     supported: function(key, value) {
         switch(key) {
@@ -249,8 +248,7 @@ irc.BaseIRCClient = new Class({
 
         if(wasus) {
             if(!isBaseWindow(newchan)) {
-                var channels = util.addChannel(this.getChannels(), newchan);
-                this.storeChannels(channels);
+                this.storeChannels(util.addChannel(this.getChannels(), newchan));
             }
             if(this.__signedOn) {
                 this.currentChannel = newchan;
@@ -279,8 +277,6 @@ irc.BaseIRCClient = new Class({
             target = params[0],
             message = params.getLast();
 
-        this.broadcast(user, BROUHAHA, message, target, "CHANMSG");
-
         var ctcp = this.processCTCP(message);
         if (ctcp) {
             var type = ctcp[0].toUpperCase();
@@ -301,7 +297,7 @@ irc.BaseIRCClient = new Class({
                 this.channelCTCP(user, target, type, ctcp[1]);
             }
         } else {
-            if (target == this.nickname) {
+            if (target === this.nickname) {
                 this.userPrivmsg(user, message);
             } else {
                 this.channelPrivmsg(user, target, message);
@@ -330,9 +326,7 @@ irc.BaseIRCClient = new Class({
             } else {
                 this.userNotice(host, message);
             }
-
         } else {
-            this.broadcast(host, BROUHAHA, message, target, "CHANNOTICE");
             this.channelNotice(host, target, message);
         }
 
@@ -634,14 +628,14 @@ irc.BaseIRCClient = new Class({
     irc_RPL_LISTITEM: function(bot, args) {
         this.listedChans.push({
             channel: args[1],
-            users: args[2],
+            users: _.toInt(args[2]),
             topic: args[3]
         });
         return !this.hidelistout;
     },
 
     irc_RPL_LISTEND: function() {
-        this.fireEvent("listend", this.listedChans);
+        this.trigger("listend", this.listedChans);
         return !this.hidelistout;
     }
 

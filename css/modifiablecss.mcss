@@ -470,10 +470,9 @@ timestamp_padding_left=o,show_timestamps,1em,11px
 }
 
 .qui .outertabbar .dropdown-tab {
-    cursor: pointer;
-    cursor: hand;
+    cursor: pointer; cursor: hand;
     float: left;
-    padding: 4px;
+    padding: 3px 4px 0;
     width: 30px;
 }
 

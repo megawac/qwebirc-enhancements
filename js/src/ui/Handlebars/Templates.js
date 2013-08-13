@@ -129,6 +129,10 @@
         return checked ? 'checked' : '';
     });
 
+    engine.registerHelper('enableDisable', function(x) {
+        return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
+    })
+
     //engine.registerHelper('pad', function(txt) {
     //    return txt && txt.length !== 0 ? ' ' + txt : '';
     //});
@@ -156,5 +160,3 @@
     //allows templates to reference eachother
     engine.partials = compiled;
 })(Handlebars);
-
-var templates = Handlebars.templates;

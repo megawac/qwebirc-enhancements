@@ -12,32 +12,40 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<div class=\"container center\">\r\n<form id='login'>\r\n<h2>Connect to ";
+  buffer += "<div class=\"container center\">\r\n<form id=\"login\">\r\n<h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " IRC</h2>\r\n<div class='nick right'>\r\n<label class=\"control-label\" for=\"nickname\">Nickname:<input type='text' name='basic' id='nickname' value=";
+    + " IRC</h2>\r\n<div class=\"nick right\">\r\n<label class=\"control-label\" for=\"nickname\">Nickname:\r\n<input type=\"text\" name=\"basic\" id=\"nickname\" value=\"";
   if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " /></label>\r\n</div>\r\n<div class='username right ";
+    + "\" placeholder=\"Nickname\" />\r\n</label>\r\n</div>\r\n<div class=\"username right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>\r\n<label class=\"control-label\" for=\"username\">Gamesurge username:<input type='text' name='full' id='username' value='";
+  buffer += "\">\r\n<label class=\"control-label\" for=\"username\">";
+  if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " username:\r\n<input type=\"text\" name=\"full\" id=\"username\" value=\"";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></label>\r\n</div>\r\n<div class='password right ";
+    + "\" placeholder=\"";
+  if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " username\">\r\n</label>\r\n</div>\r\n<div class=\"password right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>\r\n<label class=\"control-label\" for=\"password\">Password:<input type='password' name='full' id='password' value='";
+  buffer += "\">\r\n<label class=\"control-label\" for=\"password\">Password:\r\n<input type=\"password\" name=\"full\" id=\"password\" value=\"";
   if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
+    + "\">\r\n</label>\r\n</div>\r\n<div class=\"authenticate\">\r\n<label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for=\"authenticate\">\r\n</div>\r\n<div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class=\"qwebirc-init-channels\"><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
@@ -133,7 +141,17 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" data-id=\"flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" title=\""
+    + ">\r\n</label>\r\n<!-- <label class=\"checkbox-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.HIGHLIGHT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"highlight\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.highlight, options) : helperMissing.call(depth0, "check", depth0.highlight, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MENTIONED)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"mentioned\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.mentioned, options) : helperMissing.call(depth0, "check", depth0.mentioned, options)))
+    + ">\r\n</label> -->\r\n<label class=\"checkbox-inline\" title=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
@@ -408,7 +426,16 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DESKTOP_NOTICES)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"button\" value=\"";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.enableDisable || depth0.enableDisable),stack1 ? stack1.call(depth0, depth0.dn_state, options) : helperMissing.call(depth0, "enableDisable", depth0.dn_state, options)))
+    + "\" id=\"dn_state\">\r\n</label>\r\n<label class=\"control-label-inline\" for=\"dn_duration\">Notification duration:\r\n<input type=\"number\" id=\"dn_duration\" value=\"";
+  if (stack2 = helpers.dn_duration) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.dn_duration; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\">ms\r\n</label>\r\n<input type=\"button\" value=\"Test\" id=\"notice-test\">\r\n</div>\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<label class=\"checkbox-inline\" for=\"on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))

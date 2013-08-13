@@ -390,13 +390,6 @@ ui.QUI.Window = new Class({
                 util.setAtEnd($inputbox);
             };
 
-        if(isChannelType(self.type)) {
-            var e = self.events.client.mode = self.updatePrefix;
-            self.client.addEvents({
-                "mode": e
-            });
-        }
-
         $nicklabel.addEvent("dblclick", function() {
             var nick = prompt("Enter a new nickname", self.nickname);
             if(nick) {
@@ -480,10 +473,13 @@ ui.QUI.Window = new Class({
 
     moveMenuClass: function($sel) {
         $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        if (this.nicklist.firstChild === $sel) {
-            $sel.removeClass("selected-middle");
-        } else if($sel) {
-            $sel.addClass("selected-middle");
+        
+        if($sel) {
+            if (this.nicklist.firstChild === $sel) {
+                $sel.removeClass("selected-middle");
+            } else {
+                $sel.addClass("selected-middle");
+            }
         }
     },
 
@@ -510,13 +506,14 @@ ui.QUI.Window = new Class({
         }
     },
 
-    addLine: function(type, line, colourClass) {
-        var $msg = Element.from(templates.ircMessage({ type: type.toLowerCase() }));
+    addLine: function(type, data, colourClass) {
+        console.log(arguments);
+        var $msg = Element.from(templates.ircMessage({ type: type.hyphenate() }));
 
         if(colourClass)
             $msg.addClass(colourClass);
 
-        this.parent(type, line, colourClass, $msg);
+        this.parent(type.toUpperCase(), data, colourClass, $msg);
     },
     highlightTab: function(state) {
         this.parent(state);

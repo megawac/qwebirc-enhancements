@@ -1,5 +1,5 @@
 /* This could do with a rewrite from scratch. */
-
+//COMMANDS = dict(p=push, n=newConnection, s=subscribe)
 irc.IRCConnection = new Class({
     Implements: [Events, Options],
     Binds: ["send","__completeRequest"],

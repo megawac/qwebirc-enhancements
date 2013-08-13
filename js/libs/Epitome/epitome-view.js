@@ -117,6 +117,9 @@
 				// add events to main element.
 				var self = this;
 				Object.each(events, function(method, type){
+					if(!self.$events[method]) {
+						self.$events[method] = [self[method]];
+					}
 					self.element.addEvent(type, function(){
 						self.trigger(method, arguments);
 					});

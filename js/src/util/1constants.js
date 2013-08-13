@@ -24,6 +24,7 @@ var BROUHAHA = '#brouhaha',
     CONNECTION_DETAILS = 'Connection details',
     STATUS = 'Status',
     OPTIONS = 'Options',
+    ACTIVE = '\x09ACTIVE',
 
 
     BASE_WINDOWS = [BROUHAHA, CONNECTION_DETAILS, STATUS],
@@ -181,9 +182,9 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = _.filter(irc.styles, function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
-irc.styles.colour = _.find(irc.styles, function(sty) { return sty.name == 'colour' } );
-irc.styles.normal = _.find(irc.styles, function(sty) { return sty.name == 'normal' } );
+irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == 'normal' ||  sty.name == 'colour' } );
+irc.styles.colour = _.findWhere(irc.styles, {name: 'colour' } );
+irc.styles.normal = _.findWhere(irc.styles, {name: 'normal' } );
 
 irc.colours = [//http://www.mirc.com/colors.html
     {

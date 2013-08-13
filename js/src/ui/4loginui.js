@@ -123,9 +123,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         callback(data);
     }.bind(this));
 
-    // nickBox.set("value", initialNickname);
-    //chan.set("value", initialChannels);
-
     if (window === window.top)
         nickBox.focus();
 };

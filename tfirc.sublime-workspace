@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"bro",
+				"broadcast_re"
+			],
+			[
+				"HIl",
+				"HILIGHT_NONE"
+			],
+			[
+				"custom",
+				"custom_notices"
+			],
+			[
+				"def",
+				"default_notice"
+			],
+			[
 				"isEl",
 				"isElement"
 			],
@@ -328,82 +344,18 @@
 	"buffers":
 	[
 		{
-			"file": "js/libs/4Moo-underscore.js",
+			"file": "js/src/ui/1BaseUI.js",
 			"settings":
 			{
-				"buffer_size": 41362,
+				"buffer_size": 7951,
 				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/src/ui/window/2quiwindow.js",
-			"settings":
-			{
-				"buffer_size": 17797,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/D/Users/Dynomite/Downloads/built (1).js",
-			"settings":
-			{
-				"buffer_size": 51439,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "js/src/ui/window/1window.js",
-			"settings":
-			{
-				"buffer_size": 5004,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/libs/Urlerizer.js",
-			"settings":
-			{
-				"buffer_size": 7212,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/libs/6native-mods.js",
-			"settings":
-			{
-				"buffer_size": 8696,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/src/prelude.js",
-			"settings":
-			{
-				"buffer_size": 10226,
-				"line_ending": "Unix"
 			}
 		},
 		{
 			"file": "js/src/irc/ircclient.js",
 			"settings":
 			{
-				"buffer_size": 30978,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/src/irc/baseclient.js",
-			"settings":
-			{
-				"buffer_size": 17550,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/src/irc/commands_utils.js",
-			"settings":
-			{
-				"buffer_size": 14576,
+				"buffer_size": 32911,
 				"line_ending": "Windows"
 			}
 		},
@@ -411,55 +363,55 @@
 			"file": "js/src/irc/Interface.js",
 			"settings":
 			{
-				"buffer_size": 11198,
+				"buffer_size": 11190,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "js/dist/qwebirc.js",
+			"file": "js/src/ui/Theme.js",
 			"settings":
 			{
-				"buffer_size": 289598,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "js/src/qwebirc_start.js",
-			"settings":
-			{
-				"buffer_size": 1853,
+				"buffer_size": 7595,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "js/libs/5_functional.js",
+			"file": ".gitignore",
 			"settings":
 			{
-				"buffer_size": 6259,
-				"line_ending": "Unix"
+				"buffer_size": 465,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "js/src/util/3lang.js",
+			"settings":
+			{
+				"buffer_size": 8935,
+				"line_ending": "Windows"
 			}
 		},
 		{
 			"file": "js/src/util/2ircutils.js",
 			"settings":
 			{
-				"buffer_size": 9346,
+				"buffer_size": 9654,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "css/modifiablecss.mcss",
+			"file": "js/src/ui/window/2quiwindow.js",
 			"settings":
 			{
-				"buffer_size": 15423,
+				"buffer_size": 17890,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "js/libs/Epitome/3epitome-isequal.js",
+			"file": "js/src/irc/commands_utils.js",
 			"settings":
 			{
-				"buffer_size": 450,
+				"buffer_size": 14739,
 				"line_ending": "Windows"
 			}
 		}
@@ -467,16 +419,24 @@
 	"build_system": "Packages/JSHint/JSHint.sublime-build",
 	"command_palette":
 	{
-		"height": 392.0,
+		"height": 173.0,
 		"selected_items":
 		[
 			[
-				"remove",
-				"Package Control: Remove Package"
+				"indent",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"inden",
+				"Indentation: Reindent Lines"
 			],
 			[
 				"install",
 				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
 			],
 			[
 				"format",
@@ -527,13 +487,24 @@
 				"Set Syntax: R Console"
 			]
 		],
-		"width": 504.0
+		"width": 512.0
 	},
 	"console":
 	{
-		"height": 0.0,
+		"height": 114.0,
 		"history":
 		[
+			"bootstrap.js",
+			"cmd",
+			"-cmd",
+			"sublime /v",
+			"sublime --v",
+			"sublime -v",
+			"sublime",
+			"help",
+			"run",
+			"python",
+			"node"
 		]
 	},
 	"distraction_free":
@@ -547,61 +518,72 @@
 	},
 	"file_history":
 	[
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/3notifiers.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/3lang.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/2StandardUI.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/customNotice.hbs",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/options.hbs",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/optionconfig.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/ircInput.hbs",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Theme.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/urlifier.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/irctracker.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/5_functional.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/Interface.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/commands_utils.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/baseclient.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/ircclient.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/6native-mods.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/window/1window.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/behaviour+bootstrap.js",
+		"/D/Users/Dynomite/Downloads/built (1).js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/window/2quiwindow.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/4Moo-underscore.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/1BaseUI.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Urlerizer.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/1epitome-events.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/4epitome-model.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/2ircutils.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/prelude.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/dist/qwebirc.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/qwebirc_start.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/js/irc/irctracker.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/css/modifiablecss.mcss",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/3epitome-isequal.js",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/css/qwebirc.css",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/document-template.html",
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/static/qui-enhanced.html",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/functional.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/misc.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/mods.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Urlerizer.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/2mootools-more-1.4.0.1 (1).js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/about.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/1BaseUI.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Theme.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/6QUI.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/autoscroll.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/dist/qwebirc.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/Interface.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/baseclient.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/ircclient.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/window/2quiwindow.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/window/1window.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/1constants.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/urlifier.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/gruntfile.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/qweblink.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/uihelpers.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/3lang.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/customNotice.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/Templates.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/optionconfig.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/4native-mods.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/unused/Handlebars.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/1mootools-core-custom.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/4ircutils.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/native-mods.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/qwebirc/ircclient.py",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/options.hbs",
 		"/D/Users/Dynomite/Documents/programming/openshift/qweb/setup.py",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/2StandardUI.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/1mootools-core-1.4.5.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/node_modules/grunt/node_modules/js-yaml/node_modules/argparse/lib/action/append/constant.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/epitome-model-storage.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/3epitome-isequal.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/irc/commands_utils.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/README.md",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/util/2lang.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/css/qwebirc.css",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/prelude.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/js/irc/baseircclient.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/4loginui.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/authpage.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/4epitome-model.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/3notifiers.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/5QNui.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/node_modules/grunt/node_modules/coffee-script/lib/coffee-script/helpers.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/helpers.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/ircInput.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/js/ui/tabcompleter.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/css/modifiablecss.mcss",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/ircMessage.hbs",
 		"/D/Users/Dynomite/Documents/programming/openshift/qweb/simple.py",
 		"/D/Users/Dynomite/Documents/programming/openshift/qweb/app.py",
@@ -609,14 +591,12 @@
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/window.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/channelName.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/epitome-view.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/1epitome-events.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/highlighter.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/stylesheet.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/node_modules/grunt/node_modules/colors/ReadMe.md",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/node_modules/grunt-contrib-handlebars/node_modules/handlebars/node_modules/optimist/node_modules/wordwrap/package.json",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/tabs.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/dist/qwebirc-0.93dev.js",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/demo/static/qui-enhanced.html",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/2epitome.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/epitome-collection.js",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/libs/Epitome/epitome-router.js",
@@ -665,16 +645,7 @@
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/message.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/channellink.hbs",
 		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/userlink.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/timestamp.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/message.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/spanURL.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/topPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/detachedPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/windowsPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/windowPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/topicPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/contentPane.hbs",
-		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/hacks.min.js"
+		"/D/Users/Dynomite/Dropbox/Programming/extensions/tfirc/qwebirc-upate/js/src/ui/Handlebars/templates/timestamp.hbs"
 	],
 	"find":
 	{
@@ -692,6 +663,107 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"line",
+			"channel",
+			"join",
+			"$A",
+			"$a",
+			"A",
+			"part",
+			"brouhaha_re",
+			"data",
+			"prefix",
+			"\"]",
+			"],",
+			", true]",
+			": [",
+			"[",
+			"P",
+			"__dollarSubstitute",
+			"__ccmap",
+			"__ccmaph",
+			"Object",
+			"prefix",
+			"': args",
+			": args",
+			"args",
+			"args\"",
+			"message\": \"ar",
+			"user",
+			"Object",
+			"newQueryLine",
+			"user",
+			"message",
+			"host",
+			"nick",
+			"message",
+			"channel",
+			"nick",
+			"user",
+			"message",
+			"server",
+			"setNotices",
+			"Notices",
+			"setCustoms",
+			"theme",
+			"each",
+			"item",
+			"opti",
+			"CUSTOM_NOTICE",
+			"USER_NOTICE",
+			"NOTICE_PLACEHOLDER",
+			"msg",
+			"notify_",
+			"check on",
+			"notices.",
+			"notify_",
+			"notify",
+			"notify_",
+			"text",
+			"\"checkbox\" class=\"",
+			"class=\"",
+			"todo",
+			"text",
+			"nic",
+			"text",
+			"notifier",
+			"set",
+			"args",
+			"trigger",
+			"lang.ESCAPE_HINT",
+			" id=\"notify_on_pm.flash\"",
+			"old",
+			"default_notice",
+			"isEnumerable",
+			"isenum",
+			"isEnumerable",
+			"isenum",
+			"addNotifier",
+			"getParent('.custom-notice')",
+			"this",
+			"model",
+			"\"",
+			"_.length",
+			"keys",
+			"this",
+			"Array.item",
+			"test",
+			"replace",
+			"startsWith",
+			"item",
+			"item(",
+			"item",
+			".find",
+			"each",
+			"interceptor",
+			"object.get",
+			"Object.isEmpty",
+			"isempty",
+			"Object.set",
+			"Object.get",
+			"Object",
+			"document",
+			"options",
 			"pred",
 			"extend",
 			"mixin",
@@ -718,108 +790,7 @@
 			"storeChannels",
 			"toirclower",
 			"restRight",
-			"window",
-			"prelude",
-			"joinComma, ",
-			"storeChannels",
-			"channels",
-			"prelude",
-			"window",
-			"chan",
-			"prelude",
-			"targetOpped",
-			"prelude",
-			"joincomma",
-			"prelude",
-			"replace",
-			"test",
-			"prelude",
-			";\n",
-			"prelude",
-			"_.contains",
-			"prelude",
-			"prefixe",
-			"prelude.replace",
-			"prelude.item",
-			"item",
-			"prelude.item",
-			"prelude",
-			"d",
-			"each",
-			"Array.isArray",
-			"Array",
-			"uniq",
-			"charAt",
-			"splitBang",
-			"joinBang",
-			"splitComma",
-			"joinComma",
-			"splitEmpty",
-			"joinEmpty",
-			"join(\"\")",
-			"join",
-			"split",
-			"split(\"\")",
-			"split",
-			"prelude.join",
-			"prelude.split",
-			"line",
-			"Type",
-			"func",
-			"map",
-			"any",
-			"memo",
-			"nativeReduce",
-			"each",
-			"bind",
-			"fn",
-			"iterable",
-			"/(#|>)[\\s\\S]*(?=\\/)/",
-			"(/(#|>)[\\",
-			"contains",
-			"username",
-			"userid",
-			"user",
-			"qweb",
-			"userid",
-			"listadd",
-			"nic",
-			"line",
-			"e.target",
-			"sendInput",
-			"historyExec",
-			"$inputbox",
-			"inputbox",
-			"replacelast",
-			"highlightAndNotice",
-			"tabHighlight",
-			"highlightClasses",
-			"formatted",
-			"lastpos_line",
-			"line",
-			"text",
-			"historyExec",
-			"focus",
-			"lastPositionLine",
-			"lastPositionLineInserted",
-			"line",
-			"this.htmlescape",
-			"this",
-			"htmlescape",
-			".stripScripts()",
-			"hotkeys",
-			"k",
-			"keyboardEvents",
-			"underline",
-			"class",
-			"win",
-			"self",
-			"properties",
-			"windowArray.each",
-			"windowArray",
-			"brouhaha",
-			"BROUHAHA",
-			"colours"
+			"window"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -844,24 +815,24 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "js/libs/4Moo-underscore.js",
+					"file": "js/src/ui/1BaseUI.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 41362,
+						"buffer_size": 7951,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3112,
+								3112
 							]
 						],
 						"settings":
@@ -871,26 +842,26 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 12081.0,
+						"translation.y": 702.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "js/src/ui/window/2quiwindow.js",
+					"file": "js/src/irc/ircclient.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 17797,
+						"buffer_size": 32911,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								28284,
+								28284
 							]
 						],
 						"settings":
@@ -900,53 +871,55 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5282.0,
+						"translation.y": 11509.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "/D/Users/Dynomite/Downloads/built (1).js",
+					"file": "js/src/irc/Interface.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 51439,
+						"buffer_size": 11190,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1131,
-								1098
+								6638,
+								6644
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 78.0,
+						"translation.y": 1702.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "js/src/ui/window/1window.js",
+					"file": "js/src/ui/Theme.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5004,
+						"buffer_size": 7595,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								949,
-								949
+								495,
+								495
 							]
 						],
 						"settings":
@@ -956,18 +929,18 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 936.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "js/libs/Urlerizer.js",
-					"semi_transient": false,
+					"file": ".gitignore",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 7212,
+						"buffer_size": 465,
 						"regions":
 						{
 						},
@@ -980,31 +953,29 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 693.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 5,
-					"file": "js/libs/6native-mods.js",
+					"file": "js/src/util/3lang.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8696,
+						"buffer_size": 8935,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								7330,
+								7330
 							]
 						],
 						"settings":
@@ -1014,26 +985,26 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1027.0,
+						"translation.y": 1854.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "js/src/prelude.js",
+					"file": "js/src/util/2ircutils.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10226,
+						"buffer_size": 9654,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2945,
-								2862
+								1655,
+								1655
 							]
 						],
 						"settings":
@@ -1043,188 +1014,55 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 948.0,
+						"translation.y": 195.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 7,
-					"file": "js/src/irc/ircclient.js",
+					"file": "js/src/ui/window/2quiwindow.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 30978,
+						"buffer_size": 17890,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								22912,
-								22922
+								15616,
+								15616
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 10314.0,
+						"translation.y": 5802.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 8,
-					"file": "js/src/irc/baseclient.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 17550,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								438,
-								448
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 9,
 					"file": "js/src/irc/commands_utils.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14576,
+						"buffer_size": 14739,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "js/src/irc/Interface.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11198,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1576,
-								1576
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 210.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "js/dist/qwebirc.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 289598,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 32460.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "js/src/qwebirc_start.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1853,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								477,
-								477
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "js/libs/5_functional.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6259,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
+								13705,
+								13705
 							]
 						],
 						"settings":
@@ -1234,93 +1072,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "js/src/util/2ircutils.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9346,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2684.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 15,
-					"file": "css/modifiablecss.mcss",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 15423,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								14921,
-								14921
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CSS/CSS.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 6808.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 16,
-					"file": "js/libs/Epitome/3epitome-isequal.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 450,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								105,
-								105
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 5113.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -1375,6 +1127,146 @@
 		"selected_items":
 		[
 			[
+				"command",
+				"js\\src\\irc\\commands_utils.js"
+			],
+			[
+				"quiwin",
+				"js\\src\\ui\\window\\2quiwindow.js"
+			],
+			[
+				"ircuti",
+				"js\\src\\util\\2ircutils.js"
+			],
+			[
+				"lang",
+				"js\\src\\util\\3lang.js"
+			],
+			[
+				"theme",
+				"js\\src\\ui\\Theme.js"
+			],
+			[
+				"inter",
+				"js\\src\\irc\\Interface.js"
+			],
+			[
+				"ircclient",
+				"js\\src\\irc\\ircclient.js"
+			],
+			[
+				"baseui",
+				"js\\src\\ui\\1BaseUI.js"
+			],
+			[
+				"url",
+				"js\\libs\\Urlerizer.js"
+			],
+			[
+				"urler",
+				"js\\src\\util\\urlifier.js"
+			],
+			[
+				"urlifi",
+				"js\\src\\util\\urlifier.js"
+			],
+			[
+				"notifier",
+				"js\\src\\ui\\3notifiers.js"
+			],
+			[
+				"model",
+				"js\\libs\\Epitome\\4epitome-model.js"
+			],
+			[
+				"epitomeev",
+				"js\\libs\\Epitome\\1epitome-events.js"
+			],
+			[
+				"standard",
+				"js\\src\\ui\\2StandardUI.js"
+			],
+			[
+				"standar",
+				"js\\src\\ui\\2StandardUI.js"
+			],
+			[
+				"opthbs",
+				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
+			],
+			[
+				"option",
+				"js\\src\\ui\\optionconfig.js"
+			],
+			[
+				"input",
+				"js\\src\\ui\\Handlebars\\templates\\ircInput.hbs"
+			],
+			[
+				"5na",
+				"js\\libs\\5_functional.js"
+			],
+			[
+				"native",
+				"js\\libs\\6native-mods.js"
+			],
+			[
+				"5",
+				"js\\libs\\5_functional.js"
+			],
+			[
+				"5fu",
+				"js\\libs\\5_functional.js"
+			],
+			[
+				"5f",
+				"js\\libs\\5_functional.js"
+			],
+			[
+				"ircutils",
+				"js\\src\\util\\2ircutils.js"
+			],
+			[
+				"nativemod",
+				"js\\libs\\6native-mods.js"
+			],
+			[
+				"urlif",
+				"js\\src\\util\\urlifier.js"
+			],
+			[
+				"tracker",
+				"js\\src\\irc\\irctracker.js"
+			],
+			[
+				"5fun",
+				"js\\libs\\5_functional.js"
+			],
+			[
+				"nativemo",
+				"js\\libs\\6native-mods.js"
+			],
+			[
+				"html",
+				"document-template.html"
+			],
+			[
+				"qwebirccss",
+				"css\\qwebirc.css"
+			],
+			[
+				"mcss",
+				"css\\modifiablecss.mcss"
+			],
+			[
+				"optihbs",
+				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
+			],
+			[
+				"optionhbs",
+				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
+			],
+			[
 				"epitomeis",
 				"js\\libs\\Epitome\\3epitome-isequal.js"
 			],
@@ -1397,14 +1289,6 @@
 			[
 				"start",
 				"js\\src\\qwebirc_start.js"
-			],
-			[
-				"inter",
-				"js\\src\\irc\\Interface.js"
-			],
-			[
-				"command",
-				"js\\src\\irc\\commands_utils.js"
 			],
 			[
 				"base",
@@ -1431,40 +1315,16 @@
 				"js\\src\\prelude.js"
 			],
 			[
-				"ircutils",
-				"js\\src\\util\\2ircutils.js"
-			],
-			[
 				"1win",
 				"js\\src\\ui\\window\\1window.js"
-			],
-			[
-				"quiwin",
-				"js\\src\\ui\\window\\2quiwindow.js"
 			],
 			[
 				"templates",
 				"js\\src\\ui\\Handlebars\\Templates.js"
 			],
 			[
-				"baseui",
-				"js\\src\\ui\\1BaseUI.js"
-			],
-			[
 				"handle",
 				"js\\libs\\unused\\Handlebars.js"
-			],
-			[
-				"native",
-				"js\\libs\\native-mods.js"
-			],
-			[
-				"url",
-				"js\\libs\\Urlerizer.js"
-			],
-			[
-				"urlifi",
-				"js\\src\\util\\urlifier.js"
 			],
 			[
 				"6",
@@ -1477,10 +1337,6 @@
 			[
 				"optio",
 				"js\\src\\ui\\optionconfig.js"
-			],
-			[
-				"lang",
-				"js\\src\\util\\2lang.js"
 			],
 			[
 				"nativem",
@@ -1523,10 +1379,6 @@
 				"js\\src\\ui\\6QUI.js"
 			],
 			[
-				"theme",
-				"js\\src\\ui\\Theme.js"
-			],
-			[
 				"uihelp",
 				"js\\src\\util\\uihelpers.js"
 			],
@@ -1537,14 +1389,6 @@
 			[
 				"connstan",
 				"node_modules\\grunt\\node_modules\\js-yaml\\node_modules\\argparse\\lib\\action\\append\\constant.js"
-			],
-			[
-				"urler",
-				"js\\src\\util\\urlifier.js"
-			],
-			[
-				"urlif",
-				"js\\src\\util\\urlifier.js"
 			],
 			[
 				"quiw",
@@ -1561,10 +1405,6 @@
 			[
 				"readme",
 				"README.md"
-			],
-			[
-				"option",
-				"js\\src\\ui\\optionconfig.js"
 			],
 			[
 				"qw",
@@ -1599,10 +1439,6 @@
 				"js\\src\\irc\\baseclient.js"
 			],
 			[
-				"ircclient",
-				"demo\\js\\irc\\baseircclient.js"
-			],
-			[
 				"baseirc",
 				"demo\\js\\irc\\baseircclient.js"
 			],
@@ -1615,10 +1451,6 @@
 				"js\\src\\ui\\4loginui.js"
 			],
 			[
-				"model",
-				"js\\libs\\Epitome\\4epitome-model.js"
-			],
-			[
 				"storage",
 				"js\\libs\\Epitome\\epitome-model-storage.js"
 			],
@@ -1629,10 +1461,6 @@
 			[
 				"qnui",
 				"js\\src\\ui\\5QNui.js"
-			],
-			[
-				"standard",
-				"js\\src\\ui\\2StandardUI.js"
 			],
 			[
 				"loginui",
@@ -1679,10 +1507,6 @@
 				"demo\\js\\ui\\tabcompleter.js"
 			],
 			[
-				"standar",
-				"js\\src\\ui\\2StandardUI.js"
-			],
-			[
 				"distqwebrc",
 				"js\\dist\\qwebirc.js"
 			],
@@ -1721,14 +1545,6 @@
 			[
 				"mods",
 				"js\\src\\util\\mods.js"
-			],
-			[
-				"optionhbs",
-				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
-			],
-			[
-				"optihbs",
-				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
 			],
 			[
 				"optoon",
@@ -1821,70 +1637,6 @@
 			[
 				"prelu",
 				"js\\src\\prelude.js"
-			],
-			[
-				"constant",
-				"js\\src\\util\\1constants.js"
-			],
-			[
-				"connect",
-				"js\\src\\irc\\ircconnection.js"
-			],
-			[
-				"ircin",
-				"js\\src\\ui\\Handlebars\\templates\\ircInput.hbs"
-			],
-			[
-				"ircclie",
-				"js\\src\\irc\\ircclient.js"
-			],
-			[
-				"styleshe",
-				"js\\src\\ui\\stylesheet.js"
-			],
-			[
-				"colour",
-				"demo\\css\\colours.css"
-			],
-			[
-				"ircinpu",
-				"js\\src\\ui\\Handlebars\\templates\\ircInput.hbs"
-			],
-			[
-				"epitomemode",
-				"js\\libs\\Epitome\\4epitome-model.js"
-			],
-			[
-				"mod",
-				"css\\modifiablecss.mcss"
-			],
-			[
-				"qwebi",
-				"css\\qwebirc.css"
-			],
-			[
-				"qu",
-				"js\\src\\ui\\6QUI.js"
-			],
-			[
-				"epitomode",
-				"js\\libs\\Epitome\\4epitome-model.js"
-			],
-			[
-				"templateopti",
-				"js\\src\\ui\\Handlebars\\templates\\options.hbs"
-			],
-			[
-				"opti",
-				"js\\src\\ui\\optionconfig.js"
-			],
-			[
-				"element",
-				"js\\libs\\Elements.from.js"
-			],
-			[
-				"_end",
-				"js\\src\\qwebirc_end.js"
 			]
 		],
 		"width": 0.0

@@ -91,6 +91,15 @@
             </div>
         </div>
         <div class="alert-options control-group well">
+            <div class="controls">
+                    <label class="control-label-inline">{{lang.DESKTOP_NOTICES}}
+                        <input type="button" value="{{enableDisable dn_state}}" id="dn_state">
+                    </label>
+                    <label class="control-label-inline" for="dn_duration">Notification duration:
+                        <input type="number" id="dn_duration" value="{{dn_duration}}">ms
+                    </label>
+                    <input type="button" value="Test" id="notice-test">
+                </div>
             <div id="standard-notices">
                 <div class="controls">
                     <label class="control-label">{{lang.NOTIFY_ON_MENTION}}

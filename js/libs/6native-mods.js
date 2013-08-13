@@ -254,8 +254,6 @@
         return (obj != null);
     };
 
-    this.$empty = function() {};
-
     this.$A = Array.from;
 
 })();

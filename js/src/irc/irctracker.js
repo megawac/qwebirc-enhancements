@@ -83,7 +83,7 @@ irc.IRCTracker = new Class({
         _.each(_.keys(chan), function(nick) {
             var nc = this.nicknames[nick];
             delete nc[lchannel];
-            if (_.size(nc)) { //in no more channels
+            if (_.size(nc) === 0) { //in no more channels
                 delete this.nicknames[nick];
             }
         }, this);

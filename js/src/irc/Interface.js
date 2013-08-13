@@ -11,9 +11,8 @@ ui.Interface = new Class({
         networkName: "Gamesurge",
         networkServices: [],
 
-        initialNickname: "newb1234",
-        initialChannels: ["#gamesurge","#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
-        channels: new Storer("channels"),
+        initialNickname: "",
+        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
         modifiableStylesheet: window.ircoptions.stylesheet,
@@ -39,7 +38,7 @@ ui.Interface = new Class({
         qwebirc.global = {
             dynamicBaseURL: opts.dynamicBaseURL,
             staticBaseURL: sbaseurl,
-            nicknameValidator: $defined(opts.nickValidation) ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
+            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
         };
 
         opts.icons = {
@@ -70,7 +69,7 @@ ui.Interface = new Class({
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
-                ichans = opts.channels.get() || opts.initialChannels,
+                ichans = storage.get("channels") || opts.initialChannels,
                 autoConnect = false;
 
             //cleans up old properties
@@ -162,7 +161,7 @@ ui.Interface = new Class({
             var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
 
             self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
                 client.connect();

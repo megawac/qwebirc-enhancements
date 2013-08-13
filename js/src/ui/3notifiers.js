@@ -3,10 +3,16 @@
 ui.NotificationUI = new Class({
     Extends: ui.StandardUI,
 
-    Binds: ["beep"],
+    Binds: ["beep", "flash", "cancelFlash"],
 
     options: {
-        minSoundRepeatInterval: 1000
+        minSoundRepeatInterval: 1000,
+
+        notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
+            icon: "images/qwebircsmall.png",
+            title: "IRC Alert",
+            body: "New notification!"
+        }
     },
     initialize: function() {
         // this.parent(parentElement, windowClass, uiName, options);
@@ -16,21 +22,32 @@ ui.NotificationUI = new Class({
         this.soundInit();
         this.lastSound = 0;
 
-        var flasher = this.__flasher = new ui.Flasher(this.options, this.uiOptions2);
-        this.flash = flasher.flash;
-        this.cancelFlash = flasher.cancelFlash;
+        this.windowFocused = false;
+        this.titleText = document.title;
+
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        if ($defined(favIcon)) {
+            this.favIcon = favIcon;
+            // this.favIconParent = favIcon.getParent();
+            this.favIconVisible = true;
+            this.emptyFavIcon = new Element("link", {
+                    rel: 'shortcut icon',
+                    type: 'image/x-icon',
+                    href: this.options.icons.empty_favicon
+                });
+
+            this.flashing = false;
+            this.canFlash = true;
+        } else {
+            this.canFlash = false;
+        }
     },
     setBeepOnMention: function(value) {
         if (value)
             this.soundInit();
     },
     updateTitle: function(text) {
-        if (this.__flasher.updateTitle(text))
-            ui.setTitle(text);
-    },
-    focusChange: function(value) {
-        this.parent(value);
-        this.__flasher.focusChange(value);
+        ui.setTitle(text);
     },
     beep: function() {
         this.playSound('beep');
@@ -47,106 +64,58 @@ ui.NotificationUI = new Class({
         if(!$defined(this.soundPlayer)) {
             this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
         }
-    }
-});
-
-ui.Flasher = new Class({
-    Binds: ["flash", "cancelFlash"],
-
-    initialize: function(opts) {
-        this.windowFocused = false;
-        this.canUpdateTitle = true;
-        this.titleText = document.title;
-
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
-        if ($defined(favIcon)) {
-            this.favIcon = favIcon;
-            this.favIconParent = favIcon.parentNode;
-            this.favIconVisible = true;
-
-            // this.emptyFavIcon = new Element("link");
-            // this.emptyFavIcon.rel = "shortcut icon";
-            // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
-            // this.emptyFavIcon.type = "image/x-icon";
-            this.emptyFavIcon = new Element("link", {
-                    rel: 'shortcut icon',
-                    type: 'image/x-icon',
-                    href: opts.icons.empty_favicon
-                });
-
-            this.flashing = false;
-
-            this.canFlash = true;
-        } else {
-            this.canFlash = false;
-        }
     },
-    flash: function() {
+    flash: function(options) {
         var self = this;
-        if (self.windowFocused || !self.canFlash || self.flashing)
+        if (document.hasFocus() || !self.canFlash || self.flashing)
             return;
 
-        self.titleText = document.title; /* just in case */
+        self.titleText = document.title;
 
         var flash = function() {
             var vis = self.toggleFavIcon();
-            self.canUpdateTitle = vis;
             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
 
-        //http://mootools.net/forge/p/tab_alert
-        // var ex3 = yourInstance = new tabAlert({
-        //         text: lang.activityNotice.message,
-        //         ticker: true,
-        //         onLoop: flash
-        //     });
+        if(self.uiOptions2.get("dn_state")) {
+            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
+            self.__notice = notify.createNotification(opts.title, opts);
+            (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
+        }
 
         self.flashing = true;
         // flashA();
-        self.flasher = flash.periodical(750);
+        self.__flasher = flash.periodical(750);
         window.addEvents({//whatever comes first
-            "mousedown:once": this.cancelFlash,
-            "keydown:once": this.cancelFlash,
-            "focus:once": this.cancelFlash
+            "mousedown:once": self.cancelFlash,
+            "keydown:once": self.cancelFlash,
+            "focus:once": self.cancelFlash
         });
     },
     cancelFlash: function() {
-        if (!$defined(this.flasher))
-            return;
-
         this.flashing = false;
 
-        $clear(this.flasher);
-        this.flasher = undefined;
+        if(this.__flasher)
+            $clear(this.__flasher);
+        this.__flasher = null;
+
+        if(this.__notice)
+            this.__notice.close();
+        this.__notice = null;
 
         this.toggleFavIcon(true);
         ui.setTitle(this.titleText);
-        this.canUpdateTitle = true;
     },
     //not sure if changing the favicon is a good idea - messes with peoples bookmarks
     toggleFavIcon: function(state) {
         var vis = $defined(state) ? state : !this.favIconVisible;
-        if(vis){
-            if (!this.favIconVisible) {
-                this.favIcon.replaces(this.emptyFavIcon);
-            }
-        }
-        else{
-            if (this.favIconVisible) {
-                this.emptyFavIcon.replaces(this.favIcon);
-            }
-        }
         this.favIconVisible = vis;
+        if(vis && !this.favIconVisible) {
+            this.favIcon.replaces(this.emptyFavIcon);
+        }
+        else if (!vis && this.favIconVisible) {
+            this.emptyFavIcon.replaces(this.favIcon);
+        }
         return vis;
-    },
-    updateTitle: function(text) {
-        this.titleText = text;
-        return this.canUpdateTitle;
-    },
-    focusChange: function(value) {
-        this.windowFocused = value;
-
-        if (value)
-            this.cancelFlash();
     }
 });

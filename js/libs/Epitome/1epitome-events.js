@@ -39,12 +39,12 @@
 
 		fireEvent = function(type, args){
 			type = removeOn(type);
-			var events = this.$events[type] || [],
+			var events = this.$events[type] || [],//check bound events otherwise looks on proto
 				subs = (type in this.$subscribers) ? this.$subscribers[type] : (all in this.$subscribers) ? this.$subscribers[all] : [],
 				self = this;
 
 			if (!events && !subs) return this;
-			args = Type.isArray(args) ? [args] : Array.from(args);
+			args = Type.isArguments(args) ? Array.slice(args) : [args];//handle array
 
 			events.each(function(fn){
 				// local events

@@ -103,7 +103,13 @@
         USER_NOTICE: 'User:',
         MESSAGE_NOTICE: 'Message:',
         AUTOESCAPE: 'Escape text',
-        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered'
+        HIGHLIGHT: 'Highlight',
+        MENTIONED: 'Mentioned',
+        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered',
+        DESKTOP_NOTICES: 'Allow us to send desktop notifications if supported (on any notice with flash):',
+
+        ENABLE: 'Enable',
+        DISABLE: 'Disable'
     };
 
 
@@ -127,77 +133,81 @@ ui.themes.ThemeControlCodeMap2 = {
     "U": util.getStyleByName('underline').key,
     "O": irc.styles.colour.key,
     "D": irc.styles.normal.key,
-    "[": "qwebirc://whois/",
-    "]": "/"
+    //little clever here
+    "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
+    "CN": templates.userlink({'userid':'{w}', 'username': '{w}'}),// change nick
+    "P": "{C}4=={O} "
+    // "[": "qwebirc://whois/",
+    // "]": "/"
 };
 
 ui.themes.Default2 = {
-    "SIGNON": ["Signed on!", true],
-    "CONNECT": ["Connected to server.", true],
+    "SIGNON": "{P}Signed on!",
+    "CONNECT": "{P}Connected to server.",
 
-    "RAW": ["{m}", true],
-    "DISCONNECT": ["Disconnected from server: {m}", true],
-    "ERROR": ["ERROR: {m}", true],
-    "SERVERNOTICE": ["{m}", true],
+    "RAW": "{P}{m}",
+    "DISCONNECT": "{P}Disconnected from server: {m}",
+    "ERROR": "{P}ERROR: {m}",
 
-    "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
-    "KICK": ["{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]", true],
-    "MODE": ["mode/{c} [{m}] by {D}{N}{D}", true],
-    "QUIT": ["{D}{N}{D} [{h}] has quit [{m}]", true],
-    "NICK": ["{D}{n}{D} has changed nick to {D}{[}{w}{]}{D}", true],
-    "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
-    "UMODE": ["Usermode change: {m}", true],
-    "INVITE": ["{N} invites you to join {c}", true],
+    "SERVERNOTICE": "{P}{m}",
+    "OURTARGETEDNOTICE": "[notice({[}{t}{]})] {m}",
+    "OURCHANNOTICE": "-{N}:{t}- {m}",
+    "OURPRIVNOTICE": "-{N}- {m}",
+    "CHANNOTICE": "-{D}{(}{N}{)}{D}:{c}- {m}",
+    "PRIVNOTICE": "-{(}{N}{)}- {m}",
 
-    "PREFIX": ["{C}4=={O} "],
-    "HILIGHT": ["{C}4"],
-    "HILIGHTEND": ["{O}"],
+    "JOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
+    "OURJOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
+    "PART": "{P}{D}{N}{D} [{h}] has left {c} [{m}]",
+    "KICK": "{P}{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]",
+    "MODE": "{P}mode/{c} gives [{m}] to {D}{N}{D}",
+    "QUIT": "{P}{D}{N}{D} [{h}] has quit [{m}]",
+    "NICK": "{P}{D}{n}{D} has changed nick to {CN}",
+    "TOPIC": "{P}{D}{N}{D} changed the topic of {c} to: {m}",
+    "UMODE": "Usermode change: {m}",
+    "INVITE": "{N} invites you to join {c}",
 
-    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
-    "PRIVMSG": ["{(}{N}{)} {m}"],
-    "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
-    "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
+    "HILIGHT": "{C}4",
+    "HILIGHTEND": "{O}",
 
-    "OURCHANMSG": ["{@}{N} {m}"],
-    "OURPRIVMSG": ["{N} {m}"],
-    "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
-    "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
-    "OURCHANNOTICE": ["-{N}:{t}- {m}"],
-    "OURPRIVNOTICE": ["-{N}- {m}"],
-    "OURCHANACTION": [" * {N} {m}"],
-    "OURPRIVACTION": [" * {N} {m}"],
+    "CHANMSG": "{D}{@}{(}{N}{)}{D} {m}",
+    "PRIVMSG": "{(}{N}{)} {m}",
 
-    "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
-    "PRIVACTION": [" * {(}{N}{)} {m}"],
-    "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
-    "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
-    "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
+    "OURCHANMSG": "{@}{N} {m}",
+    "OURPRIVMSG": "{N} {m}",
+    "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
+    "OURCHANACTION": " * {N} {m}",
+    "OURPRIVACTION": " * {N} {m}",
 
-    "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
+    "CHANACTION": " * {D}{(}{N}{)}{D} {m}",
+    "PRIVACTION": " * {(}{N}{)} {m}",
+    "CHANCTCP": "{N} [{h}] requested CTCP {x} from {c}: {m}",
+    "PRIVCTCP": "{N} [{h}] requested CTCP {x} from {-}: {m}",
+    "CTCPREPLY": "CTCP {x} reply from {N}: {m}",
 
-    "WHOISUSER": ["{B}{N}{B} [{h}]", true],
-    "WHOISREALNAME": [" realname : {m}", true],
-    "WHOISCHANNELS": [" channels : {m}", true],
-    "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account : m", true],
-    "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
-    "WHOISAWAY": [" away     : {m}", true],
-    "WHOISOPER": ["          : {B}IRC Operator{B}", true],
-    "WHOISOPERNAME": [" operedas : {m}", true],
-    "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
-    "WHOISGENERICTEXT": [" note  : {m}", true],
-    "WHOISEND": ["End of WHOIS", true],
+    "OURCHANCTCP": "[ctcp({t})] {x} {m}",
+    "OURPRIVCTCP": "[ctcp({t})] {x} {m}",
+    "OURTARGETEDCTCP": "[ctcp({t})] {x} {m}",
 
-    "AWAY": ["{N} is away: {m}", true],
-    "GENERICERROR": ["{m}: {t}", true],
-    "GENERICMESSAGE": ["{m}", true],
-    "WALLOPS": ["WALLOP {n}: {t}", true],
-    "CHANNELCREATIONTIME": ["Channel {c} was created at: {m}", true],
-    "CHANNELMODEIS": ["Channel modes on {c} are: {m}", true]
+    "WHOISUSER": "{P}{B}{N}{B} [{h}]",
+    "WHOISREALNAME": "{P} realname : {m}",
+    "WHOISCHANNELS": "{P} channels : {m}",
+    "WHOISSERVER": "{P} server   : {x} [{m}]",
+    "WHOISACCOUNT": "{P} account : m",
+    "WHOISIDLE": "{P} idle     : {x} [connected: {m}]",
+    "WHOISAWAY": "{P} away     : {m}",
+    "WHOISOPER": "{P}          : {B}IRC Operator{B}",
+    "WHOISOPERNAME": "{P} operedas : {m}",
+    "WHOISACTUALLY": "{P} realhost : {m} [ip: {x}]",
+    "WHOISGENERICTEXT": "{P} note  : {m}",
+    "WHOISEND": "{P}End of WHOIS",
+
+    "AWAY": "{P}{N} is away: {m}",
+    "GENERICERROR": "{P}{m}: {t}",
+    "GENERICMESSAGE": "{P}{m}",
+    "WALLOPS": "{P}WALLOP {n}: {t}",
+    "CHANNELCREATIONTIME": "{P}Channel {c} was created at: {m}",
+    "CHANNELMODEIS": "{P}Channel modes on {c} are: {m}"
 };
 
 ui.UI_COMMANDS = [

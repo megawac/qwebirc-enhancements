@@ -119,13 +119,17 @@ ui.StandardUI = new Class({
         });
     },
     optionsWindow: function() {
+        var self = this;
         var constructor = function(element, data) {
             return new ui.OptionView({
                 element: element,
-                model: data
+                model: data,
+                onNoticeTest: function() {
+                    self.flash();
+                }
             });
         }
-        this.addCustomWindow("Options", constructor, "optionspane", this.uiOptions2);
+        self.addCustomWindow("Options", constructor, "optionspane", self.uiOptions2);
     },
     aboutWindow: function() {
         this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions2);

@@ -48,6 +48,10 @@ irc.BaseCommandParser = new Class({
         return this.newTargetLine(target, type, message, extra);
     },
 
+    trigger: function(type, data) {
+        this.parentObject.trigger(type, data);
+    },
+
     // routes all outputs with the server
     // this method will call functions in: Commands based on the this scope
     dispatch: function(line, chan) {
@@ -91,7 +95,7 @@ irc.BaseCommandParser = new Class({
             }
 
             allargs = fn.call(self, args, chan);
-            // allargs = fn.run($A(args), this);
+            // allargs = fn.run(Array.from(args), this);
         }
     },
 
@@ -149,9 +153,6 @@ irc.BaseCommandParser = new Class({
 // maybe just make this a single dictionary?
 irc.Commands = new Class({
     Extends: irc.BaseCommandParser,
-    initialize: function(parentObject) {
-        this.parent(parentObject);
-    },
 
     newUIWindow: function(property) {
         var self = this,
@@ -173,8 +174,13 @@ irc.Commands = new Class({
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
-        this.newQueryLine(target, "ACTION", args, {
-            "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
+        var nick = this.parentObject.nickname;
+        this.trigger("userAction", {
+            'nick': nick,
+            'message': args,
+            'target': target,
+            'channel': target,
+            "@": this.parentObject.getNickStatus(target, nick)
         });
     }],
 
@@ -201,17 +207,30 @@ irc.Commands = new Class({
         var target = args[0];
         var message = args[1];
         var parentObj = this.parentObject;
-
-        parentObj.broadcast(parentObj.nickname, BROUHAHA, message, target, "CHANMSG");
+        var nick = parentObj.nickname;
 
         if (!util.isChannel(target)) {
             parentObj.pushLastNick(target);
             parentObj.newWindow(target, ui.WINDOW_MESSAGES, false);
+
+            this.trigger("userPrivmsg", {
+                'nick': nick,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg'
+            });
         }
 
         if (this.send("PRIVMSG " + target + " :" + message)){
-            this.newQueryLine(target, "MSG", message, {
-                "@": parentObj.getNickStatus(target, parentObj.nickname)
+            // this.newQueryLine(target, "MSG", message, {
+            //     "@": parentObj.getNickStatus(target, nick)
+            // });
+            this.trigger("chanMessage", {
+                'nick': nick,
+                'channel': target,
+                'message': message,
+                'type': 'chanmsg',
+                "@": parentObj.getNickStatus(target, nick)
             });
         }
     }],
@@ -220,16 +239,22 @@ irc.Commands = new Class({
         var target = args[0];
         var message = args[1];
 
-        this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
+        // this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
 
         if (this.send("NOTICE " + target + " :" + message)) {
-            if (util.isChannel(target)) {
-                this.newTargetLine(target, "NOTICE", message, {
-                    "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
-                });
-            } else {
-                this.newTargetLine(target, "NOTICE", message);
-            }
+            // if (util.isChannel(target)) {
+            //     this.newTargetLine(target, "NOTICE", message, {
+            //         "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
+            //     });
+            // } else {
+            //     this.newTargetLine(target, "NOTICE", message);
+            // }
+            this.trigger("chanNotice", {
+                'nick': this.parentObject.nickname,
+                'channel': target,
+                'target': target,
+                'message': message
+            });
         }
     }],
 
@@ -313,7 +338,7 @@ irc.Commands = new Class({
         this.send("AWAY :" + (args ? args[0] : ""));
     }],
     cmd_QUIT: [false, 1, 0, function(args) {
-        this.send("QUIT :" + (args ? args[0] : ""));
+        this.parentObject.quit(args ? args[0] : "");
     }],
     cmd_CYCLE: [true, 1, 0, function(args, channel) {
         channel = channel || this.getActiveWindow().currentChannel;
@@ -339,20 +364,8 @@ irc.Commands = new Class({
             // formatted = util.formatChannelString(chans);
 
             // this.send("JOIN " + formatted + " " + args.join(" "));
-        this.cmd_FJOIN[3].call(this, $A(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
+        this.cmd_FJOIN[3].call(this, Array.from(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
     }],
-    // cmd_JOIN: [false, 2, 1, function(args) {
-    //     var channels = args.shift();
-
-    //     var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
-    //         formatted = util.formatChannelString(chans);
-
-    //     if (util.joinChans(chans) !== formatted) {
-    //         this.parentObject.writeMessages(lang.poorJoinFormat);
-    //     }
-    //     if(chans)
-    //         this.send("JOIN " + formatted + " " + args.join(" "));
-    // }],
     cmd_UMODE: [false, 1, 0, function(args) {
         this.send("MODE " + this.parentObject.nickname + (args ? (" " + args[0]) : ""));
     }],
@@ -365,15 +378,8 @@ irc.Commands = new Class({
             return ["JOIN", this.parentObject.options.autojoin.join(",")];
         }
     }],
-    cmd_CLEAR: [false, undefined, undefined, function(args, channel) {
-        var win = channel ? this.parentObject.windows[channel] : this.getActiveWindow().lines;
-        // while (win.childNodes.length > 0){
-        //     win.removeChild(win.firstChild);
-        // }
-        win.empty();
-    }],
     cmd_PART: [false, 2, 0, function(args) {
-        args = $A(args);
+        args = Array.from(args);
 
         var msg = args[1] || lang.partChan.message,
             channel = args[0] || this.getActiveWindow().currentChannel;
@@ -395,7 +401,6 @@ irc.commandAliases = {
     "HOP": "CYCLE",
     "SLAP": "ME"
 };
-
 
 irc.CommandHistory = new Class({
     Implements: [Options],

@@ -24,6 +24,12 @@ config.OptionModel = new Class({
             "font_size": 12,
             "volume": 100,
 
+            "dn_state": false,
+            "dn_duration": 4000,
+
+            "highlight": true,
+            "highlight_mentioned": true,
+
             "notices": {
                 "on_mention": {flash:true, beep:true},
                 "on_pm": {flash:true, beep:true},
@@ -66,18 +72,19 @@ ui.OptionView = new Class({
             'change:relay(#options #standard-notices input)': 'snoticeChange',
             'change:relay(#options #custom-notices input)': 'noticeChange',
             'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier'
-
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
+            'click:relay(#options #dn_state)': 'dnToggle',
+            'click:relay(#options #notice-test)': 'noticeTest'
         },
 
-        onInputChange: function(e, target) {//set model values when inputs are clicked
-            var id = target.get('id');
+        // onInputChange: function(e, target) {//set model values when inputs are clicked
+        //     var id = target.get('id');
 
-            //handle sub props
-            if(id && $defined(this.model.get(id))) {
-                this.model.set(id, target.val());
-            }
-        },
+        //     //handle sub props
+        //     if(id && $defined(this.model.get(id))) {
+        //         this.model.set(id, target.val());
+        //     }
+        // },
 
         onSnoticeChange: function(e, target) {
             e.stop();
@@ -102,7 +109,20 @@ ui.OptionView = new Class({
         onRemoveNotifier: function(e, target) {
             e.stop();
             var par = target.getParent('.custom-notice').dispose();
-            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})))
+            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+        },
+        
+        onDnToggle: function(e, target) {
+            var self = this;
+            if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
+                notify.requestPermission(function() {
+                    self.model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
+                });
+            }
+            else {
+                self.model.set('dn_state', !self.model.get('dn_state'));
+            }
+            target.val(self.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
         },
 
         onReady: render
@@ -126,12 +146,11 @@ ui.OptionView = new Class({
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
                 knob = slider.getElement('.knob'),
-                slider = new Slider(slider, knob, {
+                new Slider(slider, knob, {
                     steps: 36,
                     range: [0, 369],
                     wheel: true
-                });
-            slider.addEvent("change", function(val) {
+                }).addEvent("change", function(val) {
                     model.set(id, val);
                 })
                 .set(data[id])
@@ -146,6 +165,15 @@ ui.OptionView = new Class({
 
         this.parent();
         return this;
+    },
+
+    inputChange: function(e, target) {//set model values when inputs are clicked
+        var id = target.get('id');
+
+        //handle sub props
+        if(id && $defined(this.model.get(id))) {
+            this.model.set(id, target.val());
+        }
     },
 
     addNotifier: function(data) {

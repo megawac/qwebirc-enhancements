@@ -12,32 +12,40 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<div class=\"container center\">\r\n<form id='login'>\r\n<h2>Connect to ";
+  buffer += "<div class=\"container center\">\r\n<form id=\"login\">\r\n<h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " IRC</h2>\r\n<div class='nick right'>\r\n<label class=\"control-label\" for=\"nickname\">Nickname:<input type='text' name='basic' id='nickname' value=";
+    + " IRC</h2>\r\n<div class=\"nick right\">\r\n<label class=\"control-label\" for=\"nickname\">Nickname:\r\n<input type=\"text\" name=\"basic\" id=\"nickname\" value=\"";
   if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " /></label>\r\n</div>\r\n<div class='username right ";
+    + "\" placeholder=\"Nickname\" />\r\n</label>\r\n</div>\r\n<div class=\"username right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>\r\n<label class=\"control-label\" for=\"username\">Gamesurge username:<input type='text' name='full' id='username' value='";
+  buffer += "\">\r\n<label class=\"control-label\" for=\"username\">";
+  if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " username:\r\n<input type=\"text\" name=\"full\" id=\"username\" value=\"";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></label>\r\n</div>\r\n<div class='password right ";
+    + "\" placeholder=\"";
+  if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " username\">\r\n</label>\r\n</div>\r\n<div class=\"password right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>\r\n<label class=\"control-label\" for=\"password\">Password:<input type='password' name='full' id='password' value='";
+  buffer += "\">\r\n<label class=\"control-label\" for=\"password\">Password:\r\n<input type=\"password\" name=\"full\" id=\"password\" value=\"";
   if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></label>\r\n</div>\r\n<div class='authenticate'>\r\n<label for='authenticate'>Authenticate (optional)<input type='checkbox' id='authenticate' ";
+    + "\">\r\n</label>\r\n</div>\r\n<div class=\"authenticate\">\r\n<label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for='authenticate'>\r\n</div>\r\n<div><input type='submit' value='Connect' class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class='qwebirc-init-channels'><span>";
+    + "></label for=\"authenticate\">\r\n</div>\r\n<div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class=\"qwebirc-init-channels\"><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
@@ -133,7 +141,17 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" data-id=\"flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\" title=\""
+    + ">\r\n</label>\r\n<!-- <label class=\"checkbox-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.HIGHLIGHT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"highlight\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.highlight, options) : helperMissing.call(depth0, "check", depth0.highlight, options)))
+    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MENTIONED)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"checkbox\" data-id=\"mentioned\" ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.mentioned, options) : helperMissing.call(depth0, "check", depth0.mentioned, options)))
+    + ">\r\n</label> -->\r\n<label class=\"checkbox-inline\" title=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
@@ -408,7 +426,16 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + "\r\n<input type=\"checkbox\" id=\"accept_service_invites\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.accept_service_invites, options) : helperMissing.call(depth0, "check", depth0.accept_service_invites, options)))
-    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
+    + ">\r\n</label>\r\n</div>\r\n</div>\r\n<div class=\"alert-options control-group well\">\r\n<div class=\"controls\">\r\n<label class=\"control-label-inline\">"
+    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DESKTOP_NOTICES)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\r\n<input type=\"button\" value=\"";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.enableDisable || depth0.enableDisable),stack1 ? stack1.call(depth0, depth0.dn_state, options) : helperMissing.call(depth0, "enableDisable", depth0.dn_state, options)))
+    + "\" id=\"dn_state\">\r\n</label>\r\n<label class=\"control-label-inline\" for=\"dn_duration\">Notification duration:\r\n<input type=\"number\" id=\"dn_duration\" value=\"";
+  if (stack2 = helpers.dn_duration) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
+  else { stack2 = depth0.dn_duration; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
+  buffer += escapeExpression(stack2)
+    + "\">ms\r\n</label>\r\n<input type=\"button\" value=\"Test\" id=\"notice-test\">\r\n</div>\r\n<div id=\"standard-notices\">\r\n<div class=\"controls\">\r\n<label class=\"control-label\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NOTIFY_ON_MENTION)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<label class=\"checkbox-inline\" for=\"on_mention.beep\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
@@ -611,7 +638,10 @@ project name and URL in the about dialog, thanks!*/
 
     //common globals
     var document = window.document,
-        $ = document.id;
+        $ = document.id,
+        $$ = document.getElements;
+
+    var templates = Handlebars.templates;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
@@ -668,6 +698,7 @@ var BROUHAHA = '#brouhaha',
     CONNECTION_DETAILS = 'Connection details',
     STATUS = 'Status',
     OPTIONS = 'Options',
+    ACTIVE = '\x09ACTIVE',
 
 
     BASE_WINDOWS = [BROUHAHA, CONNECTION_DETAILS, STATUS],
@@ -825,9 +856,9 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = _.filter(irc.styles, function(sty) { return !(sty.name == 'normal' ||  sty.name == 'colour') } );
-irc.styles.colour = _.find(irc.styles, function(sty) { return sty.name == 'colour' } );
-irc.styles.normal = _.find(irc.styles, function(sty) { return sty.name == 'normal' } );
+irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == 'normal' ||  sty.name == 'colour' } );
+irc.styles.colour = _.findWhere(irc.styles, {name: 'colour' } );
+irc.styles.normal = _.findWhere(irc.styles, {name: 'normal' } );
 
 irc.colours = [//http://www.mirc.com/colors.html
     {
@@ -997,6 +1028,13 @@ var join = function(by, xs) {
 util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
+
+util.formatterSafe = function (str, object, regexp){//if property not found string is not replaced
+    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
+        if (match.charAt(0) == '\\') return match.slice(1);
+        return (object[name] != null) ? object[name] : match;
+    });
+}
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
@@ -1244,6 +1282,8 @@ irc.nickChanEntry = function(p, l) {
     };
 };
 
+util.noop = function(){};
+
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
 util.generateID = (function() {
@@ -1359,7 +1399,13 @@ util.generateID = (function() {
         USER_NOTICE: 'User:',
         MESSAGE_NOTICE: 'Message:',
         AUTOESCAPE: 'Escape text',
-        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered'
+        HIGHLIGHT: 'Highlight',
+        MENTIONED: 'Mentioned',
+        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered',
+        DESKTOP_NOTICES: 'Allow us to send desktop notifications if supported (on any notice with flash):',
+
+        ENABLE: 'Enable',
+        DISABLE: 'Disable'
     };
 
 
@@ -1383,77 +1429,81 @@ ui.themes.ThemeControlCodeMap2 = {
     "U": util.getStyleByName('underline').key,
     "O": irc.styles.colour.key,
     "D": irc.styles.normal.key,
-    "[": "qwebirc://whois/",
-    "]": "/"
+    //little clever here
+    "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
+    "CN": templates.userlink({'userid':'{w}', 'username': '{w}'}),// change nick
+    "P": "{C}4=={O} "
+    // "[": "qwebirc://whois/",
+    // "]": "/"
 };
 
 ui.themes.Default2 = {
-    "SIGNON": ["Signed on!", true],
-    "CONNECT": ["Connected to server.", true],
+    "SIGNON": "{P}Signed on!",
+    "CONNECT": "{P}Connected to server.",
 
-    "RAW": ["{m}", true],
-    "DISCONNECT": ["Disconnected from server: {m}", true],
-    "ERROR": ["ERROR: {m}", true],
-    "SERVERNOTICE": ["{m}", true],
+    "RAW": "{P}{m}",
+    "DISCONNECT": "{P}Disconnected from server: {m}",
+    "ERROR": "{P}ERROR: {m}",
 
-    "JOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "OURJOIN": ["{D}{N}{D} [{h}] has joined {c}", true],
-    "PART": ["{D}{N}{D} [{h}] has left {c} [{m}]", true],
-    "KICK": ["{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]", true],
-    "MODE": ["mode/{c} [{m}] by {D}{N}{D}", true],
-    "QUIT": ["{D}{N}{D} [{h}] has quit [{m}]", true],
-    "NICK": ["{D}{n}{D} has changed nick to {D}{[}{w}{]}{D}", true],
-    "TOPIC": ["{D}{N}{D} changed the topic of {c} to: {m}", true],
-    "UMODE": ["Usermode change: {m}", true],
-    "INVITE": ["{N} invites you to join {c}", true],
+    "SERVERNOTICE": "{P}{m}",
+    "OURTARGETEDNOTICE": "[notice({[}{t}{]})] {m}",
+    "OURCHANNOTICE": "-{N}:{t}- {m}",
+    "OURPRIVNOTICE": "-{N}- {m}",
+    "CHANNOTICE": "-{D}{(}{N}{)}{D}:{c}- {m}",
+    "PRIVNOTICE": "-{(}{N}{)}- {m}",
 
-    "PREFIX": ["{C}4=={O} "],
-    "HILIGHT": ["{C}4"],
-    "HILIGHTEND": ["{O}"],
+    "JOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
+    "OURJOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
+    "PART": "{P}{D}{N}{D} [{h}] has left {c} [{m}]",
+    "KICK": "{P}{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]",
+    "MODE": "{P}mode/{c} gives [{m}] to {D}{N}{D}",
+    "QUIT": "{P}{D}{N}{D} [{h}] has quit [{m}]",
+    "NICK": "{P}{D}{n}{D} has changed nick to {CN}",
+    "TOPIC": "{P}{D}{N}{D} changed the topic of {c} to: {m}",
+    "UMODE": "Usermode change: {m}",
+    "INVITE": "{N} invites you to join {c}",
 
-    "CHANMSG": ["{D}{@}{(}{N}{)}{D} {m}"],
-    "PRIVMSG": ["{(}{N}{)} {m}"],
-    "CHANNOTICE": ["-{D}{(}{N}{)}{D}:{c}- {m}"],
-    "PRIVNOTICE": ["-{(}{N}{)}- {m}"],
+    "HILIGHT": "{C}4",
+    "HILIGHTEND": "{O}",
 
-    "OURCHANMSG": ["{@}{N} {m}"],
-    "OURPRIVMSG": ["{N} {m}"],
-    "OURTARGETEDMSG": ["*{[}{t}{]}* {m}"],
-    "OURTARGETEDNOTICE": ["[notice({[}{t}{]})] {m}"],
-    "OURCHANNOTICE": ["-{N}:{t}- {m}"],
-    "OURPRIVNOTICE": ["-{N}- {m}"],
-    "OURCHANACTION": [" * {N} {m}"],
-    "OURPRIVACTION": [" * {N} {m}"],
+    "CHANMSG": "{D}{@}{(}{N}{)}{D} {m}",
+    "PRIVMSG": "{(}{N}{)} {m}",
 
-    "CHANACTION": [" * {D}{(}{N}{)}{D} {m}"],
-    "PRIVACTION": [" * {(}{N}{)} {m}"],
-    "CHANCTCP": ["{N} [{h}] requested CTCP {x} from {c}: {m}"],
-    "PRIVCTCP": ["{N} [{h}] requested CTCP {x} from {-}: {m}"],
-    "CTCPREPLY": ["CTCP {x} reply from {N}: {m}"],
+    "OURCHANMSG": "{@}{N} {m}",
+    "OURPRIVMSG": "{N} {m}",
+    "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
+    "OURCHANACTION": " * {N} {m}",
+    "OURPRIVACTION": " * {N} {m}",
 
-    "OURCHANCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURPRIVCTCP": ["[ctcp({t})] {x} {m}"],
-    "OURTARGETEDCTCP": ["[ctcp({t})] {x} {m}"],
+    "CHANACTION": " * {D}{(}{N}{)}{D} {m}",
+    "PRIVACTION": " * {(}{N}{)} {m}",
+    "CHANCTCP": "{N} [{h}] requested CTCP {x} from {c}: {m}",
+    "PRIVCTCP": "{N} [{h}] requested CTCP {x} from {-}: {m}",
+    "CTCPREPLY": "CTCP {x} reply from {N}: {m}",
 
-    "WHOISUSER": ["{B}{N}{B} [{h}]", true],
-    "WHOISREALNAME": [" realname : {m}", true],
-    "WHOISCHANNELS": [" channels : {m}", true],
-    "WHOISSERVER": [" server   : {x} [{m}]", true],
-    "WHOISACCOUNT": [" account : m", true],
-    "WHOISIDLE": [" idle     : {x} [connected: {m}]", true],
-    "WHOISAWAY": [" away     : {m}", true],
-    "WHOISOPER": ["          : {B}IRC Operator{B}", true],
-    "WHOISOPERNAME": [" operedas : {m}", true],
-    "WHOISACTUALLY": [" realhost : {m} [ip: {x}]", true],
-    "WHOISGENERICTEXT": [" note  : {m}", true],
-    "WHOISEND": ["End of WHOIS", true],
+    "OURCHANCTCP": "[ctcp({t})] {x} {m}",
+    "OURPRIVCTCP": "[ctcp({t})] {x} {m}",
+    "OURTARGETEDCTCP": "[ctcp({t})] {x} {m}",
 
-    "AWAY": ["{N} is away: {m}", true],
-    "GENERICERROR": ["{m}: {t}", true],
-    "GENERICMESSAGE": ["{m}", true],
-    "WALLOPS": ["WALLOP {n}: {t}", true],
-    "CHANNELCREATIONTIME": ["Channel {c} was created at: {m}", true],
-    "CHANNELMODEIS": ["Channel modes on {c} are: {m}", true]
+    "WHOISUSER": "{P}{B}{N}{B} [{h}]",
+    "WHOISREALNAME": "{P} realname : {m}",
+    "WHOISCHANNELS": "{P} channels : {m}",
+    "WHOISSERVER": "{P} server   : {x} [{m}]",
+    "WHOISACCOUNT": "{P} account : m",
+    "WHOISIDLE": "{P} idle     : {x} [connected: {m}]",
+    "WHOISAWAY": "{P} away     : {m}",
+    "WHOISOPER": "{P}          : {B}IRC Operator{B}",
+    "WHOISOPERNAME": "{P} operedas : {m}",
+    "WHOISACTUALLY": "{P} realhost : {m} [ip: {x}]",
+    "WHOISGENERICTEXT": "{P} note  : {m}",
+    "WHOISEND": "{P}End of WHOIS",
+
+    "AWAY": "{P}{N} is away: {m}",
+    "GENERICERROR": "{P}{m}: {t}",
+    "GENERICMESSAGE": "{P}{m}",
+    "WALLOPS": "{P}WALLOP {n}: {t}",
+    "CHANNELCREATIONTIME": "{P}Channel {c} was created at: {m}",
+    "CHANNELMODEIS": "{P}Channel modes on {c} are: {m}"
 };
 
 ui.UI_COMMANDS = [
@@ -2254,9 +2304,8 @@ ui.Interface = new Class({
         networkName: "Gamesurge",
         networkServices: [],
 
-        initialNickname: "newb1234",
-        initialChannels: ["#gamesurge","#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
-        channels: new Storer("channels"),
+        initialNickname: "",
+        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
         modifiableStylesheet: window.ircoptions.stylesheet,
@@ -2282,7 +2331,7 @@ ui.Interface = new Class({
         qwebirc.global = {
             dynamicBaseURL: opts.dynamicBaseURL,
             staticBaseURL: sbaseurl,
-            nicknameValidator: $defined(opts.nickValidation) ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
+            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
         };
 
         opts.icons = {
@@ -2313,7 +2362,7 @@ ui.Interface = new Class({
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
-                ichans = opts.channels.get() || opts.initialChannels,
+                ichans = storage.get("channels") || opts.initialChannels,
                 autoConnect = false;
 
             //cleans up old properties
@@ -2405,7 +2454,7 @@ ui.Interface = new Class({
             var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
 
             self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'channels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
                 client.connect();
@@ -2565,8 +2614,7 @@ ui.AuthLogin = function(e) {
 };
 
 
-/* Added event impl many more changes should be made. (TODO) Such as rmeoving cookies from this file for decoupling */
-
+//base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
     Binds: ["dispatch"],
@@ -2610,6 +2658,11 @@ irc.BaseIRCClient = new Class({
         self.setupGenericErrors();
     },
 
+    trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
+        data["-"] = this.nickname;
+        return this.fireEvent(type, [type, data]);
+    },
+
     connect: function() {
         return this.connection.connect();
     },
@@ -2650,11 +2703,6 @@ irc.BaseIRCClient = new Class({
             break;
         }
     },
-
-    // isChannel: function(target) {
-    //     var c = target.charAt(0);
-    //     return c === '#';
-    // },
 
     supported: function(key, value) {
         switch(key) {
@@ -2816,8 +2864,7 @@ irc.BaseIRCClient = new Class({
 
         if(wasus) {
             if(!isBaseWindow(newchan)) {
-                var channels = util.addChannel(this.getChannels(), newchan);
-                this.storeChannels(channels);
+                this.storeChannels(util.addChannel(this.getChannels(), newchan));
             }
             if(this.__signedOn) {
                 this.currentChannel = newchan;
@@ -2846,8 +2893,6 @@ irc.BaseIRCClient = new Class({
             target = params[0],
             message = params.getLast();
 
-        this.broadcast(user, BROUHAHA, message, target, "CHANMSG");
-
         var ctcp = this.processCTCP(message);
         if (ctcp) {
             var type = ctcp[0].toUpperCase();
@@ -2868,7 +2913,7 @@ irc.BaseIRCClient = new Class({
                 this.channelCTCP(user, target, type, ctcp[1]);
             }
         } else {
-            if (target == this.nickname) {
+            if (target === this.nickname) {
                 this.userPrivmsg(user, message);
             } else {
                 this.channelPrivmsg(user, target, message);
@@ -2897,9 +2942,7 @@ irc.BaseIRCClient = new Class({
             } else {
                 this.userNotice(host, message);
             }
-
         } else {
-            this.broadcast(host, BROUHAHA, message, target, "CHANNOTICE");
             this.channelNotice(host, target, message);
         }
 
@@ -3201,14 +3244,14 @@ irc.BaseIRCClient = new Class({
     irc_RPL_LISTITEM: function(bot, args) {
         this.listedChans.push({
             channel: args[1],
-            users: args[2],
+            users: _.toInt(args[2]),
             topic: args[3]
         });
         return !this.hidelistout;
     },
 
     irc_RPL_LISTEND: function() {
-        this.fireEvent("listend", this.listedChans);
+        this.trigger("listend", this.listedChans);
         return !this.hidelistout;
     }
 
@@ -3265,6 +3308,10 @@ irc.BaseCommandParser = new Class({
         return this.newTargetLine(target, type, message, extra);
     },
 
+    trigger: function(type, data) {
+        this.parentObject.trigger(type, data);
+    },
+
     // routes all outputs with the server
     // this method will call functions in: Commands based on the this scope
     dispatch: function(line, chan) {
@@ -3308,7 +3355,7 @@ irc.BaseCommandParser = new Class({
             }
 
             allargs = fn.call(self, args, chan);
-            // allargs = fn.run($A(args), this);
+            // allargs = fn.run(Array.from(args), this);
         }
     },
 
@@ -3366,9 +3413,6 @@ irc.BaseCommandParser = new Class({
 // maybe just make this a single dictionary?
 irc.Commands = new Class({
     Extends: irc.BaseCommandParser,
-    initialize: function(parentObject) {
-        this.parent(parentObject);
-    },
 
     newUIWindow: function(property) {
         var self = this,
@@ -3390,8 +3434,13 @@ irc.Commands = new Class({
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
-        this.newQueryLine(target, "ACTION", args, {
-            "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
+        var nick = this.parentObject.nickname;
+        this.trigger("userAction", {
+            'nick': nick,
+            'message': args,
+            'target': target,
+            'channel': target,
+            "@": this.parentObject.getNickStatus(target, nick)
         });
     }],
 
@@ -3418,17 +3467,30 @@ irc.Commands = new Class({
         var target = args[0];
         var message = args[1];
         var parentObj = this.parentObject;
-
-        parentObj.broadcast(parentObj.nickname, BROUHAHA, message, target, "CHANMSG");
+        var nick = parentObj.nickname;
 
         if (!util.isChannel(target)) {
             parentObj.pushLastNick(target);
             parentObj.newWindow(target, ui.WINDOW_MESSAGES, false);
+
+            this.trigger("userPrivmsg", {
+                'nick': nick,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg'
+            });
         }
 
         if (this.send("PRIVMSG " + target + " :" + message)){
-            this.newQueryLine(target, "MSG", message, {
-                "@": parentObj.getNickStatus(target, parentObj.nickname)
+            // this.newQueryLine(target, "MSG", message, {
+            //     "@": parentObj.getNickStatus(target, nick)
+            // });
+            this.trigger("chanMessage", {
+                'nick': nick,
+                'channel': target,
+                'message': message,
+                'type': 'chanmsg',
+                "@": parentObj.getNickStatus(target, nick)
             });
         }
     }],
@@ -3437,16 +3499,22 @@ irc.Commands = new Class({
         var target = args[0];
         var message = args[1];
 
-        this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
+        // this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
 
         if (this.send("NOTICE " + target + " :" + message)) {
-            if (util.isChannel(target)) {
-                this.newTargetLine(target, "NOTICE", message, {
-                    "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
-                });
-            } else {
-                this.newTargetLine(target, "NOTICE", message);
-            }
+            // if (util.isChannel(target)) {
+            //     this.newTargetLine(target, "NOTICE", message, {
+            //         "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
+            //     });
+            // } else {
+            //     this.newTargetLine(target, "NOTICE", message);
+            // }
+            this.trigger("chanNotice", {
+                'nick': this.parentObject.nickname,
+                'channel': target,
+                'target': target,
+                'message': message
+            });
         }
     }],
 
@@ -3530,7 +3598,7 @@ irc.Commands = new Class({
         this.send("AWAY :" + (args ? args[0] : ""));
     }],
     cmd_QUIT: [false, 1, 0, function(args) {
-        this.send("QUIT :" + (args ? args[0] : ""));
+        this.parentObject.quit(args ? args[0] : "");
     }],
     cmd_CYCLE: [true, 1, 0, function(args, channel) {
         channel = channel || this.getActiveWindow().currentChannel;
@@ -3556,20 +3624,8 @@ irc.Commands = new Class({
             // formatted = util.formatChannelString(chans);
 
             // this.send("JOIN " + formatted + " " + args.join(" "));
-        this.cmd_FJOIN[3].call(this, $A(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
+        this.cmd_FJOIN[3].call(this, Array.from(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
     }],
-    // cmd_JOIN: [false, 2, 1, function(args) {
-    //     var channels = args.shift();
-
-    //     var chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject),
-    //         formatted = util.formatChannelString(chans);
-
-    //     if (util.joinChans(chans) !== formatted) {
-    //         this.parentObject.writeMessages(lang.poorJoinFormat);
-    //     }
-    //     if(chans)
-    //         this.send("JOIN " + formatted + " " + args.join(" "));
-    // }],
     cmd_UMODE: [false, 1, 0, function(args) {
         this.send("MODE " + this.parentObject.nickname + (args ? (" " + args[0]) : ""));
     }],
@@ -3582,15 +3638,8 @@ irc.Commands = new Class({
             return ["JOIN", this.parentObject.options.autojoin.join(",")];
         }
     }],
-    cmd_CLEAR: [false, undefined, undefined, function(args, channel) {
-        var win = channel ? this.parentObject.windows[channel] : this.getActiveWindow().lines;
-        // while (win.childNodes.length > 0){
-        //     win.removeChild(win.firstChild);
-        // }
-        win.empty();
-    }],
     cmd_PART: [false, 2, 0, function(args) {
-        args = $A(args);
+        args = Array.from(args);
 
         var msg = args[1] || lang.partChan.message,
             channel = args[0] || this.getActiveWindow().currentChannel;
@@ -3612,7 +3661,6 @@ irc.commandAliases = {
     "HOP": "CYCLE",
     "SLAP": "ME"
 };
-
 
 irc.CommandHistory = new Class({
     Implements: [Options],
@@ -3667,7 +3715,6 @@ irc.IRCClient = new Class({
     options: {
         nickname: "qwebirc",
         autojoin: "",
-        maxnicks: 10,
         prefixes: "@+", //heirarchy of prefixes - "@"(operator), "+"(voice)
         minRejoinTime: [0]
     },
@@ -3694,6 +3741,8 @@ irc.IRCClient = new Class({
         self.tracker = new irc.IRCTracker(self);
 
         self.writeMessages(lang.copyright);
+
+        self.newWindow(BROUHAHA, qwebirc.ui.WINDOW_CHANNEL, false, false);
     },
 
     newLine: function(winID, type, data) {
@@ -3763,7 +3812,7 @@ irc.IRCClient = new Class({
     updateNickList: function(channel) {
         var nickHash = this.tracker.getChannel(channel); //of nickChanEntry
 
-        var names2 = $defined(nickHash) ? Object.keys(nickHash) : []; //just return?
+        var names2 = $defined(nickHash) ? _.keys(nickHash) : []; //just return?
         var comparitor = util.nickChanComparitor(this, nickHash),
             prefixer = util.nickPrefixer(nickHash);
 
@@ -3777,16 +3826,16 @@ irc.IRCClient = new Class({
         }
     },
 
-    broadcast: function(user, channel, message, from, msgtype) {
-        var nick = util.hostToNick(user);
+    // broadcast: function(user, channel, message, from, msgtype) {
+    //     var nick = util.hostToNick(user);
 
-        this.tracker.updateLastSpoke(nick, channel, Date.now());
-        this.newChanLine(channel, msgtype, user, {
-            "m": message,
-            "@": this.getNickStatus(channel, nick),
-            "f": from
-        });
-    },
+    //     this.tracker.updateLastSpoke(nick, channel, Date.now());
+    //     this.newChanLine(channel, msgtype, user, {
+    //         "m": message,
+    //         "@": this.getNickStatus(channel, nick),
+    //         "f": from
+    //     });
+    // },
 
     getWindow: function(name) {
         return this.windows[this.toIRCLower(name)];
@@ -3796,7 +3845,7 @@ irc.IRCClient = new Class({
         return this.ui.getActiveIRCWindow(this);
     },
 
-    newWindow: function(name, type, select) {
+    newWindow: function(name, type, select, connected) {
         //select
         var win = this.getWindow(name);
         if (!win) {
@@ -3810,6 +3859,7 @@ irc.IRCClient = new Class({
         if (select) {
             this.ui.selectWindow(win);
         }
+        if(type === ui.WINDOW_CHANNEL) win.connected = connected || true;
         return win;
     },
 
@@ -3818,37 +3868,13 @@ irc.IRCClient = new Class({
     },
 
     newQueryWindow: function(name, privmsg) {
-        if (!this.getQueryWindow(name))
-            return privmsg ? this.newPrivmsgQueryWindow(name) : this.newNoticeQueryWindow(name);
-    },
-
-    newPrivmsgQueryWindow: function(name) {
-        if (this.ui.uiOptions2.get("dedicated_msg_window")) {
-            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
-                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
-        } else {
-            return this.newWindow(name, ui.WINDOW_QUERY, false);
-        }
-    },
-
-    newNoticeQueryWindow: function(name) {
-        if (this.ui.uiOptions2.get("dedicated_notice_window"))
-            if (!this.ui.getWindow(this, ui.WINDOW_MESSAGES))
-                return this.ui.newWindow(this, ui.WINDOW_MESSAGES, "Messages");
+        return this.getQueryWindow(name) || this.newWindow(name, ui.WINDOW_QUERY, true);
     },
 
     newQueryLine: function(win, type, data, privmsg, active) {
         if (this.getQueryWindow(win))
             return this.newLine(win, type, data);
 
-        var win = this.ui.getWindow(this, ui.WINDOW_MESSAGES);
-
-        var e;
-        if (privmsg) {
-            e = this.ui.uiOptions2.get("dedicated_msg_window");
-        } else {
-            e = this.ui.uiOptions2.get("dedicated_notice_window");
-        }
         if (e && win) {
             return win.addLine(type, data);
         } else {
@@ -3882,7 +3908,7 @@ irc.IRCClient = new Class({
             }
         }
 
-        if(Array.isArray(messages))
+        if(_.isArray(messages))
             messages.each(write);
         else
             write(messages);
@@ -3928,7 +3954,7 @@ irc.IRCClient = new Class({
             this.exec("/AUTOJOIN");
         }
 
-        this.fireEvent("logon", {
+        this.trigger("logon", {
             'nickname': nickname,
             'channels': channels
         });
@@ -3938,14 +3964,11 @@ irc.IRCClient = new Class({
     attemptAuth: function() {
         //only try to auth if its necessary
         if (!auth.authed && auth.enabled) {
-            var test = this.send("authserv AUTH " + this.options.account + " " + this.options.password);
+            var test = this.send(util.formatter("AUTHSERV AUTH {account} {password}", this.options));
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you
             var win = this.ui.getActiveWindow();
-            // (function() {
-            //     win.infoMessage("Waiting for login before joining channels...");
-            // }).delay(200);
 
             //this.writeMessages(lang.joinAfterAuth);
             this.writeMessages.delay(100, this, lang.joinAfterAuth);
@@ -3966,7 +3989,7 @@ irc.IRCClient = new Class({
             this.exec("/AUTOJOIN");
         }
 
-        this.fireEvent("auth");
+        this.trigger("auth");
     },
 
     userJoined: function(user, channel) { //todo determine way to get brouhaha selected at start
@@ -3974,10 +3997,10 @@ irc.IRCClient = new Class({
             host = util.hostToHost(user),
             wasus = (nick === this.nickname),
             type = wasus ? "OURJOIN" : "JOIN",
-            windowSelected = (channel === this.currentChannel);
+            windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
 
-        if (wasus && !this.getWindow(channel)) {
-            this.newWindow(channel, qwebirc.ui.WINDOW_CHANNEL, windowSelected); //true means channel is selected
+        if (wasus) {//create or select
+            this.newWindow(channel, qwebirc.ui.WINDOW_CHANNEL, windowSelected);
         }
 
 
@@ -3986,17 +4009,19 @@ irc.IRCClient = new Class({
         this.updateNickList(BROUHAHA);
         this.updateNickList(channel);
 
-        //dont display login message if join msgs disabled or window is brouhaha or something
-        if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
-            this.newChanLine(channel, type, user);
-        }
+        // //dont display login message if join msgs disabled or window is brouhaha or something
+        // if (!(self.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
+        //     this.newChanLine(channel, type, user);
+        // }
 
         if (wasus && channel === BROUHAHA) { //initial login. TODO there should be a better way to do this (maybe an option or something)
             this.writeMessages(lang.loginMessages);
         }
 
-        this.fireEvent("userJoined", {
+        this.trigger("userJoined", {
             'user': user,
+            'nick': nick,
+            'host': host,
             'channel': channel,
             'thisclient': wasus
         });
@@ -4021,18 +4046,21 @@ irc.IRCClient = new Class({
             this.updateNickList(channel);
 
             //hide disconnects in base windows or if option set
-            if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
-                this.newChanLine(channel, "PART", user, {
-                    "m": message
-                });
-            }
+            // if (!(this.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(channel))) {
+            //     this.newChanLine(channel, "PART", user, {
+            //         "m": message
+            //     });
+            // }
         }
 
-        this.fireEvent("userPart", {
+        this.trigger("userPart", {
             'user': user,
+            'nick': nick,
+            'host': host,
             'channel': channel,
             'message': message,
-            'thisclient': wasus
+            'thisclient': wasus,
+            'type': 'part'
         });
     },
 
@@ -4052,29 +4080,34 @@ irc.IRCClient = new Class({
             "m": message
         });
 
-        this.fireEvent("userKicked", {
+        this.trigger("userKicked", {
             'kicker': kicker,
             'channel': channel,
             'kickee': kickee,
             'message': message,
-            'thisclient': wasus
+            'thisclient': wasus,
+            'type': "kick"
         });
     },
 
     userPrivmsg: function(user, message) {
         var nick = util.hostToNick(user),
             host = util.hostToHost(user);
-        this.newQueryWindow(nick, true);
+        // this.newQueryWindow(nick, true);
         this.pushLastNick(nick);
-        this.newQueryLine(nick, "PRIVMSG", {
-            "m": message,
-            "h": host,
-            "n": nick
-        }, true);
+        // this.newQueryLine(nick, "PRIVMSG", {
+        //     "m": message,
+        //     "h": host,
+        //     "n": nick
+        // }, true);
 
-        this.fireEvent("userPrivmsg", {
+        this.trigger("query", {
             'user': user,
-            'message': message
+            'nick': nick,
+            'host': host,
+            'channel': nick,
+            'message': message,
+            'type': 'privmsg'
         });
     },
 
@@ -4083,11 +4116,11 @@ irc.IRCClient = new Class({
             host = util.hostToHost(user),
             accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(user);
 
-        this.newServerLine("INVITE", {
-            "c": channel,
-            "h": host,
-            "n": nick
-        });
+        // this.newServerLine("INVITE", {
+        //     "c": channel,
+        //     "h": host,
+        //     "n": nick
+        // });
         if (accept) {
             if (this.activeTimers.serviceInvite) {
                 $clear(this.activeTimers.serviceInvite);
@@ -4098,10 +4131,12 @@ irc.IRCClient = new Class({
             this.inviteChanList.push(channel);
         }
 
-        this.fireEvent("userInvite", {
+        this.trigger("userInvite", {
             'user': user,
             'channel': channel,
-            'accept': accept
+            'accept': accept,
+            'nick': nick,
+            'host': host
         });
     },
 
@@ -4111,22 +4146,24 @@ irc.IRCClient = new Class({
 
         if (this.ui.uiOptions2.get("dedicated_notice_window")) {
             this.newQueryWindow(nick, false);
-            this.newQueryOrActiveLine(nick, "PRIVNOTICE", {
-                "m": message,
-                "h": host,
-                "n": nick
-            }, false);
-        } else {
+            // this.newQueryOrActiveLine(nick, "PRIVNOTICE", {
+            //     "m": message,
+            //     "h": host,
+            //     "n": nick
+            // }, false);
+        } /*else {
             this.newTargetOrActiveLine(nick, "PRIVNOTICE", {
                 "m": message,
                 "h": host,
                 "n": nick
             });
-        }
+        }*/
 
-        this.fireEvent("channelTopic", {
+        this.trigger("privNotice", {
             'user': user,
-            'message': message
+            'message': message,
+            'host': host,
+            'nick': nick
         });
     },
 
@@ -4137,30 +4174,35 @@ irc.IRCClient = new Class({
 
         self.tracker.removeNick(nick);
 
-        Object.keys(channels).each(function(chan) {
-            if (!(self.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(chan))) {
-                self.newChanLine(chan, "QUIT", user, {
-                    "m": message
-                });
-            }
+        _.keys(channels).each(function(chan) {
+            // if (!(self.ui.uiOptions2.get("hide_joinparts") || isBaseWindow(chan))) {
+            //     self.newChanLine(chan, "QUIT", user, {
+            //         "m": message
+            //     });
+            // }
             self.updateNickList(chan);
         });
 
-        self.fireEvent("userQuit", {
+        self.trigger("userQuit", {
             'user': user,
+            'host': util.hostToHost(user),
+            'nick': nick,
             'channels': channels,
             'message': message
         });
     },
 
     userMode: function(modes) {
-        this.newServerLine("UMODE", {
-            "m": modes,
-            "n": this.nickname
-        });
+        // this.newServerLine("UMODE", {
+        //     "m": modes,
+        //     "n": this.nickname
+        // });
 
-        this.fireEvent("userMode", {
-            'modes': modes
+        this.trigger("userMode", {
+            'modes': modes,
+            'message': modes.join(""),
+            'type': "UMODE",
+            'n': this.nickname
         });
     },
 
@@ -4176,60 +4218,52 @@ irc.IRCClient = new Class({
         self.tracker.renameNick(oldnick, newnick);
 
         var channels = self.tracker.getNick(newnick);
-        var found = Object.getLength(channels) > 0;
+        var found = _.size(channels) > 0;
 
-        // for (var chan in channels) {
-        //     found = true;
-
-        //     self.newChanLine(chan, "NICK", user, {
-        //         "w": newnick
-        //     });
-        //     // TODO: rename queries
-        //     self.updateNickList(chan);
-        // }
-        Object.each(channels, function(obj, chan) {
-            self.newChanLine(chan, "NICK", user, {
-                "w": newnick
-            });
+        _.each(channels, function(obj, chan) {
+            // self.newChanLine(chan, "NICK", user, {
+            //     "w": newnick
+            // });
             // TODO: rename queries
             self.updateNickList(chan);
         });
 
-        if (!found) {
-            self.newServerLine("NICK", {
-                "w": newnick,
-                n: util.hostToNick(user),
-                h: util.hostToHost(user),
-                "-": self.nickname
-            });
-        }
+        // if (!found) {
+        //     self.newServerLine("NICK", {
+        //         "w": newnick,
+        //         n: util.hostToNick(user),
+        //         h: util.hostToHost(user),
+        //         "-": self.nickname
+        //     });
+        // }
 
-        self.fireEvent("nickChange", {
+        self.trigger("nickChange", {
             'user': user,
+            'nick': util.hostToNick(user),
             'newnick': newnick,
+            'w': newnick,
             'channels': channels,
             'thisclient': wasus,
-            'client': self
+            'type': 'nick'
         });
     },
 
     initialTopic: function(channel, topic) {
-        this.getWindow(channel).updateTopic(topic);
-
-        this.fireEvent("channelTopic", {
+        this.trigger("chanTopic", {
             'channel': channel,
-            'topic': topic
+            'topic': topic,
+            'initial': true
         });
     },
 
     channelTopic: function(user, channel, topic) {
-        this.newChanLine(channel, "TOPIC", user, {
-            "m": topic
-        });
-        this.getWindow(channel).updateTopic(topic);
+        // this.newChanLine(channel, "TOPIC", user, {
+        //     "m": topic
+        // });
 
-        this.fireEvent("channelTopic", {
+        this.trigger("chanTopic", {
             'user': user,
+            'nick': util.hostToNick(user),
             'channel': channel,
             'topic': topic
         });
@@ -4240,28 +4274,33 @@ irc.IRCClient = new Class({
             nick = util.hostToNick(user);
 
         self.tracker.updateLastSpoke(nick, channel, Date.now());
-        self.newChanLine(channel, "CHANMSG", user, {
-            "m": message,
-            "@": self.getNickStatus(channel, nick)
-        });
+        // self.newChanLine(channel, "CHANMSG", user, {
+        //     "m": message,
+        //     "@": self.getNickStatus(channel, nick)
+        // });
 
-        self.fireEvent("channelMessage", {
+        self.trigger("chanMessage", {
             'user': user,
+            'nick': nick,
             'channel': channel,
-            'message': message
+            'message': message,
+            'type': 'chanmsg',
+            "@": self.getNickStatus(channel, nick)
         });
     },
 
     channelNotice: function(user, channel, message) {
-        this.newChanLine(channel, "CHANNOTICE", user, {
-            "m": message,
-            "@": this.getNickStatus(channel, util.hostToNick(user))
-        });
-
-        this.fireEvent("channelNotice", {
+        // this.newChanLine(channel, "CHANNOTICE", user, {
+        //     "m": message,
+        //     "@": this.getNickStatus(channel, util.hostToNick(user))
+        // });
+        var nick = util.hostToNick(user)
+        this.trigger("chanNotice", {
             'user': user,
+            'nick': nick,
             'channel': channel,
-            'message': message
+            'message': message,
+            "@": this.getNickStatus(channel, nick)
         });
     },
 
@@ -4281,11 +4320,12 @@ irc.IRCClient = new Class({
                 oped = direction === OPED;
 
             prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
-                                util.removePrefix(nc, prefixchar)
+                                util.removePrefix(nc, prefixchar);
 
-            self.fireEvent("mode", {
+            self.trigger("mode", {
                 "added": oped,
                 "prefix": prefixchar,
+                "message": prefixchar,
                 "nick": nick,
                 "channel": channel,
                 "thisclient": nick === self.nickname,
@@ -4293,9 +4333,9 @@ irc.IRCClient = new Class({
             });
         });
 
-        self.newChanLine(channel, "MODE", user, {
-            "m": raw.join(" ")
-        });
+        // self.newChanLine(channel, "MODE", user, {
+        //     "m": raw.join(" ")
+        // });
 
         self.updateNickList(channel);
     },
@@ -4308,27 +4348,37 @@ irc.IRCClient = new Class({
         var nick = util.hostToNick(user);
         if (type == "ACTION") {
             this.tracker.updateLastSpoke(nick, channel, Date.now());
-            this.newChanLine(channel, "CHANACTION", user, {
-                "m": args,
-                "c": channel,
+            // this.newChanLine(channel, "CHANACTION", user, {
+            //     "m": args,
+            //     "c": channel,
+            //     "@": this.getNickStatus(channel, nick)
+            // });
+            this.trigger("chanAction", {
+                'user': user,
+                'nick': nick,
+                'channel': channel,
+                'message': args,
                 "@": this.getNickStatus(channel, nick)
             });
-            return;
+        }
+        else {
+            // this.newChanLine(channel, "CHANCTCP", user, {
+            //     "x": type,
+            //     "m": args,
+            //     "c": channel,
+            //     "@": this.getNickStatus(channel, nick)
+            // });
+
+            this.trigger("chanCTCP", {
+                'user': user,
+                'message': args,
+                'channel': channel,
+                'x': type,
+                'args': args,
+                "@": this.getNickStatus(channel, nick)
+            });
         }
 
-        this.newChanLine(channel, "CHANCTCP", user, {
-            "x": type,
-            "m": args,
-            "c": channel,
-            "@": this.getNickStatus(channel, nick)
-        });
-
-        this.fireEvent("channelCTCP", {
-            'user': user,
-            'channel': channel,
-            'type': type,
-            'args': args
-        });
     },
 
     userCTCP: function(user, type, args) {
@@ -4341,28 +4391,40 @@ irc.IRCClient = new Class({
 
         if (type == "ACTION") {
             this.newQueryWindow(nick, true);
-            this.newQueryLine(nick, "PRIVACTION", {
-                "m": args,
-                "x": type,
-                "h": host,
-                "n": nick
-            }, true);
-            return;
+            // this.newQueryLine(nick, "PRIVACTION", {
+            //     "m": args,
+            //     "x": type,
+            //     "h": host,
+            //     "n": nick
+            // }, true);
+
+            this.trigger("userAction", {
+                'nick': nick,
+                'host': host,
+                'message': args,
+                'x': type,
+                'user': user
+            });
+        }
+        else {
+            // this.newTargetOrActiveLine(nick, "PRIVCTCP", {
+            //     "m": args,
+            //     "x": type,
+            //     "h": host,
+            //     "n": nick,
+            //     "-": this.nickname
+            // });
+
+            this.trigger("privCTCP", {
+                'user': user,
+                'nick': nick,
+                'type': type,
+                'args': args,
+                'x': type,
+                'host': host
+            });
         }
 
-        this.newTargetOrActiveLine(nick, "PRIVCTCP", {
-            "m": args,
-            "x": type,
-            "h": host,
-            "n": nick,
-            "-": this.nickname
-        });
-
-        this.fireEvent("userCTCP", {
-            'user': user,
-            'type': type,
-            'args': args
-        });
     },
 
     userCTCPReply: function(user, type, args) {
@@ -4373,33 +4435,35 @@ irc.IRCClient = new Class({
             args = "";
         }
 
-        this.newTargetOrActiveLine(nick, "CTCPREPLY", {
-            "m": args,
-            "x": type,
-            "h": host,
-            "n": nick,
-            "-": this.nickname
-        });
+        // this.newTargetOrActiveLine(nick, "CTCPREPLY", {
+        //     "m": args,
+        //     "x": type,
+        //     "h": host,
+        //     "n": nick,
+        //     "-": this.nickname
+        // });
 
-        this.fireEvent("userCTCPReply", {
+        this.trigger("userCTCPReply", {
             'user': user,
+            'nick': nick,
+            'host': host,
             'type': type,
             'args': args
         });
     },
 
     serverNotice: function(user, message) {
-        if (!user) {
-            this.newServerLine("SERVERNOTICE", {
-                "m": message
-            });
-        } else {
-            this.newServerLine("PRIVNOTICE", {
-                "m": message,
-                "n": user
-            });
-        }
-        this.fireEvent("serverNotice", {
+        // if (!user) {
+        //     this.newServerLine("SERVERNOTICE", {
+        //         "m": message
+        //     });
+        // } else {
+        //     this.newServerLine("PRIVNOTICE", {
+        //         "m": message,
+        //         "n": user
+        //     });
+        // }
+        this.trigger("serverNotice", {
             'user': user,
             'message': message
         });
@@ -4417,18 +4481,19 @@ irc.IRCClient = new Class({
     storeChannels: function(channels) {
         var store = _.uniq(channels);
         this.channels = channels;
-        this.options.channels.set(store);
+        storage.set("channels", store);
     },
 
     getChannels: function() {
-        var chans = this.channels = this.options.channels.get() || [];
+        var chans = this.channels = storage.get("channels") || [];
         // this.channels = chans ? chans.split(",") : [];
         return chans;
     },
 
     canJoinChannel: function(chan) {
         //check if already on channel
-        if(Object.keys(this.windows).contains(this.toIRCLower(chan)))
+        var old = this.getWindow(chan);
+        if(old && old.connected)
             return false;
         else if(chan === BROUHAHA)
             return true;
@@ -4458,8 +4523,8 @@ irc.IRCClient = new Class({
     },
 
 
-    isNetworkService: function(user) {
-        return this.ui.options.networkServices.contains(user);
+    isNetworkService: function(x) {
+        return this.options.networkServices.contains(x);
     },
 
     __joinInvited: function() {
@@ -4492,7 +4557,7 @@ irc.IRCClient = new Class({
     },
 
     disconnected: function(message) {
-        Object.each(this.windows, function(win) {
+        _.each(this.windows, function(win) {
             if (util.isChannelType(win.type))
                 win.close();
         });
@@ -4503,9 +4568,12 @@ irc.IRCClient = new Class({
         // }
         delete this.tracker;
 
-        this.newServerLine("DISCONNECT", {
-            "m": message
-        });
+        // this.newServerLine("DISCONNECT", {
+        //     "m": message
+        // });
+        this.trigger("disconnect", {
+            message: message
+        })
     },
 
     nickOnChanHasPrefix: function(nick, channel, prefix) {
@@ -4525,18 +4593,7 @@ irc.IRCClient = new Class({
         if (pos === -1)
             return false; /* shouldn't happen */
 
-        // var modehash = {};
-        // this.prefixes.slice(0, pos + 1).split("").each(function(x) {
-        //     modehash[x] = true;
-        // });
-
-        // var prefixes = entry.prefixes;
-        // for (var i = 0; i < prefixes.length; i++){
-        //     if (modehash[prefixes.charAt(i)])
-        //         return true;
-        // }
-
-        var prefixes = this.prefixes.substring(0, pos + 1);
+        var prefixes = this.prefixes.slice(0, pos + 1);
 
         //true if any of entry.prefix is part of prefixes string
         return Array.some(entry.prefixes, function(prefix) {
@@ -4546,10 +4603,12 @@ irc.IRCClient = new Class({
         // return false;
     },
 
+    //needs an update
     supported: function(key, value) {
         if (key == "PREFIX") {
             var len = (value.length - 2) / 2;
 
+            //get rid of these they are confusing
             this.modeprefixes = value.substr(1, len);
             this.prefixes = value.substr(len + 2, len);
         }
@@ -4558,27 +4617,31 @@ irc.IRCClient = new Class({
     },
 
     connected: function() {
-        this.newServerLine("CONNECT");
+        // this.newServerLine("CONNECT");
+        this.trigger("connect", {});
     },
 
     serverError: function(message) {
-        this.newServerLine("ERROR", {
-            "m": message
-        });
+        // this.newServerLine("ERROR", {
+        //     "m": message
+        // });
+        this.trigger("error", {message:message})
     },
 
     quit: function(message) {
         this.send("QUIT :" + (message || lang.quit.message), true);
         this.disconnect();
+        this.trigger("quit", {message: message});
     },
 
     disconnect: function() {
         // for (var k in this.activeTimers) {
         //     this.activeTimers[k].cancel();
         // }
-        Object.each(this.activeTimers, $clear);
+        _.each(this.activeTimers, $clear);
         this.activeTimers = {};
         this.writeMessages(lang.disconnected);
+        this.trigger("disconnect", {message: lang.disconnected});
 
         this.parent();
     },
@@ -4632,37 +4695,65 @@ irc.IRCClient = new Class({
                 return false;
         }
 
-        this.newTargetOrActiveLine(nick, "WHOIS" + mtype, ndata);;
+        // this.newTargetOrActiveLine(nick, "WHOIS" + mtype, ndata);
+        this.trigger("whois", {
+            nick: nick,
+            type: "whois" + mtype,
+            data: ndata,
+            data2: data,
+            channel: ACTIVE
+        });
         return true;
     },
 
     genericError: function(target, message) {
-        this.newTargetOrActiveLine(target, "GENERICERROR", {
-            m: message,
-            t: target
-        });
+        // this.newTargetOrActiveLine(target, "GENERICERROR", {
+        //     m: message,
+        //     t: target
+        // });
+        this.trigger("error", {
+            target: target,
+            channel: target,
+            message: message,
+            type: "GENERICERROR"
+        })
     },
 
     genericQueryError: function(target, message) {
-        this.newQueryOrActiveLine(target, "GENERICERROR", {
-            m: message,
-            t: target
-        }, true);
+        // this.newQueryOrActiveLine(target, "GENERICERROR", {
+        //     m: message,
+        //     t: target
+        // }, true);
+        // this.trigger("genericError", {
+        //     target: target,
+        //     message: message
+        // })
+        this.trigger("error", {
+            target: target,
+            channel: target,
+            message: message,
+            type: "GENERICERROR"
+        })
     },
 
     awayStatus: function(state, message) {
-        this.newActiveLine("GENERICMESSAGE", {
-            m: message
-        });
+        // this.newActiveLine("GENERICMESSAGE", {
+        //     m: message
+        // });
+        this.trigger("error", {
+            state: state,
+            message: message,
+            type: "GENERICERROR"
+        })
     },
 
     pushLastNick: function(nick) {
         var i = this.lastNicks.indexOf(nick);
         if (i != -1) {
             this.lastNicks.splice(i, 1);
-        } else {
-            if (this.lastNicks.length == this.options.maxnicks) this.lastNicks.pop();
-        }
+        } /*else if (this.lastNicks.length == this.options.maxnicks) {
+            this.lastNicks.pop();
+        }*/
         this.lastNicks.unshift(nick);
     },
 
@@ -4670,24 +4761,39 @@ irc.IRCClient = new Class({
         var nick = util.hostToNick(user);
         var host = util.hostToHost(user);
 
-        this.newServerLine("WALLOPS", {
-            t: text,
-            n: nick,
-            h: host
+        // this.newServerLine("WALLOPS", {
+        //     t: text,
+        //     n: nick,
+        //     h: host
+        // });
+        this.trigger("wallops", {
+            message: text,
+            nick: nick,
+            host: host
         });
     },
 
     channelModeIs: function(channel, modes) {
-        this.newTargetOrActiveLine(channel, "CHANNELMODEIS", {
-            c: channel,
-            m: modes.join(" ")
+        // this.newTargetOrActiveLine(channel, "CHANNELMODEIS", {
+        //     c: channel,
+        //     m: modes.join(" ")
+        // });
+        this.trigger("serverMessage", {
+            channel: channel || ACTIVE,
+            message: modes.join(" "),
+            type: "CHANNELMODEIS"
         });
     },
 
     channelCreationTime: function(channel, time) {
-        this.newTargetOrActiveLine(channel, "CHANNELCREATIONTIME", {
-            c: channel,
-            m: util.IRCDate(new Date(time * 1000))
+        // this.newTargetOrActiveLine(channel, "CHANNELCREATIONTIME", {
+        //     c: channel,
+        //     m: util.IRCDate(new Date(time * 1000))
+        // });
+        this.trigger("serverMessage", {
+            channel: channel || ACTIVE,
+            message: util.IRCDate(new Date(time * 1000)),
+            type: "CHANNELCREATIONTIME"
         });
     },
 
@@ -4695,7 +4801,10 @@ irc.IRCClient = new Class({
         this.hidelistout = true;
         this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
         this.addEvent("listend:once", function() {
-            var chans = this.listedChans.clone().sort(function(a,b){return b.users-a.users});//max -> min sort
+            var chans = _.chain(this.listedChans)
+                        .clone()
+                        .sortBy(function(chan) {return -chan.users})//neg to sort max -> min
+                        .value();
             cb(chans);
             this.hidelistout = false;
         })
@@ -4703,7 +4812,7 @@ irc.IRCClient = new Class({
 });
 
 /* This could do with a rewrite from scratch. */
-
+//COMMANDS = dict(p=push, n=newConnection, s=subscribe)
 irc.IRCConnection = new Class({
     Implements: [Events, Options],
     Binds: ["send","__completeRequest"],
@@ -5101,7 +5210,7 @@ irc.IRCTracker = new Class({
         _.each(_.keys(chan), function(nick) {
             var nc = this.nicknames[nick];
             delete nc[lchannel];
-            if (_.size(nc)) { //in no more channels
+            if (_.size(nc) === 0) { //in no more channels
                 delete this.nicknames[nick];
             }
         }, this);
@@ -5307,6 +5416,10 @@ irc.IRCTracker = new Class({
         return checked ? 'checked' : '';
     });
 
+    engine.registerHelper('enableDisable', function(x) {
+        return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
+    })
+
     //engine.registerHelper('pad', function(txt) {
     //    return txt && txt.length !== 0 ? ' ' + txt : '';
     //});
@@ -5335,14 +5448,15 @@ irc.IRCTracker = new Class({
     engine.partials = compiled;
 })(Handlebars);
 
-var templates = Handlebars.templates;
-
 
 ui.BaseUI = new Class({
-    Implements: [Events],
+    Implements: [Options, Events],
+    options: {
+
+    },
     initialize: function(parentElement, windowClass, uiName, options) {
         var self = this;
-        self.options = options;
+        self.setOptions(options);
 
         self.windows = {};
         self.clients = {};
@@ -5350,63 +5464,187 @@ ui.BaseUI = new Class({
         self.windowArray = [];
         self.windowClass = windowClass;
         self.parentElement = parentElement;
-        self.parentElement.addClass("qwebirc");
-        self.parentElement.addClass("qwebirc-" + uiName);
+        parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
     },
     newClient: function(client) {
         client.id = this.clientId++;
-        // client.hilightController = new ui.HilightController(client);
 
-        this.windows[client.id] = {};
+        var windows = this.windows[client.id] = {};
         this.clients[client.id] = client;
         var win = this.newWindow(client, ui.WINDOW_STATUS, STATUS);
         this.selectWindow(win);
 
-        client.addEvent("nickChange", this.nickChange);
+        this.clientEvents(client, windows);
 
         return win;
     },
+
+    newWindow: function(client, type, name) {
+        var win = this.getWindow(client, name);
+        if (!$defined(win)) {
+            var wId = this.getWindowIdentifier(name);
+            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, client, type, name, wId);
+            this.windowArray.push(win);
+        }
+
+        return win;
+    },
+
+    clientEvents: function(client, windows) { // mi gusta xD
+        if(! client instanceof irc.IRCClient) return;
+        var self = this,
+            broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
+
+        function formatChans(data) {
+            var chans = data.channels;
+            return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
+        }
+
+        function formatData(type, _data) {
+            var data = _.extend({
+                c: _data.channel || STATUS,
+                n: _data.nick,
+                m: _data.message,
+                h: _data.host,
+                t: type,
+                type: type
+            }, _data);
+            if (!(self.uiOptions2.get("nick_ov_status"))){
+                delete data["@"];
+            }
+            return data;
+        }
+
+        function lineParser(type, data) {
+            data = formatData(type, data);
+            
+            _.each(formatChans(data), function(channel) {
+                data.channel = data.c = channel;
+                var win = (data.c === ACTIVE) ? self.getActiveWindow() : self.getWindow(client, channel);
+                if(!win) return;
+                if(_.isArray(data.message)) {
+                    _.each(data.message, function(msg) {
+                        data.message = data.m = msg;
+                        parser(type, data, win);
+                    });
+                }
+                else {
+                    parser(type, data, win);
+                }
+            });
+        }
+
+        function parser(type, data, win, channel) {
+            type = data.type || data.t || type;
+            channel = data.channel || STATUS;
+
+            win.addLine(data.type, data);
+
+            if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
+                var data2 = _.clone(data);
+                var brouhaha = self.getWindow(client, BROUHAHA);
+                data2.nick = data2.n = data.n + data.c;
+                brouhaha.addLine(data.type, data2);
+            }
+        }
+
+        function updateTopic(type, data) {
+            self.getWindow(client, data.channel).updateTopic(data.topic);
+            if(!data.initial) {
+                data.message = data.topic;
+                lineParser("topic", data);
+            }
+        }
+
+        function joinPart(type, data) {
+            if ((data.thisclient && data.type != "PART" && data.type != "QUIT") ||
+                    !(self.uiOptions2.get("hide_joinparts")) && !util.isBaseWindow(data.channel)) {
+                lineParser(type, data);
+            }
+        }
+
+        client.addEvents({
+            "connect": lineParser,
+            "disconnect": lineParser,
+            "error": lineParser,
+
+            "chanAction": lineParser,
+            "chanTopic": updateTopic,
+            "chanMessage": lineParser,
+            "chanNotice": lineParser,
+            "chanCTCP": lineParser,
+
+            "userJoined": function(type, data) {
+                joinPart(data.thisclient ? "ourJoin" : "join", data);
+            },
+            "userPart": joinPart,
+            "userQuit": function (type, data) {
+                joinPart("quit", data);
+            },
+            "userKicked": lineParser,
+            "userInvite": lineParser,
+            "userAction": lineParser,
+            "userCTCP": lineParser,
+            "userCTCPReply": lineParser,
+            "userMode": lineParser,
+            "nickChange": function(type, data) {
+                self.nickChange(data);
+                lineParser(type, data);
+            },
+            "privNotice": lineParser,
+
+            "query": function(type, data) {//queries
+                data = formatData(type, data);
+                var win = self.newWindow(client, ui.WINDOW_QUERY, data.channel); //get or create
+                self.selectWindow(win);
+                parser(type, data, win);
+            },
+
+            "awayStatus": lineParser,
+            "mode": function(type, data) {
+                var win = self.getWindow(data.channel);
+                if(win) {
+                    win.updatePrefix(data);
+                }
+                lineParser(type, data);
+            },
+            "serverMessage": lineParser,
+            "serverNotice": lineParser,
+            "whois": lineParser,
+            "wallops": lineParser
+        });
+
+
+    },
+
     getClientId: function(client) {
         return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
     },
-    getWindowIdentifier: function(client, type, name) {
-        if (type === ui.WINDOW_MESSAGES)
-            return "-M";
-        else if (type === ui.WINDOW_STATUS)
-            return "";
-        else if (client === ui.CUSTOM_CLIENT)
-            return "_" + name;
-        else
-            return "_" + client.toIRCLower(name);
+    getWindowIdentifier: function(name) {
+        return name.toLowerCase();
     },
-    newWindow: function(client, type, name) {
-        var win = this.getWindow(client, type, name);
-        if ($defined(win))
-            return win;
+    nickChange: util.noop,
 
-        var wId = this.getWindowIdentifier(client, type, name);
-        win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, client, type, name, wId);
-        this.windowArray.push(win);
-
-        return win;
-    },
-    nickChange: $empty,
-
-    getWindow: function(client, type, name) {
+    getWindow: function(client, name) {
+        if(_.isNumber(name)) {
+            return _.findWhere(this.windowArray, {
+                type: name
+            });
+        }
         var wins = this.windows[this.getClientId(client)];
         if (!$defined(wins))
             return null;
 
-        return wins[this.getWindowIdentifier(client, type, name)];
+        return wins[this.getWindowIdentifier(name)];
     },
     getActiveWindow: function() {
         return this.active;
     },
     getActiveIRCWindow: function(client) {
         if (!this.active || this.active.type == ui.WINDOW_CUSTOM) {
-            return this.windows[this.getClientId(client)][this.getWindowIdentifier(client, ui.WINDOW_STATUS)];
+            return this.windows[this.getClientId(client)][this.getWindowIdentifier(STATUS)];
         } else {
             return this.active;
         }
@@ -5590,13 +5828,17 @@ ui.StandardUI = new Class({
         });
     },
     optionsWindow: function() {
+        var self = this;
         var constructor = function(element, data) {
             return new ui.OptionView({
                 element: element,
-                model: data
+                model: data,
+                onNoticeTest: function() {
+                    self.flash();
+                }
             });
         }
-        this.addCustomWindow("Options", constructor, "optionspane", this.uiOptions2);
+        self.addCustomWindow("Options", constructor, "optionspane", self.uiOptions2);
     },
     aboutWindow: function() {
         this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions2);
@@ -5708,10 +5950,16 @@ ui.StandardUI = new Class({
 ui.NotificationUI = new Class({
     Extends: ui.StandardUI,
 
-    Binds: ["beep"],
+    Binds: ["beep", "flash", "cancelFlash"],
 
     options: {
-        minSoundRepeatInterval: 1000
+        minSoundRepeatInterval: 1000,
+
+        notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
+            icon: "images/qwebircsmall.png",
+            title: "IRC Alert",
+            body: "New notification!"
+        }
     },
     initialize: function() {
         // this.parent(parentElement, windowClass, uiName, options);
@@ -5721,21 +5969,32 @@ ui.NotificationUI = new Class({
         this.soundInit();
         this.lastSound = 0;
 
-        var flasher = this.__flasher = new ui.Flasher(this.options, this.uiOptions2);
-        this.flash = flasher.flash;
-        this.cancelFlash = flasher.cancelFlash;
+        this.windowFocused = false;
+        this.titleText = document.title;
+
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        if ($defined(favIcon)) {
+            this.favIcon = favIcon;
+            // this.favIconParent = favIcon.getParent();
+            this.favIconVisible = true;
+            this.emptyFavIcon = new Element("link", {
+                    rel: 'shortcut icon',
+                    type: 'image/x-icon',
+                    href: this.options.icons.empty_favicon
+                });
+
+            this.flashing = false;
+            this.canFlash = true;
+        } else {
+            this.canFlash = false;
+        }
     },
     setBeepOnMention: function(value) {
         if (value)
             this.soundInit();
     },
     updateTitle: function(text) {
-        if (this.__flasher.updateTitle(text))
-            ui.setTitle(text);
-    },
-    focusChange: function(value) {
-        this.parent(value);
-        this.__flasher.focusChange(value);
+        ui.setTitle(text);
     },
     beep: function() {
         this.playSound('beep');
@@ -5752,107 +6011,59 @@ ui.NotificationUI = new Class({
         if(!$defined(this.soundPlayer)) {
             this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
         }
-    }
-});
-
-ui.Flasher = new Class({
-    Binds: ["flash", "cancelFlash"],
-
-    initialize: function(opts) {
-        this.windowFocused = false;
-        this.canUpdateTitle = true;
-        this.titleText = document.title;
-
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
-        if ($defined(favIcon)) {
-            this.favIcon = favIcon;
-            this.favIconParent = favIcon.parentNode;
-            this.favIconVisible = true;
-
-            // this.emptyFavIcon = new Element("link");
-            // this.emptyFavIcon.rel = "shortcut icon";
-            // this.emptyFavIcon.href = qwebirc.global.staticBaseURL + "images/empty_favicon.ico";
-            // this.emptyFavIcon.type = "image/x-icon";
-            this.emptyFavIcon = new Element("link", {
-                    rel: 'shortcut icon',
-                    type: 'image/x-icon',
-                    href: opts.icons.empty_favicon
-                });
-
-            this.flashing = false;
-
-            this.canFlash = true;
-        } else {
-            this.canFlash = false;
-        }
     },
-    flash: function() {
+    flash: function(options) {
         var self = this;
-        if (self.windowFocused || !self.canFlash || self.flashing)
+        if (document.hasFocus() || !self.canFlash || self.flashing)
             return;
 
-        self.titleText = document.title; /* just in case */
+        self.titleText = document.title;
 
         var flash = function() {
             var vis = self.toggleFavIcon();
-            self.canUpdateTitle = vis;
             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
 
-        //http://mootools.net/forge/p/tab_alert
-        // var ex3 = yourInstance = new tabAlert({
-        //         text: lang.activityNotice.message,
-        //         ticker: true,
-        //         onLoop: flash
-        //     });
+        if(self.uiOptions2.get("dn_state")) {
+            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
+            self.__notice = notify.createNotification(opts.title, opts);
+            (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
+        }
 
         self.flashing = true;
         // flashA();
-        self.flasher = flash.periodical(750);
+        self.__flasher = flash.periodical(750);
         window.addEvents({//whatever comes first
-            "mousedown:once": this.cancelFlash,
-            "keydown:once": this.cancelFlash,
-            "focus:once": this.cancelFlash
+            "mousedown:once": self.cancelFlash,
+            "keydown:once": self.cancelFlash,
+            "focus:once": self.cancelFlash
         });
     },
     cancelFlash: function() {
-        if (!$defined(this.flasher))
-            return;
-
         this.flashing = false;
 
-        $clear(this.flasher);
-        this.flasher = undefined;
+        if(this.__flasher)
+            $clear(this.__flasher);
+        this.__flasher = null;
+
+        if(this.__notice)
+            this.__notice.close();
+        this.__notice = null;
 
         this.toggleFavIcon(true);
         ui.setTitle(this.titleText);
-        this.canUpdateTitle = true;
     },
     //not sure if changing the favicon is a good idea - messes with peoples bookmarks
     toggleFavIcon: function(state) {
         var vis = $defined(state) ? state : !this.favIconVisible;
-        if(vis){
-            if (!this.favIconVisible) {
-                this.favIcon.replaces(this.emptyFavIcon);
-            }
-        }
-        else{
-            if (this.favIconVisible) {
-                this.emptyFavIcon.replaces(this.favIcon);
-            }
-        }
         this.favIconVisible = vis;
+        if(vis && !this.favIconVisible) {
+            this.favIcon.replaces(this.emptyFavIcon);
+        }
+        else if (!vis && this.favIconVisible) {
+            this.emptyFavIcon.replaces(this.favIcon);
+        }
         return vis;
-    },
-    updateTitle: function(text) {
-        this.titleText = text;
-        return this.canUpdateTitle;
-    },
-    focusChange: function(value) {
-        this.windowFocused = value;
-
-        if (value)
-            this.cancelFlash();
     }
 });
 
@@ -5980,9 +6191,6 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         callback(data);
     }.bind(this));
-
-    // nickBox.set("value", initialNickname);
-    //chan.set("value", initialChannels);
 
     if (window === window.top)
         nickBox.focus();
@@ -6147,8 +6355,8 @@ ui.QUI = new Class({
         var tabs = self.tabs = Element.from(templates.tabbar()),
             joinChan =  function(){
                 var chan = prompt("Enter channel name:");
-                if(chan.trim() !== ""){
-                    Object.each(self.clients, function(client) {
+                if(chan && chan.trim() !== ""){
+                    _.each(self.clients, function(client) {
                         client.exec("/JOIN " + chan);
                     });
                 }
@@ -6224,21 +6432,12 @@ ui.QUI = new Class({
         self.orignicklist = self.nicklist = origWin.right;
 
         self.input = origWin.bottom;
-        // self.reflow = qjsui.reflow.bind(qjsui);
-
-        // self.reflow(origWin);
-        // self.reflow.delay(100, self, origWin); /* Konqueror fix */
-
-
-        //For window resizing
-        // window.addEvent("resize", function() {
-        //     self.getActiveWindow().reflow(100);
-        // });
 
 
         //delay for style recalc
         self.__createDropdownHint.delay(500, self);
     },
+
     __createDropdownMenu: function() {
         var self = this,
 
@@ -6406,14 +6605,15 @@ ui.QUI = new Class({
 
         client.getPopularChannels(
             function(chans) {
-                chans = chans.slice(0, (self.options.maxChansMenu || 10))
+                chans = _.chain(chans).take(self.options.maxChansMenu || 10)
                             .map(function(chan) {
                                 return {
                                     text: chan.channel,
                                     value: chan.channel,
                                     hint: chan.users
                                 };
-                            });
+                            })
+                            .value();
                 var menu = Element.from(templates.chanmenu({
                         channels: chans
                     })),
@@ -6421,7 +6621,12 @@ ui.QUI = new Class({
                     btnmenu = btn.retrieve('menu');
 
                 if(btnmenu) {
-                    menu.replaces(btnmenu);
+                    menu.replaces(btnmenu)
+                        .position.delay(50, menu.parentElement, {
+                            relativeTo: btn,
+                            position: {x: 'left', y: 'bottom'},
+                            edge: {x: 'left', y: 'top'}
+                        });
                 }
                 else {
                     var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
@@ -6433,7 +6638,8 @@ ui.QUI = new Class({
                 }
                 btn.store('menu', menu);
 
-                menu.parentElement.showMenu();
+                if(!menu.parentElement.isDisplayed())
+                    menu.parentElement.showMenu();
             });
         },
 
@@ -6442,22 +6648,6 @@ ui.QUI = new Class({
         return this.parent(client);
     },
 
-    // setLines: function(lines) {
-    //     this.lines.parentNode.replaceChild(lines, this.lines);
-    //     this.qjsui.middle = this.lines = lines;
-    // },
-    // setChannelItems: function(nicklist, topic) {
-    //     if (!$defined(nicklist)) {
-    //         nicklist = this.orignicklist;
-    //         topic = this.origtopic;
-    //     }
-    //     nicklist.replaces(this.nicklist);
-    //     this.qjsui.right = this.nicklist = nicklist;
-
-    //     topic.replaces(this.topic);
-
-    //     this.qjsui.topic = this.topic = topic;
-    // }
     setWindow: function(win) {
         this.qjsui.setWindow(win);
     },
@@ -6465,7 +6655,7 @@ ui.QUI = new Class({
     //called in context of irc client
     nickChange: function(data) {
         if(data.thisclient) {
-            Object.each(this.windows, function(win) {
+            _.each(this.windows, function(win) {
                 win.$nicklabel.set("text", data.newnick);
             });
         }
@@ -6485,45 +6675,7 @@ ui.QUI.JSUI = new Class({
 
         // this.reflowevent = null;
     },
-    // applyClasses: function(pos, el) {
-    //     el.addClass("dynamicpanel")
-    //         .addClass(this.class_);
-
-    //     switch(pos) {
-    //         case "middle":
-    //             el.addClass("leftboundpanel");
-    //             break;
-    //         case "top":
-    //             el.addClass("topboundpanel")
-    //                 .addClass("widepanel");
-    //             break;
-    //         case "right":
-    //             el.addClass("rightboundpanel");
-    //             break;
-    //         case "topic":
-    //             el.addClass("widepanel");
-    //             break;
-    //         case "bottom":
-    //             el.addClass("bottomboundpanel")
-    //                 .addClass("widepanel");
-    //             break;
-    //     }
-    // },
     create: function() {
-        // var XE = function(pos) {
-        //         var element = new Element("div");
-        //         this.applyClasses(pos, element);
-
-        //         this.parent.appendChild(element);
-        //         return element;
-        //     }.bind(this);
-
-        // this.top = XE("top");
-        // this.topic = XE("topic");
-        // this.middle = XE("middle");
-        // this.right = XE("right");
-        // this.properties = XE("properties");
-        // this.bottom = XE("bottom");
 
         var top = this.top = Element.from(templates.topPane()),
             windows = this.winContainer = Element.from(templates.windowsPane()),
@@ -6549,78 +6701,6 @@ ui.QUI.JSUI = new Class({
 
         return win;
     },
-
-    reflow: function(win, delay) {
-        console.log('dummy');
-        // if (!delay)
-        //     delay = 1;
-
-        // if (this.reflowevent)
-        //     $clear(this.reflowevent);
-        // this.__reflow(win);
-        // this.reflowevent = this.__reflow.delay(delay, this, win);
-    },
-    __reflow: function(win) {
-        // var properties = win.properties,
-        //     bottom = win.bottom,
-        //     middle = win.middle,
-        //     right = win.right,
-        //     topic = win.topic,
-        //     top = this.top,
-
-        //     topicsize = topic.getSize(),
-        //     topsize = top.getSize(),
-        //     rightsize = right.getSize(),
-        //     bottomsize = bottom.getSize(),
-        //     docsize = this.sizer.getSize();
-
-        // var mheight = (docsize.y - topsize.y - bottomsize.y - topicsize.y),
-        //     mwidth = (docsize.x - rightsize.x);
-
-        // topic.setStyle("top", topsize.y);
-
-        // var last5_height = 0;
-        // var last5msg = $('last5messages');
-        // if (last5msg) {
-        //     last5msg.className = "qwebirc-qui ircwindow dynamicpanel lines";
-        //     last5msg.style.top = topsize.y + topicsize.y + 'px';
-        //     last5msg.style.width = mwidth + 'px';
-        //     last5msg.style.zIndex = '1';
-        //     last5msg.style.borderBottom = '1px dashed #C8D1DB';
-        //     last5_height = last5msg.offsetHeight;
-        //     middle.setStyle("top", (topsize.y + topicsize.y + last5msg.offsetHeight));
-        // } else {
-        //     middle.setStyle("top", (topsize.y + topicsize.y));
-        // }
-
-        // if (mheight > 0) {
-        //     middle.setStyle("height", mheight - 25 - last5_height);
-        //     right.setStyle("height", mheight);
-        // }
-
-        // if (mwidth > 0) {
-        //     middle.setStyle("width", mwidth);
-        //     properties.setStyle("width", mwidth);
-        // }
-        // right.setStyle("top", (topsize.y + topicsize.y))
-        //     .setStyle("left", mwidth);
-
-        // properties.setStyle("top", (docsize.y - bottomsize.y - 25));
-        // bottom.setStyle("top", (docsize.y - bottomsize.y));
-        // this.fireEvent("reflow", win);
-    },
-    // showChannel: function(win, state, nicklistVisible) {
-    //     // var display = state ? "block" : "none";
-    //     // this.right.setStyle("display", nicklistVisible ? display : "none");
-    //     // this.topic.setStyle("display", display);
-    //     win.right.toggle(state && nicklistVisible);
-    //     win.topic.toggle(state);
-    // },
-    // showInput: function(win, state) {
-    //     // this.bottom.setStyle("display", state ? "block" : "none");
-    //     win.bottom.isVisible = state;
-    //     win.bottom.toggle(state);
-    // }
     setWindow: function(newWin) {
         this.windows.each(function (win) {
             if(win.detached !== true) {
@@ -6635,25 +6715,16 @@ ui.QUI.JSUI = new Class({
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            defaults = Object.append({}, ui.themes.Default2, themeDict),
-            prefix = defaults.PREFIX[0];
+            defaults = _.extend({}, ui.themes.Default2, themeDict);
         
-        self.__theme = Object.map(defaults, function(data, key) {
-            return data[1] ? prefix + data[0] : data[0];
+        var thememap = _.map(ui.themes.ThemeControlCodeMap2, function(str) {
+            return util.formatterSafe(str, ui.themes.ThemeControlCodeMap2);
+        });
+        self.__theme = _.map(defaults, function(str) {
+            return util.formatterSafe(str, thememap);
         });
 
         self.highlightClasses.channels = {};
-
-        self.__ccmap = Object.clone(ui.themes.ThemeControlCodeMap2);
-        self.__ccmaph = Object.clone(self.__ccmap);
-
-        self.__ccmaph["("] = self.message("HILIGHT", {}, self.__ccmap);
-        self.__ccmaph[")"] = self.message("HILIGHTEND", {}, self.__ccmap);
-        self.__ccmaph["{"] = self.__ccmaph["}"] = "";
-    },
-
-    __dollarSubstitute: function(str, data, mapper) {
-        return str.substitute(Object.append({}, data, mapper))
     },
 
 //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
@@ -6684,21 +6755,20 @@ ui.Theme = new Class({
         var themed = type ? self.message(type, data, highlight) : data;
         var result = self.colourise(themed);
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
+            .adopt(Elements.from(result));//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
     formatElement: function(line, $ele) {
         var result = this.colourise(this.urlerize(line));
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', result);
+            .adopt(Elements.from(result));
         return result;
     },
 
     message: function(type, data, highlight) {
-        var map = highlight ? this.__ccmaph : this.__ccmap;
-
-        return this.__dollarSubstitute(this.__theme[type], data, map);
+        // if(highlight) data = _.extend({}, data, this.__ccmaph)
+        return util.formatter(this.__theme[type], data);//most formatting done on init
     },
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
@@ -6788,7 +6858,7 @@ ui.Theme = new Class({
         },
         {
             mentioned: true,
-            classes: 'mentioned',
+            highlight: 'mentioned',
             notus: true,
             tabhl: ui.HILIGHT_US
         },
@@ -6836,7 +6906,9 @@ ui.Theme = new Class({
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
-                            win.parentObject.flash();
+                            win.parentObject.flash({
+                                body: util.formatter("{nick}{channel}: {message}", data)
+                            });
                         }
                         if(parser.beep) {
                             win.parentObject.beep();
@@ -6844,7 +6916,7 @@ ui.Theme = new Class({
                     }   
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(highlights.next(highlights.channels[win.name]++));
+                        $ele.addClass(Type.isBoolean(parser.highlight) ? highlights.next(highlights.channels[win.name]++) : parser.highlight);
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);
@@ -7661,6 +7733,12 @@ config.OptionModel = new Class({
             "font_size": 12,
             "volume": 100,
 
+            "dn_state": false,
+            "dn_duration": 4000,
+
+            "highlight": true,
+            "highlight_mentioned": true,
+
             "notices": {
                 "on_mention": {flash:true, beep:true},
                 "on_pm": {flash:true, beep:true},
@@ -7703,18 +7781,19 @@ ui.OptionView = new Class({
             'change:relay(#options #standard-notices input)': 'snoticeChange',
             'change:relay(#options #custom-notices input)': 'noticeChange',
             'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier'
-
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
+            'click:relay(#options #dn_state)': 'dnToggle',
+            'click:relay(#options #notice-test)': 'noticeTest'
         },
 
-        onInputChange: function(e, target) {//set model values when inputs are clicked
-            var id = target.get('id');
+        // onInputChange: function(e, target) {//set model values when inputs are clicked
+        //     var id = target.get('id');
 
-            //handle sub props
-            if(id && $defined(this.model.get(id))) {
-                this.model.set(id, target.val());
-            }
-        },
+        //     //handle sub props
+        //     if(id && $defined(this.model.get(id))) {
+        //         this.model.set(id, target.val());
+        //     }
+        // },
 
         onSnoticeChange: function(e, target) {
             e.stop();
@@ -7739,7 +7818,20 @@ ui.OptionView = new Class({
         onRemoveNotifier: function(e, target) {
             e.stop();
             var par = target.getParent('.custom-notice').dispose();
-            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})))
+            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+        },
+        
+        onDnToggle: function(e, target) {
+            var self = this;
+            if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
+                notify.requestPermission(function() {
+                    self.model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
+                });
+            }
+            else {
+                self.model.set('dn_state', !self.model.get('dn_state'));
+            }
+            target.val(self.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
         },
 
         onReady: render
@@ -7783,6 +7875,15 @@ ui.OptionView = new Class({
 
         this.parent();
         return this;
+    },
+
+    inputChange: function(e, target) {//set model values when inputs are clicked
+        var id = target.get('id');
+
+        //handle sub props
+        if(id && $defined(this.model.get(id))) {
+            this.model.set(id, target.val());
+        }
     },
 
     addNotifier: function(data) {
@@ -8529,13 +8630,6 @@ ui.QUI.Window = new Class({
                 util.setAtEnd($inputbox);
             };
 
-        if(isChannelType(self.type)) {
-            var e = self.events.client.mode = self.updatePrefix;
-            self.client.addEvents({
-                "mode": e
-            });
-        }
-
         $nicklabel.addEvent("dblclick", function() {
             var nick = prompt("Enter a new nickname", self.nickname);
             if(nick) {
@@ -8619,10 +8713,13 @@ ui.QUI.Window = new Class({
 
     moveMenuClass: function($sel) {
         $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        if (this.nicklist.firstChild === $sel) {
-            $sel.removeClass("selected-middle");
-        } else if($sel) {
-            $sel.addClass("selected-middle");
+        
+        if($sel) {
+            if (this.nicklist.firstChild === $sel) {
+                $sel.removeClass("selected-middle");
+            } else {
+                $sel.addClass("selected-middle");
+            }
         }
     },
 
@@ -8649,13 +8746,14 @@ ui.QUI.Window = new Class({
         }
     },
 
-    addLine: function(type, line, colourClass) {
-        var $msg = Element.from(templates.ircMessage({ type: type.toLowerCase() }));
+    addLine: function(type, data, colourClass) {
+        console.log(arguments);
+        var $msg = Element.from(templates.ircMessage({ type: type.hyphenate() }));
 
         if(colourClass)
             $msg.addClass(colourClass);
 
-        this.parent(type, line, colourClass, $msg);
+        this.parent(type.toUpperCase(), data, colourClass, $msg);
     },
     highlightTab: function(state) {
         this.parent(state);
