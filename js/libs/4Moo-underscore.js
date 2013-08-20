@@ -571,7 +571,9 @@
 
     // Delays a function for the given number of milliseconds, and then calls
     // it with the arguments supplied.
-    _.delay = Function.delay;
+    _.delay = function(func, delay, bind, args) {
+        return func.delay(delay, bind, args);
+    };
 
     // Defers a function, scheduling it to run after the current call stack has
     // cleared.

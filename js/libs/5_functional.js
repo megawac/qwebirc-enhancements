@@ -182,7 +182,22 @@
         item: function(xs, n) {
             return xs == null ? null : xs[n];
         },
-        last: Array.getLast
+        last: Array.getLast,
+
+        //.alias({a:1,b:{alpha:'a'}}, {a: 'test', c: 'rawf'}) => {a: 1, b: Object, test: 1}
+        alias: function(obj, aliases, force) {//obj is an object and aliases is a dictionary of (string union listof string)
+            function makeAliases(alias, key) {
+                if(_.has(obj, key)) {
+                    if(_.isArray(alias)) {
+                        _.each(alias, function(alias) {makeAliases(alias, key)});
+                    } else if(_.isString(alias) && (force || !_.has(obj, alias))) {
+                        obj[alias] = obj[key];
+                    }
+                }
+            }
+            _.each(aliases, makeAliases);
+            return obj;
+        }
     });
 
 })(this._);

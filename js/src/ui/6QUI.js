@@ -18,8 +18,7 @@ ui.QUI = new Class({
         });
     },
     postInitialize: function() {
-        var self = this,
-            qjsui = self.qjsui = new ui.QUI.JSUI("qui", self.parentElement);
+        var self = this;
 
         // qjsui.addEvent("reflow", function() {
         //     var win = self.getActiveWindow();
@@ -27,7 +26,6 @@ ui.QUI = new Class({
         //         win.onResize();
         // });
 
-        self.outerTabs = qjsui.top;
         var tabs = self.tabs = Element.from(templates.tabbar()),
             joinChan =  function(){
                 var chan = prompt("Enter channel name:");
@@ -42,7 +40,7 @@ ui.QUI = new Class({
             scrollers = tabbtns.getElements('[name="tabscroll"]'),
             scroller = new Fx.Scroll(tabs),
             resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
-            onResize = function() {
+            tabsResize = function() {
                 var wid = tabs.getWidth(),
                     swid = tabs.getScrollWidth();
 
@@ -56,10 +54,10 @@ ui.QUI = new Class({
                 resizeTabs();
             };
 
-        window.addEvent('resize', onResize);
+        window.addEvent('resize', tabsResize);
         tabs.addEvents({
-            'adopt': onResize,
-            'disown': onResize
+            'adopt': tabsResize,
+            'disown': tabsResize
         });
 
         scrollers.filter('.to-left')
@@ -100,18 +98,58 @@ ui.QUI = new Class({
 
 
         //append menu and tabbar
-        self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns);
-
-        var origWin = qjsui.createWindow();
-        self.origtopic = self.topic = origWin.topic;
-        self.origlines = self.lines = origWin.middle;
-        self.orignicklist = self.nicklist = origWin.right;
-
-        self.input = origWin.bottom;
+        self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
+                    .addEvents({
+                        "click:relay(.tab .tab-close)": function(e, target) {
+                            e.stop();
+                            target.getParent('.tab').retrieve('window').close();
+                        },
+                        "click:relay(.tab .detach)": function(e, target) {
+                            e.stop();
+                            target.getParent('.tab').retrieve('window').detach();
+                        },
+                        "focus:relay(.tab)": Element.prototype.blur,
+                        "click:relay(.tab)": function(e, target) {//can be called when tab is closed
+                            target.retrieve('window').selectTab();
+                        },
+                        "dblclick:relay(.tab)": function(e, target) {
+                            e.stop();
+                            target.retrieve('window').select();
+                        }
+                    });
 
 
         //delay for style recalc
         self.__createDropdownHint.delay(500, self);
+    },
+
+
+
+    newTab: function(win, name) {
+        var self = this;
+        var $tab = Element.from(templates.ircTab({
+                'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
+            })).inject(self.tabs);
+
+        if(name === BROUHAHA) {
+            $tab.addClass('brouhaha');
+            _.delay(function() {
+                _.some(self.windowArray, function(otherwin) {
+                    if(util.isChannelType(otherwin.type) && !util.isBaseWindow(otherwin.name)) {
+                        win.properties.text(otherwin.name); //update current channel in brouhaha
+                        win.currentChannel = otherwin.name;
+                    }
+                });
+            }, 1000);
+        }
+
+        $tab.store("window", win);
+
+        if (!isBaseWindow(name)) {
+            Element.from(templates.tabClose()).inject($tab);
+        }
+
+        return $tab;
     },
 
     __createDropdownMenu: function() {
@@ -277,10 +315,13 @@ ui.QUI = new Class({
     //todo use other dropdown menu code
     __createChannelMenu: function() {
         var self = this,
-            client = self.getActiveIRCWindow().client;
+            client = self.getActiveIRCWindow().client,
 
-        client.getPopularChannels(
-            function(chans) {
+            btn = self.outerTabs.getElement('.add-chan'),
+            oldmen = btn.retrieve('menu');
+
+        if(!oldmen || Date.now() - oldmen.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
+            client.getPopularChannels(function(chans) {
                 chans = _.chain(chans).take(self.options.maxChansMenu || 10)
                             .map(function(chan) {
                                 return {
@@ -292,12 +333,10 @@ ui.QUI = new Class({
                             .value();
                 var menu = Element.from(templates.chanmenu({
                         channels: chans
-                    })),
-                    btn = self.outerTabs.getElement('.add-chan'),
-                    btnmenu = btn.retrieve('menu');
+                    }));
 
-                if(btnmenu) {
-                    menu.replaces(btnmenu)
+                if(oldmen) {
+                    menu.replaces(oldmen)
                         .position.delay(50, menu.parentElement, {
                             relativeTo: btn,
                             position: {x: 'left', y: 'bottom'},
@@ -313,19 +352,32 @@ ui.QUI = new Class({
                     });
                 }
                 btn.store('menu', menu);
+                btn.store('time', Date.now());//so we dont have to refresh maybe
 
                 if(!menu.parentElement.isDisplayed())
                     menu.parentElement.showMenu();
             });
-        },
+        } else if (!oldmen.parentElement.isDisplayed()) { //show old menu
+            oldmen.parentElement.showMenu()
+                .position({
+                    relativeTo: btn,
+                    position: {x: 'left', y: 'bottom'},
+                    edge: {x: 'left', y: 'top'}
+                });
+        }
+    },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');
         return this.parent(client);
     },
 
-    setWindow: function(win) {
-        this.qjsui.setWindow(win);
+    setWindow: function($win) {
+        _.each(this.windowArray, function(win) {
+            if(!win.window.hasClass('detached'))
+                win.window.hide().removeClass('active');
+        });
+        $win.show().addClass('active');
     },
 
     //called in context of irc client
@@ -335,54 +387,5 @@ ui.QUI = new Class({
                 win.$nicklabel.set("text", data.newnick);
             });
         }
-    }
-});
-
-ui.QUI.JSUI = new Class({
-    Implements: [Events],
-    initialize: function(class_, parent, sizer) {
-        this.parent = parent;
-        this.windows = [];
-
-        this.sizer = $defined(sizer) ? sizer : parent;
-
-        this.class_ = class_;
-        this.create();
-
-        // this.reflowevent = null;
-    },
-    create: function() {
-
-        var top = this.top = Element.from(templates.topPane()),
-            windows = this.winContainer = Element.from(templates.windowsPane()),
-            detach = this.detachContainer = Element.from(templates.detachedPane());
-        this.parent.adopt(top, windows, detach);
-    },
-
-    createWindow: function() {
-        var win = {
-            'window': Element.from(templates.windowPane()),
-            'topic': Element.from(templates.topicPane()),
-            'content': Element.from(templates.contentPane()),
-            'middle': Element.from(templates.leftPane()),
-            'right': Element.from(templates.nickPane()),
-            'properties': Element.from(templates.propertiesPane()),
-            'bottom': Element.from(templates.inputPane())
-        };
-
-        win.content.adopt(win.middle, win.right);
-        win.window.adopt(win.topic, win.content, win.properties, win.bottom);
-        this.winContainer.appendChild(win.window);
-        this.windows.push(win);
-
-        return win;
-    },
-    setWindow: function(newWin) {
-        this.windows.each(function (win) {
-            if(win.detached !== true) {
-                win.window.hide();
-            }
-        });
-        newWin.window.show();
     }
 });

@@ -6,7 +6,7 @@
  *  http://www.webtoolkit.info/
  *
  **/
-var Base64 = util.B64 = (function() {
+window.Base64 = util.B64 = (function() {
     "use strict";
 
     var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";

@@ -28,10 +28,6 @@ timestamp_display=o,show_timestamps,inline,none
 timestamp_padding_left=o,show_timestamps,1em,11px
 
 #ircui {
-  /*position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 0px;*/
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -41,18 +37,6 @@ timestamp_padding_left=o,show_timestamps,1em,11px
 .qui .hidden, .qui .tab-invisible {
     display: none;
 }
-
-/*.qui-center {
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: flex;
-    height: 100%;
-}
-
-.qui-center > * {
-    text-align: center;
-    margin: auto;
-}*/
 
 .channel-name {
     background-color: rgb(255, 255, 191);
@@ -413,9 +397,6 @@ timestamp_padding_left=o,show_timestamps,1em,11px
 
 .qui .nicklist {
     border-left: 1px solid $(nicklist_border);
-  /*position: absolute;
-  top: 0px;
-  right: 0px;*/
     width: 140px;
     overflow: auto;
     background: $(nicklist_background);
@@ -423,7 +404,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     font-size: 0.7em;
 }
 
-.qui .nicklist a {
+.qui .nicklist .user, .qui .nicklist .menu span {
     display: block;
     color: black;
     text-decoration: none;
@@ -433,7 +414,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     padding-left: 1px;
 }
 
-.qui .nicklist a.selected {
+.qui .nicklist .selected {
     display: block;
     color: black;
     background: white;
@@ -442,7 +423,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     cursor: default;
 }
 
-.qui .nicklist a.selected-middle {
+.qui .nicklist .selected-middle {
     border-top: $(nicklist_selected_border) 1px solid;
 }
 

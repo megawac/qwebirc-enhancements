@@ -20,10 +20,10 @@ ui.StandardUI = new Class({
                 ["notify_on_mention", "notify_on_pm", "notify_on_notice"].each(function(type) {
                     var notifier = self.theme.messageParsers.filter(function(n) { return n.id === type; })[0],
                         set = model.get(type);
-                    Object.merge(notifier, set);
+                    _.merge(notifier, set);
 
                     model.on("change:" + type, function() {
-                        Object.merge(notifier, set);
+                        _.merge(notifier, set);
                     });
                 });
             }
@@ -73,16 +73,11 @@ ui.StandardUI = new Class({
     },
 
     newCustomWindow: function(name, select, type) {
-        if (!type)
-            type = ui.WINDOW_CUSTOM;
+        type = type || ui.WINDOW_CUSTOM;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-        win.addEvent("close", function(win) {
-            delete this.windows[ui.CUSTOM_CLIENT][win.identifier];
-        }.bind(this));
 
-        if (select)
-            this.selectWindow(win);
+        if (select) this.selectWindow(win);
 
         return win;
     },
@@ -99,7 +94,7 @@ ui.StandardUI = new Class({
         var win = this.newCustomWindow(windowName, true);
         this.customWindows[windowName] = win;
 
-        win.addEvent("close", function() {
+        win.addEvent("destroy", function() {
             this.customWindows[windowName] = null;
         }.bind(this));
 
@@ -125,7 +120,7 @@ ui.StandardUI = new Class({
                 element: element,
                 model: data,
                 onNoticeTest: function() {
-                    self.flash();
+                    self.flash({force:true});
                 }
             });
         }
@@ -177,7 +172,7 @@ ui.StandardUI = new Class({
     },
 
     whoisURL: function(e, target) {
-        var client = target.getParent('.lines').retrieve('client'),
+        var client = target.getParent('.window').retrieve('window').client,
             nick = target.get('data-user');
         if (this.uiOptions2.QUERY_ON_NICK_CLICK) {
             client.exec("/QUERY " + nick);
@@ -209,7 +204,7 @@ ui.StandardUI = new Class({
         this.setModifiableStylesheetValues();
     },
     setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
-        Object.append(this.__styleValues, values);
+        _.extend(this.__styleValues, values);
 
         if (!$defined(this.__styleSheet))
             return;

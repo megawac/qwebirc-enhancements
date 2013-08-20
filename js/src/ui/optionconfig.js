@@ -6,9 +6,7 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "flash_on_mention": true,
-            "dedicated_msg_window": false,
-            "dedicated_notice_window": true,
+            "auto_open_pm": true,
             "nick_ov_status": true,
             "accept_service_invites": true,
             "use_hiddenhost": true,
@@ -19,7 +17,7 @@ config.OptionModel = new Class({
             "style_saturation": 0,
             "style_brightness": 0,
             "query_on_nick_click": true,
-            "show_nicklist": true,
+            // "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
             "volume": 100,
@@ -54,12 +52,18 @@ config.OptionModel = new Class({
     save: function() {
         this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) { return data.msg.trim() === "" }));//cleanup
         return this.parent();
-    }
-});
+    },
 
-function render() {
-    return this.render();
-}
+    set: function(key, data) {
+        var props = key.split(".");
+        if(props.length > 1) {
+            var item = this.get(props[0]);
+            return this.parent(props[0], _.assign(item, key, data));
+        } else {
+            this.parent(key, data);
+        }
+    }.overloadSetter()
+});
 
 ui.OptionView = new Class({
     Extends: Epitome.View,
@@ -77,15 +81,6 @@ ui.OptionView = new Class({
             'click:relay(#options #notice-test)': 'noticeTest'
         },
 
-        // onInputChange: function(e, target) {//set model values when inputs are clicked
-        //     var id = target.get('id');
-
-        //     //handle sub props
-        //     if(id && $defined(this.model.get(id))) {
-        //         this.model.set(id, target.val());
-        //     }
-        // },
-
         onSnoticeChange: function(e, target) {
             e.stop();
             var notices = _.clone(this.model.get('notices'));
@@ -93,23 +88,9 @@ ui.OptionView = new Class({
             this.model.set('notices', notices);
         },
 
-        onNoticeChange: function(e, target) {
-            e.stop();
-            var notices = _.clone(this.model.get('custom_notices'));
-            var par = target.getParent('.custom-notice');
-            _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
-            this.model.set('custom_notices', notices);
-        },
-
         onAddNotifier: function(e) {
             e.stop();
             this.addNotifier();
-        },
-
-        onRemoveNotifier: function(e, target) {
-            e.stop();
-            var par = target.getParent('.custom-notice').dispose();
-            this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
         },
         
         onDnToggle: function(e, target) {
@@ -125,47 +106,12 @@ ui.OptionView = new Class({
             target.val(self.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
         },
 
-        onReady: render
+        onReady: function() {
+            return this.render();
+        }
     },
 
-    render: function() {
-        var model = this.model,
-            data = this.getData();
-        this.element.html(this.template(data));
-
-        _.each(data.custom_notices, function(notice) {
-            notice.lang = lang;
-            this.addNotifier(notice)
-        }, this);
-
-        // this.tabs = new MGFX.Tabs(this.element, {
-        //     tabs: '.option-tabs li',
-        //     content: '.tab-content .control-group'
-        // });
-
-        this.element.getElements(".slider").each(function(slider) {
-            var id = slider.get('id'),
-                knob = slider.getElement('.knob'),
-                new Slider(slider, knob, {
-                    steps: 36,
-                    range: [0, 369],
-                    wheel: true
-                }).addEvent("change", function(val) {
-                    model.set(id, val);
-                })
-                .set(data[id])
-        });
-
-        this.element.getElement('#options').addEvents({ //default will fire before bubble
-            'submit': this.save,
-            'reset': this.reset
-        });
-
-        self.behavior = new Behavior().apply(this.element);
-
-        this.parent();
-        return this;
-    },
+    /*********LISTENERS**************/
 
     inputChange: function(e, target) {//set model values when inputs are clicked
         var id = target.get('id');
@@ -192,6 +138,60 @@ ui.OptionView = new Class({
         var temp = templates.customNotice(_data);
 
         parent.insertAdjacentHTML('beforeend', temp);
+    },
+
+    removeNotifier: function(e, target) {
+        e.stop();
+        var par = target.getParent('.custom-notice').dispose();
+        this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+    },
+
+    noticeChange: function(e, target) {
+        e.stop();
+        var notices = _.clone(this.model.get('custom_notices'));
+        var par = target.getParent('.custom-notice');
+        _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+        this.model.set('custom_notices', notices);
+    },
+    /*********LISTENERS**************/
+
+    render: function() {
+        var model = this.model,
+            data = this.getData();
+        this.element.html(this.template(data));
+
+        _.each(data.custom_notices, function(notice) {
+            notice.lang = lang;
+            this.addNotifier(notice);
+        }, this);
+
+        // this.tabs = new MGFX.Tabs(this.element, {
+        //     tabs: '.option-tabs li',
+        //     content: '.tab-content .control-group'
+        // });
+
+        this.element.getElements(".slider").each(function(slider) {
+            var id = slider.get('id'),
+                knob = slider.getElement('.knob');
+                new Slider(slider, knob, {
+                    steps: 36,
+                    range: [0, 369],
+                    wheel: true
+                }).addEvent("change", function(val) {
+                    model.set(id, val);
+                })
+                .set(data[id]);
+        });
+
+        this.element.getElement('#options').addEvents({ //default will fire before bubble
+            'submit': this.save,
+            'reset': this.reset
+        });
+
+        self.behavior = new Behavior().apply(this.element);
+
+        this.parent();
+        return this;
     },
 
     getData: function() {

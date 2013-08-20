@@ -17,6 +17,10 @@ ui.BaseUI = new Class({
         parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
         self.commandhistory = new irc.CommandHistory();
         self.clientId = 0;
+
+
+        self.outerTabs = Element.from(templates.topPane()).inject(parentElement);
+        self.windowsPanel = Element.from(templates.windowsPane()).inject(parentElement);
     },
     newClient: function(client) {
         client.id = this.clientId++;
@@ -35,7 +39,7 @@ ui.BaseUI = new Class({
         var win = this.getWindow(client, name);
         if (!$defined(win)) {
             var wId = this.getWindowIdentifier(name);
-            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, client, type, name, wId);
+            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, new Element('div').inject(this.windowsPanel), client, type, name, wId);
             this.windowArray.push(win);
         }
 
@@ -95,7 +99,8 @@ ui.BaseUI = new Class({
             if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
                 var data2 = _.clone(data);
                 var brouhaha = self.getWindow(client, BROUHAHA);
-                data2.nick = data2.n = data.n + data.c;
+                data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c ://chanmsg
+                                                                data.n + ">" + data.c;//pm
                 brouhaha.addLine(data.type, data2);
             }
         }
@@ -148,7 +153,9 @@ ui.BaseUI = new Class({
             "query": function(type, data) {//queries
                 data = formatData(type, data);
                 var win = self.newWindow(client, ui.WINDOW_QUERY, data.channel); //get or create
-                self.selectWindow(win);
+                if(self.uiOptions2.get("auto_open_pm")) {
+                    self.selectWindow(win);
+                }
                 parser(type, data, win);
             },
 
@@ -162,7 +169,11 @@ ui.BaseUI = new Class({
             },
             "serverMessage": lineParser,
             "serverNotice": lineParser,
-            "whois": lineParser,
+            "whois": function(type, data) {
+                _.each(data.msgs, function(msg) {
+                    lineParser(type, _.extend({}, data, msg));
+                });
+            },
             "wallops": lineParser
         });
 
@@ -207,17 +218,18 @@ ui.BaseUI = new Class({
             win = this.windowArray[win];
         else if(Type.isString(win)) 
             win = this.windows[win];
+        if(win === this.active) return;
         if (this.active) {
-            if(win === this.active) return;
             this.active.deselect();
         }
-        win.select();
+        if(!win.active) win.select();
+        this.__setActiveWindow(win);
         this.updateTitle(win.name + " - " + this.options.appTitle);
     },
     nextWindow: function(direction, fromWin) {
         var windows = this.windowArray,
             win = windows.next(windows.indexOf(fromWin || this.active), direction); //get window from array
-        this.selectWindow(win);
+        if(win) win.select();
 
         return win;
     },
@@ -227,10 +239,7 @@ ui.BaseUI = new Class({
     __closed: function(win) {
         var winarr = this.windowArray;
         if (win.active) {
-            // this.active = undefined;
-            if (winarr.length === 1) {
-                winarr.empty();
-            } else {
+            if (winarr.length !== 1) {
                 var index = winarr.indexOf(win);
                 if(index === -1) {
                     return;
@@ -242,6 +251,7 @@ ui.BaseUI = new Class({
             }
         }
 
+        this.tabs.disown(win.tab)
         winarr = this.windowArray.erase(win);
         delete this.windows[this.getClientId(win.client)][win.identifier];
     },

@@ -1,5 +1,4 @@
-//***************NOTE*****
-//this build is based off the next 1.5 release and is catering to ES6 Harmony
+//no compat --- http://cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js
 
 /*
 ---
@@ -40,7 +39,7 @@ provides: [Core, MooTools, Type, typeOf, instanceOf, Native]
 
 this.MooTools = {
 	version: '1.4.5',
-	build: 'ab8ea8824dc3b24b6666867a2c4ed58ebb762cf0'
+	build: '74e34796f5f76640cdb98853004650aea1499d69'
 };
 
 // typeOf, instanceOf
@@ -177,9 +176,7 @@ var Type = this.Type = function(name, object){
 			object.prototype.$family = (function(){
 				return lower;
 			}).hide();
-			//<1.2compat>
-			// object.type = typeCheck;
-			//</1.2compat>
+			
 		}
 	}
 
@@ -281,12 +278,10 @@ var force = function(name, object, methods){
 
 force('String', String, [
 	'charAt', 'charCodeAt', 'concat', 'indexOf', 'lastIndexOf', 'match', 'quote', 'replace', 'search',
-	'slice', 'split', 'substr', 'substring', 'trim', 'toLowerCase', 'toUpperCase',
-	'startsWith', 'endsWith'/*, 'contains'*/
+	'slice', 'split', 'substr', 'substring', 'trim', 'toLowerCase', 'toUpperCase'
 ])('Array', Array, [
 	'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift', 'concat', 'join', 'slice',
-	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight',
-	'isArray'/*, 'from'*///ES6
+	'indexOf', 'lastIndexOf', 'filter', 'forEach', 'every', 'map', 'some', 'reduce', 'reduceRight'
 ])('Number', Number, [
 	'toExponential', 'toFixed', 'toLocaleString', 'toPrecision'
 ])('Function', Function, [
@@ -413,6 +408,7 @@ var UID = Date.now();
 String.extend('uniqueID', function(){
 	return (UID++).toString(36);
 });
+
 
 
 })();
@@ -589,6 +585,8 @@ Array.implement({
 });
 
 
+
+
 /*
 ---
 
@@ -611,7 +609,6 @@ String.implement({
 		return ((typeOf(regex) == 'regexp') ? regex : new RegExp('' + regex, params)).test(this);
 	},
 
-	//es6 contains breas code
 	contains: function(string, separator){
 		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : String(this).indexOf(string) > -1;
 	},
@@ -802,9 +799,11 @@ Function.implement({
 
 	periodical: function(periodical, bind, args){
 		return setInterval(this.pass((args == null ? [] : args), bind), periodical);
-	},
+	}
 
 });
+
+
 
 
 /*
@@ -926,6 +925,9 @@ Object.extend({
 });
 
 })();
+
+
+
 
 /*
 ---
@@ -1117,67 +1119,7 @@ try {
 }
 /*</ltIE9>*/
 
-//<1.2compat>
 
-// if (Browser.Platform.ios) Browser.Platform.ipod = true;
-
-Browser.Engine = {};
-
-var setEngine = function(name, version){
-	Browser.Engine.name = name;
-	Browser.Engine[name + version] = true;
-	Browser.Engine.version = version;
-};
-
-if (Browser.ie){
-	Browser.Engine.trident = true;
-
-	switch (Browser.version){
-		case 6: setEngine('trident', 4); break;
-		case 7: setEngine('trident', 5); break;
-		case 8: setEngine('trident', 6);
-	}
-}
-
-if (Browser.firefox){
-	Browser.Engine.gecko = true;
-
-	if (Browser.version >= 3) setEngine('gecko', 19);
-	else setEngine('gecko', 18);
-}
-
-if (Browser.safari || Browser.chrome){
-	Browser.Engine.webkit = true;
-
-	switch (Browser.version){
-		case 2: setEngine('webkit', 419); break;
-		case 3: setEngine('webkit', 420); break;
-		case 4: setEngine('webkit', 525);
-	}
-}
-
-if (Browser.opera){
-	Browser.Engine.presto = true;
-
-	if (Browser.version >= 9.6) setEngine('presto', 960);
-	else if (Browser.version >= 9.5) setEngine('presto', 950);
-	else setEngine('presto', 925);
-}
-
-if (Browser.name == 'unknown'){
-	switch ((ua.match(/(?:webkit|khtml|gecko)/) || [])[0]){
-		case 'webkit':
-		case 'khtml':
-			Browser.Engine.webkit = true;
-		break;
-		case 'gecko':
-			Browser.Engine.gecko = true;
-	}
-}
-
-// this.$exec = Browser.exec;
-
-//</1.2compat>
 
 })();
 
@@ -1219,7 +1161,7 @@ var DOMEvent = this.DOMEvent = new Type('DOMEvent', function(event, win){
 
 	if (type.indexOf('key') == 0){
 		var code = this.code = (event.which || event.keyCode);
-		this.key = _keys[code]/*<1.3compat>*/ /*|| Object.keyOf(Event.Keys, code)*//*</1.3compat>*/;
+		this.key = _keys[code];
 		if (type == 'keydown'){
 			if (code > 111 && code < 124) this.key = 'f' + (code - 111);
 			else if (code > 95 && code < 106) this.key = code - 96;
@@ -1296,6 +1238,9 @@ DOMEvent.defineKeys({
 });
 
 })();
+
+
+
 
 
 
@@ -1467,9 +1412,7 @@ this.Events = new Class({
 	addEvent: function(type, fn, internal){
 		type = removeOn(type);
 
-		/*<1.2compat>*/
-		// if (fn == $empty) return this;
-		/*</1.2compat>*/
+		
 
 		this.$events[type] = (this.$events[type] || []).include(fn);
 		if (internal) fn.internal = true;
@@ -1609,7 +1552,36 @@ var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steve
 	});
 };
 
-var regexp = new RegExp("^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|(:+)(<unicode>+)(?:\\((?:(?:([\"'])([^\\13]*)\\13)|((?:\\([^)]+\\)|[^()]*)+))\\))?)"
+var regexp = new RegExp(
+/*
+#!/usr/bin/env ruby
+puts "\t\t" + DATA.read.gsub(/\(\?x\)|\s+#.*$|\s+|\\$|\\n/,'')
+__END__
+	"(?x)^(?:\
+	  \\s* ( , ) \\s*               # Separator          \n\
+	| \\s* ( <combinator>+ ) \\s*   # Combinator         \n\
+	|      ( \\s+ )                 # CombinatorChildren \n\
+	|      ( <unicode>+ | \\* )     # Tag                \n\
+	| \\#  ( <unicode>+       )     # ID                 \n\
+	| \\.  ( <unicode>+       )     # ClassName          \n\
+	|                               # Attribute          \n\
+	\\[  \
+		\\s* (<unicode1>+)  (?:  \
+			\\s* ([*^$!~|]?=)  (?:  \
+				\\s* (?:\
+					([\"']?)(.*?)\\9 \
+				)\
+			)  \
+		)?  \\s*  \
+	\\](?!\\]) \n\
+	|   :+ ( <unicode>+ )(?:\
+	\\( (?:\
+		(?:([\"'])([^\\12]*)\\12)|((?:\\([^)]+\\)|[^()]*)+)\
+	) \\)\
+	)?\
+	)"
+*/
+	"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|(:+)(<unicode>+)(?:\\((?:(?:([\"'])([^\\13]*)\\13)|((?:\\([^)]+\\)|[^()]*)+))\\))?)"
 	.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 	.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	.replace(/<unicode1>/g, '(?:[:\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -2814,11 +2786,7 @@ if (!Browser.Element){
 
 Element.Constructors = {};
 
-// //<1.2compat>
 
-// Element.Constructors = new Hash;
-
-// //</1.2compat>
 
 var IFrame = new Type('IFrame', function(){
 	var params = Array.link(arguments, {
@@ -2909,11 +2877,7 @@ new Type('Elements', Elements).implement({
 
 });
 
-//<1.2compat>
 
-// Elements.alias('extend', 'append');
-
-//</1.2compat>
 
 (function(){
 
@@ -3063,42 +3027,7 @@ var contains = {contains: function(element){
 if (!document.contains) Document.implement(contains);
 if (!document.createElement('div').contains) Element.implement(contains);
 
-//<1.2compat>
 
-// Element.implement('hasChild', function(element){
-// 	return this !== element && this.contains(element);
-// });
-
-// (function(search, find, match){
-
-// 	this.Selectors = {};
-// 	var pseudos = this.Selectors.Pseudo = new Hash();
-
-// 	var addSlickPseudos = function(){
-// 		for (var name in pseudos) if (pseudos.hasOwnProperty(name)){
-// 			Slick.definePseudo(name, pseudos[name]);
-// 			delete pseudos[name];
-// 		}
-// 	};
-
-// 	Slick.search = function(context, expression, append){
-// 		addSlickPseudos();
-// 		return search.call(this, context, expression, append);
-// 	};
-
-// 	Slick.find = function(context, expression){
-// 		addSlickPseudos();
-// 		return find.call(this, context, expression);
-// 	};
-
-// 	Slick.match = function(node, selector){
-// 		addSlickPseudos();
-// 		return match.call(this, node, selector);
-// 	};
-
-// })(Slick.search, Slick.find, Slick.match);
-
-//</1.2compat>
 
 // tree walking
 
@@ -3164,23 +3093,7 @@ Element.implement({
 
 });
 
-//<1.2compat>
 
-// if (window.$$ == null) Window.implement('$$', function(selector){
-// 	var elements = new Elements;
-// 	if (arguments.length == 1 && typeof selector == 'string') return Slick.search(this.document, selector, elements);
-// 	var args = Array.flatten(arguments);
-// 	for (var i = 0, l = args.length; i < l; i++){
-// 		var item = args[i];
-// 		switch (typeOf(item)){
-// 			case 'element': elements.push(item); break;
-// 			case 'string': Slick.search(this.document, item, elements);
-// 		}
-// 	}
-// 	return elements;
-// });
-
-//</1.2compat>
 
 if (window.$$ == null) Window.implement('$$', function(selector){
 	if (arguments.length == 1){
@@ -3216,29 +3129,7 @@ var inserters = {
 
 inserters.inside = inserters.bottom;
 
-//<1.2compat>
 
-// Object.each(inserters, function(inserter, where){
-
-// 	where = where.capitalize();
-
-// 	var methods = {};
-
-// 	methods['inject' + where] = function(el){
-// 		inserter(this, document.id(el, true));
-// 		return this;
-// 	};
-
-// 	methods['grab' + where] = function(el){
-// 		inserter(document.id(el, true), this);
-// 		return this;
-// 	};
-
-// 	Element.implement(methods);
-
-// });
-
-//</1.2compat>
 
 // getProperty / setProperty
 
@@ -3637,11 +3528,7 @@ if (window.attachEvent && !window.addEventListener) window.addListener('unload',
 
 Element.Properties = {};
 
-//<1.2compat>
 
-// Element.Properties = new Hash;
-
-//</1.2compat>
 
 Element.Properties.style = {
 
@@ -3911,17 +3798,16 @@ Element.implement({
 			var color = result.match(/rgba?\([\d\s,]+\)/);
 			if (color) result = result.replace(color[0], color[0].rgbToHex());
 		}
-		if (Browser.opera || Browser.ie){
-			if ((/^(height|width)$/).test(property) && !(/px$/.test(result))){
+		if (Browser.ie && isNaN(parseFloat(result))){
+			if ((/^(height|width)$/).test(property)){
 				var values = (property == 'width') ? ['left', 'right'] : ['top', 'bottom'], size = 0;
 				values.each(function(value){
 					size += this.getStyle('border-' + value + '-width').toInt() + this.getStyle('padding-' + value).toInt();
 				}, this);
 				return this['offset' + property.capitalize()] - size + 'px';
 			}
-			if (Browser.ie && (/^border(.+)Width|margin|padding/).test(property) && isNaN(parseFloat(result))){
-				return '0px';
-			}
+			if (Browser.opera && String(result).indexOf('px') != -1) return result;
+			if ((/^border(.+)Width|margin|padding/).test(property)) return '0px';
 		}
 		return result;
 	},
@@ -3951,41 +3837,9 @@ Element.Styles = {
 	zIndex: '@', 'zoom': '@', fontWeight: '@', textIndent: '@px', opacity: '@'
 };
 
-//<1.3compat>
 
-// Element.implement({
 
-// 	setOpacity: function(value){
-// 		setOpacity(this, value);
-// 		return this;
-// 	},
 
-// 	getOpacity: function(){
-// 		return getOpacity(this);
-// 	}
-
-// });
-
-// Element.Properties.opacity = {
-
-// 	set: function(opacity){
-// 		setOpacity(this, opacity);
-// 		setVisibility(this, opacity);
-// 	},
-
-// 	get: function(){
-// 		return getOpacity(this);
-// 	}
-
-// };
-
-//</1.3compat>
-
-//<1.2compat>
-
-// Element.Styles = new Hash(Element.Styles);
-
-//</1.2compat>
 
 Element.ShortStyles = {margin: {}, padding: {}, border: {}, borderWidth: {}, borderStyle: {}, borderColor: {}};
 
@@ -4191,11 +4045,7 @@ if (!window.addEventListener){
 }
 /*</ltIE9>*/
 
-//<1.2compat>
 
-// Element.Events = new Hash(Element.Events);
-
-//</1.2compat>
 
 })();
 
@@ -5029,11 +4879,7 @@ Fx.CSS.Parsers = {
 
 };
 
-//<1.2compat>
 
-// Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
-
-//</1.2compat>
 
 
 /*
@@ -5286,11 +5132,7 @@ Fx.Transitions = {
 
 };
 
-//<1.2compat>
 
-// Fx.Transitions = new Hash(Fx.Transitions);
-
-//</1.2compat>
 
 Fx.Transitions.extend = function(transitions){
 	for (var transition in transitions) Fx.Transitions[transition] = new Fx.Transition(transitions[transition]);
@@ -5733,14 +5575,7 @@ provides: JSON
 
 if (typeof JSON == 'undefined') this.JSON = {};
 
-//<1.2compat>
 
-// JSON = {
-// 	stringify: JSON.stringify,
-// 	parse: JSON.parse
-// };
-
-//</1.2compat>
 
 (function(){
 
@@ -6140,4 +5975,3 @@ Swiff.remote = function(obj, fn){
 };
 
 })();
-

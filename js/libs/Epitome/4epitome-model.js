@@ -1,4 +1,4 @@
-;(function(){
+;(function(exports){
 	'use strict';
 
 	// wrapper function for requirejs or normal object
@@ -64,27 +64,24 @@
 			},
 
 			// private, real setter functions, not on prototype, see note above
-			_set: function(path, value){
+			_set: function(key, value){
 				// needs to be bound the the instance.
-				if (typeof path !== 'string' || typeof value === 'undefined') return this;
-				var key = path.split('.')[0];
+				if (!key || typeof value === 'undefined') return this;
 
 				// custom setter - see bit further down
 				if (this.properties[key] && this.properties[key]['set'])
 					return this.properties[key]['set'].call(this, value);
 
-				var attr = _.lookup(this._attributes, path)
 				// no change? this is crude and works for primitives.
-				if (attr && isEqual(attr, value))
+				if (this._attributes[key] && isEqual(this._attributes[key], value))
 					return this;
 
 				// basic validator support
-				var validator = this.validate(path, value);
-				if (_.lookup(this.validators, path) && validator !== true){
+				var validator = this.validate(key, value);
+				if (this.validators[key] && validator !== true){
 					var obj = {};
 					obj[key] = {
 						key: key,
-						path: path,
 						value: value,
 						error: validator
 					};
@@ -97,7 +94,7 @@
 					delete this._attributes[key]; // delete = null.
 				}
 				else {
-					_.assign(this._attributes, path, value);
+					this._attributes[key] = value;
 				}
 
 				// fire an event.
@@ -118,8 +115,7 @@
 				}
 
 				// else, return from attributes or return null when undefined.
-				var attr = _.lookup(this._attributes, key);
-				return (typeof attr !== 'undefined') ? attr : null;
+				return (key && typeof this._attributes[key] !== 'undefined') ? this._attributes[key] : null;
 			}.overloadGetter(),
 
 			unset: function(){
@@ -175,14 +171,15 @@
 	}; // end wrap
 
 	if (typeof define === 'function' && define.amd){
+		// requires epitome object only.
 		define(['./epitome-isequal', './epitome-events'], wrap);
 	}
 	else if (typeof module !== 'undefined' && module.exports){
-		require('mootools');
+		// CommonJS module is defined
 		module.exports = wrap(require('./epitome-isequal'), require('./epitome-events'));
 	}
 	else {
-		this.Epitome || (this.Epitome = {isEqual: {}, Events: {}});
-		this.Epitome.Model = wrap(this.Epitome.isEqual, this.Epitome.Events);
+		exports.Epitome || (exports.Epitome = {isEqual: {}, Events: {}});
+		exports.Epitome.Model = wrap(exports.Epitome.isEqual, exports.Epitome.Events);
 	}
-}.call(this));
+}(this));

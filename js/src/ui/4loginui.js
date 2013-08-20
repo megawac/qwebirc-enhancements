@@ -1,19 +1,18 @@
 
-ui.LoginUI = new Class({
-    Extends: ui.NotificationUI,
+ui.StandardUI.implement({
     loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
         this.postInitialize();
-
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
         var callback = function(data) {
                 win.close();
-                self.fireEvent("login", data)
+                self.fireEvent("login", data);
             };
         ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
         return win;
     }
 });
+
 
 ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName, storage) {
     if (autoConnect) {

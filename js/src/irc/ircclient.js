@@ -945,54 +945,74 @@ irc.IRCClient = new Class({
 
     whois: function(nick, type, data) {
         var ndata = {
-            "n": nick
+            "n": nick,
+            channel: ACTIVE,
+            msgs: []
         };
         var mtype = type.toUpperCase();
+        var msgs = ndata.msgs;
 
         switch(type.toLowerCase()) {
             case "user":
-                ndata.h = data.ident + "@" + data.hostname;
-                this.newTargetOrActiveLine(nick, "WHOISUSER", ndata); //whois user
-                mtype = "REALNAME";
-                ndata.m = data.realname;
+                msgs.push({
+                    type: "WHOISUSER",
+                    h: data.ident + "@" + data.hostname
+                })
+
+                msgs.push({
+                    type: "WHOISREALNAME",
+                    m: data.realname
+                })
             break;
             case "server":
-                ndata.x = data.server;
-                ndata.m = data.serverdesc;
+                msgs.push({
+                    x: data.server,
+                    message: data.serverdesc,
+                    type: "WHOISSERVER"
+                })
             break;
-            // case "oper":
-            // break;
             case "channels":
-                ndata.m = data.channels;
+                msgs.push({
+                    message: data.channels,
+                    type: "WHOISCHANNELS"
+                })
             break;
             case "account":
-                ndata.m = data.account;
+                msgs.push({
+                    message: data.account,
+                    type: "WHOISACCOUNT"
+                })
             break;
             case "away":
-                ndata.m = data.away;
+                msgs.push({
+                    message: data.away,
+                    type: "WHOISAWAY"
+                })
             break;
             case "opername":
-                ndata.m = data.opername;
+                msgs.push({
+                    message: data.opername,
+                    type: "WHOISOPERNAME"
+                })
             break;
             case "actually":
-                ndata.m = data.hostname;
-                ndata.x = data.ip;
+                msgs.push({
+                    message: data.hostname,
+                    x: data.ip,
+                    type: "WHOISACTUALLY"
+                })
             break;
             case "generictext":
-                ndata.m = data.text;
+                msgs.push({
+                    message: data.text,
+                    type: "WHOISGENERICTEXT"
+                })
             break;
             default:
                 return false;
         }
 
-        // this.newTargetOrActiveLine(nick, "WHOIS" + mtype, ndata);
-        this.trigger("whois", {
-            nick: nick,
-            type: "whois" + mtype,
-            data: ndata,
-            data2: data,
-            channel: ACTIVE
-        });
+        this.trigger("whois", ndata);
         return true;
     },
 

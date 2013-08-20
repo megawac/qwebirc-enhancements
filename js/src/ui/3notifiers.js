@@ -67,7 +67,7 @@ ui.NotificationUI = new Class({
     },
     flash: function(options) {
         var self = this;
-        if (document.hasFocus() || !self.canFlash || self.flashing)
+        if ((!options.force && document.hasFocus()) || !self.canFlash || self.flashing)
             return;
 
         self.titleText = document.title;

@@ -89,7 +89,7 @@ irc.IRCConnection = new Class({
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
         request.addEvent("request", _.partial(irc.IRCConnection.setXHRHeaders, request.xhr));
-        if (Browser.Engine.trident) {
+        if (Browser.ie && Browser.version < 8) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
         return request;
@@ -273,29 +273,30 @@ irc.IRCConnection = new Class({
     }
 });
 
-(function() {
-    var conn = irc.IRCConnection;
+(function() {//http://blog.mibbit.com/?p=143
     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
     //header nullables are browser dependent
     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-    var kill = ["Accept", "Accept-Language"],
-        killBit;
-    if (Browser.Engine.trident) {
-        killBit = "?";
-        kill = kill.concat(["User-Agent", "Connection"]);
-    } else if (Browser.firefox) {
-        killBit = null;
-    } else {
-        killBit = "";
-    }
+    var killBit = null;
+
+    var kill = {
+        "User-Agent": killBit,
+        "Accept": killBit,
+        "Accept-Language": killBit,
+        "Content-Type": "M",
+        "Connection": "keep-alive",
+        "Keep-Alive": killBit
+    };
 
     //removes a header from an xhr object (this instanceof xhr)
 
-    function removeHeaders(header) {
+    function removeHeaders(val, header) {
         try {
-            this.setRequestHeader(header, killBit);
-        } catch (e) {}
+            this.setRequestHeader(header, val);
+        } catch (e) {console.log(header)}
     }
+
+
 
     //iteratres the headers to be removed with the removeHeaders function
     //expects a xhr object as the third param 
@@ -305,7 +306,7 @@ irc.IRCConnection = new Class({
     //     // new CookieMonster(xhr);
     // };
 
-    conn.setXHRHeaders = _.partial(_.each, kill, removeHeaders);
+    irc.IRCConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
 
     // conn.setXHRHeaders = function(xhr) {
     //     kill.each(removeHeaders, xhr);

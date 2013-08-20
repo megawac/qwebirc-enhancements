@@ -9,6 +9,12 @@
     <div class="tab-content" id="my-tab-content">
         <div class="ui-options control-group well active">
             <div class="controls">
+                <label class="checkbox" for="auto_open_pm">
+                    {{lang.AUTO_OPEN_PM}}
+                    <input type="checkbox" id="auto_open_pm" {{check auto_open_pm}}>
+                </label>
+            </div>
+            <div class="controls">
                 <label class="checkbox" for="nick_colours">
                     {{lang.NICK_COLOURS}}
                     <input type="checkbox" id="nick_colours" {{check nick_colours}}>
@@ -24,24 +30,6 @@
                 <label class="checkbox" for="show_timestamps">
                     {{lang.SHOW_TIMESTAMPS}}
                     <input type="checkbox" id="show_timestamps" {{check show_timestamps}}>
-                </label>
-            </div>
-            <div class="controls">
-                <label class="checkbox" for="show_nicklist">
-                    {{lang.SHOW_NICKLIST}}
-                    <input type="checkbox" id="show_nicklist" {{check show_nicklist}}>
-                </label>
-            </div>
-            <div class="controls">
-                <label class="checkbox" for="dedicated_notice_window">
-                    {{lang.DEDICATED_NOTICE_WINDOW}}
-                    <input type="checkbox" id="dedicated_notice_window" {{check dedicated_notice_window}}>
-                </label>
-            </div>
-            <div class="controls">
-                <label class="checkbox" for="dedicated_msg_window">
-                    {{lang.DEDICATED_MSG_WINDOW}}
-                    <input type="checkbox" id="dedicated_msg_window" {{check dedicated_msg_window}}>
                 </label>
             </div>
             <div class="controls">
@@ -73,7 +61,6 @@
                     {{lang.STYLE_HUE}}
                     <div id="style_hue" class="slider hue-slider"><div class="knob"></div></div>
                 </label>
-                
             </div>
         </div>
         <div class="irc-options control-group well">

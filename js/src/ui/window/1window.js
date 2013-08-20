@@ -1,34 +1,42 @@
 
 ui.Window = new Class({
-    Implements: [Events],
+    Extends: Epitome.View,
     Binds: ["sendInput"],
-    initialize: function(parentObject, client, type, name, identifier) {
+    options: {
+        events: {
+
+        },
+
+        onReady: function() {
+            this.render();
+        }
+    },
+    template: templates.window,
+
+    active: false,
+    lastSelected: null,
+    closed: false,
+    subWindow: null,
+    hilighted: ui.HILIGHT_NONE,
+    lastNickHash: {},
+
+    initialize: function(parentObject, $par, client, type, name, identifier) {
         this.parentObject = parentObject;
         this.type = type;
         this.currentChannel = this.name = name;
-        this.active = false;
         this.client = client;
         this.identifier = identifier;
-        this.hilighted = ui.HILIGHT_NONE;
-        // this.scrolltimer = null;
         this.commandhistory = this.parentObject.commandhistory;
-        // this.scrolleddown = true;
-        // this.scrollpos = null;
-        this.lastNickHash = {};
-        this.lastSelected = null;
-        this.subWindow = null;
-        this.closed = false;
+        this.parent({
+            element: $par
+        });
+    },
 
-        this.window = this.parentObject.qjsui.createWindow();
-    },
-    updateTopic: function(topic, element) {
-        this.parentObject.theme.formatElement("[" + topic + "]", element);
-    },
     close: function() {
         this.closed = true;
-
         this.parentObject.__closed(this);
-        this.fireEvent("close", this);
+        this.destroy();
+        return this;
     },
     subEvent: function(event) {
         var sub = this.subWindow
@@ -40,13 +48,13 @@ ui.Window = new Class({
     },
 
     select: function() {
+        if(this.active) return;
         this.active = true;
-        this.parentObject.__setActiveWindow(this);
+        this.parentObject.selectWindow(this);
         if (this.hilighted)
             this.highlightTab(ui.HILIGHT_NONE);
 
         this.subEvent("select");
-        // this.resetScrollPos();
         this.lastSelected = new Date();
     },
 
@@ -150,7 +158,7 @@ ui.Window = new Class({
     },
 
     sendInput: function(e, target) {
-        e.stop();
+        if(e) e.stop();
         var target = e.target.tagName !== "INPUT" ? e.target.getElement('input[type="text"]') : e.target,
             unparsed = target.val(),
             parsed = util.inputParser.parse(unparsed);

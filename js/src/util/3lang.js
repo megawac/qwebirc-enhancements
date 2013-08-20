@@ -86,7 +86,7 @@
         HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
-        SHOW_NICKLIST: "Show nickname list in channels",
+        // SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
 
@@ -94,6 +94,7 @@
         NOTIFY_ON_MENTION: "When nick mentioned:",
         NOTIFY_ON_PM: "When private messaged:",
         NOTIFY_ON_NOTICE: "When channel notice:",
+        AUTO_OPEN_PM: "Automatically select window on private message:",
         FLASH: "flash",
         BEEP: "beep",
         MESSAGE_PLACEHOLDER: ' something ... ',
@@ -170,11 +171,11 @@ ui.themes.Default2 = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}{@}{(}{N}{)}{D} {m}",
-    "PRIVMSG": "{(}{N}{)} {m}",
+    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
+    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
 
-    "OURCHANMSG": "{@}{N} {m}",
-    "OURPRIVMSG": "{N} {m}",
+    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
+    "OURPRIVMSG": "&lt;{N}&gt; {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",

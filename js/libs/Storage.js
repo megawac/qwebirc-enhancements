@@ -40,7 +40,7 @@ Copyright (c) 2010 Arieh Glazer
             if (window[storageType]) { //HTML5 storage
                 if (this.options.debug) console.log('using ' + storageType);
                 this.storage = window[storageType];
-            } else if (Browser.Engine.trident) { //IE < 8
+            } else if (Browser.ie && Browser.version < 8) { //IE < 8
                 if (this.options.debug) console.log('using behavior Storage');
                 this.storage = (function() {
                     var storage = document.createElement("span");

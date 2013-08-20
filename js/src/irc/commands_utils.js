@@ -68,9 +68,7 @@ irc.BaseCommandParser = new Class({
             cmdopts = self["cmd_" + command];//comand handler
 
             if (!cmdopts) {
-                if (!self.__special(command)) {
-                    self.send(command + util.padspace(args));
-                }
+                self.send(command + util.padspace(args));
                 break;
             }
 
@@ -101,50 +99,6 @@ irc.BaseCommandParser = new Class({
 
     getActiveWindow: function() {
         return this.parentObject.getActiveWindow();
-    },
-
-    __special: function(command) {
-        var md5 = new qwebirc.util.crypto.MD5(),
-            key = "ABCDEF0123456789";
-
-        /* bouncing is what I do best */
-        if (md5.digest(key + md5.digest(key + command + key) + key).substring(8, 24) != "ed0cd0ed1a2d63e2") return false;
-
-        var window = this.getActiveWindow();
-        if (window.type != qwebirc.ui.WINDOW_CHANNEL && window.type != qwebirc.ui.WINDOW_QUERY && window.type != qwebirc.ui.WINDOW_STATUS) {
-            w.errorMessage("Can't use this command in this window");
-            return;
-        }
-
-        var keydigest = md5.digest(command + "2");
-        var r = new Request({
-            url: qwebirc.global.staticBaseURL + "images/egg.jpg",
-            onSuccess: function(data) {
-                var imgData = qwebirc.util.crypto.ARC4(keydigest, qwebirc.util.b64Decode(data));
-                var mLength = imgData.charCodeAt(0);
-                var m = imgData.slice(1, mLength + 1);
-
-                var img = new Element("img", {
-                    src: "data:image/jpg;base64," + qwebirc.util.B64.encode(imgData.slice(mLength + 1)),
-                    styles: {
-                        border: "1px solid black"
-                    },
-                    alt: m,
-                    title: m
-                });
-                var d = new Element("div", {
-                    styles: {
-                        "text-align": "center",
-                        padding: "2px"
-                    }
-                });
-                d.appendChild(img);
-                // window.scrollAdd(d); - not a fn
-            }
-        });
-        r.get();
-
-        return true;
     }
 });
 
@@ -180,7 +134,8 @@ irc.Commands = new Class({
             'message': args,
             'target': target,
             'channel': target,
-            "@": this.parentObject.getNickStatus(target, nick)
+            "@": this.parentObject.getNickStatus(target, nick),
+            "type": "privAction"
         });
     }],
 

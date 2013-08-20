@@ -2,124 +2,76 @@
 //mae view and qui and controller
 ui.QUI.Window = new Class({
     Extends: ui.Window,
-    Binds: ["close", "attach", "detach", "selectTab", "nickChange", "nickClick", "editTopic", "updatePrefix", "menuClick"],
+    Binds: ['close'],
+    options: {
+        events: {
+            'click:relay(.input .send)': 'sendInput',
+            'dblclick:relay(.input .nickname)': 'setNickname',
+            'dblclick:relay(.topic)': 'editTopic',
 
-    initialize: function(parentObject, client, type, name, identifier) {
+            'click:relay(.nicklist .user .nick)': 'nickClick',
+            'click:relay(.nicklist .menu span)': 'menuClick',
+
+            'click:relay(.detached-window .attach)': 'attach',
+            'click:relay(.detached-window .tab-close)': 'close',
+            'click:relay(.detached-window)': 'setActive'
+        }
+    },
+
+    events: {
+        client: {}
+    },
+
+    detached: false,
+
+    initialize: function(parentObject, $par, client, type, name, identifier) {
         var self = this;
-        self.parent(parentObject, client, type, name, identifier);
+        self.parent.apply(self, arguments);
 
-        var qwindow = self.window;
-
-        self.events = {
-            client: {}
-        };
-
-        qwindow.detached = self.detached = false;
-
-        var $tab = self.tab = Element.from(templates.ircTab({
-                'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
-            })).inject(parentObject.tabs),
-            $tabDetach = $tab.getElement('.detach');
-
-        if(name === BROUHAHA) {
-            $tab.addClass('brouhaha');
-            _.delay(function() {
-                _.some(parentObject.windowArray, function(win) {
-                    if(util.isChannelType(win.type) && !util.isBaseWindow(win.name)) {
-                        self.properties.text(win.name); //update current channel in brouhaha
-                        self.currentChannel = win.name;
-                    }
-                });
-            }, 1000);
-        }
-
-
-
-        // var elchanid = document.getElementById('channel-name-id');
-
-        $tab.addEvents({
-                focus: $tab.blur,
-                click: self.selectTab,
-                dblclick: function(e) {
-                    e.stop();
-
-                    if (self.closed)
-                        return;
-
-                    parentObject.selectWindow(self);
-                }
-            })
-            .store("window", self);
-
-        $tabDetach.addEvent('click', self.detach);
-
-        if (!isBaseWindow(name)) {
-            var $tabclose = Element.from(templates.tabClose()),
-                close = self.close;
-            //close window
-
-            $tabclose.addEvent("click", close);
-            $tab.addEvent("mouseup", function(e) {
-                    var button = Browser.Engine.trident ? 4 : 1;
-
-                    if (e.event.button === button)
-                        close(e);
-                })
-                .adopt($tabclose);
-        }
-
-        var lines = self.lines = qwindow.middle;
-            lines.store("window", self);
-        // self.parentObject.qjsui.applyClasses("middle", self.lines);
-        if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
-            qwindow.window.addClass('ircwindow');
-                // .set('id', 'mainircwindow');
-            self.fxscroll = new Fx.AutoScroll(lines, {
-            });
-
-            lines.store("fxscroll", self.fxscroll)
-                .store("client", self.client);
-
-        } else {
-            qwindow.window.addClass(name.capitalize().replace(" ", "-"));//Connection Details -> Connection-Details
-        }
-
-        if (type === ui.WINDOW_CHANNEL) {
-            qwindow.window.addClass('channel');
-
-            qwindow.topic.html(templates.topicBar({topic:false}));
-            var topic = self.topic = qwindow.topic;
-            topic.addEvent("dblclick", self.editTopic);
-            self.updateTopic("");
-
-            var $nicklist = self.nicklist = qwindow.right;
-            $nicklist.addClass("nicklist")
-                    // .addEvent("click", self.removePrevMenu.bind(self))
-                    .addEvent("click:relay(a.user)", self.nickClick)
-                    .addEvent("focus:relay(a)", $nicklist.blur);
-
-
-            var $divider = self.divider = Element.from(templates.verticalDivider())
-                                                    .inject($nicklist, "before");
-            //cant create splitpane here because elements are still hidden
-        }
-
-        var properties = self.properties = Element.from(templates.channelName({channel: name}))
-                                                    .inject(qwindow.properties);
-
-        if(util.windowNeedsInput(type))
-            qwindow.bottom.appendChild(self.createInput());
-
+        self.tab = parentObject.newTab(self, name);
 
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
     },
 
-    close: function(e) {
-        if(e)
-            e.stop();
 
-        if (this.closed)
-            return;
+    render: function() {
+        var self = this;
+        self.element.empty()
+            .html(self.template({
+                isChannel: util.isChannelType(self.type),
+                channel: self.name,
+                name: self.name,
+                id: self.name.clean().replace(" ", "-"),
+                topic: false
+            }))
+        var $win = self.window = self.element.getElement('.window').store("window", self);
+        var type = self.type;
+
+        var lines = self.lines = $win.getElement('.lines');
+        lines.store("window", self);
+
+        if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
+            $win.addClass('ircwindow');
+            self.fxscroll = new Fx.AutoScroll(lines);
+        }
+
+        if (type === ui.WINDOW_CHANNEL) {
+            $win.addClass('channel');
+
+            self.updateTopic("");
+
+            var $nicklist = self.nicklist = $win.getElement('.rightpanel');
+            $nicklist.addClass("nicklist");
+        }
+
+        if(util.windowNeedsInput(type))
+            $win.getElement('.bottompanel').adopt(self.createInput());
+        return self;
+    },
+
+    close: function(e) {
+        if(e) e.stop();
+        if (this.closed) return;
 
         if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
             var client = this.client,
@@ -130,9 +82,7 @@ ui.QUI.Window = new Class({
         }
         if(this.client instanceof irc.IRCClient) 
             this.client.removeEvents(this.events.client);
-        this.parent();
 
-        this.parentObject.tabs.disown(this.tab);
         if(this.fxscroll)
             this.fxscroll.stop();
         if(this.resizable)
@@ -140,20 +90,15 @@ ui.QUI.Window = new Class({
         if(this.drag)
             this.drag.detach().stop();
 
-        if(this.detached) {
-            this.wrapper.destroy();
-        } else {
-
-            this.window.window.destroy();
-        }
+        return this.parent();
     },
 
     attach: function(e) {
-        var win = this.window.window,
+        var win = this.window,
             wrapper = this.wrapper,
             po = this.parentObject;
 
-        this.window.detached = this.detached = false;
+        this.detached = false;
 
         wrapper.hide();
         win.hide();
@@ -168,43 +113,29 @@ ui.QUI.Window = new Class({
         this.tab.show();
         this.select();
 
-        this.fireEvent('attach');
+        this.fireEvent('attached');
     },
 
     detach: function(e) {
         var self = this,
-            win = self.window.window,
+            win = self.window,
             po = self.parentObject,
-            qjsui = po.qjsui,
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
                                                     'channel': this.name,
                                                     'base': util.isBaseWindow(this.name)
                                                 })),
             header = wrapper.getElement('.header'),
-            attach = header.getElement('.attach'),
-            close = header.getElement('.tab-close'),
 
             resizeWrapper = Element.from(templates.resizeHandle()),
-            resizeHandle = resizeWrapper.getElement('.resize-handle'),
+            resizeHandle = resizeWrapper.getElement('.resize-handle');
 
-            setActive = function(e) {
-                po.windowArray.each(function(win) {
-                    if(win.detached) win.wrapper.removeClass('active');
-                });
-                wrapper.addClass('active');
-            };
-
-        attach.addEvent('click', self.attach);
-        if(close) {
-            close.addEvent('click', self.close);
-        }
 
         //change window if we're active
         if(self.active)
             po.nextWindow(1, self);
 
-        var size = util.percentToPixel({x:40, y:60}, qjsui.parent);
+        var size = util.percentToPixel({x:40, y:60}, win.getParent('qwebirc'));
         wrapper.setStyles({
                 "width": size.x,
                 "height": size.y
@@ -212,8 +143,12 @@ ui.QUI.Window = new Class({
             .wraps(win) //*** adds wrapper to dom
             .adopt(resizeWrapper);
         win.show()
-            .addEvent("mousedown", Event.stopPropagation);//prevent draggin occurring while clickin window
-        setActive();
+            .addEvent("mousedown", function(e) {
+                var tag = e.target.tagName.toLowerCase();
+                if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
+                    e.stopPropagation();
+            });
+        self.setActive();
 
         self.resizable = wrapper.makeResizable({
                                 limit: {//min/max
@@ -228,22 +163,27 @@ ui.QUI.Window = new Class({
                                 includeMargins: true
                             });
 
-        wrapper.addEvents({
-            click: setActive
-        });
-
 
         self.selectUpdates();
 
-        // util.centerElement(wrapper, qjsui.parent);
         wrapper.position();
 
-        self.detached = self.window.detached = true;
+        self.detached = true;
+        self.active = false;
 
         //keeps order
         self.tab.hide();
 
-        self.fireEvent('detach');
+        self.fireEvent('detached');
+    },
+
+    setActive: function(e) {
+        if(this.detached) {
+            this.wrapper.getSiblings('.detached-window').removeClass('active');
+            this.wrapper.addClass('active');
+        } else {
+            this.select();
+        }
     },
 
     selectTab: function(e) {
@@ -255,7 +195,7 @@ ui.QUI.Window = new Class({
                 }
                 if(win.name === BROUHAHA) {
                     if(util.isChannelType(self.type)) {
-                        win.properties.text(self.name); //update current channel in brouhaha
+                        win.window.getElement('.channel-name').text(self.name); //update current channel in brouhaha
                         win.currentChannel = self.name;
                     }
                 }
@@ -267,14 +207,14 @@ ui.QUI.Window = new Class({
     },
 
     select: function() {
+        if(this.active) return;
         this.selectTab();
 
-        //changing windows occurs here
+        //change window elements
         this.parentObject.setWindow(this.window);
-
         this.parent();
-
         this.selectUpdates();
+        this.fireEvent("selected");
     },
 
     //styles and ui things to update
@@ -283,28 +223,27 @@ ui.QUI.Window = new Class({
             parentObject = self.parentObject;
 
         if(self.nicklist && !self.split) {
-            // (function() { //wait a sec for the styles to be calculated
-            //     self.split = new Drag.SplitPane(self.divider, {
-            //         // store: new Storage('__panelwidth')
-            //     });
-            // }).delay(50);
+            _.delay(function() { //wait a sec for the styles to be calculated
+                self.split = new Drag.SplitPane(self.window.getElement('.content .handle'), {
+                    // store: new Storage('__panelwidth'),
+                    limits: {
+                        min: 0,
+                        max: 0
+                    }
+                });
+            }, 50);
         }
 
         if(self.fxscroll) {//scroll to bottom
             self.fxscroll.autoScroll();
         }
 
-        //give focus on select
-        // if (util.windowNeedsInput(self.type)) {
-        //     self.$inputbox.focus();
-        // }
-
         if(util.isChannelType(self.type)) {
-            if (self.nicksColoured !== parentObject.uiOptions2.get("nick_colours")) {
-                self.nicksColoured = parentObject.uiOptions2.get("nick_colours");
-
+            var colour = parentObject.uiOptions2.get("nick_colours");
+            if (self.nicksColoured !== colour) {
+                self.nicksColoured = colour;
                 var nodes = self.nicklist.childNodes;
-                if (parentObject.uiOptions2.get("nick_colours")) {
+                if (colour) {
                     _.each(nodes, function(node) {
                         var colour = util.toHSBColour(node.retrieve("nick"), self.client);
                         if ($defined(colour))
@@ -329,11 +268,9 @@ ui.QUI.Window = new Class({
 
     editTopic: function() {
         if (!this.client.nickOnChanHasPrefix(this.client.nickname, this.name, "@")) {
-/*      var cmodes = this.client.getChannelModes(channel);
-      if(cmodes.indexOf("t")) {*/
-            return alert(lang.needOp.message); /*}*/
+            return alert(lang.needOp.message);
         }
-        var newTopic = prompt(util.formatter(lang.changeTopicConfirm.message, {channel: this.name}), this.topic.topicText);
+        var newTopic = prompt(util.formatter(lang.changeTopicConfirm.message, {channel: this.name}), this.topic);
         if (!$defined(newTopic))
             return;
 
@@ -390,14 +327,6 @@ ui.QUI.Window = new Class({
                 util.setAtEnd($inputbox);
             };
 
-        $nicklabel.addEvent("dblclick", function() {
-            var nick = prompt("Enter a new nickname", self.nickname);
-            if(nick) {
-                self.client.exec("/nick " + nick);
-            }
-        });
-
-        $inputbtn.addEvent("click", self.sendInput);
         $form.addEvent("submit", self.sendInput);
         $inputbox.addEvents({
                     "focus": resettab,
@@ -405,6 +334,13 @@ ui.QUI.Window = new Class({
                     "keydown": complete
                     });
         return $form;
+    },
+
+    setNickname: function() {
+        var nick = prompt("Enter a new nickname", self.nickname);
+        if(nick) {
+            self.client.exec("/nick " + nick);
+        }
     },
 
     updatePrefix: function (data) {
@@ -419,18 +355,18 @@ ui.QUI.Window = new Class({
         }
         this.$nicklabel.getElement('.status')
                         .removeClasses('op', 'voice')
-                        .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "")
-        // util.fillContainer(this.$inputbox);
+                        .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
         var hasMenu = $tar.hasClass('selected-middle');
+        var $par = $tar.getParent('.user');
 
         this.removePrevMenu(); //collapse old menus
         if (!hasMenu) {
-            this.moveMenuClass($tar);
-            $tar.addClass("selected")
-                .store("menu", this.createMenu($tar.retrieve("nick"), $tar));
+            this.moveMenuClass($par);
+            $par.addClass("selected")
+                .store("menu", this.createMenu($par.retrieve("nick"), $par));
         }
     },
 
@@ -441,32 +377,26 @@ ui.QUI.Window = new Class({
             return pmenu.toggle();
         }
 
-        var $menu = Element.from(templates.menuContainer()),
+        var $menu = Element.from(templates.menuContainer()).inject($parent),
             self = this;
 
         _.chain(ui.MENU_ITEMS)
             .filter(function(item) {
-                return Type.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
+                return _.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
             })
             .each(function(item) {
-                Element.from(templates.nickbtn({'nick': "- " + item.text}))
+                Element.from(templates.nickmenubtn(item))
                         .store("action", item.fn)
                         .inject($menu);
             });
 
-        $menu.addEvent('click:relay(.user)', function(e, target) {
-                e.stop();
-                self.menuClick(target.retrieve("action"));
-            })
-            .addEvent('focus:relay(a)', Element.prototype.blur)
-            .inject($parent);
-
         return $menu;
     },
 
-    menuClick: function(fn) {
+    menuClick: function(e, target) {
+        e.stop();
+        var fn = target.retrieve("action");
         var selected = this.nicklist.getElement('.selected');
-        //i dont understand why these arent equivalent
         fn.call(this, selected.retrieve("nick"));
         this.removePrevMenu();
     },
@@ -496,18 +426,17 @@ ui.QUI.Window = new Class({
     },
 
     updateTopic: function(topic) {
-        var topice = this.topic.empty();
-
-        topice.topicText = topic;
+        var $topic = this.window.getElement('.topic').empty();
+        this.topic = topic;
         if (topic) {
-            this.parent(topic, topice);
+            var $top = Element.from(templates.topicText({empty:false})).inject($topic);
+            this.parentObject.theme.formatElement(topic, $top.getElement('span'));
         } else {
-            topice.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
+            $topic.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
         }
     },
 
     addLine: function(type, data, colourClass) {
-        console.log(arguments);
         var $msg = Element.from(templates.ircMessage({ type: type.hyphenate() }));
 
         if(colourClass)
@@ -516,23 +445,21 @@ ui.QUI.Window = new Class({
         this.parent(type.toUpperCase(), data, colourClass, $msg);
     },
     highlightTab: function(state) {
-        this.parent(state);
+        if (state != this.hilighted) {
+            this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
 
-        if (state == this.hilighted)
-            return;
-
-        this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
-
-        switch (state) {
-        case ui.HILIGHT_US:
-            this.tab.addClass("tab-hilight-us");
-            break;
-        case ui.HILIGHT_SPEECH:
-            this.tab.addClass("tab-hilight-speech");
-            break;
-        case ui.HILIGHT_ACTIVITY:
-            this.tab.addClass("tab-hilight-activity");
-            break;
+            switch (state) {
+            case ui.HILIGHT_US:
+                this.tab.addClass("tab-hilight-us");
+                break;
+            case ui.HILIGHT_SPEECH:
+                this.tab.addClass("tab-hilight-speech");
+                break;
+            case ui.HILIGHT_ACTIVITY:
+                this.tab.addClass("tab-hilight-activity");
+                break;
+            }
+            this.parent(state);
         }
     }
 });

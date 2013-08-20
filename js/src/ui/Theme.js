@@ -39,7 +39,7 @@ ui.Theme = new Class({
             });
         }
 
-        var themed = type ? self.message(type, data, highlight) : data;
+        var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
         $ele.addClass('colourline')
             .adopt(Elements.from(result));//insertAdjacentHTML may render escaped chars incorrectly
@@ -53,7 +53,7 @@ ui.Theme = new Class({
         return result;
     },
 
-    message: function(type, data, highlight) {
+    formatText: function(type, data, highlight) {
         // if(highlight) data = _.extend({}, data, this.__ccmaph)
         return util.formatter(this.__theme[type], data);//most formatting done on init
     },

@@ -126,9 +126,10 @@
         //............... :(
         // head.appendChild(hack);
 
-        loader.loadScript(chrome.extension.getURL('js/dist/qwebirc-0.93dev.js'), function() {
-            // head.appendChild(startup);
-            loader.loadInlineScript(init);
+        loader.loadScript(chrome.extension.getURL('js/dist/mootools-1.4.5.js'), function() {    
+            loader.loadScript(chrome.extension.getURL('js/dist/qwebirc-0.93dev.js'), function() {
+                loader.loadInlineScript(init);
+            })
         });
 
 

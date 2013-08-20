@@ -49,16 +49,16 @@
 
 
     //portions:
-    source.topPane = "<div class='qui toppanel outertabbar'></div>";
-    source.detachedPane = "<div class='detached'></div>";
-    source.windowsPane = "<div class='windows qui'></div>";
-    source.windowPane = "<div class='window qui hidden'></div>";
-    source.topicPane = "<div class='qui topic'></div>";
-    source.contentPane = "<div class='qui content'></div>";
-    source.leftPane = "<div class='qui leftpanel lines'></div>";
-    source.nickPane = "<div class='qui rightpanel'></div>";
-    source.propertiesPane = "<div class='qui properties'></div>";
-    source.inputPane = "<div class='qui bottompanel'></div>";
+    source.topPane = "<div class='toppanel outertabbar'></div>";
+    // source.detachedPane = "<div class='detached'></div>";
+    source.windowsPane = "<div class='windows'></div>";
+    // source.windowPane = "<div class='window qui hidden'></div>";
+    // source.topicPane = "<div class='qui topic'></div>";
+    // source.contentPane = "<div class='qui content'></div>";
+    // source.leftPane = "<div class='qui leftpanel lines'></div>";
+    // source.nickPane = "<div class='qui rightpanel'></div>";
+    // source.propertiesPane = "<div class='qui properties'></div>";
+    // source.inputPane = "<div class='qui bottompanel'></div>";
 
     // source.detachedWindow = [
     // "<div class='detached-window'>",
