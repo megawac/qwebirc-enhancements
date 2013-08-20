@@ -112,8 +112,6 @@
 
         // options.innerHTML = makeOptions();
 
-        loader.loadInlineScript(makeOptions());
-
         //qweb.src = blocked[0].src;
         // startup.innerHTML = init;
 
@@ -143,13 +141,5 @@
         //qwebirc.insertAdjacentElement('afterend', hack);//has to be inserted before atf2.org init script
 
         document.removeEventListener( "DOMContentLoaded", arguments.callee, false );
-    }
-
-    function makeOptions() {
-        var options = ["window.ircoptions = {",
-            "stylesheet: '" + chrome.extension.getURL("css/modifiablecss.mcss") + "'",
-        "}"].join("");
-
-        return options;
     }
 })();

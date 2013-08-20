@@ -16,7 +16,7 @@ module.exports = function(grunt) {
         handlebars: {
             dist: {
                 options: {
-                    namespace: "Handlebars.templates",
+                    namespace: "qwebirc.templates",
                     knownHelpers: ['if', 'each', 'unless', 'check', 'pad'],
                     wrapped: true,
                     node: false,
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "js/dist/templates.js": ['js/src/ui/Handlebars/templates/*.hbs']
+                    "js/dist/templates.js": ['css/modifiablecss.hbs', 'js/src/ui/Handlebars/templates/*.hbs']
                 }
             }
         },

@@ -7,8 +7,6 @@ ui.QUI = new Class({
 
         parentElement.addClass('qui')
                     .addClass('signed-out');
-        this.parentElement = parentElement;
-        this.setModifiableStylesheet("qui");
         this.setHotKeys();
 
 
@@ -152,7 +150,6 @@ ui.QUI = new Class({
 
     __createDropdownMenu: function() {
         var self = this,
-
             dropdownMenu = Element.from(templates.menudrop());
         dropdownMenu.inject(self.parentElement);
 
@@ -165,7 +162,7 @@ ui.QUI = new Class({
             var fn = self[cmd[1] + "Window"].bind(self);
             var ele = Element.from(templates.menuitem({text:text}));
             ele.addEvent("click", function(e) {
-                    dropdownMenu.hideMenu();
+                    dropdownMenu.hide();
                     fn();
                 });
             dropdownMenu.appendChild(ele);
@@ -313,14 +310,15 @@ ui.QUI = new Class({
     },
 
     //todo use other dropdown menu code
-    __createChannelMenu: function() {
+    __createChannelMenu: function(e) {
+        if(e) e.stop();
         var self = this,
             client = self.getActiveIRCWindow().client,
 
-            btn = self.outerTabs.getElement('.add-chan'),
-            oldmen = btn.retrieve('menu');
+            $btn = self.outerTabs.getElement('.add-chan'),
+            $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
 
-        if(!oldmen || Date.now() - oldmen.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
+        if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
             client.getPopularChannels(function(chans) {
                 chans = _.chain(chans).take(self.options.maxChansMenu || 10)
                             .map(function(chan) {
@@ -331,39 +329,36 @@ ui.QUI = new Class({
                                 };
                             })
                             .value();
-                var menu = Element.from(templates.chanmenu({
+                var $menu = Element.from(templates.chanmenu({
                         channels: chans
                     }));
 
-                if(oldmen) {
-                    menu.replaces(oldmen)
-                        .position.delay(50, menu.parentElement, {
-                            relativeTo: btn,
+                if($oldmen) {
+                    $menu.replaces($oldmen)
+                        .position.delay(50, $menu.parentElement, {
+                            relativeTo: $btn,
                             position: {x: 'left', y: 'bottom'},
                             edge: {x: 'left', y: 'top'}
                         });
                 }
                 else {
-                    var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
-                    ui.decorateDropdown(btn, wrapper);
+                    var wrapper = new Element('div').inject(self.parentElement).adopt($menu);
+                    ui.decorateDropdown($btn, wrapper, {btn: false});
                     wrapper.addEvent("click:relay(a)", function(e, target) {
                         var chan = target.get('data-value');
                         client.exec("/JOIN " + chan);
                     });
                 }
-                btn.store('menu', menu);
-                btn.store('time', Date.now());//so we dont have to refresh maybe
-
-                if(!menu.parentElement.isDisplayed())
-                    menu.parentElement.showMenu();
+                $btn.store('time', Date.now());//so we dont have to refresh maybe
             });
-        } else if (!oldmen.parentElement.isDisplayed()) { //show old menu
-            oldmen.parentElement.showMenu()
+        } else if (!$oldmen.parentElement.isDisplayed()) { //show old menu
+            $oldmen.parentElement
                 .position({
-                    relativeTo: btn,
+                    relativeTo: $btn,
                     position: {x: 'left', y: 'bottom'},
                     edge: {x: 'left', y: 'top'}
-                });
+                })
+                .retrieve("toggle")();
         }
     },
 

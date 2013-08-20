@@ -40,36 +40,40 @@ util.percentToPixel= function(data, par) {
     };
 }
 
-ui.decorateDropdown = function(btn, ddm, options) {
-    ddm.hideMenu = function() {
+ui.decorateDropdown = function($btn, $ddm, options) {
+    function hideMenu() {
         if(options && options.onHide)
-            options.onHide.call(this, ddm);
-        return ddm.hide();
-    };
-    ddm.showMenu = function() {
+            options.onHide.call(this, $ddm);
+        return $ddm.hide();
+    }
+    function toggleMenu() {
         if(options && options.onShow)
-            options.onShow.call(this, ddm);
+            options.onShow.call(this, $ddm);
 
-        if (ddm.isDisplayed()) {
-           ddm.hideMenu();
+        if ($ddm.isDisplayed()) {
+           hideMenu();
         } else {
-            ddm.show();
-            document.addEvent("click:once", ddm.hideMenu);
+            $ddm.show();
+            document.addEvent("click:once", hideMenu);
         }
-        return ddm;
-    };
+        return $ddm;
+    }
 
-    ddm.position.delay(50, ddm, {
-        relativeTo: btn,
+    $ddm.store("toggle", toggleMenu);
+
+    $ddm.position.delay(50, $ddm, {
+        relativeTo: $btn,
         position: {x: 'left', y: 'bottom'},
         edge: {x: 'left', y: 'top'}
     });
 
-    btn.addEvent("click", function(e) {
+    if(options && (options.btn || options.btn == null)) {
+        $btn.addEvent("click", function(e) {
             e.stop();
-            ddm.showMenu();
+            toggleMenu();
         });
-    return ddm.hideMenu();
+    }
+    return hideMenu();
 };
 
 //dirty function please help with css :(

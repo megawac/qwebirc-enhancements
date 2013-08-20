@@ -2,47 +2,8 @@
 (function (engine) {
 
     //where to store these things
-    var source = engine.source = engine.source || {},
-        compiled = engine.templates = engine.templates || {};
-
-    //Handlebars.templates.stream({class:'scout',added:[{user:'megawac'},{user:'TKO'}]})
-    //->
-    //"<li id='tfscout'><span class='tf-class'>scout</span><span class='tf-players'><span>megawac</span><span>TKO</span></span></li>"
-    // source.stream = [
-    // "<li id='tf{{class}}'>",
-    //     "<span class='tf-class'>{{class}}</span>",
-    //     "<span class='tf-players'>",
-    //     "{{#each added}}",
-    //         "{{> player this}}",
-    //     "{{/each}}",
-    //     "</span>",
-    // "</li>"
-    // ].join("");
-
-    //Templates.compiled.authpage({nickname:'fred',username:'megawac',password:'secret', full:false}) (full shows all fields)
-    //"<div id='login'><div><span>Nickname:</span><input type='text' name='basic' id='nickname' value=fred></div><div><span>Auth options</span><input type='checkbox' id='authenticate'></div><div><span>Gamesurge username:</span><input type='text' name='full' id='username' value='megawac'></div><div><span>Password:</span><input type='text' name='full' id='password' value='secret'></div></div>"
-    // source.authpage = [
-    // "<form id='login'>",
-    //     //"<div>",
-    //     "<h1>Connect to {{network}} IRC</h1>",
-    //     "<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value={{nickname}}></div>",
-    //     "<div class='username right {{#unless full}}hidden{{/unless}}'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='{{username}}'></div>",
-    //     "<div class='password right {{#unless full}}hidden{{/unless}}'><span>Password:</span><input type='password' name='full' id='password' value='{{password}}'></div>",
-    //     "<div class='authenticate'>",
-    //         "<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' {{check full}}>",
-    //     "</div>",
-    //     "<div><input type='submit' value='Connect' /></div>",
-    //     //"</div>",
-    // "</form>",
-    // "<div class='qwebirc-init-channels'><span>{{channels}}</span></div>"
-    // ].join("");
-
-    // source.spanURL = "<span class='hyperlink-channel'>{{message}}</span>";
-
-    // source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
-    // source.timestamp = "<span class='timestamp'>{{time}} </span>";
-    // source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
-    // source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
+    var source = {},
+        compiled = qwebirc.templates || {};
 
     source.messageLine = "<hr class='lastpos' />";
     // source.ircMessage = "<div class='{{styles}}'></div>";
@@ -91,24 +52,6 @@
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
 	source.loadingPage = "<div class='loading'>" + lang.loadingText + " . . .</div>";
-    // source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
-
-    // source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
-    //                         "{{#if topic}}{{> topicText}}{{else}}&nbsp;{{/if}}",
-    //                     "</div>"].join("");
-    // source.topicText = "<span class='{{#if empty}}emptytopic{{/if}}'>{{topic}}</span>";
-
-    // source.nickbtn = "<a href='#' class='user'><span>{{nick}}</span></a>";
-    // source.nicklist = "<div class='nicklist tab-invisible qwebirc-qui'></div>";
-
-    // source.favicon = "<link rel='shortcut icon' type='image/x-icon' href='{{link}}'>";
-
-    // source.ircInput = [
-    // "<form class='input'><div>",
-    //     "<label class='nickname'><span class='status {{status}}'></span>{{nick}}</label>",
-    //     "<input class='{{type}} input-field' type='text'>",
-    //     "<input class='input-button' type='button' value='>' />",
-    // "</div></form>"].join("");
 
 
     source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -117,25 +60,30 @@
     /************************
         HELPERS
     ***********************/
-    //invert boolean helper
-    // engine.registerHelper('not', prelude.negate);
-
-    //returns hidden class name if it should be hidden
-    // engine.registerHelper('hidden', function(hidden) {
-    //     return hidden ? 'hidden' : '';
-    // });
-
-    engine.registerHelper('check', function(checked){
+    engine.registerHelper('check', function(checked, s2){
         return checked ? 'checked' : '';
     });
 
     engine.registerHelper('enableDisable', function(x) {
         return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
-    })
+    });
 
-    //engine.registerHelper('pad', function(txt) {
-    //    return txt && txt.length !== 0 ? ' ' + txt : '';
-    //});
+    //f(property name, type of prop, default val)
+    engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
+        if(type === "c") {//colour
+            var x = new Color(def);
+            var c = x.setHue(this.hue).setSaturation(x.hsb[1] + this.saturation).setBrightness(x.hsb[2] + this.lightness);
+            if (Browser.ie && c == "255,255,255") c = "255,255,254";// IE confuses white with transparent... 
+            
+            return "rgb(" + c + ")";
+        } 
+        else if(type === "comp") {
+            return this[prop] ? def : default2;
+        }
+        else {
+            return this[prop] || def;
+        }
+    })
 
 
     /******************

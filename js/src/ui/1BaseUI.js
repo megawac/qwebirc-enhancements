@@ -215,7 +215,7 @@ ui.BaseUI = new Class({
         if(Type.isNumber(win))
             win = this.windowArray[win];
         else if(Type.isString(win)) 
-            win = this.windows[win];
+            win = this.getWindow(win);
         if(win === this.active) return;
         if (this.active) {
             this.active.deselect();

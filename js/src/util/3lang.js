@@ -20,7 +20,7 @@
 
     //language specific stuff. right now just an object
     // can either be a message or array of messages
-    qwebirc.lang = lang = {
+    _.extend(lang, {
         TYPES: types,
         message: message,
 
@@ -111,7 +111,7 @@
 
         ENABLE: 'Enable',
         DISABLE: 'Disable'
-    };
+    });
 
 
     // lang.IRC_COMMAND_HELPERS = {

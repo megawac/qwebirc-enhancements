@@ -1,7 +1,9 @@
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "updateStylesheet"],
+
+    __styleValues: {},
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, theme, windowClass, uiName, options) {
@@ -9,6 +11,7 @@ ui.StandardUI = new Class({
         self.parent(parentElement, windowClass, uiName, options);
 
         self.theme = theme;
+
 
         self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
@@ -52,11 +55,11 @@ ui.StandardUI = new Class({
 
         self.uiOptions2.on({
             "change:style_hue": function(hue) {
-                self.setModifiableStylesheetValues({
+                self.updateStylesheet({
                     hue: hue
                 })
             },
-            "change:font_size": self.setModifiableStylesheetValues,
+            "change:font_size": self.updateStylesheet,
             "change:custom_notices": setCustoms,
             "change:notices": setSNotice
         });
@@ -65,11 +68,11 @@ ui.StandardUI = new Class({
 
         self.customWindows = {};
 
-        self.__styleValues = {
+        self.setModifiableStylesheet({
             hue: self.options.hue || self.uiOptions2.get("style_hue"),
             saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
             lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
-        };
+        });
     },
 
     newCustomWindow: function(name, select, type) {
@@ -197,34 +200,23 @@ ui.StandardUI = new Class({
     resetTabComplete: function() {
         this.tabCompleter.reset();
     },
-    setModifiableStylesheet: function(name) {
-        this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues();
+    setModifiableStylesheet: function(vals) {
+        this.__styleSheet = new Element("style", {
+                                type: "text/css",
+                                media: "all"
+                            }).inject(document.head);
+        this.updateStylesheet(vals);
     },
-    setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
-        _.extend(this.__styleValues, values);
+    updateStylesheet: function(values) {//todo calculate all the values and just sub in
+        var styles = _.extend(this.__styleValues, this.uiOptions2.toJSON(), values);
+        var stylesheet = templates.modifiablecss(styles);
+        var node = this.__styleSheet;
 
-        if (!$defined(this.__styleSheet))
-            return;
-
-        var hue = this.__styleValues.hue,
-            lightness = this.__styleValues.lightness,
-            saturation = this.__styleValues.saturation,
-            uiOptions = this.uiOptions2;
-
-        this.__styleSheet.set(function(mode, val, _default) {
-            if (mode == "c") {
-                var x = new Color(val);
-                var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
-                if (c == "255,255,255") // IE confuses white with transparent... 
-                c = "255,255,254";
-
-                return "rgb(" + c + ")";
-            }
-            else if (mode == "o") {
-                return uiOptions.get(val);
-            }
-            return _default;
-        });
+        if (node.styleSheet) { /* old IE */
+            node.styleSheet.set("cssText", stylesheet);
+        } else {
+            node.empty()
+                .appendText(stylesheet);
+        }
     }
 });

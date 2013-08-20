@@ -1,7 +1,121 @@
-this["Handlebars"] = this["Handlebars"] || {};
-this["Handlebars"]["templates"] = this["Handlebars"]["templates"] || {};
+this["qwebirc"] = this["qwebirc"] || {};
+this["qwebirc"]["templates"] = this["qwebirc"]["templates"] || {};
 
-this["Handlebars"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["modifiablecss"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+  buffer += "\r\n"
+    + "\r\n"
+    + "\r\n#ircui {\r\nheight: 100%;\r\nwidth: 100%;\r\noverflow: hidden;\r\nfont-family: Verdana, sans-serif;\r\n}\r\n\r\n.qui .hidden, .qui .tab-invisible {\r\ndisplay: none;\r\n}\r\n\r\n.channel-name {\r\nbackground-color: rgb(255, 255, 191);\r\nborder: 1px solid #C8D1DB;\r\nborder-radius: 4px 4px 4px 4px;\r\ncolor: #000000;\r\ncursor: default;\r\nfont-size: 0.8em;\r\npadding: 2px;\r\ntext-decoration: none;\r\nwhite-space: nowrap;\r\nfloat: left;\r\nmargin: 1px 0px 0px 1px;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .widepanel {\r\nwidth: 100%;\r\n}\r\n\r\n.qui .bottompanel {\r\ncolor: red;\r\n}\r\n\r\n.qui .lines {\r\ncolor: black;\r\noverflow: auto;\r\nfont-size: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
+    + "px;\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "lines_background", "f2f0ff", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .timestamp {\r\ndisplay: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "show_timestamps", "inline", "comp", "none", options) : helperMissing.call(depth0, "$css", "show_timestamps", "inline", "comp", "none", options)))
+    + ";\r\n}\r\n\r\n.qui .ircwindow .lines {\r\nfont-family: Consolas, \"Lucida Console\", monospace;\r\ntext-indent: 10px;\r\npadding-left: 1em;\r\nword-wrap: break-word;\r\n}\r\n\r\n.qui .lines .highlight1 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight1", "f6ff94", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight1", "f6ff94", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .highlight2 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight2", "A4FCCA", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight2", "A4FCCA", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .highlight3 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight3", "FAC3D5", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight3", "FAC3D5", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .mentioned {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "mentioned_colour", "E63772", "c", options) : helperMissing.call(depth0, "$css", "mentioned_colour", "E63772", "c", options)))
+    + " !important;\r\n}\r\n\r\n.qui .properties {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
+    + ";\r\nheight: 25px;\r\n}\r\n\r\n.qui .topic .emptytopic {\r\ncolor: gray;\r\n}\r\n\r\n.qui .topic {\r\ncolor: gray;\r\npadding-left: 5px;\r\nfont-size: 0.7em;\r\ncursor: default;\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "topic_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-bottom: 1px dashed ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "topic_border", "c8d2dc", "c", options)))
+    + ";\r\n}\r\n\r\n/*tab stuff*/\r\n\r\n.qui .outertabbar {\r\nborder-bottom: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "tabbar_border", "c3cee0", "c", options)))
+    + ";\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_background", "e2ecf9", "c", options) : helperMissing.call(depth0, "$css", "tabbar_background", "e2ecf9", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .tabbar {\r\nfont-size: 0.8em;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
+    + ";\r\nline-height: 24px;\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
+    + ";\r\npadding: 2px;\r\ncursor: default;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\ntext-decoration: none;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
+    + ";\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .tabbar .tab:hover {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_hover", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_hover", "ffffff", "c", options)))
+    + ";\r\nborder: 1px solid #c8d2dc;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-activity.tab {\r\ncolor: #009900;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-speech.tab {\r\ncolor: #0000ff;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-us.tab {\r\ncolor: #ff0000;\r\nbackground: rgb(216, 216, 138);\r\n}\r\n\r\n.qui .tabbar .brouhaha {\r\nwidth: 80px;\r\nbackground-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; /* override value for webkit */\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px;\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-selected {\r\n/* background: rgb(255,214,94); Old browsers\r\nbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+\r\nbackground: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+\r\nbackground: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+\r\nbackground: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+\r\nbackground: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+\r\nbackground: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C\r\nfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-unselected {\r\n/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; override value for webkit\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */\r\n}\r\n\r\n\r\n.qui .tabbar .tab-selected.tab {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_selected", "ffffff", "c", options)))
+    + ";\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_border", "c8d2dc", "c", options)))
+    + ";\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .tab-buttons {\r\ndisplay: none;\r\n}\r\n\r\n.qui.signed-in .tab-buttons {\r\ndisplay: inline-block;\r\ncursor: pointer;\r\n}\r\n\r\n.tab-buttons span {\r\nvertical-align: middle;\r\ndisplay: inline-block;\r\n}\r\n\r\n/* tab stuff */\r\n\r\n/*irc input stuff*/\r\n.qui form.input {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\nmargin: 0;\r\n}\r\n\r\n.qui .input div {\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
+    + ";\r\npadding: 0 5px 1px;\r\nmargin: 0;\r\nwidth: 100%;\r\n}\r\n\r\n.input div > .input-group-addon {\r\ncursor:pointer;cursor:hand;\r\npadding: 2px 5px;\r\n}\r\n\r\n.input div > * {\r\nheight: 24px;\r\n}\r\n\r\n.input .nickname {\r\ncolor: #524F50;\r\nfont-size: 14px;\r\n}\r\n\r\n.input .nickname .status {\r\nborder-radius: 50%;\r\ndisplay: inline-block;\r\nmargin-right: 3px;\r\n}\r\n\r\n.input .nickname:hover {\r\n\r\n}\r\n\r\n.input .nickname .status.voice {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: rgb(223, 187, 47);\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .nickname .status.op {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: #7AE60E;\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .input-field {\r\nbackground-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\n\r\nbackground-image: -webkit-gradient(\r\nlinear,\r\nleft bottom,\r\nleft top,\r\ncolor-stop(0.54, rgb(235,235,232)),\r\ncolor-stop(0.66, rgb(247,250,240))\r\n);\r\n\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
+    + ";\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n.input .btn.send {\r\ncolor: grey;\r\npadding: 2px 10px;\r\n}\r\n\r\n.qui .nicklist {\r\nborder-left: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_border", "c8d2dc", "c", options)))
+    + ";\r\nwidth: 140px;\r\noverflow: auto;\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "nicklist_text", "000000", "c", options)))
+    + ";\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .nicklist .user, .qui .nicklist .menu span {\r\ndisplay: block;\r\ncolor: black;\r\ntext-decoration: none;\r\ncursor: default;\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-bottom: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\npadding-left: 1px;\r\n}\r\n\r\n.qui .nicklist .selected {\r\ndisplay: block;\r\ncolor: black;\r\nbackground: white;\r\ntext-decoration: none;\r\nborder-bottom: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
+    + " 1px solid;\r\ncursor: default;\r\n}\r\n\r\n.qui .nicklist .selected-middle {\r\nborder-top: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
+    + " 1px solid;\r\n}\r\n\r\n#noscript {\r\ntext-align: center;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .nicklist .menu {\r\nmargin: 0 0 0 5px;\r\n}\r\n\r\n.qui .nicklist .menu a {\r\nborder-bottom: 0;\r\nborder-top: 0;\r\n}\r\n\r\n.hyperlink-whois, .hyperlink-channel {\r\ncursor: pointer;\r\ncursor: hand;\r\n}\r\n\r\n.hyperlink-whois:hover, .hyperlink-channel:hover {\r\ntext-decoration: underline;\r\n}\r\n\r\n.qui .outertabbar .dropdown-tab {\r\ncursor: pointer; cursor: hand;\r\nfloat: left;\r\npadding: 3px 4px 0;\r\nwidth: 30px;\r\n}\r\n\r\n.qui .dropdownmenu {\r\nz-index: 100;\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
+    + ";\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .dropdownmenu a {\r\ndisplay: block;\r\nfont-size: 0.7em;\r\ncolor: black;\r\ncursor: pointer;\r\ncursor: hand;\r\npadding: 1px 3px;\r\n}\r\n\r\n.qui .dropdownmenu a:hover {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_hover_background", "FFFE", "c", options) : helperMissing.call(depth0, "$css", "menu_hover_background", "FFFE", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .dropdownhint {\r\nposition: relative;\r\nleft: -500px;\r\nz-index: 10;\r\nwhite-space: nowrap;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .chanmenu {\r\nwidth: 150px;\r\n}\r\n\r\n.qui .chanmenu .hint {\r\nfloat: right;\r\nfont-size: 75%;\r\ncolor: grey;\r\n}\r\n\r\n.qui hr.lastpos {\r\nborder: none;\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lastpositionbar", "C8D2DC", "c", options) : helperMissing.call(depth0, "$css", "lastpositionbar", "C8D2DC", "c", options)))
+    + ";\r\nmargin: .5em 3em;\r\n}\r\n\r\n.qwebirc-init-channels {\r\nfont-size: 95%;\r\ncolor: #928D8D;\r\ntext-align: center;\r\n}\r\n\r\n\r\n/************* OPTIONS *****************/\r\n.qwebirc-optionspane .hue-slider {\r\nborder: 0px solid black;\r\nwidth: 360px;\r\nheight: 8px;\r\nbackground-image: url(../images/hue.png);\r\ndisplay: inline-block;\r\nmargin-left: 15px;\r\n}\r\n\r\n.qwebirc-optionspane .hue-slider .knob {\r\nwidth: 8px;\r\nheight: 16px;\r\ntop: -5px;\r\nopacity: 0.75;\r\nbackground: grey;\r\nborder: 1px solid black;\r\n}";
+  return buffer;
+  });
+
+this["qwebirc"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
@@ -53,7 +167,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["chanmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["chanmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this;
@@ -73,7 +187,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["channelName"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["channelName"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function";
@@ -87,7 +201,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -105,7 +219,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
@@ -164,7 +278,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
@@ -191,7 +305,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -213,7 +327,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircMessage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircMessage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -227,7 +341,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, functionType="function", self=this;
@@ -244,7 +358,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -270,7 +384,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -284,7 +398,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["menuitem"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["menuitem"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
@@ -325,7 +439,7 @@ function program3(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -343,7 +457,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -357,7 +471,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["nickmenubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["nickmenubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -371,7 +485,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
@@ -481,7 +595,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -499,7 +613,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -513,7 +627,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -527,7 +641,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["topicBar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["topicBar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this;
@@ -555,7 +669,7 @@ function program3(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
@@ -577,7 +691,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -595,7 +709,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
@@ -671,7 +785,6 @@ project name and URL in the about dialog, thanks!*/
         $ = document.id,
         $$ = document.getElements;
 
-    var templates = Handlebars.templates;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
@@ -680,27 +793,41 @@ project name and URL in the about dialog, thanks!*/
     //global object
     //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
 
-    var qwebirc = window.qwebirc = {},
+    var qwebirc = window.qwebirc = _.extend(window.qwebirc || {}, {
+        irc: {},
+        ui: {
+            themes: {}
+        },
+        util: {
+            crypto: {},
+        },
+        config: {},
+        auth: {},
+        sound: {},
+        lang: {},
+        BUILD: QWEBIRC_BUILD,
+        FILE_SUFFIX: "-" + QWEBIRC_BUILD,
+        VERSION: "0.93-dev"
+    });
 
-        irc = qwebirc.irc = {},
+    var irc = qwebirc.irc,
 
-        util = qwebirc.util = {},
-        crypto = util.crypto = {},
+        util = qwebirc.util,
+        crypto = util.crypto,
 
-        config = qwebirc.config = {},
-        auth = qwebirc.auth = {},
+        config = qwebirc.config,
+        auth = qwebirc.auth,
 
-        ui = qwebirc.ui = {},
-        themes = ui.themes = {},
-        style = ui.style = {},
+        ui = qwebirc.ui,
+        themes = ui.themes,
+        style = ui.style,
 
-        sound = qwebirc.sound = {},//,
+        sound = qwebirc.sound,//,
 
-        lang;// = qwebirc.lang;
+        lang = qwebirc.lang;
 
-    qwebirc.BUILD = QWEBIRC_BUILD;
-    qwebirc.FILE_SUFFIX = "-" + QWEBIRC_BUILD;
-    qwebirc.VERSION = "0.93-dev";
+
+    var templates = qwebirc.templates || {};
 
 ui.WINDOW_STATUS = 1;
 ui.WINDOW_QUERY = 2;
@@ -1346,7 +1473,7 @@ util.generateID = (function() {
 
     //language specific stuff. right now just an object
     // can either be a message or array of messages
-    qwebirc.lang = lang = {
+    _.extend(lang, {
         TYPES: types,
         message: message,
 
@@ -1437,7 +1564,7 @@ util.generateID = (function() {
 
         ENABLE: 'Enable',
         DISABLE: 'Disable'
-    };
+    });
 
 
     // lang.IRC_COMMAND_HELPERS = {
@@ -2078,36 +2205,40 @@ util.percentToPixel= function(data, par) {
     };
 }
 
-ui.decorateDropdown = function(btn, ddm, options) {
-    ddm.hideMenu = function() {
+ui.decorateDropdown = function($btn, $ddm, options) {
+    function hideMenu() {
         if(options && options.onHide)
-            options.onHide.call(this, ddm);
-        return ddm.hide();
-    };
-    ddm.showMenu = function() {
+            options.onHide.call(this, $ddm);
+        return $ddm.hide();
+    }
+    function toggleMenu() {
         if(options && options.onShow)
-            options.onShow.call(this, ddm);
+            options.onShow.call(this, $ddm);
 
-        if (ddm.isDisplayed()) {
-           ddm.hideMenu();
+        if ($ddm.isDisplayed()) {
+           hideMenu();
         } else {
-            ddm.show();
-            document.addEvent("click:once", ddm.hideMenu);
+            $ddm.show();
+            document.addEvent("click:once", hideMenu);
         }
-        return ddm;
-    };
+        return $ddm;
+    }
 
-    ddm.position.delay(50, ddm, {
-        relativeTo: btn,
+    $ddm.store("toggle", toggleMenu);
+
+    $ddm.position.delay(50, $ddm, {
+        relativeTo: $btn,
         position: {x: 'left', y: 'bottom'},
         edge: {x: 'left', y: 'top'}
     });
 
-    btn.addEvent("click", function(e) {
+    if(options && (options.btn || options.btn == null)) {
+        $btn.addEvent("click", function(e) {
             e.stop();
-            ddm.showMenu();
+            toggleMenu();
         });
-    return ddm.hideMenu();
+    }
+    return hideMenu();
 };
 
 //dirty function please help with css :(
@@ -2338,8 +2469,6 @@ ui.Interface = new Class({
         initialNickname: "",
         initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
-
-        modifiableStylesheet: window.ircoptions.stylesheet,
 
         hue: null,
         saturation: null,
@@ -5296,47 +5425,8 @@ irc.IRCTracker = new Class({
 (function (engine) {
 
     //where to store these things
-    var source = engine.source = engine.source || {},
-        compiled = engine.templates = engine.templates || {};
-
-    //Handlebars.templates.stream({class:'scout',added:[{user:'megawac'},{user:'TKO'}]})
-    //->
-    //"<li id='tfscout'><span class='tf-class'>scout</span><span class='tf-players'><span>megawac</span><span>TKO</span></span></li>"
-    // source.stream = [
-    // "<li id='tf{{class}}'>",
-    //     "<span class='tf-class'>{{class}}</span>",
-    //     "<span class='tf-players'>",
-    //     "{{#each added}}",
-    //         "{{> player this}}",
-    //     "{{/each}}",
-    //     "</span>",
-    // "</li>"
-    // ].join("");
-
-    //Templates.compiled.authpage({nickname:'fred',username:'megawac',password:'secret', full:false}) (full shows all fields)
-    //"<div id='login'><div><span>Nickname:</span><input type='text' name='basic' id='nickname' value=fred></div><div><span>Auth options</span><input type='checkbox' id='authenticate'></div><div><span>Gamesurge username:</span><input type='text' name='full' id='username' value='megawac'></div><div><span>Password:</span><input type='text' name='full' id='password' value='secret'></div></div>"
-    // source.authpage = [
-    // "<form id='login'>",
-    //     //"<div>",
-    //     "<h1>Connect to {{network}} IRC</h1>",
-    //     "<div class='nick right'><span>Nickname:</span><input type='text' name='basic' id='nickname' value={{nickname}}></div>",
-    //     "<div class='username right {{#unless full}}hidden{{/unless}}'><span>Gamesurge username:</span><input type='text' name='full' id='username' value='{{username}}'></div>",
-    //     "<div class='password right {{#unless full}}hidden{{/unless}}'><span>Password:</span><input type='password' name='full' id='password' value='{{password}}'></div>",
-    //     "<div class='authenticate'>",
-    //         "<span>Authenticate (optional)</span><input type='checkbox' id='authenticate' {{check full}}>",
-    //     "</div>",
-    //     "<div><input type='submit' value='Connect' /></div>",
-    //     //"</div>",
-    // "</form>",
-    // "<div class='qwebirc-init-channels'><span>{{channels}}</span></div>"
-    // ].join("");
-
-    // source.spanURL = "<span class='hyperlink-channel'>{{message}}</span>";
-
-    // source.message = "<div class='message{{pad class}}'><span>{{message}}</span></div>";
-    // source.timestamp = "<span class='timestamp'>{{time}} </span>";
-    // source.userlink = "<span class='hyperlink-whois' data-user='{{userid}}'>&lt;{{username}}&gt;</span>";
-    // source.channellink = "<span class='hyperlink-channel' data-chan='{{channel}}'>{{channel}}</span>";
+    var source = {},
+        compiled = qwebirc.templates || {};
 
     source.messageLine = "<hr class='lastpos' />";
     // source.ircMessage = "<div class='{{styles}}'></div>";
@@ -5385,24 +5475,6 @@ irc.IRCTracker = new Class({
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
 	source.loadingPage = "<div class='loading'>" + lang.loadingText + " . . .</div>";
-    // source.channelName = "<div id='channel-name-id' class='channel-name'>{{{channel}}}</div>";
-
-    // source.topicBar = ["<div class='topic tab-invisible qui colourline'>",
-    //                         "{{#if topic}}{{> topicText}}{{else}}&nbsp;{{/if}}",
-    //                     "</div>"].join("");
-    // source.topicText = "<span class='{{#if empty}}emptytopic{{/if}}'>{{topic}}</span>";
-
-    // source.nickbtn = "<a href='#' class='user'><span>{{nick}}</span></a>";
-    // source.nicklist = "<div class='nicklist tab-invisible qwebirc-qui'></div>";
-
-    // source.favicon = "<link rel='shortcut icon' type='image/x-icon' href='{{link}}'>";
-
-    // source.ircInput = [
-    // "<form class='input'><div>",
-    //     "<label class='nickname'><span class='status {{status}}'></span>{{nick}}</label>",
-    //     "<input class='{{type}} input-field' type='text'>",
-    //     "<input class='input-button' type='button' value='>' />",
-    // "</div></form>"].join("");
 
 
     source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -5411,25 +5483,30 @@ irc.IRCTracker = new Class({
     /************************
         HELPERS
     ***********************/
-    //invert boolean helper
-    // engine.registerHelper('not', prelude.negate);
-
-    //returns hidden class name if it should be hidden
-    // engine.registerHelper('hidden', function(hidden) {
-    //     return hidden ? 'hidden' : '';
-    // });
-
-    engine.registerHelper('check', function(checked){
+    engine.registerHelper('check', function(checked, s2){
         return checked ? 'checked' : '';
     });
 
     engine.registerHelper('enableDisable', function(x) {
         return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
-    })
+    });
 
-    //engine.registerHelper('pad', function(txt) {
-    //    return txt && txt.length !== 0 ? ' ' + txt : '';
-    //});
+    //f(property name, type of prop, default val)
+    engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
+        if(type === "c") {//colour
+            var x = new Color(def);
+            var c = x.setHue(this.hue).setSaturation(x.hsb[1] + this.saturation).setBrightness(x.hsb[2] + this.lightness);
+            if (Browser.ie && c == "255,255,255") c = "255,255,254";// IE confuses white with transparent... 
+            
+            return "rgb(" + c + ")";
+        } 
+        else if(type === "comp") {
+            return this[prop] ? def : default2;
+        }
+        else {
+            return this[prop] || def;
+        }
+    })
 
 
     /******************
@@ -5672,7 +5749,7 @@ ui.BaseUI = new Class({
         if(Type.isNumber(win))
             win = this.windowArray[win];
         else if(Type.isString(win)) 
-            win = this.windows[win];
+            win = this.getWindow(win);
         if(win === this.active) return;
         if (this.active) {
             this.active.deselect();
@@ -5733,7 +5810,9 @@ ui.BaseUI = new Class({
 
 ui.StandardUI = new Class({
     Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "setModifiableStylesheetValues"],
+    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "updateStylesheet"],
+
+    __styleValues: {},
 
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, theme, windowClass, uiName, options) {
@@ -5741,6 +5820,7 @@ ui.StandardUI = new Class({
         self.parent(parentElement, windowClass, uiName, options);
 
         self.theme = theme;
+
 
         self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
@@ -5784,11 +5864,11 @@ ui.StandardUI = new Class({
 
         self.uiOptions2.on({
             "change:style_hue": function(hue) {
-                self.setModifiableStylesheetValues({
+                self.updateStylesheet({
                     hue: hue
                 })
             },
-            "change:font_size": self.setModifiableStylesheetValues,
+            "change:font_size": self.updateStylesheet,
             "change:custom_notices": setCustoms,
             "change:notices": setSNotice
         });
@@ -5797,11 +5877,11 @@ ui.StandardUI = new Class({
 
         self.customWindows = {};
 
-        self.__styleValues = {
+        self.setModifiableStylesheet({
             hue: self.options.hue || self.uiOptions2.get("style_hue"),
             saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
             lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
-        };
+        });
     },
 
     newCustomWindow: function(name, select, type) {
@@ -5929,35 +6009,24 @@ ui.StandardUI = new Class({
     resetTabComplete: function() {
         this.tabCompleter.reset();
     },
-    setModifiableStylesheet: function(name) {
-        this.__styleSheet = new ui.style.ModifiableStylesheet(this.options.modifiableStylesheet);
-        this.setModifiableStylesheetValues();
+    setModifiableStylesheet: function(vals) {
+        this.__styleSheet = new Element("style", {
+                                type: "text/css",
+                                media: "all"
+                            }).inject(document.head);
+        this.updateStylesheet(vals);
     },
-    setModifiableStylesheetValues: function(values) {//todo calculate all the values and just sub in
-        _.extend(this.__styleValues, values);
+    updateStylesheet: function(values) {//todo calculate all the values and just sub in
+        var styles = _.extend(this.__styleValues, this.uiOptions2.toJSON(), values);
+        var stylesheet = templates.modifiablecss(styles);
+        var node = this.__styleSheet;
 
-        if (!$defined(this.__styleSheet))
-            return;
-
-        var hue = this.__styleValues.hue,
-            lightness = this.__styleValues.lightness,
-            saturation = this.__styleValues.saturation,
-            uiOptions = this.uiOptions2;
-
-        this.__styleSheet.set(function(mode, val, _default) {
-            if (mode == "c") {
-                var x = new Color(val);
-                var c = x.setHue(hue).setSaturation(x.hsb[1] + saturation).setBrightness(x.hsb[2] + lightness);
-                if (c == "255,255,255") // IE confuses white with transparent... 
-                c = "255,255,254";
-
-                return "rgb(" + c + ")";
-            }
-            else if (mode == "o") {
-                return uiOptions.get(val);
-            }
-            return _default;
-        });
+        if (node.styleSheet) { /* old IE */
+            node.styleSheet.set("cssText", stylesheet);
+        } else {
+            node.empty()
+                .appendText(stylesheet);
+        }
     }
 });
 
@@ -6338,8 +6407,6 @@ ui.QUI = new Class({
 
         parentElement.addClass('qui')
                     .addClass('signed-out');
-        this.parentElement = parentElement;
-        this.setModifiableStylesheet("qui");
         this.setHotKeys();
 
 
@@ -6483,7 +6550,6 @@ ui.QUI = new Class({
 
     __createDropdownMenu: function() {
         var self = this,
-
             dropdownMenu = Element.from(templates.menudrop());
         dropdownMenu.inject(self.parentElement);
 
@@ -6496,7 +6562,7 @@ ui.QUI = new Class({
             var fn = self[cmd[1] + "Window"].bind(self);
             var ele = Element.from(templates.menuitem({text:text}));
             ele.addEvent("click", function(e) {
-                    dropdownMenu.hideMenu();
+                    dropdownMenu.hide();
                     fn();
                 });
             dropdownMenu.appendChild(ele);
@@ -6644,14 +6710,15 @@ ui.QUI = new Class({
     },
 
     //todo use other dropdown menu code
-    __createChannelMenu: function() {
+    __createChannelMenu: function(e) {
+        if(e) e.stop();
         var self = this,
             client = self.getActiveIRCWindow().client,
 
-            btn = self.outerTabs.getElement('.add-chan'),
-            oldmen = btn.retrieve('menu');
+            $btn = self.outerTabs.getElement('.add-chan'),
+            $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
 
-        if(!oldmen || Date.now() - oldmen.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
+        if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
             client.getPopularChannels(function(chans) {
                 chans = _.chain(chans).take(self.options.maxChansMenu || 10)
                             .map(function(chan) {
@@ -6662,39 +6729,36 @@ ui.QUI = new Class({
                                 };
                             })
                             .value();
-                var menu = Element.from(templates.chanmenu({
+                var $menu = Element.from(templates.chanmenu({
                         channels: chans
                     }));
 
-                if(oldmen) {
-                    menu.replaces(oldmen)
-                        .position.delay(50, menu.parentElement, {
-                            relativeTo: btn,
+                if($oldmen) {
+                    $menu.replaces($oldmen)
+                        .position.delay(50, $menu.parentElement, {
+                            relativeTo: $btn,
                             position: {x: 'left', y: 'bottom'},
                             edge: {x: 'left', y: 'top'}
                         });
                 }
                 else {
-                    var wrapper = new Element('div').inject(self.parentElement).adopt(menu);
-                    ui.decorateDropdown(btn, wrapper);
+                    var wrapper = new Element('div').inject(self.parentElement).adopt($menu);
+                    ui.decorateDropdown($btn, wrapper, {btn: false});
                     wrapper.addEvent("click:relay(a)", function(e, target) {
                         var chan = target.get('data-value');
                         client.exec("/JOIN " + chan);
                     });
                 }
-                btn.store('menu', menu);
-                btn.store('time', Date.now());//so we dont have to refresh maybe
-
-                if(!menu.parentElement.isDisplayed())
-                    menu.parentElement.showMenu();
+                $btn.store('time', Date.now());//so we dont have to refresh maybe
             });
-        } else if (!oldmen.parentElement.isDisplayed()) { //show old menu
-            oldmen.parentElement.showMenu()
+        } else if (!$oldmen.parentElement.isDisplayed()) { //show old menu
+            $oldmen.parentElement
                 .position({
-                    relativeTo: btn,
+                    relativeTo: $btn,
                     position: {x: 'left', y: 'bottom'},
                     edge: {x: 'left', y: 'top'}
-                });
+                })
+                .retrieve("toggle")();
         }
     },
 
@@ -7998,84 +8062,6 @@ sound.SoundPlayer = new Class({
 
     isReady: function() {
         return this.sm.isReady();
-    }
-});
-
-
-util.parseStylesheet = function(data) {
-    var lines = data.replace(/\r/g, "") //irnore double breaks
-                    .split("\n");
-
-    var rules = {},
-        line, inx,
-        i;
-    for (var i = 0; i < lines.length; i++) {
-        line = lines[i];
-
-        if (line.trim() !== "" && (inx = line.indexOf("=", 2)) !== -1)
-            rules[line.slice(0, inx)] = line.slice(inx + 1);
-        else
-            break;
-    }
-
-    var cssLines = lines.slice(i);
-    // for (; i < lines.length; i++) //note its using the same i as above
-    //     cssLines.push(lines[i]);
-
-    return {
-        cssText: cssLines.join("\n"),
-        rules: rules
-    };
-};
-
-util.getSyncAsset = function(url) {//todo async it
-    var req = new Request({
-        'url': url,
-        'async': false
-    });
-    req.headers = {};
-    var result;
-    req.addEvent("complete", function(x) {
-            result = x;
-        })
-        .get();
-    return result;
-};
-
-ui.style.ModifiableStylesheet = new Class({
-    initialize: function(url) {
-        var n = util.parseStylesheet(util.getSyncAsset(url));
-
-        this.__cssText = n.cssText;
-        this.rules = n.rules;
-
-        this.__tag = new Element("style", {
-                        type: "text/css",
-                        media: "all"
-                    }).inject(document.head, 'bottom');
-    },
-    __setStylesheet: function(stylesheet) {
-        var node = this.__tag;
-
-        if (node.styleSheet) { /* IE */
-            node.styleSheet.cssText = stylesheet;
-        } else {
-            node.empty()
-                .appendText(stylesheet);
-        }
-    },
-    set: function(mutatorfn) {
-        mutatorfn = mutatorfn || $identity;
-
-        var text = this.__cssText;
-
-        Object.each(this.rules, function(val, key) {
-            var getVal = mutatorfn.pass(val.split(","));
-
-            text = text.replaceAll("$(" + key + ")", getVal);
-        });
-
-        this.__setStylesheet(text);
     }
 });
 

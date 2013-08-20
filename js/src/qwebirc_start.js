@@ -30,7 +30,6 @@ project name and URL in the about dialog, thanks!*/
         $ = document.id,
         $$ = document.getElements;
 
-    var templates = Handlebars.templates;
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
@@ -39,24 +38,38 @@ project name and URL in the about dialog, thanks!*/
     //global object
     //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
 
-    var qwebirc = window.qwebirc = {},
+    var qwebirc = window.qwebirc = _.extend(window.qwebirc || {}, {
+        irc: {},
+        ui: {
+            themes: {}
+        },
+        util: {
+            crypto: {},
+        },
+        config: {},
+        auth: {},
+        sound: {},
+        lang: {},
+        BUILD: QWEBIRC_BUILD,
+        FILE_SUFFIX: "-" + QWEBIRC_BUILD,
+        VERSION: "0.93-dev"
+    });
 
-        irc = qwebirc.irc = {},
+    var irc = qwebirc.irc,
 
-        util = qwebirc.util = {},
-        crypto = util.crypto = {},
+        util = qwebirc.util,
+        crypto = util.crypto,
 
-        config = qwebirc.config = {},
-        auth = qwebirc.auth = {},
+        config = qwebirc.config,
+        auth = qwebirc.auth,
 
-        ui = qwebirc.ui = {},
-        themes = ui.themes = {},
-        style = ui.style = {},
+        ui = qwebirc.ui,
+        themes = ui.themes,
+        style = ui.style,
 
-        sound = qwebirc.sound = {},//,
+        sound = qwebirc.sound,//,
 
-        lang;// = qwebirc.lang;
+        lang = qwebirc.lang;
 
-    qwebirc.BUILD = QWEBIRC_BUILD;
-    qwebirc.FILE_SUFFIX = "-" + QWEBIRC_BUILD;
-    qwebirc.VERSION = "0.93-dev";
+
+    var templates = qwebirc.templates || {};

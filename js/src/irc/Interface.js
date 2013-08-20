@@ -15,8 +15,6 @@ ui.Interface = new Class({
         initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
-        modifiableStylesheet: window.ircoptions.stylesheet,
-
         hue: null,
         saturation: null,
         lightness: null,

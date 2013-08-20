@@ -1,7 +1,121 @@
-this["Handlebars"] = this["Handlebars"] || {};
-this["Handlebars"]["templates"] = this["Handlebars"]["templates"] || {};
+this["qwebirc"] = this["qwebirc"] || {};
+this["qwebirc"]["templates"] = this["qwebirc"]["templates"] || {};
 
-this["Handlebars"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["modifiablecss"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+  buffer += "\r\n"
+    + "\r\n"
+    + "\r\n#ircui {\r\nheight: 100%;\r\nwidth: 100%;\r\noverflow: hidden;\r\nfont-family: Verdana, sans-serif;\r\n}\r\n\r\n.qui .hidden, .qui .tab-invisible {\r\ndisplay: none;\r\n}\r\n\r\n.channel-name {\r\nbackground-color: rgb(255, 255, 191);\r\nborder: 1px solid #C8D1DB;\r\nborder-radius: 4px 4px 4px 4px;\r\ncolor: #000000;\r\ncursor: default;\r\nfont-size: 0.8em;\r\npadding: 2px;\r\ntext-decoration: none;\r\nwhite-space: nowrap;\r\nfloat: left;\r\nmargin: 1px 0px 0px 1px;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .widepanel {\r\nwidth: 100%;\r\n}\r\n\r\n.qui .bottompanel {\r\ncolor: red;\r\n}\r\n\r\n.qui .lines {\r\ncolor: black;\r\noverflow: auto;\r\nfont-size: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
+    + "px;\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "lines_background", "f2f0ff", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .timestamp {\r\ndisplay: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "show_timestamps", "inline", "comp", "none", options) : helperMissing.call(depth0, "$css", "show_timestamps", "inline", "comp", "none", options)))
+    + ";\r\n}\r\n\r\n.qui .ircwindow .lines {\r\nfont-family: Consolas, \"Lucida Console\", monospace;\r\ntext-indent: 10px;\r\npadding-left: 1em;\r\nword-wrap: break-word;\r\n}\r\n\r\n.qui .lines .highlight1 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight1", "f6ff94", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight1", "f6ff94", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .highlight2 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight2", "A4FCCA", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight2", "A4FCCA", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .highlight3 {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight3", "FAC3D5", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight3", "FAC3D5", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .lines .mentioned {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "mentioned_colour", "E63772", "c", options) : helperMissing.call(depth0, "$css", "mentioned_colour", "E63772", "c", options)))
+    + " !important;\r\n}\r\n\r\n.qui .properties {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
+    + ";\r\nheight: 25px;\r\n}\r\n\r\n.qui .topic .emptytopic {\r\ncolor: gray;\r\n}\r\n\r\n.qui .topic {\r\ncolor: gray;\r\npadding-left: 5px;\r\nfont-size: 0.7em;\r\ncursor: default;\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "topic_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-bottom: 1px dashed ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "topic_border", "c8d2dc", "c", options)))
+    + ";\r\n}\r\n\r\n/*tab stuff*/\r\n\r\n.qui .outertabbar {\r\nborder-bottom: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "tabbar_border", "c3cee0", "c", options)))
+    + ";\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_background", "e2ecf9", "c", options) : helperMissing.call(depth0, "$css", "tabbar_background", "e2ecf9", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .tabbar {\r\nfont-size: 0.8em;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
+    + ";\r\nline-height: 24px;\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
+    + ";\r\npadding: 2px;\r\ncursor: default;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\ntext-decoration: none;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
+    + ";\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .tabbar .tab:hover {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_hover", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_hover", "ffffff", "c", options)))
+    + ";\r\nborder: 1px solid #c8d2dc;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-activity.tab {\r\ncolor: #009900;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-speech.tab {\r\ncolor: #0000ff;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-us.tab {\r\ncolor: #ff0000;\r\nbackground: rgb(216, 216, 138);\r\n}\r\n\r\n.qui .tabbar .brouhaha {\r\nwidth: 80px;\r\nbackground-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; /* override value for webkit */\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px;\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-selected {\r\n/* background: rgb(255,214,94); Old browsers\r\nbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+\r\nbackground: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+\r\nbackground: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+\r\nbackground: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+\r\nbackground: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+\r\nbackground: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C\r\nfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-unselected {\r\n/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; override value for webkit\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */\r\n}\r\n\r\n\r\n.qui .tabbar .tab-selected.tab {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_selected", "ffffff", "c", options)))
+    + ";\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_border", "c8d2dc", "c", options)))
+    + ";\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .tab-buttons {\r\ndisplay: none;\r\n}\r\n\r\n.qui.signed-in .tab-buttons {\r\ndisplay: inline-block;\r\ncursor: pointer;\r\n}\r\n\r\n.tab-buttons span {\r\nvertical-align: middle;\r\ndisplay: inline-block;\r\n}\r\n\r\n/* tab stuff */\r\n\r\n/*irc input stuff*/\r\n.qui form.input {\r\nbackground-color: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\nmargin: 0;\r\n}\r\n\r\n.qui .input div {\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
+    + ";\r\npadding: 0 5px 1px;\r\nmargin: 0;\r\nwidth: 100%;\r\n}\r\n\r\n.input div > .input-group-addon {\r\ncursor:pointer;cursor:hand;\r\npadding: 2px 5px;\r\n}\r\n\r\n.input div > * {\r\nheight: 24px;\r\n}\r\n\r\n.input .nickname {\r\ncolor: #524F50;\r\nfont-size: 14px;\r\n}\r\n\r\n.input .nickname .status {\r\nborder-radius: 50%;\r\ndisplay: inline-block;\r\nmargin-right: 3px;\r\n}\r\n\r\n.input .nickname:hover {\r\n\r\n}\r\n\r\n.input .nickname .status.voice {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: rgb(223, 187, 47);\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .nickname .status.op {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: #7AE60E;\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .input-field {\r\nbackground-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\n\r\nbackground-image: -webkit-gradient(\r\nlinear,\r\nleft bottom,\r\nleft top,\r\ncolor-stop(0.54, rgb(235,235,232)),\r\ncolor-stop(0.66, rgb(247,250,240))\r\n);\r\n\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
+    + ";\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n.input .btn.send {\r\ncolor: grey;\r\npadding: 2px 10px;\r\n}\r\n\r\n.qui .nicklist {\r\nborder-left: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_border", "c8d2dc", "c", options)))
+    + ";\r\nwidth: 140px;\r\noverflow: auto;\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\ncolor: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "nicklist_text", "000000", "c", options)))
+    + ";\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .nicklist .user, .qui .nicklist .menu span {\r\ndisplay: block;\r\ncolor: black;\r\ntext-decoration: none;\r\ncursor: default;\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\nborder-bottom: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
+    + ";\r\npadding-left: 1px;\r\n}\r\n\r\n.qui .nicklist .selected {\r\ndisplay: block;\r\ncolor: black;\r\nbackground: white;\r\ntext-decoration: none;\r\nborder-bottom: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
+    + " 1px solid;\r\ncursor: default;\r\n}\r\n\r\n.qui .nicklist .selected-middle {\r\nborder-top: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
+    + " 1px solid;\r\n}\r\n\r\n#noscript {\r\ntext-align: center;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .nicklist .menu {\r\nmargin: 0 0 0 5px;\r\n}\r\n\r\n.qui .nicklist .menu a {\r\nborder-bottom: 0;\r\nborder-top: 0;\r\n}\r\n\r\n.hyperlink-whois, .hyperlink-channel {\r\ncursor: pointer;\r\ncursor: hand;\r\n}\r\n\r\n.hyperlink-whois:hover, .hyperlink-channel:hover {\r\ntext-decoration: underline;\r\n}\r\n\r\n.qui .outertabbar .dropdown-tab {\r\ncursor: pointer; cursor: hand;\r\nfloat: left;\r\npadding: 3px 4px 0;\r\nwidth: 30px;\r\n}\r\n\r\n.qui .dropdownmenu {\r\nz-index: 100;\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
+    + ";\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .dropdownmenu a {\r\ndisplay: block;\r\nfont-size: 0.7em;\r\ncolor: black;\r\ncursor: pointer;\r\ncursor: hand;\r\npadding: 1px 3px;\r\n}\r\n\r\n.qui .dropdownmenu a:hover {\r\nbackground: ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_hover_background", "FFFE", "c", options) : helperMissing.call(depth0, "$css", "menu_hover_background", "FFFE", "c", options)))
+    + ";\r\n}\r\n\r\n.qui .dropdownhint {\r\nposition: relative;\r\nleft: -500px;\r\nz-index: 10;\r\nwhite-space: nowrap;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .chanmenu {\r\nwidth: 150px;\r\n}\r\n\r\n.qui .chanmenu .hint {\r\nfloat: right;\r\nfont-size: 75%;\r\ncolor: grey;\r\n}\r\n\r\n.qui hr.lastpos {\r\nborder: none;\r\nborder-top: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lastpositionbar", "C8D2DC", "c", options) : helperMissing.call(depth0, "$css", "lastpositionbar", "C8D2DC", "c", options)))
+    + ";\r\nmargin: .5em 3em;\r\n}\r\n\r\n.qwebirc-init-channels {\r\nfont-size: 95%;\r\ncolor: #928D8D;\r\ntext-align: center;\r\n}\r\n\r\n\r\n/************* OPTIONS *****************/\r\n.qwebirc-optionspane .hue-slider {\r\nborder: 0px solid black;\r\nwidth: 360px;\r\nheight: 8px;\r\nbackground-image: url(../images/hue.png);\r\ndisplay: inline-block;\r\nmargin-left: 15px;\r\n}\r\n\r\n.qwebirc-optionspane .hue-slider .knob {\r\nwidth: 8px;\r\nheight: 16px;\r\ntop: -5px;\r\nopacity: 0.75;\r\nbackground: grey;\r\nborder: 1px solid black;\r\n}";
+  return buffer;
+  });
+
+this["qwebirc"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
@@ -53,7 +167,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["chanmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["chanmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this;
@@ -73,7 +187,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["channelName"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["channelName"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function";
@@ -87,7 +201,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -105,7 +219,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
@@ -164,7 +278,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
@@ -191,7 +305,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -213,7 +327,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircMessage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircMessage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -227,7 +341,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, functionType="function", self=this;
@@ -244,7 +358,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
-this["Handlebars"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -270,7 +384,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -284,7 +398,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["menuitem"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["menuitem"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
@@ -325,7 +439,7 @@ function program3(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["message"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -343,7 +457,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -357,7 +471,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["nickmenubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["nickmenubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -371,7 +485,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["options"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
@@ -481,7 +595,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -499,7 +613,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -513,7 +627,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -527,7 +641,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["topicBar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["topicBar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this;
@@ -555,7 +669,7 @@ function program3(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
@@ -577,7 +691,7 @@ function program1(depth0,data) {
   return buffer;
   });
 
-this["Handlebars"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
@@ -595,7 +709,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["Handlebars"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+this["qwebirc"]["templates"]["window"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
