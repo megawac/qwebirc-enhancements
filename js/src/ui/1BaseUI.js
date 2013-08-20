@@ -39,7 +39,8 @@ ui.BaseUI = new Class({
         var win = this.getWindow(client, name);
         if (!$defined(win)) {
             var wId = this.getWindowIdentifier(name);
-            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, new Element('div').inject(this.windowsPanel), client, type, name, wId);
+            var $wrapper = new Element('div', {'class': 'hidden'}).inject(this.windowsPanel);//for delegation - this is not how i should do it
+            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, $wrapper, client, type, name, wId);
             this.windowArray.push(win);
         }
 
@@ -210,9 +211,6 @@ ui.BaseUI = new Class({
             return this.active;
         }
     },
-    __setActiveWindow: function(win) {
-        this.active = win;
-    },
     selectWindow: function(win) {
         if(Type.isNumber(win))
             win = this.windowArray[win];
@@ -221,10 +219,15 @@ ui.BaseUI = new Class({
         if(win === this.active) return;
         if (this.active) {
             this.active.deselect();
+            // this.last = this.active;
         }
         if(!win.active) win.select();
-        this.__setActiveWindow(win);
+        this.setWindow(win);
         this.updateTitle(win.name + " - " + this.options.appTitle);
+        return win;
+    },
+    setWindow: function(win) {
+        this.active = win;
     },
     nextWindow: function(direction, fromWin) {
         var windows = this.windowArray,
@@ -239,7 +242,10 @@ ui.BaseUI = new Class({
     __closed: function(win) {
         var winarr = this.windowArray;
         if (win.active) {
-            if (winarr.length !== 1) {
+            if(this.last) {//select last active window
+                this.last.select();
+            }
+            else if (winarr.length !== 1) {
                 var index = winarr.indexOf(win);
                 if(index === -1) {
                     return;

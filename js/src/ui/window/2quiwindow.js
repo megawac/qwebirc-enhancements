@@ -38,6 +38,7 @@ ui.QUI.Window = new Class({
         var self = this;
         self.element.empty()
             .html(self.template({
+                mobile: Browser.isMobile,
                 isChannel: util.isChannelType(self.type),
                 channel: self.name,
                 name: self.name,
@@ -99,9 +100,8 @@ ui.QUI.Window = new Class({
             po = this.parentObject;
 
         this.detached = false;
+        this.element.removeClass('detached');
 
-        wrapper.hide();
-        win.hide();
         // wrapper.removeChild(win);
         win.replaces(wrapper);
         wrapper.destroy();
@@ -129,6 +129,7 @@ ui.QUI.Window = new Class({
 
             resizeWrapper = Element.from(templates.resizeHandle()),
             resizeHandle = resizeWrapper.getElement('.resize-handle');
+        self.element.addClass('detached');
 
 
         //change window if we're active
@@ -179,8 +180,8 @@ ui.QUI.Window = new Class({
 
     setActive: function(e) {
         if(this.detached) {
-            this.wrapper.getSiblings('.detached-window').removeClass('active');
-            this.wrapper.addClass('active');
+            this.element.addClass('active')
+                        .getSiblings('.detached').removeClass('active');
         } else {
             this.select();
         }
@@ -206,13 +207,11 @@ ui.QUI.Window = new Class({
                 .addClass("tab-selected");
     },
 
-    select: function() {
+    select: function() {//change window elements
         if(this.active) return;
-        this.selectTab();
-
-        //change window elements
-        this.parentObject.setWindow(this.window);
         this.parent();
+
+        this.selectTab();
         this.selectUpdates();
         this.fireEvent("selected");
     },
@@ -327,7 +326,7 @@ ui.QUI.Window = new Class({
                 util.setAtEnd($inputbox);
             };
 
-        $form.addEvent("submit", self.sendInput);
+        // $form.addEvent("submit", self.sendInput);
         $inputbox.addEvents({
                     "focus": resettab,
                     "mousedown": resettab,
@@ -359,70 +358,38 @@ ui.QUI.Window = new Class({
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
-        var hasMenu = $tar.hasClass('selected-middle');
-        var $par = $tar.getParent('.user');
-
-        this.removePrevMenu(); //collapse old menus
-        if (!hasMenu) {
-            this.moveMenuClass($par);
-            $par.addClass("selected")
-                .store("menu", this.createMenu($par.retrieve("nick"), $par));
-        }
-    },
-
-    // - clicking user in nick list
-    createMenu: function(nick, $parent) {
-        var pmenu = $parent.retrieve('menu');
-        if(pmenu) {
-            return pmenu.toggle();
-        }
-
-        var $menu = Element.from(templates.menuContainer()).inject($parent),
+        var $par = $tar.getParent('.user').toggleClass("selected");
+        var $menu = $par.getElement('.menu'),
             self = this;
 
-        _.chain(ui.MENU_ITEMS)
-            .filter(function(item) {
-                return _.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
-            })
-            .each(function(item) {
-                Element.from(templates.nickmenubtn(item))
-                        .store("action", item.fn)
-                        .inject($menu);
-            });
+        this.removePrevMenu($par);
 
-        return $menu;
+        if($menu) {
+            $menu.toggle();
+        } else {
+            $menu = Element.from(templates.menuContainer()).inject($par)
+            _.each(ui.MENU_ITEMS, function(item) {
+                if(_.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate) {
+                    Element.from(templates.nickmenubtn(item))
+                            .store("action", item.fn)
+                            .inject($menu);
+                }
+            });
+        }
     },
 
     menuClick: function(e, target) {
         e.stop();
         var fn = target.retrieve("action");
-        var selected = this.nicklist.getElement('.selected');
+        var selected = target.getParent('.user');
         fn.call(this, selected.retrieve("nick"));
         this.removePrevMenu();
     },
 
-    moveMenuClass: function($sel) {
-        $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        
-        if($sel) {
-            if (this.nicklist.firstChild === $sel) {
-                $sel.removeClass("selected-middle");
-            } else {
-                $sel.addClass("selected-middle");
-            }
-        }
-    },
-
-    removePrevMenu: function() {
-        var $sel = this.nicklist.getElements('.selected-middle, .selected');
-        if ($sel) {
-            $sel.removeClasses("selected", "selected-middle");
-            var $menu = $sel.retrieve('menu');
-            if ($menu) {
-                $menu.dispose();
-                $sel.eliminate('menu');
-            }
-        }
+    removePrevMenu: function($tar) {
+        var $sel = $tar ? $tar.getSiblings('.selected') : this.nicklist.getElements('.selected');
+        $sel.removeClass("selected")
+            .getElement('.menu').each(Element.dispose);
     },
 
     updateTopic: function(topic) {

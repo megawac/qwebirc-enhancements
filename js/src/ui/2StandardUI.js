@@ -103,8 +103,6 @@ ui.StandardUI = new Class({
 
         var ew = new class_(win.lines, options);
         ew.addEvent("close", win.close);
-
-        win.setSubWindow(ew);
     },
     embeddedWindow: function() {
         this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {

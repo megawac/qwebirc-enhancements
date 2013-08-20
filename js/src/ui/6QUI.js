@@ -123,8 +123,6 @@ ui.QUI = new Class({
         self.__createDropdownHint.delay(500, self);
     },
 
-
-
     newTab: function(win, name) {
         var self = this;
         var $tab = Element.from(templates.ircTab({
@@ -172,14 +170,6 @@ ui.QUI = new Class({
                 });
             dropdownMenu.appendChild(ele);
         });
-
-        // var dropdown = new Element("div");
-        // dropdown.addClass("dropdown-tab");
-        // dropdown.appendChild(new Element("img", {
-        //     src: qwebirc.global.staticBaseURL + "images/icon.png",
-        //     title: "menu",
-        //     alt: "menu"
-        // }));
 
         var dropdownEffect = new Fx.Tween(dropdown, {
             duration: "long",
@@ -248,6 +238,16 @@ ui.QUI = new Class({
                 keys: 'ctrl+c',
                 description: '',
                 handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+            },
+            submitInput: {
+                keys: 'enter',
+                description: '',
+                handler: function(e) {
+                    var $tar = e.target;
+                    if($tar.hasClass('input-field'))  {
+                        $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
+                    }
+                }
             }
         }
     },
@@ -372,12 +372,10 @@ ui.QUI = new Class({
         return this.parent(client);
     },
 
-    setWindow: function($win) {
-        _.each(this.windowArray, function(win) {
-            if(!win.window.hasClass('detached'))
-                win.window.hide().removeClass('active');
-        });
-        $win.show().addClass('active');
+    setWindow: function(win) {
+        this.parent(win);
+        win.element.getSiblings('.active:not(.detached)').hide().removeClass('active');
+        win.element.show().addClass('active');
     },
 
     //called in context of irc client

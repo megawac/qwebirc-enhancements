@@ -1,7 +1,6 @@
 
 ui.Window = new Class({
     Extends: Epitome.View,
-    Binds: ["sendInput"],
     options: {
         events: {
 
@@ -16,7 +15,6 @@ ui.Window = new Class({
     active: false,
     lastSelected: null,
     closed: false,
-    subWindow: null,
     hilighted: ui.HILIGHT_NONE,
     lastNickHash: {},
 
@@ -38,14 +36,6 @@ ui.Window = new Class({
         this.destroy();
         return this;
     },
-    subEvent: function(event) {
-        var sub = this.subWindow
-        if ($defined(sub))
-            sub.fireEvent.call(sub, event);
-    },
-    setSubWindow: function(win) {
-        this.subWindow = win;
-    },
 
     select: function() {
         if(this.active) return;
@@ -54,13 +44,11 @@ ui.Window = new Class({
         if (this.hilighted)
             this.highlightTab(ui.HILIGHT_NONE);
 
-        this.subEvent("select");
+        this.fireEvent("selected");
         this.lastSelected = new Date();
     },
 
     deselect: function() {
-        this.subEvent("deselect");
-
         this.active = false;
     },
 
@@ -144,7 +132,6 @@ ui.Window = new Class({
         }
 
         this.nicklist.insertAt(nickele, position);
-        this.moveMenuClass();
 
         return nickele;
     },
@@ -152,22 +139,23 @@ ui.Window = new Class({
     nickListRemove: function(nick, stored) {
         try {
             this.nicklist.removeChild(stored);
-            this.moveMenuClass();
         } catch (e) {
         }
     },
 
-    sendInput: function(e, target) {
+    sendInput: function(e, $tar) {
         if(e) e.stop();
-        var target = e.target.tagName !== "INPUT" ? e.target.getElement('input[type="text"]') : e.target,
-            unparsed = target.val(),
+        if(!$tar || !$tar.hasClass('input-field')) {
+            this.window.getElement('.input .input-field')
+        }
+        var unparsed = $tar.val(),
             parsed = util.inputParser.parse(unparsed);
         if (parsed !== "") {
             this.parentObject.resetTabComplete();
             this.commandhistory.addLine(unparsed || parsed);
             this.client.exec(parsed, this.currentChannel);
-            target.val("");
+            $tar.val("");
         }
-        target.focus();
+        $tar.focus();
     }
 });

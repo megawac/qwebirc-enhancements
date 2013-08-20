@@ -197,7 +197,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<form class='input'>\r\n<div class='input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
+  buffer += "<div class='input'>\r\n<div class='input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -209,7 +209,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " input-field form-control' type='text'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n<ul class='dropdown-menu'>\r\n<li><a href='#'>Colours</a></li>\r\n<li><a href='#'>Styles</a></li>\r\n<li><a href='#'>IRC Commands</a></li>\r\n<li><a href='#'>Actions</a></li>\r\n</ul>\r\n</div>\r\n</form>";
+    + " input-field form-control' type='text'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n<ul class='dropdown-menu'>\r\n<li><a href='#'>Colours</a></li>\r\n<li><a href='#'>Styles</a></li>\r\n<li><a href='#'>IRC Commands</a></li>\r\n<li><a href='#'>Actions</a></li>\r\n</ul>\r\n</div>\r\n</div>";
   return buffer;
   });
 
@@ -618,7 +618,7 @@ function program3(depth0,data) {
   return buffer;
   }
 
-  buffer += "<div class=\"window qui hidden\" data-id=\"";
+  buffer += "<div class=\"window qui\" data-id=\"";
   if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -5496,7 +5496,8 @@ ui.BaseUI = new Class({
         var win = this.getWindow(client, name);
         if (!$defined(win)) {
             var wId = this.getWindowIdentifier(name);
-            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, new Element('div').inject(this.windowsPanel), client, type, name, wId);
+            var $wrapper = new Element('div', {'class': 'hidden'}).inject(this.windowsPanel);//for delegation - this is not how i should do it
+            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, $wrapper, client, type, name, wId);
             this.windowArray.push(win);
         }
 
@@ -5667,9 +5668,6 @@ ui.BaseUI = new Class({
             return this.active;
         }
     },
-    __setActiveWindow: function(win) {
-        this.active = win;
-    },
     selectWindow: function(win) {
         if(Type.isNumber(win))
             win = this.windowArray[win];
@@ -5678,10 +5676,15 @@ ui.BaseUI = new Class({
         if(win === this.active) return;
         if (this.active) {
             this.active.deselect();
+            // this.last = this.active;
         }
         if(!win.active) win.select();
-        this.__setActiveWindow(win);
+        this.setWindow(win);
         this.updateTitle(win.name + " - " + this.options.appTitle);
+        return win;
+    },
+    setWindow: function(win) {
+        this.active = win;
     },
     nextWindow: function(direction, fromWin) {
         var windows = this.windowArray,
@@ -5696,7 +5699,10 @@ ui.BaseUI = new Class({
     __closed: function(win) {
         var winarr = this.windowArray;
         if (win.active) {
-            if (winarr.length !== 1) {
+            if(this.last) {//select last active window
+                this.last.select();
+            }
+            else if (winarr.length !== 1) {
                 var index = winarr.indexOf(win);
                 if(index === -1) {
                     return;
@@ -5829,8 +5835,6 @@ ui.StandardUI = new Class({
 
         var ew = new class_(win.lines, options);
         ew.addEvent("close", win.close);
-
-        win.setSubWindow(ew);
     },
     embeddedWindow: function() {
         this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
@@ -6450,8 +6454,6 @@ ui.QUI = new Class({
         self.__createDropdownHint.delay(500, self);
     },
 
-
-
     newTab: function(win, name) {
         var self = this;
         var $tab = Element.from(templates.ircTab({
@@ -6499,14 +6501,6 @@ ui.QUI = new Class({
                 });
             dropdownMenu.appendChild(ele);
         });
-
-        // var dropdown = new Element("div");
-        // dropdown.addClass("dropdown-tab");
-        // dropdown.appendChild(new Element("img", {
-        //     src: qwebirc.global.staticBaseURL + "images/icon.png",
-        //     title: "menu",
-        //     alt: "menu"
-        // }));
 
         var dropdownEffect = new Fx.Tween(dropdown, {
             duration: "long",
@@ -6575,6 +6569,16 @@ ui.QUI = new Class({
                 keys: 'ctrl+c',
                 description: '',
                 handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+            },
+            submitInput: {
+                keys: 'enter',
+                description: '',
+                handler: function(e) {
+                    var $tar = e.target;
+                    if($tar.hasClass('input-field'))  {
+                        $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
+                    }
+                }
             }
         }
     },
@@ -6699,12 +6703,10 @@ ui.QUI = new Class({
         return this.parent(client);
     },
 
-    setWindow: function($win) {
-        _.each(this.windowArray, function(win) {
-            if(!win.window.hasClass('detached'))
-                win.window.hide().removeClass('active');
-        });
-        $win.show().addClass('active');
+    setWindow: function(win) {
+        this.parent(win);
+        win.element.getSiblings('.active:not(.detached)').hide().removeClass('active');
+        win.element.show().addClass('active');
     },
 
     //called in context of irc client
@@ -8080,7 +8082,6 @@ ui.style.ModifiableStylesheet = new Class({
 
 ui.Window = new Class({
     Extends: Epitome.View,
-    Binds: ["sendInput"],
     options: {
         events: {
 
@@ -8095,7 +8096,6 @@ ui.Window = new Class({
     active: false,
     lastSelected: null,
     closed: false,
-    subWindow: null,
     hilighted: ui.HILIGHT_NONE,
     lastNickHash: {},
 
@@ -8117,14 +8117,6 @@ ui.Window = new Class({
         this.destroy();
         return this;
     },
-    subEvent: function(event) {
-        var sub = this.subWindow
-        if ($defined(sub))
-            sub.fireEvent.call(sub, event);
-    },
-    setSubWindow: function(win) {
-        this.subWindow = win;
-    },
 
     select: function() {
         if(this.active) return;
@@ -8133,13 +8125,11 @@ ui.Window = new Class({
         if (this.hilighted)
             this.highlightTab(ui.HILIGHT_NONE);
 
-        this.subEvent("select");
+        this.fireEvent("selected");
         this.lastSelected = new Date();
     },
 
     deselect: function() {
-        this.subEvent("deselect");
-
         this.active = false;
     },
 
@@ -8223,7 +8213,6 @@ ui.Window = new Class({
         }
 
         this.nicklist.insertAt(nickele, position);
-        this.moveMenuClass();
 
         return nickele;
     },
@@ -8231,23 +8220,24 @@ ui.Window = new Class({
     nickListRemove: function(nick, stored) {
         try {
             this.nicklist.removeChild(stored);
-            this.moveMenuClass();
         } catch (e) {
         }
     },
 
-    sendInput: function(e, target) {
+    sendInput: function(e, $tar) {
         if(e) e.stop();
-        var target = e.target.tagName !== "INPUT" ? e.target.getElement('input[type="text"]') : e.target,
-            unparsed = target.val(),
+        if(!$tar || !$tar.hasClass('input-field')) {
+            this.window.getElement('.input .input-field')
+        }
+        var unparsed = $tar.val(),
             parsed = util.inputParser.parse(unparsed);
         if (parsed !== "") {
             this.parentObject.resetTabComplete();
             this.commandhistory.addLine(unparsed || parsed);
             this.client.exec(parsed, this.currentChannel);
-            target.val("");
+            $tar.val("");
         }
-        target.focus();
+        $tar.focus();
     }
 });
 
@@ -8291,6 +8281,7 @@ ui.QUI.Window = new Class({
         var self = this;
         self.element.empty()
             .html(self.template({
+                mobile: Browser.isMobile,
                 isChannel: util.isChannelType(self.type),
                 channel: self.name,
                 name: self.name,
@@ -8352,9 +8343,8 @@ ui.QUI.Window = new Class({
             po = this.parentObject;
 
         this.detached = false;
+        this.element.removeClass('detached');
 
-        wrapper.hide();
-        win.hide();
         // wrapper.removeChild(win);
         win.replaces(wrapper);
         wrapper.destroy();
@@ -8382,6 +8372,7 @@ ui.QUI.Window = new Class({
 
             resizeWrapper = Element.from(templates.resizeHandle()),
             resizeHandle = resizeWrapper.getElement('.resize-handle');
+        self.element.addClass('detached');
 
 
         //change window if we're active
@@ -8432,8 +8423,8 @@ ui.QUI.Window = new Class({
 
     setActive: function(e) {
         if(this.detached) {
-            this.wrapper.getSiblings('.detached-window').removeClass('active');
-            this.wrapper.addClass('active');
+            this.element.addClass('active')
+                        .getSiblings('.detached').removeClass('active');
         } else {
             this.select();
         }
@@ -8459,13 +8450,11 @@ ui.QUI.Window = new Class({
                 .addClass("tab-selected");
     },
 
-    select: function() {
+    select: function() {//change window elements
         if(this.active) return;
-        this.selectTab();
-
-        //change window elements
-        this.parentObject.setWindow(this.window);
         this.parent();
+
+        this.selectTab();
         this.selectUpdates();
         this.fireEvent("selected");
     },
@@ -8580,7 +8569,7 @@ ui.QUI.Window = new Class({
                 util.setAtEnd($inputbox);
             };
 
-        $form.addEvent("submit", self.sendInput);
+        // $form.addEvent("submit", self.sendInput);
         $inputbox.addEvents({
                     "focus": resettab,
                     "mousedown": resettab,
@@ -8612,69 +8601,38 @@ ui.QUI.Window = new Class({
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
-        var hasMenu = $tar.hasClass('selected-middle');
-
-        this.removePrevMenu(); //collapse old menus
-        if (!hasMenu) {
-            this.moveMenuClass($tar);
-            $tar.addClass("selected")
-                .store("menu", this.createMenu($tar.retrieve("nick"), $tar));
-        }
-    },
-
-    // - clicking user in nick list
-    createMenu: function(nick, $parent) {
-        var pmenu = $parent.retrieve('menu');
-        if(pmenu) {
-            return pmenu.toggle();
-        }
-
-        var $menu = Element.from(templates.menuContainer()),
+        var $par = $tar.getParent('.user').toggleClass("selected");
+        var $menu = $par.getElement('.menu'),
             self = this;
 
-        _.chain(ui.MENU_ITEMS)
-            .filter(function(item) {
-                return _.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate;
-            })
-            .each(function(item) {
-                Element.from(templates.nickmenubtn(item))
-                        .store("action", item.fn)
-                        .inject($menu);
-            });
+        this.removePrevMenu($par);
 
-        return $menu.inject($parent);
+        if($menu) {
+            $menu.toggle();
+        } else {
+            $menu = Element.from(templates.menuContainer()).inject($par)
+            _.each(ui.MENU_ITEMS, function(item) {
+                if(_.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate) {
+                    Element.from(templates.nickmenubtn(item))
+                            .store("action", item.fn)
+                            .inject($menu);
+                }
+            });
+        }
     },
 
     menuClick: function(e, target) {
         e.stop();
         var fn = target.retrieve("action");
-        var selected = this.nicklist.getElement('.selected');
+        var selected = target.getParent('.user');
         fn.call(this, selected.retrieve("nick"));
         this.removePrevMenu();
     },
 
-    moveMenuClass: function($sel) {
-        $sel = $($sel) || this.nicklist.getElement('.selected-middle, .selected');
-        
-        if($sel) {
-            if (this.nicklist.firstChild === $sel) {
-                $sel.removeClass("selected-middle");
-            } else {
-                $sel.addClass("selected-middle");
-            }
-        }
-    },
-
-    removePrevMenu: function() {
-        var $sel = this.nicklist.getElements('.selected-middle, .selected');
-        if ($sel) {
-            $sel.removeClasses("selected", "selected-middle");
-            var $menu = $sel.retrieve('menu');
-            if ($menu) {
-                $menu.dispose();
-                $sel.eliminate('menu');
-            }
-        }
+    removePrevMenu: function($tar) {
+        var $sel = $tar ? $tar.getSiblings('.selected') : this.nicklist.getElements('.selected');
+        $sel.removeClass("selected")
+            .getElement('.menu').each(Element.dispose);
     },
 
     updateTopic: function(topic) {

@@ -87,8 +87,7 @@ html, body {
     cursor: pointer;
 }
 
-
-.detached-window {
+.detached .detached-window {
     border-radius: 5px; 
     -moz-border-radius: 5px; 
     -webkit-border-radius: 5px; 
@@ -96,7 +95,7 @@ html, body {
     z-index: 2;
 }
 
-.detached-window.active {
+.detached.active .detached-window {
     z-index: 10;
 }
 
