@@ -6,13 +6,10 @@ html, body {
 }
 
 .windows {
-    /*height: calc(100% - 30px); /*tabbar*/
     width: 100%;
 }
 
 .window {
-    /*height: 100%;*/
-    /*height: calc(100% - 25px);*/
     position: absolute;
     top: 25px;
     bottom: 0;
@@ -77,11 +74,6 @@ html, body {
     width: 100%;
     bottom: 0;
 }
-
-/* .detached.windows {
-    position:absolute;
-} */
-
 
 .attach, .detach, .tab-close {
     cursor: pointer;

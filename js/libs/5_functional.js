@@ -154,6 +154,8 @@
 
         toInt: Number.toInt,
 
+        log: function() {console.log(arguments)},
+
         //https://gist.github.com/rjz/2815273
         assign: function(obj, key, value) {
             var keys = key.split('.'),

@@ -2,7 +2,6 @@
 
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
-// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
 /*
 ---
 
@@ -5310,7 +5309,7 @@ Handlebars.template = Handlebars.VM.template;
     // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
     // available.
     _.bind = function(fn) {
-        return nativeBind.apply(fn, slice.call(arguments, 1));
+        return fn.bind(slice.call(arguments, 1));
     };
 
     // Partially apply a function by creating a version that has had some of its
@@ -6052,6 +6051,8 @@ Handlebars.template = Handlebars.VM.template;
 
         toInt: Number.toInt,
 
+        log: function() {console.log(arguments)},
+
         //https://gist.github.com/rjz/2815273
         assign: function(obj, key, value) {
             var keys = key.split('.'),
@@ -6196,17 +6197,26 @@ Handlebars.template = Handlebars.VM.template;
         // },
     });
 
+    Element.Properties.val = Element.Properties.value = {
+        get: function() {
+            return this[(this.get('type') == 'checkbox') ? 'checked' : 'value'];
+        },
+        set: function(val) {
+            this[(this.get('type') == 'checkbox') ? 'checked' : 'value'] = val;
+        }
+    };
 
     var adopt = Element.prototype.adopt,
         inject = Element.prototype.inject;
 
 
-    ["html", "text"].each(function(fn) {
+    ["html", "text", "val"].each(function(fn) {
             Element.implement(fn, function(data) {
-                if (data) return this.set(fn, data);
+                if (typeof data !== 'undefined') return this.set(fn, data);
                 return this.get(fn);
             });
         });
+
 
     Element.implement({
 
@@ -6236,15 +6246,6 @@ Handlebars.template = Handlebars.VM.template;
                 ele.destroy();
             }
             return this;
-        },
-
-        val: function(val) {
-            var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
-
-            if (val != null) {
-                return this.set(key, val);
-            }
-            return this.get(key);
         },
 
         insertAt: function(element, position) {
@@ -6358,6 +6359,840 @@ Handlebars.template = Handlebars.VM.template;
 
     this.$A = Array.from;
 
+})();
+
+
+// Begin: Source/Class/Class.Occlude.js
+/*
+---
+
+script: Class.Occlude.js
+
+name: Class.Occlude
+
+description: Prevents a class from being applied to a DOM element twice.
+
+license: MIT-style license.
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Class
+  - Core/Element
+  - /MooTools.More
+
+provides: [Class.Occlude]
+
+...
+*/
+
+Class.Occlude = new Class({
+
+    occlude: function(property, element){
+        element = document.id(element || this.element);
+        var instance = element.retrieve(property || this.property);
+        if (instance && !this.occluded)
+            return (this.occluded = instance);
+
+        this.occluded = false;
+        element.store(property || this.property, this);
+        return this.occluded;
+    }
+
+});
+
+
+// Begin: Source/Types/String.QueryString.js
+/*
+---
+
+script: String.QueryString.js
+
+name: String.QueryString
+
+description: Methods for dealing with URI query strings.
+
+license: MIT-style license
+
+authors:
+  - Sebastian Markbåge
+  - Aaron Newton
+  - Lennart Pilon
+  - Valerio Proietti
+
+requires:
+  - Core/Array
+  - Core/String
+  - /MooTools.More
+
+provides: [String.QueryString]
+
+...
+*/
+
+String.implement({
+
+    parseQueryString: function(decodeKeys, decodeValues){
+        if (decodeKeys == null) decodeKeys = true;
+        if (decodeValues == null) decodeValues = true;
+
+        var vars = this.split(/[&;]/),
+            object = {};
+        if (!vars.length) return object;
+
+        vars.each(function(val){
+            var index = val.indexOf('=') + 1,
+                value = index ? val.substr(index) : '',
+                keys = index ? val.substr(0, index - 1).match(/([^\]\[]+|(\B)(?=\]))/g) : [val],
+                obj = object;
+            if (!keys) return;
+            if (decodeValues) value = decodeURIComponent(value);
+            keys.each(function(key, i){
+                if (decodeKeys) key = decodeURIComponent(key);
+                var current = obj[key];
+
+                if (i < keys.length - 1) obj = obj[key] = current || {};
+                else if (typeOf(current) == 'array') current.push(value);
+                else obj[key] = current != null ? [current, value] : value;
+            });
+        });
+
+        return object;
+    },
+
+    cleanQueryString: function(method){
+        return this.split('&').filter(function(val){
+            var index = val.indexOf('='),
+                key = index < 0 ? '' : val.substr(0, index),
+                value = val.substr(index + 1);
+
+            return method ? method.call(null, key, value) : (value || value === 0);
+        }).join('&');
+    }
+
+});
+
+
+// Begin: Source/Utilities/Table.js
+/*
+---
+name: Table
+description: LUA-Style table implementation.
+license: MIT-style license
+authors:
+  - Valerio Proietti
+requires: [Core/Array]
+provides: [Table]
+...
+*/
+
+(function(){
+
+var Table = this.Table = function(){
+
+    this.length = 0;
+    var keys = [],
+        values = [];
+    
+    this.set = function(key, value){
+        var index = keys.indexOf(key);
+        if (index == -1){
+            var length = keys.length;
+            keys[length] = key;
+            values[length] = value;
+            this.length++;
+        } else {
+            values[index] = value;
+        }
+        return this;
+    };
+
+    this.get = function(key){
+        var index = keys.indexOf(key);
+        return (index == -1) ? null : values[index];
+    };
+
+    this.erase = function(key){
+        var index = keys.indexOf(key);
+        if (index != -1){
+            this.length--;
+            keys.splice(index, 1);
+            return values.splice(index, 1)[0];
+        }
+        return null;
+    };
+
+    this.each = this.forEach = function(fn, bind){
+        for (var i = 0, l = this.length; i < l; i++) fn.call(bind, keys[i], values[i], this);
+    };
+    
+};
+
+if (this.Type) new Type('Table', Table);
+
+})();
+
+
+// Begin: Source/Utilities/IframeShim.js
+/*
+---
+
+script: IframeShim.js
+
+name: IframeShim
+
+description: Defines IframeShim, a class for obscuring select lists and flash objects in IE.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Element.Event
+  - Core/Element.Style
+  - Core/Options
+  - Core/Events
+  - /Element.Position
+  - /Class.Occlude
+
+provides: [IframeShim]
+
+...
+*/
+
+var IframeShim = new Class({
+
+    Implements: [Options, Events, Class.Occlude],
+
+    options: {
+        className: 'iframeShim',
+        src: 'javascript:false;document.write("");',
+        display: false,
+        zIndex: null,
+        margin: 0,
+        offset: {x: 0, y: 0},
+        browsers: (Browser.ie6 || (Browser.firefox && Browser.version < 3 && Browser.Platform.mac))
+    },
+
+    property: 'IframeShim',
+
+    initialize: function(element, options){
+        this.element = document.id(element);
+        if (this.occlude()) return this.occluded;
+        this.setOptions(options);
+        this.makeShim();
+        return this;
+    },
+
+    makeShim: function(){
+        if (this.options.browsers){
+            var zIndex = this.element.getStyle('zIndex').toInt();
+
+            if (!zIndex){
+                zIndex = 1;
+                var pos = this.element.getStyle('position');
+                if (pos == 'static' || !pos) this.element.setStyle('position', 'relative');
+                this.element.setStyle('zIndex', zIndex);
+            }
+            zIndex = ((this.options.zIndex != null || this.options.zIndex === 0) && zIndex > this.options.zIndex) ? this.options.zIndex : zIndex - 1;
+            if (zIndex < 0) zIndex = 1;
+            this.shim = new Element('iframe', {
+                src: this.options.src,
+                scrolling: 'no',
+                frameborder: 0,
+                styles: {
+                    zIndex: zIndex,
+                    position: 'absolute',
+                    border: 'none',
+                    filter: 'progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)'
+                },
+                'class': this.options.className
+            }).store('IframeShim', this);
+            var inject = (function(){
+                this.shim.inject(this.element, 'after');
+                this[this.options.display ? 'show' : 'hide']();
+                this.fireEvent('inject');
+            }).bind(this);
+            if (!IframeShim.ready) window.addEvent('load', inject);
+            else inject();
+        } else {
+            this.position = this.hide = this.show = this.dispose = Function.from(this);
+        }
+    },
+
+    position: function(){
+        if (!IframeShim.ready || !this.shim) return this;
+        var size = this.element.measure(function(){
+            return this.getSize();
+        });
+        if (this.options.margin != undefined){
+            size.x = size.x - (this.options.margin * 2);
+            size.y = size.y - (this.options.margin * 2);
+            this.options.offset.x += this.options.margin;
+            this.options.offset.y += this.options.margin;
+        }
+        this.shim.set({width: size.x, height: size.y}).position({
+            relativeTo: this.element,
+            offset: this.options.offset
+        });
+        return this;
+    },
+
+    hide: function(){
+        if (this.shim) this.shim.setStyle('display', 'none');
+        return this;
+    },
+
+    show: function(){
+        if (this.shim) this.shim.setStyle('display', 'block');
+        return this.position();
+    },
+
+    dispose: function(){
+        if (this.shim) this.shim.dispose();
+        return this;
+    },
+
+    destroy: function(){
+        if (this.shim) this.shim.destroy();
+        return this;
+    }
+
+});
+
+window.addEvent('load', function(){
+    IframeShim.ready = true;
+});
+
+
+// Begin: Source/Interface/Mask.js
+/*
+---
+
+script: Mask.js
+
+name: Mask
+
+description: Creates a mask element to cover another.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Options
+  - Core/Events
+  - Core/Element.Event
+  - /Class.Binds
+  - /Element.Position
+  - /IframeShim
+
+provides: [Mask]
+
+...
+*/
+
+var Mask = new Class({
+
+    Implements: [Options, Events],
+
+    Binds: ['position'],
+
+    options: {/*
+        onShow: function(){},
+        onHide: function(){},
+        onDestroy: function(){},
+        onClick: function(event){},
+        inject: {
+            where: 'after',
+            target: null,
+        },
+        hideOnClick: false,
+        id: null,
+        destroyOnHide: false,*/
+        style: {},
+        'class': 'mask',
+        maskMargins: false,
+        useIframeShim: true,
+        iframeShimOptions: {}
+    },
+
+    initialize: function(target, options){
+        this.target = document.id(target) || document.id(document.body);
+        this.target.store('mask', this);
+        this.setOptions(options);
+        this.render();
+        this.inject();
+    },
+
+    render: function(){
+        this.element = new Element('div', {
+            'class': this.options['class'],
+            id: this.options.id || 'mask-' + String.uniqueID(),
+            styles: Object.merge({}, this.options.style, {
+                display: 'none'
+            }),
+            events: {
+                click: function(event){
+                    this.fireEvent('click', event);
+                    if (this.options.hideOnClick) this.hide();
+                }.bind(this)
+            }
+        });
+
+        this.hidden = true;
+    },
+
+    toElement: function(){
+        return this.element;
+    },
+
+    inject: function(target, where){
+        where = where || (this.options.inject ? this.options.inject.where : '') || this.target == document.body ? 'inside' : 'after';
+        target = target || (this.options.inject && this.options.inject.target) || this.target;
+
+        this.element.inject(target, where);
+
+        if (this.options.useIframeShim){
+            this.shim = new IframeShim(this.element, this.options.iframeShimOptions);
+
+            this.addEvents({
+                show: this.shim.show.bind(this.shim),
+                hide: this.shim.hide.bind(this.shim),
+                destroy: this.shim.destroy.bind(this.shim)
+            });
+        }
+    },
+
+    position: function(){
+        this.resize(this.options.width, this.options.height);
+
+        this.element.position({
+            relativeTo: this.target,
+            position: 'topLeft',
+            ignoreMargins: !this.options.maskMargins,
+            ignoreScroll: this.target == document.body
+        });
+
+        return this;
+    },
+
+    resize: function(x, y){
+        var opt = {
+            styles: ['padding', 'border']
+        };
+        if (this.options.maskMargins) opt.styles.push('margin');
+
+        var dim = this.target.getComputedSize(opt);
+        if (this.target == document.body){
+            this.element.setStyles({width: 0, height: 0});
+            var win = window.getScrollSize();
+            if (dim.totalHeight < win.y) dim.totalHeight = win.y;
+            if (dim.totalWidth < win.x) dim.totalWidth = win.x;
+        }
+        this.element.setStyles({
+            width: Array.pick([x, dim.totalWidth, dim.x]),
+            height: Array.pick([y, dim.totalHeight, dim.y])
+        });
+
+        return this;
+    },
+
+    show: function(){
+        if (!this.hidden) return this;
+
+        window.addEvent('resize', this.position);
+        this.position();
+        this.showMask.apply(this, arguments);
+
+        return this;
+    },
+
+    showMask: function(){
+        this.element.setStyle('display', 'block');
+        this.hidden = false;
+        this.fireEvent('show');
+    },
+
+    hide: function(){
+        if (this.hidden) return this;
+
+        window.removeEvent('resize', this.position);
+        this.hideMask.apply(this, arguments);
+        if (this.options.destroyOnHide) return this.destroy();
+
+        return this;
+    },
+
+    hideMask: function(){
+        this.element.setStyle('display', 'none');
+        this.hidden = true;
+        this.fireEvent('hide');
+    },
+
+    toggle: function(){
+        this[this.hidden ? 'show' : 'hide']();
+    },
+
+    destroy: function(){
+        this.hide();
+        this.element.destroy();
+        this.fireEvent('destroy');
+        this.target.eliminate('mask');
+    }
+
+});
+
+Element.Properties.mask = {
+
+    set: function(options){
+        var mask = this.retrieve('mask');
+        if (mask) mask.destroy();
+        return this.eliminate('mask').store('mask:options', options);
+    },
+
+    get: function(){
+        var mask = this.retrieve('mask');
+        if (!mask){
+            mask = new Mask(this, this.retrieve('mask:options'));
+            this.store('mask', mask);
+        }
+        return mask;
+    }
+
+};
+
+Element.implement({
+
+    mask: function(options){
+        if (options) this.set('mask', options);
+        this.get('mask').show();
+        return this;
+    },
+
+    unmask: function(){
+        this.get('mask').hide();
+        return this;
+    }
+
+});
+
+
+/**
+ *
+ *  Base64 encode / decode
+ *  http://www.webtoolkit.info/
+ *
+ **/
+window.Base64 = (function() {
+    "use strict";
+
+    var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+    var _utf8_encode = function (string) {
+
+        var utftext = "", c, n;
+
+        string = string.replace(/\r\n/g,"\n");
+
+        for (n = 0; n < string.length; n++) {
+
+            c = string.charCodeAt(n);
+
+            if (c < 128) {
+
+                utftext += String.fromCharCode(c);
+
+            } else if((c > 127) && (c < 2048)) {
+
+                utftext += String.fromCharCode((c >> 6) | 192);
+                utftext += String.fromCharCode((c & 63) | 128);
+
+            } else {
+
+                utftext += String.fromCharCode((c >> 12) | 224);
+                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                utftext += String.fromCharCode((c & 63) | 128);
+
+            }
+
+        }
+
+        return utftext;
+    };
+
+    var _utf8_decode = function (utftext) {
+        var string = "", i = 0, c = 0, c1 = 0, c2 = 0;
+
+        while ( i < utftext.length ) {
+
+            c = utftext.charCodeAt(i);
+
+            if (c < 128) {
+
+                string += String.fromCharCode(c);
+                i++;
+
+            } else if((c > 191) && (c < 224)) {
+
+                c1 = utftext.charCodeAt(i+1);
+                string += String.fromCharCode(((c & 31) << 6) | (c1 & 63));
+                i += 2;
+
+            } else {
+
+                c1 = utftext.charCodeAt(i+1);
+                c2 = utftext.charCodeAt(i+2);
+                string += String.fromCharCode(((c & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63));
+                i += 3;
+
+            }
+
+        }
+
+        return string;
+    };
+
+    var _hexEncode = function(input) {
+        var output = '', i;
+
+        for(i = 0; i < input.length; i++) {
+            output += input.charCodeAt(i).toString(16);
+        }
+
+        return output;
+    };
+
+    var _hexDecode = function(input) {
+        var output = '', i;
+
+        if(input.length % 2 > 0) {
+            input = '0' + input;
+        }
+
+        for(i = 0; i < input.length; i = i + 2) {
+            output += String.fromCharCode(parseInt(input.charAt(i) + input.charAt(i + 1), 16));
+        }
+
+        return output;
+    };
+
+    var encode = function (input) {
+        if(!$defined(input))
+            return null;
+
+        var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
+
+        input = _utf8_encode(input);
+
+        while (i < input.length) {
+
+            chr1 = input.charCodeAt(i++);
+            chr2 = input.charCodeAt(i++);
+            chr3 = input.charCodeAt(i++);
+
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output += _keyStr.charAt(enc1);
+            output += _keyStr.charAt(enc2);
+            output += _keyStr.charAt(enc3);
+            output += _keyStr.charAt(enc4);
+
+        }
+
+        return output;
+    };
+
+    var decode = function (input) {
+        if(!$defined(input))
+            return null;
+
+        var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
+
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+        while (i < input.length) {
+
+            enc1 = _keyStr.indexOf(input.charAt(i++));
+            enc2 = _keyStr.indexOf(input.charAt(i++));
+            enc3 = _keyStr.indexOf(input.charAt(i++));
+            enc4 = _keyStr.indexOf(input.charAt(i++));
+
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+
+            output += String.fromCharCode(chr1);
+
+            if (enc3 !== 64) {
+                output += String.fromCharCode(chr2);
+            }
+            if (enc4 !== 64) {
+                output += String.fromCharCode(chr3);
+            }
+
+        }
+
+        return _utf8_decode(output);
+    };
+
+    var decodeToHex = function(input) {
+        return _hexEncode(decode(input));
+    };
+
+    var encodeFromHex = function(input) {
+        return encode(_hexDecode(input));
+    };
+
+    return {
+        'encode': encode,
+        'decode': decode,
+        'decodeToHex': decodeToHex,
+        'encodeFromHex': encodeFromHex
+    };
+}());
+
+/*
+    Lightweight basic autocompleter?
+    WIP: goal is to create typeaheadesque (https://github.com/twitter/typeahead.js/) input box. Only going to support local data and no drop down for now..
+*/
+(function() {
+    var keyboardBinds = {
+        "down": "next",
+        "up": "previous",
+        "tab": "finish",
+        "right": "finish",
+        "left": "stop",
+        "esc": "stop",
+        "enter": "complete"
+    };
+    
+    function hinter() {
+        var text = this.$input.get("value");
+        if(text.length >= this.options.minlen) {
+            var full = _.find(this.data, function(txt) {
+                return txt.startsWith(text);
+            });
+            this.seth(full || "");
+        }
+    }
+
+    this.Completer = new Class({
+        Implements: [Options],
+        Binds: ["process", "_update"],
+        index: -1,
+        options: {
+            stopPropogation: false,
+            //autostyle -todo for now templated,
+            autoPosition: true,//autopositon hint
+            selectors: {
+                hint: '.tt-hint',
+                input: '.tt-query'
+            },
+            minlen: 1,
+            delay: 400 //throttle time
+        },
+
+        //expects to be given a container with 2 inputs. One for actual input and a disabled one for offering possible completion.
+        //Future can also contain a container for menu
+        initialize: function(target, data, options) {
+            options = this.setOptions(options).options;
+            target = document.id(target);
+            this.data = data;
+
+            this.$events = {
+                "keydown": this.process,
+                "input": _.throttle(hinter.bind(this), options.delay)
+            };
+            this.$input = target.getElement(options.selectors.input)
+                                .addEvents(this.$events);
+            this.$hint = target.getElement(options.selectors.hint);
+            if(options.autoPosition) {
+                this.$hint.setStyle("position", "absolute");
+                this._update.delay(50);
+                window.addEvent("resize", this._update);
+            }
+        },
+
+        process: function(evt) {
+            var method = keyboardBinds[evt.key];
+            if(this[method]) {
+                if(this.options.stopPropogation) evt.stopPropagation();
+                this[method]();
+            }
+            //cant do hinting here as this is fired before input
+        },
+
+        next: function() {
+            this.stop();
+            if(this.index > 0) {
+                this.set(this.data[--this.index]);
+            } else {
+                this.set("");
+                this.index = -1;
+            }
+        },
+
+        previous: function() {
+            this.stop();
+            if(this.index + 1 < this.data.length) {
+                this.set(this.data[++this.index]);
+            } else {
+                this.set("");
+                this.index = this.data.length;
+            }
+        },
+
+        complete: function() {
+            this.finish();
+            this.reset();
+        },
+
+        finish: function() {
+            var text = this.$hint.get("value") || null;
+            this.set(text);
+        },
+
+        stop: function() {
+            this.seth("");
+        },
+
+        set: function(text) {
+            if(_.isString(text)) this.$input.set("value", text);
+        },
+
+        seth: function(text) {
+            if(_.isString(text)) this.$hint.set("value", text);
+        },
+
+        reset: function() {
+            this.stop();
+            this.index = -1;
+        },
+
+        _update: function() {
+            this.$hint.setStyles(this.$input.getCoordinates(this.$input.getParent()));
+        },
+
+        detach: function() {
+            this.$input.removeEvents(this.$events);
+            window.removeEvents({
+                "resize": this._update
+            });
+        }
+    });
 })();
 
 /*
@@ -6778,7 +7613,7 @@ Fx.AutoScroll = new Class({
     Extends: Fx.Scroll,
     Binds: ["updatePosition"],
     options: {
-        direction: 'Bottom', //Top, Right, Left, Bottom
+        // direction: 'Bottom',
         interval: 500,
         duration: 0, //ms to execute effect
         threshold: null,//px - how close to bottom to start scrolling
@@ -6796,7 +7631,7 @@ Fx.AutoScroll = new Class({
             timers = self.$timers = {},
 
             //fix for a small bug caused by using throttle - ensures fn is called after scrolling ends
-            throttleToggler = function() {
+            toggler = function() {
                 if(Date.now() > (self.lastUpdate + opts.duration + 20)) {//not self triggered (20ms to compensate for runtime)
                     // console.log('checkin bc last change : ' + (d - (self.lastUpdate + opts.duration + 20)));
                     clearTimeout(timers.throttle);
@@ -6811,8 +7646,8 @@ Fx.AutoScroll = new Class({
             'window': {
                 "resize": self.updatePosition
             }
-        }
-        this.$events.element["scroll:throttle(" + interval + ")"] = throttleToggler;
+        };
+        this.$events.element["scroll:throttle(" + interval + ")"] = toggler;
 
         this.element.addEvents(this.$events.element);
         window.addEvents(this.$events.window);
@@ -6856,7 +7691,6 @@ Fx.AutoScroll = new Class({
     },
 
     updatePosition: function(target) {
-        // var fn = "to" + this.options.direction;
         var $ele = this.element;
         if(this.scroll  &&
           /*bug fix for a off by one one in Fx.Scroll*/ Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop()) > 2) {
@@ -6880,517 +7714,62 @@ Fx.AutoScroll = new Class({
     }
 });
 
-// MooTools: the javascript framework.
-// Load this file's selection again by visiting: http://mootools.net/more/db53fa168c584b0b434828eef6a9d4b3 
-// Or build this file again with packager using: packager build More/Table More/Mask
+
+//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Alert&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FPopup&require=Bootstrap%2FBootstrap.Tooltip&excludeLibs=More
+//Contents: Behavior:Source/Event.Mock.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Behavior:Source/Delegator.js, More-Behaviors:Source/Delegators/Delegator.FxReveal.js, Bootstrap:Source/Behaviors/Behavior.BS.Alert.js, Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
+
+// Begin: Source/Event.Mock.js
 /*
 ---
-name: Table
-description: LUA-Style table implementation.
-license: MIT-style license
-authors:
-  - Valerio Proietti
-requires: [Core/Array]
-provides: [Table]
-...
-*/
+name: Event.Mock
 
-(function(){
-
-var Table = this.Table = function(){
-
-    this.length = 0;
-    var keys = [],
-        values = [];
-    
-    this.set = function(key, value){
-        var index = keys.indexOf(key);
-        if (index == -1){
-            var length = keys.length;
-            keys[length] = key;
-            values[length] = value;
-            this.length++;
-        } else {
-            values[index] = value;
-        }
-        return this;
-    };
-
-    this.get = function(key){
-        var index = keys.indexOf(key);
-        return (index == -1) ? null : values[index];
-    };
-
-    this.erase = function(key){
-        var index = keys.indexOf(key);
-        if (index != -1){
-            this.length--;
-            keys.splice(index, 1);
-            return values.splice(index, 1)[0];
-        }
-        return null;
-    };
-
-    this.each = this.forEach = function(fn, bind){
-        for (var i = 0, l = this.length; i < l; i++) fn.call(bind, keys[i], values[i], this);
-    };
-    
-};
-
-if (this.Type) new Type('Table', Table);
-
-})();
-
-
-
-
-/*
----
-
-script: Class.Occlude.js
-
-name: Class.Occlude
-
-description: Prevents a class from being applied to a DOM element twice.
-
-license: MIT-style license.
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Class
-  - Core/Element
-  - /MooTools.More
-
-provides: [Class.Occlude]
-
-...
-*/
-
-Class.Occlude = new Class({
-
-    occlude: function(property, element){
-        element = document.id(element || this.element);
-        var instance = element.retrieve(property || this.property);
-        if (instance && !this.occluded)
-            return (this.occluded = instance);
-
-        this.occluded = false;
-        element.store(property || this.property, this);
-        return this.occluded;
-    }
-
-});
-
-
-/*
----
-
-script: IframeShim.js
-
-name: IframeShim
-
-description: Defines IframeShim, a class for obscuring select lists and flash objects in IE.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Element.Event
-  - Core/Element.Style
-  - Core/Options
-  - Core/Events
-  - /Element.Position
-  - /Class.Occlude
-
-provides: [IframeShim]
-
-...
-*/
-
-var IframeShim = new Class({
-
-    Implements: [Options, Events, Class.Occlude],
-
-    options: {
-        className: 'iframeShim',
-        src: 'javascript:false;document.write("");',
-        display: false,
-        zIndex: null,
-        margin: 0,
-        offset: {x: 0, y: 0},
-        browsers: (Browser.ie6 || (Browser.firefox && Browser.version < 3 && Browser.Platform.mac))
-    },
-
-    property: 'IframeShim',
-
-    initialize: function(element, options){
-        this.element = document.id(element);
-        if (this.occlude()) return this.occluded;
-        this.setOptions(options);
-        this.makeShim();
-        return this;
-    },
-
-    makeShim: function(){
-        if (this.options.browsers){
-            var zIndex = this.element.getStyle('zIndex').toInt();
-
-            if (!zIndex){
-                zIndex = 1;
-                var pos = this.element.getStyle('position');
-                if (pos == 'static' || !pos) this.element.setStyle('position', 'relative');
-                this.element.setStyle('zIndex', zIndex);
-            }
-            zIndex = ((this.options.zIndex != null || this.options.zIndex === 0) && zIndex > this.options.zIndex) ? this.options.zIndex : zIndex - 1;
-            if (zIndex < 0) zIndex = 1;
-            this.shim = new Element('iframe', {
-                src: this.options.src,
-                scrolling: 'no',
-                frameborder: 0,
-                styles: {
-                    zIndex: zIndex,
-                    position: 'absolute',
-                    border: 'none',
-                    filter: 'progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)'
-                },
-                'class': this.options.className
-            }).store('IframeShim', this);
-            var inject = (function(){
-                this.shim.inject(this.element, 'after');
-                this[this.options.display ? 'show' : 'hide']();
-                this.fireEvent('inject');
-            }).bind(this);
-            if (!IframeShim.ready) window.addEvent('load', inject);
-            else inject();
-        } else {
-            this.position = this.hide = this.show = this.dispose = Function.from(this);
-        }
-    },
-
-    position: function(){
-        if (!IframeShim.ready || !this.shim) return this;
-        var size = this.element.measure(function(){
-            return this.getSize();
-        });
-        if (this.options.margin != undefined){
-            size.x = size.x - (this.options.margin * 2);
-            size.y = size.y - (this.options.margin * 2);
-            this.options.offset.x += this.options.margin;
-            this.options.offset.y += this.options.margin;
-        }
-        this.shim.set({width: size.x, height: size.y}).position({
-            relativeTo: this.element,
-            offset: this.options.offset
-        });
-        return this;
-    },
-
-    hide: function(){
-        if (this.shim) this.shim.setStyle('display', 'none');
-        return this;
-    },
-
-    show: function(){
-        if (this.shim) this.shim.setStyle('display', 'block');
-        return this.position();
-    },
-
-    dispose: function(){
-        if (this.shim) this.shim.dispose();
-        return this;
-    },
-
-    destroy: function(){
-        if (this.shim) this.shim.destroy();
-        return this;
-    }
-
-});
-
-window.addEvent('load', function(){
-    IframeShim.ready = true;
-});
-
-
-/*
----
-
-script: Mask.js
-
-name: Mask
-
-description: Creates a mask element to cover another.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Options
-  - Core/Events
-  - Core/Element.Event
-  - /Class.Binds
-  - /Element.Position
-  - /IframeShim
-
-provides: [Mask]
-
-...
-*/
-
-var Mask = new Class({
-
-    Implements: [Options, Events],
-
-    Binds: ['position'],
-
-    options: {/*
-        onShow: function(){},
-        onHide: function(){},
-        onDestroy: function(){},
-        onClick: function(event){},
-        inject: {
-            where: 'after',
-            target: null,
-        },
-        hideOnClick: false,
-        id: null,
-        destroyOnHide: false,*/
-        style: {},
-        'class': 'mask',
-        maskMargins: false,
-        useIframeShim: true,
-        iframeShimOptions: {}
-    },
-
-    initialize: function(target, options){
-        this.target = document.id(target) || document.id(document.body);
-        this.target.store('mask', this);
-        this.setOptions(options);
-        this.render();
-        this.inject();
-    },
-
-    render: function(){
-        this.element = new Element('div', {
-            'class': this.options['class'],
-            id: this.options.id || 'mask-' + String.uniqueID(),
-            styles: Object.merge({}, this.options.style, {
-                display: 'none'
-            }),
-            events: {
-                click: function(event){
-                    this.fireEvent('click', event);
-                    if (this.options.hideOnClick) this.hide();
-                }.bind(this)
-            }
-        });
-
-        this.hidden = true;
-    },
-
-    toElement: function(){
-        return this.element;
-    },
-
-    inject: function(target, where){
-        where = where || (this.options.inject ? this.options.inject.where : '') || this.target == document.body ? 'inside' : 'after';
-        target = target || (this.options.inject && this.options.inject.target) || this.target;
-
-        this.element.inject(target, where);
-
-        if (this.options.useIframeShim){
-            this.shim = new IframeShim(this.element, this.options.iframeShimOptions);
-
-            this.addEvents({
-                show: this.shim.show.bind(this.shim),
-                hide: this.shim.hide.bind(this.shim),
-                destroy: this.shim.destroy.bind(this.shim)
-            });
-        }
-    },
-
-    position: function(){
-        this.resize(this.options.width, this.options.height);
-
-        this.element.position({
-            relativeTo: this.target,
-            position: 'topLeft',
-            ignoreMargins: !this.options.maskMargins,
-            ignoreScroll: this.target == document.body
-        });
-
-        return this;
-    },
-
-    resize: function(x, y){
-        var opt = {
-            styles: ['padding', 'border']
-        };
-        if (this.options.maskMargins) opt.styles.push('margin');
-
-        var dim = this.target.getComputedSize(opt);
-        if (this.target == document.body){
-            this.element.setStyles({width: 0, height: 0});
-            var win = window.getScrollSize();
-            if (dim.totalHeight < win.y) dim.totalHeight = win.y;
-            if (dim.totalWidth < win.x) dim.totalWidth = win.x;
-        }
-        this.element.setStyles({
-            width: Array.pick([x, dim.totalWidth, dim.x]),
-            height: Array.pick([y, dim.totalHeight, dim.y])
-        });
-
-        return this;
-    },
-
-    show: function(){
-        if (!this.hidden) return this;
-
-        window.addEvent('resize', this.position);
-        this.position();
-        this.showMask.apply(this, arguments);
-
-        return this;
-    },
-
-    showMask: function(){
-        this.element.setStyle('display', 'block');
-        this.hidden = false;
-        this.fireEvent('show');
-    },
-
-    hide: function(){
-        if (this.hidden) return this;
-
-        window.removeEvent('resize', this.position);
-        this.hideMask.apply(this, arguments);
-        if (this.options.destroyOnHide) return this.destroy();
-
-        return this;
-    },
-
-    hideMask: function(){
-        this.element.setStyle('display', 'none');
-        this.hidden = true;
-        this.fireEvent('hide');
-    },
-
-    toggle: function(){
-        this[this.hidden ? 'show' : 'hide']();
-    },
-
-    destroy: function(){
-        this.hide();
-        this.element.destroy();
-        this.fireEvent('destroy');
-        this.target.eliminate('mask');
-    }
-
-});
-
-Element.Properties.mask = {
-
-    set: function(options){
-        var mask = this.retrieve('mask');
-        if (mask) mask.destroy();
-        return this.eliminate('mask').store('mask:options', options);
-    },
-
-    get: function(){
-        var mask = this.retrieve('mask');
-        if (!mask){
-            mask = new Mask(this, this.retrieve('mask:options'));
-            this.store('mask', mask);
-        }
-        return mask;
-    }
-
-};
-
-Element.implement({
-
-    mask: function(options){
-        if (options) this.set('mask', options);
-        this.get('mask').show();
-        return this;
-    },
-
-    unmask: function(){
-        this.get('mask').hide();
-        return this;
-    }
-
-});
-
-
-
-
-//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.Popup&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FBehavior.BS.Tooltip&require=Bootstrap%2FPopup&excludeLibs=More
-//Contents: Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/Behaviors/Behavior.BS.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/Behaviors/Behavior.BS.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
-
-// Begin: Source/UI/Bootstrap.js
-/*
----
-
-name: Bootstrap
-
-description: The BootStrap namespace.
-
-authors: [Aaron Newton]
-
-license: MIT-style license.
-
-provides: [Bootstrap]
-
-...
-*/
-var Bootstrap = {};
-
-// Begin: Source/UI/CSSEvents.js
-/*
----
-
-name: CSSEvents
+description: Supplies a Mock Event object for use on fireEvent
 
 license: MIT-style
 
-authors: [Aaron Newton]
+authors:
+- Arieh Glazer
 
-requires: [Core/DomReady]
+requires: Core/Event
 
-provides: CSSEvents
+provides: [Event.Mock]
+
 ...
 */
 
-Browser.Features.getCSSTransition = function(){
-    Browser.Features.cssTransition = (function () {
-        var thisBody = document.body || document.documentElement
-            , thisStyle = thisBody.style
-            , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
-        return support;
-    })();
+(function($,window,undef){
 
-    // set CSS transition event type
-    if ( Browser.Features.cssTransition ) {
-        Browser.Features.transitionEnd = "TransitionEnd";
-        if ( Browser.safari || Browser.chrome ) {
-            Browser.Features.transitionEnd = "webkitTransitionEnd";
-        } else if ( Browser.firefox ) {
-            Browser.Features.transitionEnd = "transitionend";
-        } else if ( Browser.opera ) {
-            Browser.Features.transitionEnd = "oTransitionEnd";
-        }
+/**
+ * creates a Mock event to be used with fire event
+ * @param Element target an element to set as the target of the event - not required
+ *  @param string type the type of the event to be fired. Will not be used by IE - not required.
+ *
+ */
+Event.Mock = function(target,type){
+    type = type || 'click';
+
+    var e = {
+        type: type,
+        target: target
+    };
+
+    if (document.createEvent){
+        e = document.createEvent('HTMLEvents');
+        e.initEvent(
+            type //event type
+            , false //bubbles - set to false because the event should like normal fireEvent
+            , true //cancelable
+        );
     }
-    Browser.Features.getCSSTransition = Function.from(Browser.Features.transitionEnd);
+
+    e = new Event(e);
+
+    e.target = target;
+
+    return e;
 };
 
-window.addEvent("domready", Browser.Features.getCSSTransition);
+})(document.id,window);
 
 // Begin: Source/Element.Data.js
 /*
@@ -8127,6 +8506,409 @@ provides: [Behavior]
 })();
 
 
+// Begin: Source/Delegator.js
+/*
+---
+name: Delegator
+description: Allows for the registration of delegated events on a container.
+requires: [Core/Element.Delegation, Core/Options, Core/Events, /Event.Mock, /Behavior]
+provides: [Delegator]
+...
+*/
+(function(){
+
+    var spaceOrCommaRegex = /\s*,\s*|\s+/g;
+
+    var checkEvent = function(trigger, element, event){
+        if (!event) return true;
+        return trigger.types.some(function(type){
+            var elementEvent = Element.Events[type];
+            if (elementEvent && elementEvent.condition){
+                return elementEvent.condition.call(element, event, type);
+            } else {
+                var eventType = elementEvent && elementEvent.base ? elementEvent.base : event.type;
+                return eventType == type;
+            }
+        });
+    };
+
+    window.Delegator = new Class({
+
+        Implements: [Options, Events, Behavior.PassMethods],
+
+        options: {
+            // breakOnErrors: false,
+            // onTrigger: function(trigger, element, event, result){},
+            getBehavior: function(){},
+            onLog: Behavior.getLog('info'),
+            onError: Behavior.getLog('error'),
+            onWarn: Behavior.getLog('warn')
+        },
+
+        initialize: function(options){
+            this.setOptions(options);
+            this._bound = {
+                eventHandler: this._eventHandler.bind(this)
+            };
+            Delegator._instances.push(this);
+            Object.each(Delegator._triggers, function(trigger){
+                this._eventTypes.combine(trigger.types);
+            }, this);
+            this.API = new Class({ Extends: BehaviorAPI });
+            this.passMethods({
+                addEvent: this.addEvent.bind(this),
+                removeEvent: this.removeEvent.bind(this),
+                addEvents: this.addEvents.bind(this),
+                removeEvents: this.removeEvents.bind(this),
+                fireEvent: this.fireEvent.bind(this),
+                attach: this.attach.bind(this),
+                trigger: this.trigger.bind(this),
+                error: function(){ this.fireEvent('error', arguments); }.bind(this),
+                fail: function(){
+                    var msg = Array.join(arguments, ' ');
+                    throw new Error(msg);
+                },
+                warn: function(){
+                    this.fireEvent('warn', arguments);
+                }.bind(this),
+                getBehavior: function(){
+                    return this.options.getBehavior();
+                }.bind(this)
+            });
+
+            this.bindToBehavior(this.options.getBehavior());
+        },
+
+        bindToBehavior: function(behavior){
+            if (!behavior) return;
+            this.unbindFromBehavior();
+            this._behavior = behavior;
+            if (this._behavior.options.verbose) this.options.verbose = true;
+            if (!this._behaviorEvents){
+                var self = this;
+                this._behaviorEvents = {
+                    destroyDom: function(elements){
+                        Array.from(elements).each(function(element){
+                            self._behavior.cleanup(element);
+                            self._behavior.fireEvent('destroyDom', element);
+                        });
+                    },
+                    ammendDom: function(container){
+                        self._behavior.apply(container);
+                        self._behavior.fireEvent('ammendDom', container);
+                    }
+                };
+            }
+            this.addEvents(this._behaviorEvents);
+        },
+
+        getBehavior: function(){
+            return this._behavior;
+        },
+
+        unbindFromBehavior: function(){
+            if (this._behaviorEvents && this._behavior){
+                this._behavior.removeEvents(this._behaviorEvents);
+                delete this._behavior;
+            }
+        },
+
+        attach: function(target, _method){
+            _method = _method || 'addEvent';
+            target = document.id(target);
+            if ((_method == 'addEvent' && this._attachedTo.contains(target)) ||
+                (_method == 'removeEvent') && !this._attachedTo.contains(target)) return this;
+            this._eventTypes.each(function(event){
+                target[_method](event + ':relay([data-trigger])', this._bound.eventHandler);
+            }, this);
+            this._attachedTo.push(target);
+            return this;
+        },
+
+        detach: function(target){
+            if (target){
+                this.attach(target, 'removeEvent');
+            } else {
+                this._attachedTo.each(this.detach, this);
+            }
+            return this;
+        },
+
+        trigger: function(name, element, event){
+            var e = event;
+            if (!e || typeOf(e) == "string") e = new Event.Mock(element, e);
+            if (this.options.verbose) this.fireEvent('log', ['Applying trigger: ', name, element, event]);
+            var result,
+                    trigger = this.getTrigger(name);
+            if (!trigger){
+                this.fireEvent('warn', 'Could not find a trigger by the name of ' + name);
+            } else if (checkEvent(trigger, element, e)) {
+                if (this.options.breakOnErrors){
+                    result = this._trigger(trigger, element, e);
+                } else {
+                    try {
+                        result = this._trigger(trigger, element, e);
+                    } catch(error) {
+                        this.fireEvent('error', ['Could not apply the trigger', name, error.message]);
+                    }
+                }
+            }
+            if (this.options.verbose && result) this.fireEvent('log', ['Successfully applied trigger: ', name, element, event]);
+            else if (this.options.verbose) this.fireEvent('log', ['Trigger applied, but did not return a result: ', name, element, event]);
+            return result;
+        },
+
+        getTrigger: function(name){
+            return this._triggers[name] || Delegator._triggers[name];
+        },
+
+        addEventTypes: function(triggerName, types){
+            this.getTrigger(triggerName).types.combine(Array.from(types));
+            return this;
+        },
+
+        /******************
+         * PRIVATE METHODS
+         ******************/
+
+        _trigger: function(trigger, element, event){
+            var api = new this.API(element, trigger.name);
+            if (trigger.requireAs){
+                api.requireAs(trigger.requireAs);
+            } else if (trigger.require){
+                api.require.apply(api, Array.from(trigger.require));
+            } if (trigger.defaults){
+                api.setDefault(trigger.defaults);
+            }
+            if (Delegator.debugging && Delegator.debugging.contains(name)) debugger;
+            var result = trigger.handler.apply(this, [event, element, api]);
+            this.fireEvent('trigger', [trigger, element, event, result]);
+            return result;
+        },
+
+        _eventHandler: function(event, target){
+            var triggers = target.getTriggers();
+            if (triggers.contains('Stop')) event.stop();
+            if (triggers.contains('PreventDefault')) event.preventDefault();
+            triggers.each(function(trigger){
+                if (trigger != "Stop" && trigger != "PreventDefault") this.trigger(trigger, target, event);
+            }, this);
+        },
+
+        _onRegister: function(eventTypes){
+            eventTypes.each(function(eventType){
+                if (!this._eventTypes.contains(eventType)){
+                    this._attachedTo.each(function(element){
+                        element.addEvent(eventType + ':relay([data-trigger])', this._bound.eventHandler);
+                    }, this);
+                }
+                this._eventTypes.include(eventType);
+            }, this);
+        },
+
+        _attachedTo: [],
+        _eventTypes: [],
+        _triggers: {}
+
+    });
+
+    Delegator._triggers = {};
+    Delegator._instances = [];
+    Delegator._onRegister = function(eventType){
+        this._instances.each(function(instance){
+            instance._onRegister(eventType);
+        });
+    };
+
+    Delegator.register = function(eventTypes, name, handler, overwrite /** or eventType, obj, overwrite */){
+        eventTypes = Array.from(eventTypes);
+        if (typeOf(name) == "object"){
+            var obj = name;
+            for (name in obj){
+                this.register.apply(this, [eventTypes, name, obj[name], handler]);
+            }
+            return this;
+        }
+        if (!this._triggers[name] || overwrite){
+            if (typeOf(handler) == "function"){
+                handler = {
+                    handler: handler
+                };
+            }
+            handler.types = eventTypes;
+            handler.name = name;
+            this._triggers[name] = handler;
+            this._onRegister(eventTypes);
+        } else {
+            throw new Error('Could add the trigger "' + name +'" as a previous trigger by that same name exists.');
+        }
+        return this;
+    };
+
+    Delegator.getTrigger = function(name){
+        return this._triggers[name];
+    };
+
+    Delegator.addEventTypes = function(triggerName, types){
+        this.getTrigger(triggerName).types.combine(Array.from(types));
+        return this;
+    };
+
+    Delegator.debug = function(name){
+        if (!Delegator.debugging) Delegator.debugging = [];
+        Delegator.debugging.push(name);
+    };
+
+
+    Delegator.implement('register', Delegator.register);
+
+    Element.implement({
+
+        addTrigger: function(name){
+            return this.setData('trigger', this.getTriggers().include(name).join(' '));
+        },
+
+        removeTrigger: function(name){
+            return this.setData('trigger', this.getTriggers().erase(name).join(' '));
+        },
+
+        getTriggers: function(){
+            var triggers = this.getData('trigger');
+            if (!triggers) return [];
+            return triggers.trim().split(spaceOrCommaRegex);
+        },
+
+        hasTrigger: function(name){
+            return this.getTriggers().contains(name);
+        }
+
+    });
+
+})();
+
+// Begin: Source/Delegators/Delegator.FxReveal.js
+/*
+---
+description: Provides methods to reveal, dissolve, nix, and toggle using Fx.Reveal.
+provides: [Delegator.FxReveal, Delegator.Reveal, Delegator.ToggleReveal, Delegator.Dissolve, Delegator.Nix]
+requires: [Behavior/Delegator, More/Fx.Reveal]
+script: Delegator.FxReveal.js
+name: Delegator.FxReveal
+
+...
+*/
+(function(){
+
+    var triggers = {};
+
+    ['reveal', 'toggleReveal', 'dissolve', 'nix'].each(function(action){
+
+        triggers[action] = {
+            handler: function(event, link, api){
+                var targets;
+                if (api.get('target')){
+                    targets = new Elements([link.getElement(api.get('target'))]);
+                    if (!targets) api.fail('could not locate target element to ' + action, link);
+                } else if (api.get('targets')){
+                    targets = link.getElements(api.get('targets'));
+                    if (!targets.length) api.fail('could not locate target elements to ' + action, link);
+                } else {
+                    targets = new Elements([link]);
+                }
+
+                var fxOptions = api.get('fxOptions');
+                if (fxOptions) targets.set('reveal', fxOptions);
+                targets.get('reveal');
+                if (action == 'toggleReveal') targets.get('reveal').invoke('toggle');
+                else targets[action]();
+                if (!api.getAs(Boolean, 'allowEvent')) event.preventDefault();
+            }
+        };
+
+    });
+
+    Delegator.register('click', triggers);
+
+})();
+
+// Begin: Source/Behaviors/Behavior.BS.Alert.js
+/*
+---
+
+name: Behavior.BS.Alert
+
+description: This file just depends on the Fx.Reveal delegator in More-Behaviors to ensure you get it if you load the entire Bootstrap JS package.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - More-Behaviors/Delegator.Nix
+
+provides: [Behavior.BS.Alert]
+
+...
+*/
+
+// Begin: Source/UI/Bootstrap.js
+/*
+---
+
+name: Bootstrap
+
+description: The BootStrap namespace.
+
+authors: [Aaron Newton]
+
+license: MIT-style license.
+
+provides: [Bootstrap]
+
+...
+*/
+var Bootstrap = {};
+
+// Begin: Source/UI/CSSEvents.js
+/*
+---
+
+name: CSSEvents
+
+license: MIT-style
+
+authors: [Aaron Newton]
+
+requires: [Core/DomReady]
+
+provides: CSSEvents
+...
+*/
+
+Browser.Features.getCSSTransition = function(){
+    Browser.Features.cssTransition = (function () {
+        var thisBody = document.body || document.documentElement
+            , thisStyle = thisBody.style
+            , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+        return support;
+    })();
+
+    // set CSS transition event type
+    if ( Browser.Features.cssTransition ) {
+        Browser.Features.transitionEnd = "TransitionEnd";
+        if ( Browser.safari || Browser.chrome ) {
+            Browser.Features.transitionEnd = "webkitTransitionEnd";
+        } else if ( Browser.firefox ) {
+            Browser.Features.transitionEnd = "transitionend";
+        } else if ( Browser.opera ) {
+            Browser.Features.transitionEnd = "oTransitionEnd";
+        }
+    }
+    Browser.Features.getCSSTransition = Function.from(Browser.Features.transitionEnd);
+};
+
+window.addEvent("domready", Browser.Features.getCSSTransition);
+
 // Begin: Source/UI/Bootstrap.Tooltip.js
 /*
 ---
@@ -8319,68 +9101,6 @@ Bootstrap.Tooltip = Bootstrap.Twipsy = new Class({
 
 });
 
-// Begin: Source/Behaviors/Behavior.BS.Tooltip.js
-/*
----
-
-name: Behavior.BS.Tooltip
-
-description: Instantiates Bootstrap.Tooltip based on HTML markup.
-
-license: MIT-style license.
-
-authors: [Aaron Newton]
-
-requires:
- - /Bootstrap.Tooltip
- - Behavior/Behavior
- - More/Object.Extras
-
-provides: [Behavior.BS.Twipsy, Behavior.BS.Tooltip]
-
-...
-*/
-(function(){
-    var filter = {
-        defaults: {
-            location: 'above', //below, left, right
-            animate: true,
-            delayIn: 200,
-            delayOut: 0,
-            onOverflow: false,
-            offset: 0,
-            trigger: 'hover' //focus, manual
-        },
-        delayUntil: 'mouseover,focus',
-        returns: Bootstrap.Tooltip,
-        setup: function(el, api){
-            var options = Object.cleanValues(
-                api.getAs({
-                    onOverflow: Boolean,
-                    location: String,
-                    animate: Boolean,
-                    delayIn: Number,
-                    delayOut: Number,
-                    fallback: String,
-                    override: String,
-                    html: Boolean,
-                    offset: Number,
-                    trigger: String
-                })
-            );
-            options.getTitle = Function.from(api.get('content') || el.get('title'));
-            var tip = new Bootstrap.Tooltip(el, options);
-            api.onCleanup(tip.destroy.bind(tip));
-            if (api.event) tip.show();
-            return tip;
-        }
-    };
-    Behavior.addGlobalFilters({
-        'BS.Tooltip': filter,
-        'BS.Twipsy': filter
-    });
-})();
-
 // Begin: Source/UI/Bootstrap.Popup.js
 /*
 ---
@@ -8556,67 +9276,6 @@ Bootstrap.Popup = new Class({
         }
     }
 
-});
-
-// Begin: Source/Behaviors/Behavior.BS.Popup.js
-/*
----
-
-name: Behavior.Popup
-
-description: Creates a bootstrap popup based on HTML markup.
-
-license: MIT-style license.
-
-authors: [Aaron Newton]
-
-requires:
- - Behavior/Behavior
- - More/Object.Extras
- - Bootstrap.Popup
-
-provides: [Behavior.BS.Popup]
-
-...
-*/
-
-Behavior.addGlobalFilters({
-    'BS.Popup': {
-        defaults: {
-            focusOnShow: "input[type=text], select, textarea, .modal-footer .btn-primary, .modal-footer .btn",
-            hide: false,
-            animate: true,
-            closeOnEsc: true,
-            closeOnClickOut: true,
-            mask: true,
-            persist: true
-        },
-        returns: Bootstrap.Popup,
-        setup: function(el, api){
-            var popup = new Bootstrap.Popup(el,
-                Object.cleanValues(
-                    api.getAs({
-                        persist: Boolean,
-                        animate: Boolean,
-                        closeOnEsc: Boolean,
-                        closeOnClickOut: Boolean,
-                        mask: Boolean
-                    })
-                )
-            );
-            popup.addEvent('destroy', function(){
-                api.cleanup(el);
-            });
-            popup.addEvent('show', function(){
-                var focus = document.id(popup).getElement(api.get('focusOnShow'));
-                if (focus) focus.select();
-            });
-            if (!el.hasClass('hide') && !api.getAs(Boolean, 'hide') && (!el.hasClass('in') && !el.hasClass('fade'))) {
-                popup.show();
-            }
-            return popup;
-        }
-    }
 });
 
 // Begin: Source/UI/Bootstrap.Dropdown.js
@@ -9394,6 +10053,8 @@ Drag.SplitPane = new Class({
     }
 });
 
+/*! Socket.IO.min.js build:0.9.16, production. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+var io="undefined"==typeof module?{}:module.exports;(function(){(function(a,b){var c=a;c.version="0.9.16",c.protocol=1,c.transports=[],c.j=[],c.sockets={},c.connect=function(a,d){var e=c.util.parseUri(a),f,g;b&&b.location&&(e.protocol=e.protocol||b.location.protocol.slice(0,-1),e.host=e.host||(b.document?b.document.domain:b.location.hostname),e.port=e.port||b.location.port),f=c.util.uniqueUri(e);var h={host:e.host,secure:"https"==e.protocol,port:e.port||("https"==e.protocol?443:80),query:e.query||""};c.util.merge(h,d);if(h["force new connection"]||!c.sockets[f])g=new c.Socket(h);return!h["force new connection"]&&g&&(c.sockets[f]=g),g=g||c.sockets[f],g.of(e.path.length>1?e.path:"")}})("object"==typeof module?module.exports:this.io={},this),function(a,b){var c=a.util={},d=/^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/,e=["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"];c.parseUri=function(a){var b=d.exec(a||""),c={},f=14;while(f--)c[e[f]]=b[f]||"";return c},c.uniqueUri=function(a){var c=a.protocol,d=a.host,e=a.port;return"document"in b?(d=d||document.domain,e=e||(c=="https"&&document.location.protocol!=="https:"?443:document.location.port)):(d=d||"localhost",!e&&c=="https"&&(e=443)),(c||"http")+"://"+d+":"+(e||80)},c.query=function(a,b){var d=c.chunkQuery(a||""),e=[];c.merge(d,c.chunkQuery(b||""));for(var f in d)d.hasOwnProperty(f)&&e.push(f+"="+d[f]);return e.length?"?"+e.join("&"):""},c.chunkQuery=function(a){var b={},c=a.split("&"),d=0,e=c.length,f;for(;d<e;++d)f=c[d].split("="),f[0]&&(b[f[0]]=f[1]);return b};var f=!1;c.load=function(a){if("document"in b&&document.readyState==="complete"||f)return a();c.on(b,"load",a,!1)},c.on=function(a,b,c,d){a.attachEvent?a.attachEvent("on"+b,c):a.addEventListener&&a.addEventListener(b,c,d)},c.request=function(a){if(a&&"undefined"!=typeof XDomainRequest&&!c.ua.hasCORS)return new XDomainRequest;if("undefined"!=typeof XMLHttpRequest&&(!a||c.ua.hasCORS))return new XMLHttpRequest;if(!a)try{return new(window[["Active"].concat("Object").join("X")])("Microsoft.XMLHTTP")}catch(b){}return null},"undefined"!=typeof window&&c.load(function(){f=!0}),c.defer=function(a){if(!c.ua.webkit||"undefined"!=typeof importScripts)return a();c.load(function(){setTimeout(a,100)})},c.merge=function(b,d,e,f){var g=f||[],h=typeof e=="undefined"?2:e,i;for(i in d)d.hasOwnProperty(i)&&c.indexOf(g,i)<0&&(typeof b[i]!="object"||!h?(b[i]=d[i],g.push(d[i])):c.merge(b[i],d[i],h-1,g));return b},c.mixin=function(a,b){c.merge(a.prototype,b.prototype)},c.inherit=function(a,b){function c(){}c.prototype=b.prototype,a.prototype=new c},c.isArray=Array.isArray||function(a){return Object.prototype.toString.call(a)==="[object Array]"},c.intersect=function(a,b){var d=[],e=a.length>b.length?a:b,f=a.length>b.length?b:a;for(var g=0,h=f.length;g<h;g++)~c.indexOf(e,f[g])&&d.push(f[g]);return d},c.indexOf=function(a,b,c){for(var d=a.length,c=c<0?c+d<0?0:c+d:c||0;c<d&&a[c]!==b;c++);return d<=c?-1:c},c.toArray=function(a){var b=[];for(var c=0,d=a.length;c<d;c++)b.push(a[c]);return b},c.ua={},c.ua.hasCORS="undefined"!=typeof XMLHttpRequest&&function(){try{var a=new XMLHttpRequest}catch(b){return!1}return a.withCredentials!=undefined}(),c.ua.webkit="undefined"!=typeof navigator&&/webkit/i.test(navigator.userAgent),c.ua.iDevice="undefined"!=typeof navigator&&/iPad|iPhone|iPod/i.test(navigator.userAgent)}("undefined"!=typeof io?io:module.exports,this),function(a,b){function c(){}a.EventEmitter=c,c.prototype.on=function(a,c){return this.$events||(this.$events={}),this.$events[a]?b.util.isArray(this.$events[a])?this.$events[a].push(c):this.$events[a]=[this.$events[a],c]:this.$events[a]=c,this},c.prototype.addListener=c.prototype.on,c.prototype.once=function(a,b){function d(){c.removeListener(a,d),b.apply(this,arguments)}var c=this;return d.listener=b,this.on(a,d),this},c.prototype.removeListener=function(a,c){if(this.$events&&this.$events[a]){var d=this.$events[a];if(b.util.isArray(d)){var e=-1;for(var f=0,g=d.length;f<g;f++)if(d[f]===c||d[f].listener&&d[f].listener===c){e=f;break}if(e<0)return this;d.splice(e,1),d.length||delete this.$events[a]}else(d===c||d.listener&&d.listener===c)&&delete this.$events[a]}return this},c.prototype.removeAllListeners=function(a){return a===undefined?(this.$events={},this):(this.$events&&this.$events[a]&&(this.$events[a]=null),this)},c.prototype.listeners=function(a){return this.$events||(this.$events={}),this.$events[a]||(this.$events[a]=[]),b.util.isArray(this.$events[a])||(this.$events[a]=[this.$events[a]]),this.$events[a]},c.prototype.emit=function(a){if(!this.$events)return!1;var c=this.$events[a];if(!c)return!1;var d=Array.prototype.slice.call(arguments,1);if("function"==typeof c)c.apply(this,d);else{if(!b.util.isArray(c))return!1;var e=c.slice();for(var f=0,g=e.length;f<g;f++)e[f].apply(this,d)}return!0}}("undefined"!=typeof io?io:module.exports,"undefined"!=typeof io?io:module.parent.exports),function(exports,nativeJSON){function f(a){return a<10?"0"+a:a}function date(a,b){return isFinite(a.valueOf())?a.getUTCFullYear()+"-"+f(a.getUTCMonth()+1)+"-"+f(a.getUTCDate())+"T"+f(a.getUTCHours())+":"+f(a.getUTCMinutes())+":"+f(a.getUTCSeconds())+"Z":null}function quote(a){return escapable.lastIndex=0,escapable.test(a)?'"'+a.replace(escapable,function(a){var b=meta[a];return typeof b=="string"?b:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function str(a,b){var c,d,e,f,g=gap,h,i=b[a];i instanceof Date&&(i=date(a)),typeof rep=="function"&&(i=rep.call(b,a,i));switch(typeof i){case"string":return quote(i);case"number":return isFinite(i)?String(i):"null";case"boolean":case"null":return String(i);case"object":if(!i)return"null";gap+=indent,h=[];if(Object.prototype.toString.apply(i)==="[object Array]"){f=i.length;for(c=0;c<f;c+=1)h[c]=str(c,i)||"null";return e=h.length===0?"[]":gap?"[\n"+gap+h.join(",\n"+gap)+"\n"+g+"]":"["+h.join(",")+"]",gap=g,e}if(rep&&typeof rep=="object"){f=rep.length;for(c=0;c<f;c+=1)typeof rep[c]=="string"&&(d=rep[c],e=str(d,i),e&&h.push(quote(d)+(gap?": ":":")+e))}else for(d in i)Object.prototype.hasOwnProperty.call(i,d)&&(e=str(d,i),e&&h.push(quote(d)+(gap?": ":":")+e));return e=h.length===0?"{}":gap?"{\n"+gap+h.join(",\n"+gap)+"\n"+g+"}":"{"+h.join(",")+"}",gap=g,e}}"use strict";if(nativeJSON&&nativeJSON.parse)return exports.JSON={parse:nativeJSON.parse,stringify:nativeJSON.stringify};var JSON=exports.JSON={},cx=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,escapable=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,gap,indent,meta={"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},rep;JSON.stringify=function(a,b,c){var d;gap="",indent="";if(typeof c=="number")for(d=0;d<c;d+=1)indent+=" ";else typeof c=="string"&&(indent=c);rep=b;if(!b||typeof b=="function"||typeof b=="object"&&typeof b.length=="number")return str("",{"":a});throw new Error("JSON.stringify")},JSON.parse=function(text,reviver){function walk(a,b){var c,d,e=a[b];if(e&&typeof e=="object")for(c in e)Object.prototype.hasOwnProperty.call(e,c)&&(d=walk(e,c),d!==undefined?e[c]=d:delete e[c]);return reviver.call(a,b,e)}var j;text=String(text),cx.lastIndex=0,cx.test(text)&&(text=text.replace(cx,function(a){return"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)}));if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,"@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,"]").replace(/(?:^|:|,)(?:\s*\[)+/g,"")))return j=eval("("+text+")"),typeof reviver=="function"?walk({"":j},""):j;throw new SyntaxError("JSON.parse")}}("undefined"!=typeof io?io:module.exports,typeof JSON!="undefined"?JSON:undefined),function(a,b){var c=a.parser={},d=c.packets=["disconnect","connect","heartbeat","message","json","event","ack","error","noop"],e=c.reasons=["transport not supported","client not handshaken","unauthorized"],f=c.advice=["reconnect"],g=b.JSON,h=b.util.indexOf;c.encodePacket=function(a){var b=h(d,a.type),c=a.id||"",i=a.endpoint||"",j=a.ack,k=null;switch(a.type){case"error":var l=a.reason?h(e,a.reason):"",m=a.advice?h(f,a.advice):"";if(l!==""||m!=="")k=l+(m!==""?"+"+m:"");break;case"message":a.data!==""&&(k=a.data);break;case"event":var n={name:a.name};a.args&&a.args.length&&(n.args=a.args),k=g.stringify(n);break;case"json":k=g.stringify(a.data);break;case"connect":a.qs&&(k=a.qs);break;case"ack":k=a.ackId+(a.args&&a.args.length?"+"+g.stringify(a.args):"")}var o=[b,c+(j=="data"?"+":""),i];return k!==null&&k!==undefined&&o.push(k),o.join(":")},c.encodePayload=function(a){var b="";if(a.length==1)return a[0];for(var c=0,d=a.length;c<d;c++){var e=a[c];b+="\ufffd"+e.length+"\ufffd"+a[c]}return b};var i=/([^:]+):([0-9]+)?(\+)?:([^:]+)?:?([\s\S]*)?/;c.decodePacket=function(a){var b=a.match(i);if(!b)return{};var c=b[2]||"",a=b[5]||"",h={type:d[b[1]],endpoint:b[4]||""};c&&(h.id=c,b[3]?h.ack="data":h.ack=!0);switch(h.type){case"error":var b=a.split("+");h.reason=e[b[0]]||"",h.advice=f[b[1]]||"";break;case"message":h.data=a||"";break;case"event":try{var j=g.parse(a);h.name=j.name,h.args=j.args}catch(k){}h.args=h.args||[];break;case"json":try{h.data=g.parse(a)}catch(k){}break;case"connect":h.qs=a||"";break;case"ack":var b=a.match(/^([0-9]+)(\+)?(.*)/);if(b){h.ackId=b[1],h.args=[];if(b[3])try{h.args=b[3]?g.parse(b[3]):[]}catch(k){}}break;case"disconnect":case"heartbeat":}return h},c.decodePayload=function(a){if(a.charAt(0)=="\ufffd"){var b=[];for(var d=1,e="";d<a.length;d++)a.charAt(d)=="\ufffd"?(b.push(c.decodePacket(a.substr(d+1).substr(0,e))),d+=Number(e)+1,e=""):e+=a.charAt(d);return b}return[c.decodePacket(a)]}}("undefined"!=typeof io?io:module.exports,"undefined"!=typeof io?io:module.parent.exports),function(a,b){function c(a,b){this.socket=a,this.sessid=b}a.Transport=c,b.util.mixin(c,b.EventEmitter),c.prototype.heartbeats=function(){return!0},c.prototype.onData=function(a){this.clearCloseTimeout(),(this.socket.connected||this.socket.connecting||this.socket.reconnecting)&&this.setCloseTimeout();if(a!==""){var c=b.parser.decodePayload(a);if(c&&c.length)for(var d=0,e=c.length;d<e;d++)this.onPacket(c[d])}return this},c.prototype.onPacket=function(a){return this.socket.setHeartbeatTimeout(),a.type=="heartbeat"?this.onHeartbeat():(a.type=="connect"&&a.endpoint==""&&this.onConnect(),a.type=="error"&&a.advice=="reconnect"&&(this.isOpen=!1),this.socket.onPacket(a),this)},c.prototype.setCloseTimeout=function(){if(!this.closeTimeout){var a=this;this.closeTimeout=setTimeout(function(){a.onDisconnect()},this.socket.closeTimeout)}},c.prototype.onDisconnect=function(){return this.isOpen&&this.close(),this.clearTimeouts(),this.socket.onDisconnect(),this},c.prototype.onConnect=function(){return this.socket.onConnect(),this},c.prototype.clearCloseTimeout=function(){this.closeTimeout&&(clearTimeout(this.closeTimeout),this.closeTimeout=null)},c.prototype.clearTimeouts=function(){this.clearCloseTimeout(),this.reopenTimeout&&clearTimeout(this.reopenTimeout)},c.prototype.packet=function(a){this.send(b.parser.encodePacket(a))},c.prototype.onHeartbeat=function(a){this.packet({type:"heartbeat"})},c.prototype.onOpen=function(){this.isOpen=!0,this.clearCloseTimeout(),this.socket.onOpen()},c.prototype.onClose=function(){var a=this;this.isOpen=!1,this.socket.onClose(),this.onDisconnect()},c.prototype.prepareUrl=function(){var a=this.socket.options;return this.scheme()+"://"+a.host+":"+a.port+"/"+a.resource+"/"+b.protocol+"/"+this.name+"/"+this.sessid},c.prototype.ready=function(a,b){b.call(this)}}("undefined"!=typeof io?io:module.exports,"undefined"!=typeof io?io:module.parent.exports),function(a,b,c){function d(a){this.options={port:80,secure:!1,document:"document"in c?document:!1,resource:"socket.io",transports:b.transports,"connect timeout":1e4,"try multiple transports":!0,reconnect:!0,"reconnection delay":500,"reconnection limit":Infinity,"reopen delay":3e3,"max reconnection attempts":10,"sync disconnect on unload":!1,"auto connect":!0,"flash policy port":10843,manualFlush:!1},b.util.merge(this.options,a),this.connected=!1,this.open=!1,this.connecting=!1,this.reconnecting=!1,this.namespaces={},this.buffer=[],this.doBuffer=!1;if(this.options["sync disconnect on unload"]&&(!this.isXDomain()||b.util.ua.hasCORS)){var d=this;b.util.on(c,"beforeunload",function(){d.disconnectSync()},!1)}this.options["auto connect"]&&this.connect()}function e(){}a.Socket=d,b.util.mixin(d,b.EventEmitter),d.prototype.of=function(a){return this.namespaces[a]||(this.namespaces[a]=new b.SocketNamespace(this,a),a!==""&&this.namespaces[a].packet({type:"connect"})),this.namespaces[a]},d.prototype.publish=function(){this.emit.apply(this,arguments);var a;for(var b in this.namespaces)this.namespaces.hasOwnProperty(b)&&(a=this.of(b),a.$emit.apply(a,arguments))},d.prototype.handshake=function(a){function f(b){b instanceof Error?(c.connecting=!1,c.onError(b.message)):a.apply(null,b.split(":"))}var c=this,d=this.options,g=["http"+(d.secure?"s":"")+":/",d.host+":"+d.port,d.resource,b.protocol,b.util.query(this.options.query,"t="+ +(new Date))].join("/");if(this.isXDomain()&&!b.util.ua.hasCORS){var h=document.getElementsByTagName("script")[0],i=document.createElement("script");i.src=g+"&jsonp="+b.j.length,h.parentNode.insertBefore(i,h),b.j.push(function(a){f(a),i.parentNode.removeChild(i)})}else{var j=b.util.request();j.open("GET",g,!0),this.isXDomain()&&(j.withCredentials=!0),j.onreadystatechange=function(){j.readyState==4&&(j.onreadystatechange=e,j.status==200?f(j.responseText):j.status==403?c.onError(j.responseText):(c.connecting=!1,!c.reconnecting&&c.onError(j.responseText)))},j.send(null)}},d.prototype.getTransport=function(a){var c=a||this.transports,d;for(var e=0,f;f=c[e];e++)if(b.Transport[f]&&b.Transport[f].check(this)&&(!this.isXDomain()||b.Transport[f].xdomainCheck(this)))return new b.Transport[f](this,this.sessionid);return null},d.prototype.connect=function(a){if(this.connecting)return this;var c=this;return c.connecting=!0,this.handshake(function(d,e,f,g){function h(a){c.transport&&c.transport.clearTimeouts(),c.transport=c.getTransport(a);if(!c.transport)return c.publish("connect_failed");c.transport.ready(c,function(){c.connecting=!0,c.publish("connecting",c.transport.name),c.transport.open(),c.options["connect timeout"]&&(c.connectTimeoutTimer=setTimeout(function(){if(!c.connected){c.connecting=!1;if(c.options["try multiple transports"]){var a=c.transports;while(a.length>0&&a.splice(0,1)[0]!=c.transport.name);a.length?h(a):c.publish("connect_failed")}}},c.options["connect timeout"]))})}c.sessionid=d,c.closeTimeout=f*1e3,c.heartbeatTimeout=e*1e3,c.transports||(c.transports=c.origTransports=g?b.util.intersect(g.split(","),c.options.transports):c.options.transports),c.setHeartbeatTimeout(),h(c.transports),c.once("connect",function(){clearTimeout(c.connectTimeoutTimer),a&&typeof a=="function"&&a()})}),this},d.prototype.setHeartbeatTimeout=function(){clearTimeout(this.heartbeatTimeoutTimer);if(this.transport&&!this.transport.heartbeats())return;var a=this;this.heartbeatTimeoutTimer=setTimeout(function(){a.transport.onClose()},this.heartbeatTimeout)},d.prototype.packet=function(a){return this.connected&&!this.doBuffer?this.transport.packet(a):this.buffer.push(a),this},d.prototype.setBuffer=function(a){this.doBuffer=a,!a&&this.connected&&this.buffer.length&&(this.options.manualFlush||this.flushBuffer())},d.prototype.flushBuffer=function(){this.transport.payload(this.buffer),this.buffer=[]},d.prototype.disconnect=function(){if(this.connected||this.connecting)this.open&&this.of("").packet({type:"disconnect"}),this.onDisconnect("booted");return this},d.prototype.disconnectSync=function(){var a=b.util.request(),c=["http"+(this.options.secure?"s":"")+":/",this.options.host+":"+this.options.port,this.options.resource,b.protocol,"",this.sessionid].join("/")+"/?disconnect=1";a.open("GET",c,!1),a.send(null),this.onDisconnect("booted")},d.prototype.isXDomain=function(){var a=c.location.port||("https:"==c.location.protocol?443:80);return this.options.host!==c.location.hostname||this.options.port!=a},d.prototype.onConnect=function(){this.connected||(this.connected=!0,this.connecting=!1,this.doBuffer||this.setBuffer(!1),this.emit("connect"))},d.prototype.onOpen=function(){this.open=!0},d.prototype.onClose=function(){this.open=!1,clearTimeout(this.heartbeatTimeoutTimer)},d.prototype.onPacket=function(a){this.of(a.endpoint).onPacket(a)},d.prototype.onError=function(a){a&&a.advice&&a.advice==="reconnect"&&(this.connected||this.connecting)&&(this.disconnect(),this.options.reconnect&&this.reconnect()),this.publish("error",a&&a.reason?a.reason:a)},d.prototype.onDisconnect=function(a){var b=this.connected,c=this.connecting;this.connected=!1,this.connecting=!1,this.open=!1;if(b||c)this.transport.close(),this.transport.clearTimeouts(),b&&(this.publish("disconnect",a),"booted"!=a&&this.options.reconnect&&!this.reconnecting&&this.reconnect())},d.prototype.reconnect=function(){function e(){if(a.connected){for(var b in a.namespaces)a.namespaces.hasOwnProperty(b)&&""!==b&&a.namespaces[b].packet({type:"connect"});a.publish("reconnect",a.transport.name,a.reconnectionAttempts)}clearTimeout(a.reconnectionTimer),a.removeListener("connect_failed",f),a.removeListener("connect",f),a.reconnecting=!1,delete a.reconnectionAttempts,delete a.reconnectionDelay,delete a.reconnectionTimer,delete a.redoTransports,a.options["try multiple transports"]=c}function f(){if(!a.reconnecting)return;if(a.connected)return e();if(a.connecting&&a.reconnecting)return a.reconnectionTimer=setTimeout(f,1e3);a.reconnectionAttempts++>=b?a.redoTransports?(a.publish("reconnect_failed"),e()):(a.on("connect_failed",f),a.options["try multiple transports"]=!0,a.transports=a.origTransports,a.transport=a.getTransport(),a.redoTransports=!0,a.connect()):(a.reconnectionDelay<d&&(a.reconnectionDelay*=2),a.connect(),a.publish("reconnecting",a.reconnectionDelay,a.reconnectionAttempts),a.reconnectionTimer=setTimeout(f,a.reconnectionDelay))}this.reconnecting=!0,this.reconnectionAttempts=0,this.reconnectionDelay=this.options["reconnection delay"];var a=this,b=this.options["max reconnection attempts"],c=this.options["try multiple transports"],d=this.options["reconnection limit"];this.options["try multiple transports"]=!1,this.reconnectionTimer=setTimeout(f,this.reconnectionDelay),this.on("connect",f)}}("undefined"!=typeof io?io:module.exports,"undefined"!=typeof io?io:module.parent.exports,this),function(a,b){function c(a,b){this.socket=a,this.name=b||"",this.flags={},this.json=new d(this,"json"),this.ackPackets=0,this.acks={}}function d(a,b){this.namespace=a,this.name=b}a.SocketNamespace=c,b.util.mixin(c,b.EventEmitter),c.prototype.$emit=b.EventEmitter.prototype.emit,c.prototype.of=function(){return this.socket.of.apply(this.socket,arguments)},c.prototype.packet=function(a){return a.endpoint=this.name,this.socket.packet(a),this.flags={},this},c.prototype.send=function(a,b){var c={type:this.flags.json?"json":"message",data:a};return"function"==typeof b&&(c.id=++this.ackPackets,c.ack=!0,this.acks[c.id]=b),this.packet(c)},c.prototype.emit=function(a){var b=Array.prototype.slice.call(arguments,1),c=b[b.length-1],d={type:"event",name:a};return"function"==typeof c&&(d.id=++this.ackPackets,d.ack="data",this.acks[d.id]=c,b=b.slice(0,b.length-1)),d.args=b,this.packet(d)},c.prototype.disconnect=function(){return this.name===""?this.socket.disconnect():(this.packet({type:"disconnect"}),this.$emit("disconnect")),this},c.prototype.onPacket=function(a){function d(){c.packet({type:"ack",args:b.util.toArray(arguments),ackId:a.id})}var c=this;switch(a.type){case"connect":this.$emit("connect");break;case"disconnect":this.name===""?this.socket.onDisconnect(a.reason||"booted"):this.$emit("disconnect",a.reason);break;case"message":case"json":var e=["message",a.data];a.ack=="data"?e.push(d):a.ack&&this.packet({type:"ack",ackId:a.id}),this.$emit.apply(this,e);break;case"event":var e=[a.name].concat(a.args);a.ack=="data"&&e.push(d),this.$emit.apply(this,e);break;case"ack":this.acks[a.ackId]&&(this.acks[a.ackId].apply(this,a.args),delete this.acks[a.ackId]);break;case"error":a.advice?this.socket.onError(a):a.reason=="unauthorized"?this.$emit("connect_failed",a.reason):this.$emit("error",a.reason)}},d.prototype.send=function(){this.namespace.flags[this.name]=!0,this.namespace.send.apply(this.namespace,arguments)},d.prototype.emit=function(){this.namespace.flags[this.name]=!0,this.namespace.emit.apply(this.namespace,arguments)}}("undefined"!=typeof io?io:module.exports,"undefined"!=typeof io?io:module.parent.exports),function(a,b,c){function d(a){b.Transport.apply(this,arguments)}a.websocket=d,b.util.inherit(d,b.Transport),d.prototype.name="websocket",d.prototype.open=function(){var a=b.util.query(this.socket.options.query),d=this,e;return e||(e=c.MozWebSocket||c.WebSocket),this.websocket=new e(this.prepareUrl()+a),this.websocket.onopen=function(){d.onOpen(),d.socket.setBuffer(!1)},this.websocket.onmessage=function(a){d.onData(a.data)},this.websocket.onclose=function(){d.onClose(),d.socket.setBuffer(!0)},this.websocket.onerror=function(a){d.onError(a)},this},b.util.ua.iDevice?d.prototype.send=function(a){var b=this;return setTimeout(function(){b.websocket.send(a)},0),this}:d.prototype.send=function(a){return this.websocket.send(a),this},d.prototype.payload=function(a){for(var b=0,c=a.length;b<c;b++)this.packet(a[b]);return this},d.prototype.close=function(){return this.websocket.close(),this},d.prototype.onError=function(a){this.socket.onError(a)},d.prototype.scheme=function(){return this.socket.options.secure?"wss":"ws"},d.check=function(){return"WebSocket"in c&&!("__addTask"in WebSocket)||"MozWebSocket"in c},d.xdomainCheck=function(){return!0},b.transports.push("websocket")}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports,this),function(a,b){function c(){b.Transport.websocket.apply(this,arguments)}a.flashsocket=c,b.util.inherit(c,b.Transport.websocket),c.prototype.name="flashsocket",c.prototype.open=function(){var a=this,c=arguments;return WebSocket.__addTask(function(){b.Transport.websocket.prototype.open.apply(a,c)}),this},c.prototype.send=function(){var a=this,c=arguments;return WebSocket.__addTask(function(){b.Transport.websocket.prototype.send.apply(a,c)}),this},c.prototype.close=function(){return WebSocket.__tasks.length=0,b.Transport.websocket.prototype.close.call(this),this},c.prototype.ready=function(a,d){function e(){var b=a.options,e=b["flash policy port"],g=["http"+(b.secure?"s":"")+":/",b.host+":"+b.port,b.resource,"static/flashsocket","WebSocketMain"+(a.isXDomain()?"Insecure":"")+".swf"];c.loaded||(typeof WEB_SOCKET_SWF_LOCATION=="undefined"&&(WEB_SOCKET_SWF_LOCATION=g.join("/")),e!==843&&WebSocket.loadFlashPolicyFile("xmlsocket://"+b.host+":"+e),WebSocket.__initialize(),c.loaded=!0),d.call(f)}var f=this;if(document.body)return e();b.util.load(e)},c.check=function(){return typeof WebSocket!="undefined"&&"__initialize"in WebSocket&&!!swfobject?swfobject.getFlashPlayerVersion().major>=10:!1},c.xdomainCheck=function(){return!0},typeof window!="undefined"&&(WEB_SOCKET_DISABLE_AUTO_INITIALIZATION=!0),b.transports.push("flashsocket")}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports);if("undefined"!=typeof window)var swfobject=function(){function A(){if(t)return;try{var a=i.getElementsByTagName("body")[0].appendChild(Q("span"));a.parentNode.removeChild(a)}catch(b){return}t=!0;var c=l.length;for(var d=0;d<c;d++)l[d]()}function B(a){t?a():l[l.length]=a}function C(b){if(typeof h.addEventListener!=a)h.addEventListener("load",b,!1);else if(typeof i.addEventListener!=a)i.addEventListener("load",b,!1);else if(typeof h.attachEvent!=a)R(h,"onload",b);else if(typeof h.onload=="function"){var c=h.onload;h.onload=function(){c(),b()}}else h.onload=b}function D(){k?E():F()}function E(){var c=i.getElementsByTagName("body")[0],d=Q(b);d.setAttribute("type",e);var f=c.appendChild(d);if(f){var g=0;(function(){if(typeof f.GetVariable!=a){var b=f.GetVariable("$version");b&&(b=b.split(" ")[1].split(","),y.pv=[parseInt(b[0],10),parseInt(b[1],10),parseInt(b[2],10)])}else if(g<10){g++,setTimeout(arguments.callee,10);return}c.removeChild(d),f=null,F()})()}else F()}function F(){var b=m.length;if(b>0)for(var c=0;c<b;c++){var d=m[c].id,e=m[c].callbackFn,f={success:!1,id:d};if(y.pv[0]>0){var g=P(d);if(g)if(S(m[c].swfVersion)&&!(y.wk&&y.wk<312))U(d,!0),e&&(f.success=!0,f.ref=G(d),e(f));else if(m[c].expressInstall&&H()){var h={};h.data=m[c].expressInstall,h.width=g.getAttribute("width")||"0",h.height=g.getAttribute("height")||"0",g.getAttribute("class")&&(h.styleclass=g.getAttribute("class")),g.getAttribute("align")&&(h.align=g.getAttribute("align"));var i={},j=g.getElementsByTagName("param"),k=j.length;for(var l=0;l<k;l++)j[l].getAttribute("name").toLowerCase()!="movie"&&(i[j[l].getAttribute("name")]=j[l].getAttribute("value"));I(h,i,d,e)}else J(g),e&&e(f)}else{U(d,!0);if(e){var n=G(d);n&&typeof n.SetVariable!=a&&(f.success=!0,f.ref=n),e(f)}}}}function G(c){var d=null,e=P(c);if(e&&e.nodeName=="OBJECT")if(typeof e.SetVariable!=a)d=e;else{var f=e.getElementsByTagName(b)[0];f&&(d=f)}return d}function H(){return!u&&S("6.0.65")&&(y.win||y.mac)&&!(y.wk&&y.wk<312)}function I(b,c,d,e){u=!0,r=e||null,s={success:!1,id:d};var g=P(d);if(g){g.nodeName=="OBJECT"?(p=K(g),q=null):(p=g,q=d),b.id=f;if(typeof b.width==a||!/%$/.test(b.width)&&parseInt(b.width,10)<310)b.width="310";if(typeof b.height==a||!/%$/.test(b.height)&&parseInt(b.height,10)<137)b.height="137";i.title=i.title.slice(0,47)+" - Flash Player Installation";var j=y.ie&&y.win?["Active"].concat("").join("X"):"PlugIn",k="MMredirectURL="+h.location.toString().replace(/&/g,"%26")+"&MMplayerType="+j+"&MMdoctitle="+i.title;typeof c.flashvars!=a?c.flashvars+="&"+k:c.flashvars=k;if(y.ie&&y.win&&g.readyState!=4){var l=Q("div");d+="SWFObjectNew",l.setAttribute("id",d),g.parentNode.insertBefore(l,g),g.style.display="none",function(){g.readyState==4?g.parentNode.removeChild(g):setTimeout(arguments.callee,10)}()}L(b,c,d)}}function J(a){if(y.ie&&y.win&&a.readyState!=4){var b=Q("div");a.parentNode.insertBefore(b,a),b.parentNode.replaceChild(K(a),b),a.style.display="none",function(){a.readyState==4?a.parentNode.removeChild(a):setTimeout(arguments.callee,10)}()}else a.parentNode.replaceChild(K(a),a)}function K(a){var c=Q("div");if(y.win&&y.ie)c.innerHTML=a.innerHTML;else{var d=a.getElementsByTagName(b)[0];if(d){var e=d.childNodes;if(e){var f=e.length;for(var g=0;g<f;g++)(e[g].nodeType!=1||e[g].nodeName!="PARAM")&&e[g].nodeType!=8&&c.appendChild(e[g].cloneNode(!0))}}}return c}function L(c,d,f){var g,h=P(f);if(y.wk&&y.wk<312)return g;if(h){typeof c.id==a&&(c.id=f);if(y.ie&&y.win){var i="";for(var j in c)c[j]!=Object.prototype[j]&&(j.toLowerCase()=="data"?d.movie=c[j]:j.toLowerCase()=="styleclass"?i+=' class="'+c[j]+'"':j.toLowerCase()!="classid"&&(i+=" "+j+'="'+c[j]+'"'));var k="";for(var l in d)d[l]!=Object.prototype[l]&&(k+='<param name="'+l+'" value="'+d[l]+'" />');h.outerHTML='<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"'+i+">"+k+"</object>",n[n.length]=c.id,g=P(c.id)}else{var m=Q(b);m.setAttribute("type",e);for(var o in c)c[o]!=Object.prototype[o]&&(o.toLowerCase()=="styleclass"?m.setAttribute("class",c[o]):o.toLowerCase()!="classid"&&m.setAttribute(o,c[o]));for(var p in d)d[p]!=Object.prototype[p]&&p.toLowerCase()!="movie"&&M(m,p,d[p]);h.parentNode.replaceChild(m,h),g=m}}return g}function M(a,b,c){var d=Q("param");d.setAttribute("name",b),d.setAttribute("value",c),a.appendChild(d)}function N(a){var b=P(a);b&&b.nodeName=="OBJECT"&&(y.ie&&y.win?(b.style.display="none",function(){b.readyState==4?O(a):setTimeout(arguments.callee,10)}()):b.parentNode.removeChild(b))}function O(a){var b=P(a);if(b){for(var c in b)typeof b[c]=="function"&&(b[c]=null);b.parentNode.removeChild(b)}}function P(a){var b=null;try{b=i.getElementById(a)}catch(c){}return b}function Q(a){return i.createElement(a)}function R(a,b,c){a.attachEvent(b,c),o[o.length]=[a,b,c]}function S(a){var b=y.pv,c=a.split(".");return c[0]=parseInt(c[0],10),c[1]=parseInt(c[1],10)||0,c[2]=parseInt(c[2],10)||0,b[0]>c[0]||b[0]==c[0]&&b[1]>c[1]||b[0]==c[0]&&b[1]==c[1]&&b[2]>=c[2]?!0:!1}function T(c,d,e,f){if(y.ie&&y.mac)return;var g=i.getElementsByTagName("head")[0];if(!g)return;var h=e&&typeof e=="string"?e:"screen";f&&(v=null,w=null);if(!v||w!=h){var j=Q("style");j.setAttribute("type","text/css"),j.setAttribute("media",h),v=g.appendChild(j),y.ie&&y.win&&typeof i.styleSheets!=a&&i.styleSheets.length>0&&(v=i.styleSheets[i.styleSheets.length-1]),w=h}y.ie&&y.win?v&&typeof v.addRule==b&&v.addRule(c,d):v&&typeof i.createTextNode!=a&&v.appendChild(i.createTextNode(c+" {"+d+"}"))}function U(a,b){if(!x)return;var c=b?"visible":"hidden";t&&P(a)?P(a).style.visibility=c:T("#"+a,"visibility:"+c)}function V(b){var c=/[\\\"<>\.;]/,d=c.exec(b)!=null;return d&&typeof encodeURIComponent!=a?encodeURIComponent(b):b}var a="undefined",b="object",c="Shockwave Flash",d="ShockwaveFlash.ShockwaveFlash",e="application/x-shockwave-flash",f="SWFObjectExprInst",g="onreadystatechange",h=window,i=document,j=navigator,k=!1,l=[D],m=[],n=[],o=[],p,q,r,s,t=!1,u=!1,v,w,x=!0,y=function(){var f=typeof i.getElementById!=a&&typeof i.getElementsByTagName!=a&&typeof i.createElement!=a,g=j.userAgent.toLowerCase(),l=j.platform.toLowerCase(),m=l?/win/.test(l):/win/.test(g),n=l?/mac/.test(l):/mac/.test(g),o=/webkit/.test(g)?parseFloat(g.replace(/^.*webkit\/(\d+(\.\d+)?).*$/,"$1")):!1,p=!1,q=[0,0,0],r=null;if(typeof j.plugins!=a&&typeof j.plugins[c]==b)r=j.plugins[c].description,r&&(typeof j.mimeTypes==a||!j.mimeTypes[e]||!!j.mimeTypes[e].enabledPlugin)&&(k=!0,p=!1,r=r.replace(/^.*\s+(\S+\s+\S+$)/,"$1"),q[0]=parseInt(r.replace(/^(.*)\..*$/,"$1"),10),q[1]=parseInt(r.replace(/^.*\.(.*)\s.*$/,"$1"),10),q[2]=/[a-zA-Z]/.test(r)?parseInt(r.replace(/^.*[a-zA-Z]+(.*)$/,"$1"),10):0);else if(typeof h[["Active"].concat("Object").join("X")]!=a)try{var s=new(window[["Active"].concat("Object").join("X")])(d);s&&(r=s.GetVariable("$version"),r&&(p=!0,r=r.split(" ")[1].split(","),q=[parseInt(r[0],10),parseInt(r[1],10),parseInt(r[2],10)]))}catch(t){}return{w3:f,pv:q,wk:o,ie:p,win:m,mac:n}}(),z=function(){if(!y.w3)return;(typeof i.readyState!=a&&i.readyState=="complete"||typeof i.readyState==a&&(i.getElementsByTagName("body")[0]||i.body))&&A(),t||(typeof i.addEventListener!=a&&i.addEventListener("DOMContentLoaded",A,!1),y.ie&&y.win&&(i.attachEvent(g,function(){i.readyState=="complete"&&(i.detachEvent(g,arguments.callee),A())}),h==top&&function(){if(t)return;try{i.documentElement.doScroll("left")}catch(a){setTimeout(arguments.callee,0);return}A()}()),y.wk&&function(){if(t)return;if(!/loaded|complete/.test(i.readyState)){setTimeout(arguments.callee,0);return}A()}(),C(A))}(),W=function(){y.ie&&y.win&&window.attachEvent("onunload",function(){var a=o.length;for(var b=0;b<a;b++)o[b][0].detachEvent(o[b][1],o[b][2]);var c=n.length;for(var d=0;d<c;d++)N(n[d]);for(var e in y)y[e]=null;y=null;for(var f in swfobject)swfobject[f]=null;swfobject=null})}();return{registerObject:function(a,b,c,d){if(y.w3&&a&&b){var e={};e.id=a,e.swfVersion=b,e.expressInstall=c,e.callbackFn=d,m[m.length]=e,U(a,!1)}else d&&d({success:!1,id:a})},getObjectById:function(a){if(y.w3)return G(a)},embedSWF:function(c,d,e,f,g,h,i,j,k,l){var m={success:!1,id:d};y.w3&&!(y.wk&&y.wk<312)&&c&&d&&e&&f&&g?(U(d,!1),B(function(){e+="",f+="";var n={};if(k&&typeof k===b)for(var o in k)n[o]=k[o];n.data=c,n.width=e,n.height=f;var p={};if(j&&typeof j===b)for(var q in j)p[q]=j[q];if(i&&typeof i===b)for(var r in i)typeof p.flashvars!=a?p.flashvars+="&"+r+"="+i[r]:p.flashvars=r+"="+i[r];if(S(g)){var s=L(n,p,d);n.id==d&&U(d,!0),m.success=!0,m.ref=s}else{if(h&&H()){n.data=h,I(n,p,d,l);return}U(d,!0)}l&&l(m)})):l&&l(m)},switchOffAutoHideShow:function(){x=!1},ua:y,getFlashPlayerVersion:function(){return{major:y.pv[0],minor:y.pv[1],release:y.pv[2]}},hasFlashPlayerVersion:S,createSWF:function(a,b,c){return y.w3?L(a,b,c):undefined},showExpressInstall:function(a,b,c,d){y.w3&&H()&&I(a,b,c,d)},removeSWF:function(a){y.w3&&N(a)},createCSS:function(a,b,c,d){y.w3&&T(a,b,c,d)},addDomLoadEvent:B,addLoadEvent:C,getQueryParamValue:function(a){var b=i.location.search||i.location.hash;if(b){/\?/.test(b)&&(b=b.split("?")[1]);if(a==null)return V(b);var c=b.split("&");for(var d=0;d<c.length;d++)if(c[d].substring(0,c[d].indexOf("="))==a)return V(c[d].substring(c[d].indexOf("=")+1))}return""},expressInstallCallback:function(){if(u){var a=P(f);a&&p&&(a.parentNode.replaceChild(p,a),q&&(U(q,!0),y.ie&&y.win&&(p.style.display="block")),r&&r(s)),u=!1}}}}();(function(){if("undefined"==typeof window||window.WebSocket)return;var a=window.console;if(!a||!a.log||!a.error)a={log:function(){},error:function(){}};if(!swfobject.hasFlashPlayerVersion("10.0.0")){a.error("Flash Player >= 10.0.0 is required.");return}location.protocol=="file:"&&a.error("WARNING: web-socket-js doesn't work in file:///... URL unless you set Flash Security Settings properly. Open the page via Web server i.e. http://..."),WebSocket=function(a,b,c,d,e){var f=this;f.__id=WebSocket.__nextId++,WebSocket.__instances[f.__id]=f,f.readyState=WebSocket.CONNECTING,f.bufferedAmount=0,f.__events={},b?typeof b=="string"&&(b=[b]):b=[],setTimeout(function(){WebSocket.__addTask(function(){WebSocket.__flash.create(f.__id,a,b,c||null,d||0,e||null)})},0)},WebSocket.prototype.send=function(a){if(this.readyState==WebSocket.CONNECTING)throw"INVALID_STATE_ERR: Web Socket connection has not been established";var b=WebSocket.__flash.send(this.__id,encodeURIComponent(a));return b<0?!0:(this.bufferedAmount+=b,!1)},WebSocket.prototype.close=function(){if(this.readyState==WebSocket.CLOSED||this.readyState==WebSocket.CLOSING)return;this.readyState=WebSocket.CLOSING,WebSocket.__flash.close(this.__id)},WebSocket.prototype.addEventListener=function(a,b,c){a in this.__events||(this.__events[a]=[]),this.__events[a].push(b)},WebSocket.prototype.removeEventListener=function(a,b,c){if(!(a in this.__events))return;var d=this.__events[a];for(var e=d.length-1;e>=0;--e)if(d[e]===b){d.splice(e,1);break}},WebSocket.prototype.dispatchEvent=function(a){var b=this.__events[a.type]||[];for(var c=0;c<b.length;++c)b[c](a);var d=this["on"+a.type];d&&d(a)},WebSocket.prototype.__handleEvent=function(a){"readyState"in a&&(this.readyState=a.readyState),"protocol"in a&&(this.protocol=a.protocol);var b;if(a.type=="open"||a.type=="error")b=this.__createSimpleEvent(a.type);else if(a.type=="close")b=this.__createSimpleEvent("close");else{if(a.type!="message")throw"unknown event type: "+a.type;var c=decodeURIComponent(a.message);b=this.__createMessageEvent("message",c)}this.dispatchEvent(b)},WebSocket.prototype.__createSimpleEvent=function(a){if(document.createEvent&&window.Event){var b=document.createEvent("Event");return b.initEvent(a,!1,!1),b}return{type:a,bubbles:!1,cancelable:!1}},WebSocket.prototype.__createMessageEvent=function(a,b){if(document.createEvent&&window.MessageEvent&&!window.opera){var c=document.createEvent("MessageEvent");return c.initMessageEvent("message",!1,!1,b,null,null,window,null),c}return{type:a,data:b,bubbles:!1,cancelable:!1}},WebSocket.CONNECTING=0,WebSocket.OPEN=1,WebSocket.CLOSING=2,WebSocket.CLOSED=3,WebSocket.__flash=null,WebSocket.__instances={},WebSocket.__tasks=[],WebSocket.__nextId=0,WebSocket.loadFlashPolicyFile=function(a){WebSocket.__addTask(function(){WebSocket.__flash.loadManualPolicyFile(a)})},WebSocket.__initialize=function(){if(WebSocket.__flash)return;WebSocket.__swfLocation&&(window.WEB_SOCKET_SWF_LOCATION=WebSocket.__swfLocation);if(!window.WEB_SOCKET_SWF_LOCATION){a.error("[WebSocket] set WEB_SOCKET_SWF_LOCATION to location of WebSocketMain.swf");return}var b=document.createElement("div");b.id="webSocketContainer",b.style.position="absolute",WebSocket.__isFlashLite()?(b.style.left="0px",b.style.top="0px"):(b.style.left="-100px",b.style.top="-100px");var c=document.createElement("div");c.id="webSocketFlash",b.appendChild(c),document.body.appendChild(b),swfobject.embedSWF(WEB_SOCKET_SWF_LOCATION,"webSocketFlash","1","1","10.0.0",null,null,{hasPriority:!0,swliveconnect:!0,allowScriptAccess:"always"},null,function(b){b.success||a.error("[WebSocket] swfobject.embedSWF failed")})},WebSocket.__onFlashInitialized=function(){setTimeout(function(){WebSocket.__flash=document.getElementById("webSocketFlash"),WebSocket.__flash.setCallerUrl(location.href),WebSocket.__flash.setDebug(!!window.WEB_SOCKET_DEBUG);for(var a=0;a<WebSocket.__tasks.length;++a)WebSocket.__tasks[a]();WebSocket.__tasks=[]},0)},WebSocket.__onFlashEvent=function(){return setTimeout(function(){try{var b=WebSocket.__flash.receiveEvents();for(var c=0;c<b.length;++c)WebSocket.__instances[b[c].webSocketId].__handleEvent(b[c])}catch(d){a.error(d)}},0),!0},WebSocket.__log=function(b){a.log(decodeURIComponent(b))},WebSocket.__error=function(b){a.error(decodeURIComponent(b))},WebSocket.__addTask=function(a){WebSocket.__flash?a():WebSocket.__tasks.push(a)},WebSocket.__isFlashLite=function(){if(!window.navigator||!window.navigator.mimeTypes)return!1;var a=window.navigator.mimeTypes["application/x-shockwave-flash"];return!a||!a.enabledPlugin||!a.enabledPlugin.filename?!1:a.enabledPlugin.filename.match(/flashlite/i)?!0:!1},window.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION||(window.addEventListener?window.addEventListener("load",function(){WebSocket.__initialize()},!1):window.attachEvent("onload",function(){WebSocket.__initialize()}))})(),function(a,b,c){function d(a){if(!a)return;b.Transport.apply(this,arguments),this.sendBuffer=[]}function e(){}a.XHR=d,b.util.inherit(d,b.Transport),d.prototype.open=function(){return this.socket.setBuffer(!1),this.onOpen(),this.get(),this.setCloseTimeout(),this},d.prototype.payload=function(a){var c=[];for(var d=0,e=a.length;d<e;d++)c.push(b.parser.encodePacket(a[d]));this.send(b.parser.encodePayload(c))},d.prototype.send=function(a){return this.post(a),this},d.prototype.post=function(a){function d(){this.readyState==4&&(this.onreadystatechange=e,b.posting=!1,this.status==200?b.socket.setBuffer(!1):b.onClose())}function f(){this.onload=e,b.socket.setBuffer(!1)}var b=this;this.socket.setBuffer(!0),this.sendXHR=this.request("POST"),c.XDomainRequest&&this.sendXHR instanceof XDomainRequest?this.sendXHR.onload=this.sendXHR.onerror=f:this.sendXHR.onreadystatechange=d,this.sendXHR.send(a)},d.prototype.close=function(){return this.onClose(),this},d.prototype.request=function(a){var c=b.util.request(this.socket.isXDomain()),d=b.util.query(this.socket.options.query,"t="+ +(new Date));c.open(a||"GET",this.prepareUrl()+d,!0);if(a=="POST")try{c.setRequestHeader?c.setRequestHeader("Content-type","text/plain;charset=UTF-8"):c.contentType="text/plain"}catch(e){}return c},d.prototype.scheme=function(){return this.socket.options.secure?"https":"http"},d.check=function(a,d){try{var e=b.util.request(d),f=c.XDomainRequest&&e instanceof XDomainRequest,g=a&&a.options&&a.options.secure?"https:":"http:",h=c.location&&g!=c.location.protocol;if(e&&(!f||!h))return!0}catch(i){}return!1},d.xdomainCheck=function(a){return d.check(a,!0)}}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports,this),function(a,b){function c(a){b.Transport.XHR.apply(this,arguments)}a.htmlfile=c,b.util.inherit(c,b.Transport.XHR),c.prototype.name="htmlfile",c.prototype.get=function(){this.doc=new(window[["Active"].concat("Object").join("X")])("htmlfile"),this.doc.open(),this.doc.write("<html></html>"),this.doc.close(),this.doc.parentWindow.s=this;var a=this.doc.createElement("div");a.className="socketio",this.doc.body.appendChild(a),this.iframe=this.doc.createElement("iframe"),a.appendChild(this.iframe);var c=this,d=b.util.query(this.socket.options.query,"t="+ +(new Date));this.iframe.src=this.prepareUrl()+d,b.util.on(window,"unload",function(){c.destroy()})},c.prototype._=function(a,b){a=a.replace(/\\\//g,"/"),this.onData(a);try{var c=b.getElementsByTagName("script")[0];c.parentNode.removeChild(c)}catch(d){}},c.prototype.destroy=function(){if(this.iframe){try{this.iframe.src="about:blank"}catch(a){}this.doc=null,this.iframe.parentNode.removeChild(this.iframe),this.iframe=null,CollectGarbage()}},c.prototype.close=function(){return this.destroy(),b.Transport.XHR.prototype.close.call(this)},c.check=function(a){if(typeof window!="undefined"&&["Active"].concat("Object").join("X")in window)try{var c=new(window[["Active"].concat("Object").join("X")])("htmlfile");return c&&b.Transport.XHR.check(a)}catch(d){}return!1},c.xdomainCheck=function(){return!1},b.transports.push("htmlfile")}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports),function(a,b,c){function d(){b.Transport.XHR.apply(this,arguments)}function e(){}a["xhr-polling"]=d,b.util.inherit(d,b.Transport.XHR),b.util.merge(d,b.Transport.XHR),d.prototype.name="xhr-polling",d.prototype.heartbeats=function(){return!1},d.prototype.open=function(){var a=this;return b.Transport.XHR.prototype.open.call(a),!1},d.prototype.get=function(){function b(){this.readyState==4&&(this.onreadystatechange=e,this.status==200?(a.onData(this.responseText),a.get()):a.onClose())}function d(){this.onload=e,this.onerror=e,a.retryCounter=1,a.onData(this.responseText),a.get()}function f(){a.retryCounter++,!a.retryCounter||a.retryCounter>3?a.onClose():a.get()}if(!this.isOpen)return;var a=this;this.xhr=this.request(),c.XDomainRequest&&this.xhr instanceof XDomainRequest?(this.xhr.onload=d,this.xhr.onerror=f):this.xhr.onreadystatechange=b,this.xhr.send(null)},d.prototype.onClose=function(){b.Transport.XHR.prototype.onClose.call(this);if(this.xhr){this.xhr.onreadystatechange=this.xhr.onload=this.xhr.onerror=e;try{this.xhr.abort()}catch(a){}this.xhr=null}},d.prototype.ready=function(a,c){var d=this;b.util.defer(function(){c.call(d)})},b.transports.push("xhr-polling")}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports,this),function(a,b,c){function e(a){b.Transport["xhr-polling"].apply(this,arguments),this.index=b.j.length;var c=this;b.j.push(function(a){c._(a)})}var d=c.document&&"MozAppearance"in c.document.documentElement.style;a["jsonp-polling"]=e,b.util.inherit(e,b.Transport["xhr-polling"]),e.prototype.name="jsonp-polling",e.prototype.post=function(a){function i(){j(),c.socket.setBuffer(!1)}function j(){c.iframe&&c.form.removeChild(c.iframe);try{h=document.createElement('<iframe name="'+c.iframeId+'">')}catch(a){h=document.createElement("iframe"),h.name=c.iframeId}h.id=c.iframeId,c.form.appendChild(h),c.iframe=h}var c=this,d=b.util.query(this.socket.options.query,"t="+ +(new Date)+"&i="+this.index);if(!this.form){var e=document.createElement("form"),f=document.createElement("textarea"),g=this.iframeId="socketio_iframe_"+this.index,h;e.className="socketio",e.style.position="absolute",e.style.top="0px",e.style.left="0px",e.style.display="none",e.target=g,e.method="POST",e.setAttribute("accept-charset","utf-8"),f.name="d",e.appendChild(f),document.body.appendChild(e),this.form=e,this.area=f}this.form.action=this.prepareUrl()+d,j(),this.area.value=b.JSON.stringify(a);try{this.form.submit()}catch(k){}this.iframe.attachEvent?h.onreadystatechange=function(){c.iframe.readyState=="complete"&&i()}:this.iframe.onload=i,this.socket.setBuffer(!0)},e.prototype.get=function(){var a=this,c=document.createElement("script"),e=b.util.query(this.socket.options.query,"t="+ +(new Date)+"&i="+this.index);this.script&&(this.script.parentNode.removeChild(this.script),this.script=null),c.async=!0,c.src=this.prepareUrl()+e,c.onerror=function(){a.onClose()};var f=document.getElementsByTagName("script")[0];f.parentNode.insertBefore(c,f),this.script=c,d&&setTimeout(function(){var a=document.createElement("iframe");document.body.appendChild(a),document.body.removeChild(a)},100)},e.prototype._=function(a){return this.onData(a),this.isOpen&&this.get(),this},e.prototype.ready=function(a,c){var e=this;if(!d)return c.call(this);b.util.load(function(){c.call(e)})},e.check=function(){return"document"in c},e.xdomainCheck=function(){return!0},b.transports.push("jsonp-polling")}("undefined"!=typeof io?io.Transport:module.exports,"undefined"!=typeof io?io:module.parent.exports,this),typeof define=="function"&&define.amd&&define([],function(){return io})})()
 ;(function(){
 	'use strict';
 
@@ -10656,7 +11317,8 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
   buffer += "\r\n"
     + "\r\n"
-    + "\r\n#ircui {\r\nheight: 100%;\r\nwidth: 100%;\r\noverflow: hidden;\r\nfont-family: Verdana, sans-serif;\r\n}\r\n\r\n.qui .hidden, .qui .tab-invisible {\r\ndisplay: none;\r\n}\r\n\r\n.channel-name {\r\nbackground-color: rgb(255, 255, 191);\r\nborder: 1px solid #C8D1DB;\r\nborder-radius: 4px 4px 4px 4px;\r\ncolor: #000000;\r\ncursor: default;\r\nfont-size: 0.8em;\r\npadding: 2px;\r\ntext-decoration: none;\r\nwhite-space: nowrap;\r\nfloat: left;\r\nmargin: 1px 0px 0px 1px;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .widepanel {\r\nwidth: 100%;\r\n}\r\n\r\n.qui .bottompanel {\r\ncolor: red;\r\n}\r\n\r\n.qui .lines {\r\ncolor: black;\r\noverflow: auto;\r\nfont-size: ";
+    + "\r\n"
+    + "\r\n#ircui {\r\nheight: 100%;\r\nwidth: 100%;\r\noverflow: hidden;\r\nfont-family: Verdana, sans-serif;\r\n}\r\n\r\n.qui .hidden, .qui .invisible {\r\ndisplay: none;\r\n}\r\n\r\n.channel-name {\r\nbackground-color: rgb(255, 255, 191);\r\nborder: 1px solid #C8D1DB;\r\nborder-radius: 4px 4px 4px 4px;\r\ncolor: #000000;\r\ncursor: default;\r\nfont-size: 0.8em;\r\npadding: 2px;\r\ntext-decoration: none;\r\nwhite-space: nowrap;\r\nfloat: left;\r\nmargin: 1px 0px 0px 1px;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .widepanel {\r\nwidth: 100%;\r\n}\r\n\r\n.qui .bottompanel {\r\ncolor: red;\r\n}\r\n\r\n.qui .lines {\r\ncolor: black;\r\noverflow: auto;\r\nfont-size: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
     + "px;\r\nbackground: ";
@@ -10695,19 +11357,19 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + ";\r\nbackground: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_background", "e2ecf9", "c", options) : helperMissing.call(depth0, "$css", "tabbar_background", "e2ecf9", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .tabbar {\r\nfont-size: 0.8em;\r\ncolor: ";
+    + ";\r\nheight: 26px;\r\nline-height: 20px;\r\npadding: 2px 0;\r\nvertical-align: middle;\r\n}\r\n\r\n.qui .tabbar {\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
-    + ";\r\nline-height: 24px;\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\nborder: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
-    + ";\r\npadding: 2px;\r\ncursor: default;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\ntext-decoration: none;\r\ncolor: ";
+    + ";\r\ndisplay: inline-block;\r\n/*overflow-x: hidden;*/\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
-    + ";\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .tabbar .tab:hover {\r\nbackground: ";
+    + ";\r\nborder: 1px solid ";
+  options = {hash:{},data:data};
+  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
+    + ";\r\nborder-radius: 4px;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .tab:hover {\r\nbackground: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_hover", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_hover", "ffffff", "c", options)))
-    + ";\r\nborder: 1px solid #c8d2dc;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-activity.tab {\r\ncolor: #009900;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-speech.tab {\r\ncolor: #0000ff;\r\n}\r\n\r\n.qui .tabbar .tab-hilight-us.tab {\r\ncolor: #ff0000;\r\nbackground: rgb(216, 216, 138);\r\n}\r\n\r\n.qui .tabbar .brouhaha {\r\nwidth: 80px;\r\nbackground-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; /* override value for webkit */\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px;\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-selected {\r\n/* background: rgb(255,214,94); Old browsers\r\nbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+\r\nbackground: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+\r\nbackground: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+\r\nbackground: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+\r\nbackground: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+\r\nbackground: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C\r\nfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */\r\n}\r\n\r\n.qui .tabbar .brouhaha.tab-unselected {\r\n/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; override value for webkit\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */\r\n}\r\n\r\n\r\n.qui .tabbar .tab-selected.tab {\r\nbackground: ";
+    + ";\r\nborder: 1px solid #c8d2dc;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .hilight-activity.tab {\r\ncolor: #009900;\r\n}\r\n\r\n.qui .tabbar .hilight-speech.tab {\r\ncolor: #0000ff;\r\n}\r\n\r\n.qui .tabbar .hilight-us.tab {\r\ncolor: #ff0000;\r\nbackground: rgb(216, 216, 138);\r\n}\r\n\r\n.qui .tabbar .brouhaha {\r\npadding-left: 75px;\r\nbackground-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; /* override value for webkit */\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px;\r\n}\r\n\r\n.qui .tabbar .brouhaha.selected {\r\n/* background: rgb(255,214,94); Old browsers\r\nbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+\r\nbackground: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+\r\nbackground: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+\r\nbackground: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+\r\nbackground: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+\r\nbackground: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C\r\nfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */\r\n}\r\n\r\n.qui .tabbar .brouhaha.unselected {\r\n/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; override value for webkit\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */\r\n}\r\n\r\n\r\n.qui .tabbar .selected.tab {\r\nbackground: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_selected", "ffffff", "c", options)))
     + ";\r\nborder: 1px solid ";
@@ -10716,16 +11378,16 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + ";\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .tab-buttons {\r\ndisplay: none;\r\n}\r\n\r\n.qui.signed-in .tab-buttons {\r\ndisplay: inline-block;\r\ncursor: pointer;\r\n}\r\n\r\n.tab-buttons span {\r\nvertical-align: middle;\r\ndisplay: inline-block;\r\n}\r\n\r\n/* tab stuff */\r\n\r\n/*irc input stuff*/\r\n.qui form.input {\r\nbackground-color: ";
+    + ";\r\n}\r\n\r\n.qui .buttons {\r\ndisplay: none;\r\n}\r\n\r\n.qui.signed-in .buttons {\r\ndisplay: inline-block;\r\ncursor: pointer;\r\n}\r\n\r\n.buttons span {\r\nvertical-align: middle;\r\ndisplay: inline-block;\r\n}\r\n\r\n/* tab stuff */\r\n\r\n/*irc input stuff*/\r\n.qui form.input {\r\nbackground-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
     + ";\r\nmargin: 0;\r\n}\r\n\r\n.qui .input div {\r\nborder-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";\r\npadding: 0 5px 1px;\r\nmargin: 0;\r\nwidth: 100%;\r\n}\r\n\r\n.input div > .input-group-addon {\r\ncursor:pointer;cursor:hand;\r\npadding: 2px 5px;\r\n}\r\n\r\n.input div > * {\r\nheight: 24px;\r\n}\r\n\r\n.input .nickname {\r\ncolor: #524F50;\r\nfont-size: 14px;\r\n}\r\n\r\n.input .nickname .status {\r\nborder-radius: 50%;\r\ndisplay: inline-block;\r\nmargin-right: 3px;\r\n}\r\n\r\n.input .nickname:hover {\r\n\r\n}\r\n\r\n.input .nickname .status.voice {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: rgb(223, 187, 47);\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .nickname .status.op {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: #7AE60E;\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.input .input-field {\r\nbackground-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\n\r\nbackground-image: -webkit-gradient(\r\nlinear,\r\nleft bottom,\r\nleft top,\r\ncolor-stop(0.54, rgb(235,235,232)),\r\ncolor-stop(0.66, rgb(247,250,240))\r\n);\r\n\r\nborder: 1px solid ";
+    + ";\r\npadding: 0 5px 1px;\r\nmargin: 0;\r\nwidth: 100%;\r\n}\r\n\r\n.qui .input div > .input-group-addon {\r\ncursor:pointer;cursor:hand;\r\npadding: 2px 5px;\r\n}\r\n\r\n.qui .input div > * {\r\nheight: 24px;\r\n}\r\n\r\n.qui .input .nickname {\r\ncolor: #524F50;\r\nfont-size: 14px;\r\n}\r\n\r\n.qui .input .nickname .status {\r\nborder-radius: 50%;\r\ndisplay: inline-block;\r\nmargin-right: 3px;\r\n}\r\n\r\n.qui .input .nickname:hover {\r\n\r\n}\r\n\r\n.qui .input .nickname .status.voice {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: rgb(223, 187, 47);\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.qui .input .nickname .status.op {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: #7AE60E;\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.qui .input .input-field {\r\nborder: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n.input .btn.send {\r\ncolor: grey;\r\npadding: 2px 10px;\r\n}\r\n\r\n.qui .nicklist {\r\nborder-left: 1px solid ";
+    + ";\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n.qui .input .tt-hint {\r\nbackground-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-gradient(\r\nlinear,\r\nleft bottom,\r\nleft top,\r\ncolor-stop(0.54, rgb(235,235,232)),\r\ncolor-stop(0.66, rgb(247,250,240))\r\n);\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n/*twitter typeahead inspired autocomplete using overlay input box*/\r\n.qui .tt-hint {\r\nposition: absolute;\r\ntop: 0px;\r\nleft: 0px;\r\nborder-color: transparent;\r\nbox-shadow: none;\r\ncolor: #BDBDBD;\r\n}\r\n\r\n.qui .tt-query {\r\nposition: relative;\r\nvertical-align: top;\r\nbackground-color: transparent;\r\n}\r\n/*typeahead*/\r\n\r\n.qui .input .btn.send {\r\ncolor: grey;\r\npadding: 2px 10px;\r\n}\r\n\r\n.qui .nicklist {\r\nborder-left: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_border", "c8d2dc", "c", options)))
     + ";\r\nwidth: 140px;\r\noverflow: auto;\r\nbackground: ";
@@ -10746,13 +11408,13 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + " 1px solid;\r\ncursor: default;\r\n}\r\n\r\n.qui .nicklist .selected-middle {\r\nborder-top: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
-    + " 1px solid;\r\n}\r\n\r\n#noscript {\r\ntext-align: center;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .nicklist .menu {\r\nmargin: 0 0 0 5px;\r\n}\r\n\r\n.qui .nicklist .menu a {\r\nborder-bottom: 0;\r\nborder-top: 0;\r\n}\r\n\r\n.hyperlink-whois, .hyperlink-channel {\r\ncursor: pointer;\r\ncursor: hand;\r\n}\r\n\r\n.hyperlink-whois:hover, .hyperlink-channel:hover {\r\ntext-decoration: underline;\r\n}\r\n\r\n.qui .outertabbar .dropdown-tab {\r\ncursor: pointer; cursor: hand;\r\nfloat: left;\r\npadding: 3px 4px 0;\r\nwidth: 30px;\r\n}\r\n\r\n.qui .dropdownmenu {\r\nz-index: 100;\r\nborder: 1px solid ";
+    + " 1px solid;\r\n}\r\n\r\n#noscript {\r\ntext-align: center;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .nicklist .menu {\r\nmargin: 0 0 0 5px;\r\n}\r\n\r\n.qui .nicklist .menu a {\r\nborder-bottom: 0;\r\nborder-top: 0;\r\n}\r\n\r\n.hyperlink-whois, .hyperlink-channel {\r\ncursor: pointer;\r\ncursor: hand;\r\n}\r\n\r\n.hyperlink-whois:hover, .hyperlink-channel:hover {\r\ntext-decoration: underline;\r\n}\r\n\r\n.qui .outertabbar .dropdown-tab {\r\ncursor: pointer; cursor: hand;\r\ndisplay: inline-block;\r\npadding-left: 4px;\r\nwidth: 30px;\r\n}\r\n\r\n.qui .dropdownmenu {\r\nz-index: 100;\r\nborder: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
     + ";\r\nbackground: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .dropdownmenu a {\r\ndisplay: block;\r\nfont-size: 0.7em;\r\ncolor: black;\r\ncursor: pointer;\r\ncursor: hand;\r\npadding: 1px 3px;\r\n}\r\n\r\n.qui .dropdownmenu a:hover {\r\nbackground: ";
+    + ";\r\nlist-style: none;\r\npadding: 5px 10px;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .dropdownmenu a {\r\ncolor: black;\r\ncursor: pointer;\r\ncursor: hand;\r\npadding-top: 3px;\r\n}\r\n\r\n.qui .dropdownmenu a:hover {\r\nbackground: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_hover_background", "FFFE", "c", options) : helperMissing.call(depth0, "$css", "menu_hover_background", "FFFE", "c", options)))
     + ";\r\n}\r\n\r\n.qui .dropdownhint {\r\nposition: relative;\r\nleft: -500px;\r\nz-index: 10;\r\nwhite-space: nowrap;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .chanmenu {\r\nwidth: 150px;\r\n}\r\n\r\n.qui .chanmenu .hint {\r\nfloat: right;\r\nfont-size: 75%;\r\ncolor: grey;\r\n}\r\n\r\n.qui hr.lastpos {\r\nborder: none;\r\nborder-top: 1px solid ";
@@ -10958,7 +11620,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='input'>\r\n<div class='input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
+  buffer += "<div class='input'>\r\n<div class='tt-ahead input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -10966,11 +11628,8 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\r\n<input class='";
-  if (stack1 = helpers.type) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.type; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " input-field form-control' type='text'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n<ul class='dropdown-menu'>\r\n<li><a href='#'>Colours</a></li>\r\n<li><a href='#'>Styles</a></li>\r\n<li><a href='#'>IRC Commands</a></li>\r\n<li><a href='#'>Actions</a></li>\r\n</ul>\r\n</div>\r\n</div>";
+    + "</span>\r\n"
+    + "\r\n<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled>\r\n<input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n</div>\r\n</div>";
   return buffer;
   });
 
@@ -10991,17 +11650,26 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 this["qwebirc"]["templates"]["ircTab"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
-  var buffer = "", stack1, functionType="function", self=this;
+  var buffer = "", stack1, self=this, functionType="function";
 
+function program1(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.tabClose, 'tabClose', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
 
-  buffer += "<a href='#' class='tab'>";
+  buffer += "<span class='tab'>";
   if (stack1 = helpers.name) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "&nbsp;";
   stack1 = self.invokePartial(partials.tabDetach, 'tabDetach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</a>";
+  stack1 = helpers['if'].call(depth0, depth0.closable, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span>";
   return buffer;
   });
 
@@ -11028,6 +11696,30 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</span>";
+  return buffer;
+  });
+
+this["qwebirc"]["templates"]["mainmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
+  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
+
+function program1(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.menuitem, 'menuitem', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
+  buffer += "<div>\r\n<ul class='";
+  if (stack1 = helpers.menuclass) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.menuclass; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " dropdownmenu'>\r\n";
+  stack1 = helpers.each.call(depth0, depth0.menu, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</ul>\r\n</div>";
   return buffer;
   });
 
@@ -11064,25 +11756,25 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = "", stack1;
-  buffer += "\r\n<span class='hint'>";
+  buffer += "<span class='hint'>";
   if (stack1 = helpers.hint) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.hint; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\r\n";
+    + "</span>";
   return buffer;
   }
 
   buffer += "<a";
   stack1 = helpers['if'].call(depth0, depth0.value, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += ">\r\n<span>";
+  buffer += ">\r\n<li>\r\n<span>";
   if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span>\r\n";
   stack1 = helpers['if'].call(depth0, depth0.hint, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</a>";
+  buffer += "\r\n</li>\r\n</a>";
   return buffer;
   });
 
@@ -11138,7 +11830,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  buffer += "\r\n<form id=\"options\" class=\"form-horizontal\">\r\n<ul class=\"option-tabs tabs nav nav-tabs\" data-behavior=\"BS.Tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options\"><a href=\"#\">Notifications</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n<div class=\"tab-content\" id=\"my-tab-content\">\r\n<div class=\"ui-options control-group well active\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"auto_open_pm\">\r\n"
+  buffer += "\r\n<form id=\"options\" class=\"form-horizontal\">\r\n<ul class=\"option-tabs tabs nav nav-tabs\" data-behavior=\"BS.Tabs\">\r\n<li class=\"ui-options\"><a href=\"#\">Interface</a></li>\r\n<li class=\"irc-options\"><a href=\"#\">Chat Preferences</a></li>\r\n<li class=\"alert-options\"><a href=\"#\">Notifications</a></li>\r\n<li class=\"hotkeys disabled\"><a href=\"#\">Hot Keys(TODO)</a></li>\r\n</ul>\r\n<div class=\"tab-content\">\r\n<div class=\"ui-options control-group well active\">\r\n<div class=\"controls\">\r\n<label class=\"checkbox\" for=\"auto_open_pm\">\r\n"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTO_OPEN_PM)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\r\n<input type=\"checkbox\" id=\"auto_open_pm\" ";
   options = {hash:{},data:data};
@@ -11379,6 +12071,14 @@ function program3(depth0,data) {
   return buffer;
   }
 
+function program5(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.ircInput, 'ircInput', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
   buffer += "<div class=\"window qui\" data-id=\"";
   if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
@@ -11396,8 +12096,10 @@ function program3(depth0,data) {
   buffer += "\r\n</div>\r\n<div class=\"qui properties\">\r\n";
   stack1 = self.invokePartial(partials.channelName, 'channelName', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n<div class=\"qui bottompanel\">\r\n"
-    + "\r\n</div>\r\n</div>";
+  buffer += "\r\n</div>\r\n<div class=\"qui bottompanel\">\r\n";
+  stack1 = helpers['if'].call(depth0, depth0.needsInput, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\r\n</div>\r\n</div>";
   return buffer;
   });
 /*Copyright (c) 2008-2009 the qwebirc project.
@@ -11579,48 +12281,6 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
 ];
 
-
-irc.Numerics = {
-    "001": "RPL_WELCOME",
-    "004": "RPL_MYINFO",
-    "005": "RPL_ISUPPORT",
-    "353": "RPL_NAMREPLY",
-    "366": "RPL_ENDOFNAMES",
-
-    "331": "RPL_NOTOPIC",
-    "332": "RPL_TOPIC",
-    "333": "RPL_TOPICWHOTIME",
-
-    "311": "RPL_WHOISUSER",
-    "312": "RPL_WHOISSERVER",
-    "313": "RPL_WHOISOPERATOR",
-    "317": "RPL_WHOISIDLE",
-    "671": "RPL_WHOISSECURE",
-    "318": "RPL_ENDOFWHOIS",
-    "319": "RPL_WHOISCHANNELS",
-    "330": "RPL_WHOISACCOUNT",
-    "338": "RPL_WHOISACTUALLY",
-    "343": "RPL_WHOISOPERNAME",
-    "320": "RPL_WHOISGENERICTEXT",
-    "325": "RPL_WHOISWEBIRC",
-
-    "301": "RPL_AWAY",
-    "305": "RPL_UNAWAY",
-    "306": "RPL_NOWAWAY",
-
-    "324": "RPL_CHANNELMODEIS",
-    "329": "RPL_CREATIONTIME",
-
-    "433": "ERR_NICKNAMEINUSE",
-    "401": "ERR_NOSUCHNICK",
-    "404": "ERR_CANNOTSENDTOCHAN",
-    "482": "ERR_CHANOPPRIVSNEEDED",
-
-    "321": "RPL_LISTSTART",
-    "322": "RPL_LISTITEM",
-    "323": "RPL_LISTEND"
-};
-
 irc.styles = [
     {
         name: 'normal',
@@ -11763,12 +12423,578 @@ irc.colours = [//http://www.mirc.com/colors.html
         key: 15
     }
 ];
+irc.Numerics = {
+    "001": "RPL_WELCOME",
+    "004": "RPL_MYINFO",
+    "005": "RPL_ISUPPORT",
+    "353": "RPL_NAMREPLY",
+    "366": "RPL_ENDOFNAMES",
 
+    "331": "RPL_NOTOPIC",
+    "332": "RPL_TOPIC",
+    "333": "RPL_TOPICWHOTIME",
 
+    "311": "RPL_WHOISUSER",
+    "312": "RPL_WHOISSERVER",
+    "313": "RPL_WHOISOPERATOR",
+    "317": "RPL_WHOISIDLE",
+    "671": "RPL_WHOISSECURE",
+    "318": "RPL_ENDOFWHOIS",
+    "319": "RPL_WHOISCHANNELS",
+    "330": "RPL_WHOISACCOUNT",
+    "338": "RPL_WHOISACTUALLY",
+    "343": "RPL_WHOISOPERNAME",
+    "320": "RPL_WHOISGENERICTEXT",
+    "325": "RPL_WHOISWEBIRC",
 
+    "301": "RPL_AWAY",
+    "305": "RPL_UNAWAY",
+    "306": "RPL_NOWAWAY",
 
+    "324": "RPL_CHANNELMODEIS",
+    "329": "RPL_CREATIONTIME",
+
+    "433": "ERR_NICKNAMEINUSE",
+    "401": "ERR_NOSUCHNICK",
+    "404": "ERR_CANNOTSENDTOCHAN",
+    "482": "ERR_CHANOPPRIVSNEEDED",
+
+    "321": "RPL_LISTSTART",
+    "322": "RPL_LIST",
+    "323": "RPL_LISTEND"
+};
+
+irc.Numerics2 = { // from node-irc
+    "001": {
+        "name": "rpl_welcome",
+        "type": "reply"
+    },
+    "004": {
+        "name": "rpl_myinfo",
+        "type": "reply"
+    },
+    "005": {
+        "name": "rpl_isupport",
+        "type": "reply"
+    },
+    "200": {
+        "name": "rpl_tracelink",
+        "type": "reply"
+    },
+    "201": {
+        "name": "rpl_traceconnecting",
+        "type": "reply"
+    },
+    "202": {
+        "name": "rpl_tracehandshake",
+        "type": "reply"
+    },
+    "203": {
+        "name": "rpl_traceunknown",
+        "type": "reply"
+    },
+    "204": {
+        "name": "rpl_traceoperator",
+        "type": "reply"
+    },
+    "205": {
+        "name": "rpl_traceuser",
+        "type": "reply"
+    },
+    "206": {
+        "name": "rpl_traceserver",
+        "type": "reply"
+    },
+    "208": {
+        "name": "rpl_tracenewtype",
+        "type": "reply"
+    },
+    "211": {
+        "name": "rpl_statslinkinfo",
+        "type": "reply"
+    },
+    "212": {
+        "name": "rpl_statscommands",
+        "type": "reply"
+    },
+    "213": {
+        "name": "rpl_statscline",
+        "type": "reply"
+    },
+    "214": {
+        "name": "rpl_statsnline",
+        "type": "reply"
+    },
+    "215": {
+        "name": "rpl_statsiline",
+        "type": "reply"
+    },
+    "216": {
+        "name": "rpl_statskline",
+        "type": "reply"
+    },
+    "218": {
+        "name": "rpl_statsyline",
+        "type": "reply"
+    },
+    "219": {
+        "name": "rpl_endofstats",
+        "type": "reply"
+    },
+    "221": {
+        "name": "rpl_umodeis",
+        "type": "reply"
+    },
+    "241": {
+        "name": "rpl_statslline",
+        "type": "reply"
+    },
+    "242": {
+        "name": "rpl_statsuptime",
+        "type": "reply"
+    },
+    "243": {
+        "name": "rpl_statsoline",
+        "type": "reply"
+    },
+    "244": {
+        "name": "rpl_statshline",
+        "type": "reply"
+    },
+    "250": {
+        "name": "rpl_statsconn",
+        "type": "reply"
+    },
+    "251": {
+        "name": "rpl_luserclient",
+        "type": "reply"
+    },
+    "252": {
+        "name": "rpl_luserop",
+        "type": "reply"
+    },
+    "253": {
+        "name": "rpl_luserunknown",
+        "type": "reply"
+    },
+    "254": {
+        "name": "rpl_luserchannels",
+        "type": "reply"
+    },
+    "255": {
+        "name": "rpl_luserme",
+        "type": "reply"
+    },
+    "256": {
+        "name": "rpl_adminme",
+        "type": "reply"
+    },
+    "257": {
+        "name": "rpl_adminloc1",
+        "type": "reply"
+    },
+    "258": {
+        "name": "rpl_adminloc2",
+        "type": "reply"
+    },
+    "259": {
+        "name": "rpl_adminemail",
+        "type": "reply"
+    },
+    "261": {
+        "name": "rpl_tracelog",
+        "type": "reply"
+    },
+    "265": {
+        "name": "rpl_localusers",
+        "type": "reply"
+    },
+    "266": {
+        "name": "rpl_globalusers",
+        "type": "reply"
+    },
+    "300": {
+        "name": "rpl_none",
+        "type": "reply"
+    },
+    "301": {
+        "name": "rpl_away",
+        "type": "reply"
+    },
+    "302": {
+        "name": "rpl_userhost",
+        "type": "reply"
+    },
+    "303": {
+        "name": "rpl_ison",
+        "type": "reply"
+    },
+    "305": {
+        "name": "rpl_unaway",
+        "type": "reply"
+    },
+    "306": {
+        "name": "rpl_nowaway",
+        "type": "reply"
+    },
+    "311": {
+        "name": "rpl_whoisuser",
+        "type": "reply"
+    },
+    "312": {
+        "name": "rpl_whoisserver",
+        "type": "reply"
+    },
+    "313": {
+        "name": "rpl_whoisoperator",
+        "type": "reply"
+    },
+    "314": {
+        "name": "rpl_whowasuser",
+        "type": "reply"
+    },
+    "315": {
+        "name": "rpl_endofwho",
+        "type": "reply"
+    },
+    "317": {
+        "name": "rpl_whoisidle",
+        "type": "reply"
+    },
+    "318": {
+        "name": "rpl_endofwhois",
+        "type": "reply"
+    },
+    "319": {
+        "name": "rpl_whoischannels",
+        "type": "reply"
+    },
+
+    "320": {
+        "name": "RPL_WHOISGENERICTEXT",
+        "type": "reply"
+    },
+    "325": {
+        "name": "RPL_WHOISWEBIRC",
+        "type": "reply"
+    },
+    "330": {
+        "name": "RPL_WHOISACCOUNT",
+        "type": "reply"
+    },
+    "338": {
+        "name": "RPL_WHOISACTUALLY",
+        "type": "reply"
+    },
+    "343": {
+        "name": "RPL_WHOISOPERNAME",
+        "type": "reply"
+    },
+    "321": {
+        "name": "rpl_liststart",
+        "type": "reply"
+    },
+    "322": {
+        "name": "rpl_list",
+        "type": "reply"
+    },
+    "323": {
+        "name": "rpl_listend",
+        "type": "reply"
+    },
+    "324": {
+        "name": "rpl_channelmodeis",
+        "type": "reply"
+    },
+    "329": {
+        "name": "RPL_CREATIONTIME",
+        "type": "reply"
+    },
+    "331": {
+        "name": "rpl_notopic",
+        "type": "reply"
+    },
+    "332": {
+        "name": "rpl_topic",
+        "type": "reply"
+    },
+    "333": {
+        "name": "RPL_TOPICWHOTIME",
+        "type": "reply"
+    },
+    "341": {
+        "name": "rpl_inviting",
+        "type": "reply"
+    },
+    "342": {
+        "name": "rpl_summoning",
+        "type": "reply"
+    },
+    "351": {
+        "name": "rpl_version",
+        "type": "reply"
+    },
+    "352": {
+        "name": "rpl_whoreply",
+        "type": "reply"
+    },
+    "353": {
+        "name": "rpl_namreply",
+        "type": "reply"
+    },
+    "364": {
+        "name": "rpl_links",
+        "type": "reply"
+    },
+    "365": {
+        "name": "rpl_endoflinks",
+        "type": "reply"
+    },
+    "366": {
+        "name": "rpl_endofnames",
+        "type": "reply"
+    },
+    "367": {
+        "name": "rpl_banlist",
+        "type": "reply"
+    },
+    "368": {
+        "name": "rpl_endofbanlist",
+        "type": "reply"
+    },
+    "369": {
+        "name": "rpl_endofwhowas",
+        "type": "reply"
+    },
+    "371": {
+        "name": "rpl_info",
+        "type": "reply"
+    },
+    "372": {
+        "name": "rpl_motd",
+        "type": "reply"
+    },
+    "374": {
+        "name": "rpl_endofinfo",
+        "type": "reply"
+    },
+    "375": {
+        "name": "rpl_motdstart",
+        "type": "reply"
+    },
+    "376": {
+        "name": "rpl_endofmotd",
+        "type": "reply"
+    },
+    "381": {
+        "name": "rpl_youreoper",
+        "type": "reply"
+    },
+    "382": {
+        "name": "rpl_rehashing",
+        "type": "reply"
+    },
+    "391": {
+        "name": "rpl_time",
+        "type": "reply"
+    },
+    "392": {
+        "name": "rpl_usersstart",
+        "type": "reply"
+    },
+    "393": {
+        "name": "rpl_users",
+        "type": "reply"
+    },
+    "394": {
+        "name": "rpl_endofusers",
+        "type": "reply"
+    },
+    "395": {
+        "name": "rpl_nousers",
+        "type": "reply"
+    },
+    "401": {
+        "name": "err_nosuchnick",
+        "type": "error"
+    },
+    "402": {
+        "name": "err_nosuchserver",
+        "type": "error"
+    },
+    "403": {
+        "name": "err_nosuchchannel",
+        "type": "error"
+    },
+    "404": {
+        "name": "err_cannotsendtochan",
+        "type": "error"
+    },
+    "405": {
+        "name": "err_toomanychannels",
+        "type": "error"
+    },
+    "406": {
+        "name": "err_wasnosuchnick",
+        "type": "error"
+    },
+    "407": {
+        "name": "err_toomanytargets",
+        "type": "error"
+    },
+    "409": {
+        "name": "err_noorigin",
+        "type": "error"
+    },
+    "411": {
+        "name": "err_norecipient",
+        "type": "error"
+    },
+    "412": {
+        "name": "err_notexttosend",
+        "type": "error"
+    },
+    "413": {
+        "name": "err_notoplevel",
+        "type": "error"
+    },
+    "414": {
+        "name": "err_wildtoplevel",
+        "type": "error"
+    },
+    "421": {
+        "name": "err_unknowncommand",
+        "type": "error"
+    },
+    "422": {
+        "name": "err_nomotd",
+        "type": "error"
+    },
+    "423": {
+        "name": "err_noadmininfo",
+        "type": "error"
+    },
+    "424": {
+        "name": "err_fileerror",
+        "type": "error"
+    },
+    "431": {
+        "name": "err_nonicknamegiven",
+        "type": "error"
+    },
+    "432": {
+        "name": "err_erroneusnickname",
+        "type": "error"
+    },
+    "433": {
+        "name": "err_nicknameinuse",
+        "type": "error"
+    },
+    "436": {
+        "name": "err_nickcollision",
+        "type": "error"
+    },
+    "441": {
+        "name": "err_usernotinchannel",
+        "type": "error"
+    },
+    "442": {
+        "name": "err_notonchannel",
+        "type": "error"
+    },
+    "443": {
+        "name": "err_useronchannel",
+        "type": "error"
+    },
+    "444": {
+        "name": "err_nologin",
+        "type": "error"
+    },
+    "445": {
+        "name": "err_summondisabled",
+        "type": "error"
+    },
+    "446": {
+        "name": "err_usersdisabled",
+        "type": "error"
+    },
+    "451": {
+        "name": "err_notregistered",
+        "type": "error"
+    },
+    "461": {
+        "name": "err_needmoreparams",
+        "type": "error"
+    },
+    "462": {
+        "name": "err_alreadyregistred",
+        "type": "error"
+    },
+    "463": {
+        "name": "err_nopermforhost",
+        "type": "error"
+    },
+    "464": {
+        "name": "err_passwdmismatch",
+        "type": "error"
+    },
+    "465": {
+        "name": "err_yourebannedcreep",
+        "type": "error"
+    },
+    "467": {
+        "name": "err_keyset",
+        "type": "error"
+    },
+    "471": {
+        "name": "err_channelisfull",
+        "type": "error"
+    },
+    "472": {
+        "name": "err_unknownmode",
+        "type": "error"
+    },
+    "473": {
+        "name": "err_inviteonlychan",
+        "type": "error"
+    },
+    "474": {
+        "name": "err_bannedfromchan",
+        "type": "error"
+    },
+    "475": {
+        "name": "err_badchannelkey",
+        "type": "error"
+    },
+    "481": {
+        "name": "err_noprivileges",
+        "type": "error"
+    },
+    "482": {
+        "name": "err_chanopprivsneeded",
+        "type": "error"
+    },
+    "483": {
+        "name": "err_cantkillserver",
+        "type": "error"
+    },
+    "491": {
+        "name": "err_nooperhost",
+        "type": "error"
+    },
+    "501": {
+        "name": "err_umodeunknownflag",
+        "type": "error"
+    },
+    "502": {
+        "name": "err_usersdontmatch",
+        "type": "error"
+    }
+}
 var whitespace = /\s/,
     notwhitespace = /\S+$/;
+
+ui.Behaviour = new Behavior();
 
 //my helper functions
 //returns itself
@@ -11781,7 +13007,7 @@ var join = function(by, xs) {
     },
 
     restRight = _.autoCurry(function(xs) {
-        return xs.slice(0, xs.length-1);
+        return xs.slice(0, xs.length - 1);
     }),
 
     test = _.autoCurry(function(reg, str) {
@@ -11805,24 +13031,21 @@ var join = function(by, xs) {
     joinEmpty = _.partial(join, ""),
 
     // splitEmpty = split(""),
-
-    joinComma = util.joinChans = _.partial(join,","),
+    joinComma = util.joinChans = _.partial(join, ","),
 
     // splitComma = split(","),
-
     concatUnique = _.compose(_.uniq, Array.concat),
 
     concatSep = _.autoCurry(function(sep, s1, s2) {
-        if(_.isArray(s1)) {
+        if (_.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(_.isArray(s2)) {
+        if (_.isArray(s2)) {
             s2 = s2.join(sep);
         }
-        if(s1 !== "" && s2 !== "") {
+        if (s1 !== "" && s2 !== "") {
             return s1 + sep + s2;
-        }
-        else {
+        } else {
             return s1 + s2;
         }
     }),
@@ -11833,8 +13056,8 @@ util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
 
-util.formatterSafe = function (str, object, regexp){//if property not found string is not replaced
-    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
+util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
+    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
         if (match.charAt(0) == '\\') return match.slice(1);
         return (object[name] != null) ? object[name] : match;
     });
@@ -11850,26 +13073,25 @@ util.hostToHost = _.compose(Array.getLast, splitBang);
 var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
 
     formatChannel = util.formatChannel = function(chan) {
-        if(chan.length >= 1 && !isChannel(chan)) {
+        if (chan.length >= 1 && !isChannel(chan)) {
             chan = '#' + chan;
         }
         return chan;
     },
 
     unformatChannel = util.unformatChannel = function(chan) {
-        if(isChannel(chan)) {
+        if (isChannel(chan)) {
             chan = chan.slice(1);
         }
         return chan;
     },
 
-    appendChannel = function(chans,chan) {
+    appendChannel = function(chans, chan) {
         return $A(chans).concat(chan);
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(_.isArray(xs))
-            return xs.length > 0 ? xs : [""];
+        if (_.isArray(xs)) return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
 
@@ -11889,27 +13111,99 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatCha
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
-util.addChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */appendChannel);
+util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
-util.prependChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */_.flip(appendChannel));
+util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
 
 
 //calls splits string by comma then calls array.erase on value
 util.removeChannel = Array.erase;
 
+(function() {
+/*
+ * taken from https://github.com/martynsmith/node-irc
+ * parseMessage(line, stripColors)
+ *
+ * takes a raw "line" from the IRC server and turns it into an object with
+ * useful keys
+ * ":OCD!~OCD@76.72.16.142 PRIVMSG #tf2mix :mix servers are down. join mumble for an inhouse pug." => {"prefix":"OCD!~OCD@76.72.16.142","nick":"OCD","user":"~OCD","host":"76.72.16.142","command":"PRIVMSG","rawCommand":"PRIVMSG","commandType":"normal","args":["#tf2mix","mix servers are down. join mumble for an inhouse pug."]}
+ */
+
+var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
+    hasprefix_re = /^:([^ ]+) +/,
+    colonrem_re = /^:[^ ]+ +/,
+    command_re = /^([^ ]+) */,
+    data_re = /^[^ ]+ +/;
+util.parseIRCData = function(line/*, stripColors*/) { // {{{
+    var message = {
+        'raw': line,
+        'prefix': ''
+    };
+    var match;
+
+    /*if (stripColors) {
+        line = line.replace(/[\x02\x1f\x16\x0f]|\x03\d{0,2}(?:,\d{0,2})?/g, "");
+    }*/
+
+    // Parse prefix
+    if (match = line.match(hasprefix_re)) {
+        message.prefix = match[1];
+        line = line.replace(colonrem_re, '');
+        if (match = message.prefix.match(prefix_re)) {
+            message.nick = match[1];
+            message.user = match[3];
+            message.host = match[4];
+        } else {
+            message.server = message.prefix;
+        }
+    }
+
+    // Parse command
+    match = line.match(command_re);
+    message.command = match[1].toUpperCase();
+    message.rawCommand = match[1];
+    message.commandType = 'normal';
+    line = line.replace(data_re, '');
+
+    if (irc.Numerics2[message.rawCommand]) {
+        message.command = irc.Numerics2[message.rawCommand].name.toUpperCase();
+        message.commandType = irc.Numerics2[message.rawCommand].type;
+    }
+
+    message.args = [];
+    var middle, trailing;
+
+    // Parse parameters
+    if (line.search(/^:|\s+:/) != -1) {
+        match = line.match(/(.*?)(?:^:|\s+:)(.*)/);
+        middle = match[1].trimRight();
+        trailing = match[2];
+    } else {
+        middle = line;
+    }
+
+    if (middle.length) message.args = middle.split(/ +/);
+
+    if (typeof(trailing) != 'undefined' && trailing.length) message.args.push(trailing);
+
+    return message;
+};
+})();
+
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
-        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1);//qweb issue #349
+        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1); //qweb issue #349
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
     return cmdline.splitMax(" ", 2); //split command from the params
 };
-
 util.nickChanComparitor = function(client, nickHash) {
     var _prefixes = client.prefixes,
         _prefixNone = _prefixes.length,
-        prefixWeight = function(pre) { return pre.length !== 0 ? _prefixes.indexOf(pre) : _prefixNone ; },
+        prefixWeight = function(pre) {
+            return pre.length !== 0 ? _prefixes.indexOf(pre) : _prefixNone;
+        },
         toLower = client.toIRCLower;
     //compares two nick names by channel status > lexigraphy
     return function(nick1, nick2) {
@@ -11919,7 +13213,7 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b')
+util.nickPrefixer = function(nickHash) { //_.lambda('a -> b -> a[b].prefixes + b')
     return function(nick) {
         return nickHash[nick].prefixes + nick;
     };
@@ -11928,8 +13222,7 @@ util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b'
 util.validPrefix = _.contains;
 
 util.addPrefix = function(nc, pref, prefs) {
-    if(prefs && !util.validPrefix(prefs, pref))
-        return nc.prefixes;
+    if (prefs && !util.validPrefix(prefs, pref)) return nc.prefixes;
     return nc.prefixes = concatUnique(nc.prefixes, pref).join("");
 };
 
@@ -11952,18 +13245,17 @@ util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
-util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
+util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
     return test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
-    if (lower == client.lowerNickname)
-        return null;
+    if (lower == client.lowerNickname) return null;
 
     var hash = 0;
     for (var i = 0; i < lower.length; i++)
-        hash = 31 * hash + lower.charCodeAt(i);
+    hash = 31 * hash + lower.charCodeAt(i);
 
     var hue = Math.abs(hash) % 360;
 
@@ -11985,19 +13277,27 @@ irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke,
 irc.ASCIItoIRCLower = String.toLowerCase;
 
 util.getStyleByName = function(name) {
-    return _.findWhere(irc.styles, {name:name});
+    return _.findWhere(irc.styles, {
+        name: name
+    });
 };
 
 util.getStyleByKey = function(key) {
-    return _.findWhere(irc.styles, {key: _.toInt(key)});
+    return _.findWhere(irc.styles, {
+        key: _.toInt(key)
+    });
 };
 
 util.getColourByName = function(name) {
-    return _.findWhere(irc.colours, {name:name});
+    return _.findWhere(irc.colours, {
+        name: name
+    });
 };
 
 util.getColourByKey = function(key) {
-    return _.findWhere(irc.colours, {key: _.toInt(key)});
+    return _.findWhere(irc.colours, {
+        key: _.toInt(key)
+    });
 };
 
 // returns the arguments 
@@ -12015,8 +13315,7 @@ util.parseURI = function(uri) {
 
     for (var i = 0; i < args.length; i++) {
         var part = args[i].splitMax("=", 2);
-        if (part.length > 1)
-            result[unescape(part[0])] = unescape(part[1]);
+        if (part.length > 1) result[unescape(part[0])] = unescape(part[1]);
     }
 
     return result;
@@ -12086,7 +13385,7 @@ irc.nickChanEntry = function(p, l) {
     };
 };
 
-util.noop = function(){};
+util.noop = function() {};
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
@@ -12096,8 +13395,6 @@ util.generateID = (function() {
         return "qqa-" + id++;
     };
 })();
-
-
 
 (function() {
 
@@ -12163,6 +13460,7 @@ util.generateID = (function() {
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),
+        connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
         connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 
@@ -12271,11 +13569,11 @@ ui.themes.Default2 = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
-    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
+    "CHANMSG": "{D}<{@}{(}{N}>{)}{D} {m}",
+    "PRIVMSG": "{(}<{N}>{)} {m}",
 
-    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
-    "OURPRIVMSG": "&lt;{N}&gt; {m}",
+    "OURCHANMSG": "<{@}{N}> {m}",
+    "OURPRIVMSG": "<{N}> {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",
@@ -12312,459 +13610,29 @@ ui.themes.Default2 = {
 };
 
 ui.UI_COMMANDS = [
-    ["Options", "options"],
-    ["Add webchat to your site", "embedded"],
-    ["Privacy policy", "privacy"],
-    ["Feedback", "feedback"],
-    ["Frequently asked questions", "faq"],
-    ["About qwebirc", "about"]
-];
+        {
+            text: "Options",
+            value: "optionsWindow"//ui method
+        },
+        {
+            text: "Add webchat to your site",
+            value: "embeddedWindow"
+        },
+        {
+            text: "Privacy policy",
+            value: "privacyWindow"
+        },
+        {
+            text: "Frequently asked questions",
+            value: "faqWindow"
+        },
+        {
+            text: "About qwebirc",
+            value: "aboutWindow"
+        }];
 
 
 })();
-//minor updates for edge cases
-
-/**
- *
- *  Base64 encode / decode
- *  http://www.webtoolkit.info/
- *
- **/
-window.Base64 = util.B64 = (function() {
-    "use strict";
-
-    var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-
-    var _utf8_encode = function (string) {
-
-        var utftext = "", c, n;
-
-        string = string.replace(/\r\n/g,"\n");
-
-        for (n = 0; n < string.length; n++) {
-
-            c = string.charCodeAt(n);
-
-            if (c < 128) {
-
-                utftext += String.fromCharCode(c);
-
-            } else if((c > 127) && (c < 2048)) {
-
-                utftext += String.fromCharCode((c >> 6) | 192);
-                utftext += String.fromCharCode((c & 63) | 128);
-
-            } else {
-
-                utftext += String.fromCharCode((c >> 12) | 224);
-                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                utftext += String.fromCharCode((c & 63) | 128);
-
-            }
-
-        }
-
-        return utftext;
-    };
-
-    var _utf8_decode = function (utftext) {
-        var string = "", i = 0, c = 0, c1 = 0, c2 = 0;
-
-        while ( i < utftext.length ) {
-
-            c = utftext.charCodeAt(i);
-
-            if (c < 128) {
-
-                string += String.fromCharCode(c);
-                i++;
-
-            } else if((c > 191) && (c < 224)) {
-
-                c1 = utftext.charCodeAt(i+1);
-                string += String.fromCharCode(((c & 31) << 6) | (c1 & 63));
-                i += 2;
-
-            } else {
-
-                c1 = utftext.charCodeAt(i+1);
-                c2 = utftext.charCodeAt(i+2);
-                string += String.fromCharCode(((c & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63));
-                i += 3;
-
-            }
-
-        }
-
-        return string;
-    };
-
-    var _hexEncode = function(input) {
-        var output = '', i;
-
-        for(i = 0; i < input.length; i++) {
-            output += input.charCodeAt(i).toString(16);
-        }
-
-        return output;
-    };
-
-    var _hexDecode = function(input) {
-        var output = '', i;
-
-        if(input.length % 2 > 0) {
-            input = '0' + input;
-        }
-
-        for(i = 0; i < input.length; i = i + 2) {
-            output += String.fromCharCode(parseInt(input.charAt(i) + input.charAt(i + 1), 16));
-        }
-
-        return output;
-    };
-
-    var encode = function (input) {
-        if(!$defined(input))
-            return null;
-
-        var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
-
-        input = _utf8_encode(input);
-
-        while (i < input.length) {
-
-            chr1 = input.charCodeAt(i++);
-            chr2 = input.charCodeAt(i++);
-            chr3 = input.charCodeAt(i++);
-
-            enc1 = chr1 >> 2;
-            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-            enc4 = chr3 & 63;
-
-            if (isNaN(chr2)) {
-                enc3 = enc4 = 64;
-            } else if (isNaN(chr3)) {
-                enc4 = 64;
-            }
-
-            output += _keyStr.charAt(enc1);
-            output += _keyStr.charAt(enc2);
-            output += _keyStr.charAt(enc3);
-            output += _keyStr.charAt(enc4);
-
-        }
-
-        return output;
-    };
-
-    var decode = function (input) {
-        if(!$defined(input))
-            return null;
-
-        var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
-
-        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-
-        while (i < input.length) {
-
-            enc1 = _keyStr.indexOf(input.charAt(i++));
-            enc2 = _keyStr.indexOf(input.charAt(i++));
-            enc3 = _keyStr.indexOf(input.charAt(i++));
-            enc4 = _keyStr.indexOf(input.charAt(i++));
-
-            chr1 = (enc1 << 2) | (enc2 >> 4);
-            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-            chr3 = ((enc3 & 3) << 6) | enc4;
-
-            output += String.fromCharCode(chr1);
-
-            if (enc3 !== 64) {
-                output += String.fromCharCode(chr2);
-            }
-            if (enc4 !== 64) {
-                output += String.fromCharCode(chr3);
-            }
-
-        }
-
-        return _utf8_decode(output);
-    };
-
-    var decodeToHex = function(input) {
-        return _hexEncode(decode(input));
-    };
-
-    var encodeFromHex = function(input) {
-        return encode(_hexDecode(input));
-    };
-
-    return {
-        'encode': encode,
-        'decode': decode,
-        'decodeToHex': decodeToHex,
-        'encodeFromHex': encodeFromHex
-    };
-}());
-
-/*
- * MD5
- *
- * Usage:
- *
- *   var object = new MD5()
- *
- *     Returns a MD5 object.
- *
- *   object.digest(input)
- *
- *     Returns MD5 message digest of input.
- *
- * Example:
- *
- *   var object = new MD5();
- *
- *   // Examples drawn from RFC1321 test suite
- *   object.digest("");
- *   // d41d8cd98f00b204e9800998ecf8427e
- *
- *   object.digest("a");
- *   // 0cc175b9c0f1b6a831c399e269772661
- *
- *   object.digest("abc");
- *   // 900150983cd24fb0d6963f7d28e17f72
- *
- *   object.digest("message digest");
- *   // f96b697d7cb7938d525a2f31aaf161d0
- *
- *   object.digest("abcdefghijklmnopqrstuvwxyz");
- *   // c3fcd3d76192e4007dfb496cca67e13b
- *
- *   object.digest("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
- *   // d174ab98d277d9f5a5611c2c9f419d9f
- *
- *   object.digest("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
- *   // 57edf4a22be3c955ac49da2e2107b67a
- */
-
-crypto.MD5 = function() {
-    this.digest = calcMD5;
-
-    /*
-     * Convert a 32-bit number to a hex string with ls-byte first
-     */
-    var hex_chr = "0123456789abcdef";
-
-    function rhex(num) {
-        var str = "";
-        for (var j = 0; j <= 3; j++)
-        str += hex_chr.charAt((num >> (j * 8 + 4)) & 0x0F) + hex_chr.charAt((num >> (j * 8)) & 0x0F);
-        return str;
-    }
-
-    /*
-     * Convert a string to a sequence of 16-word blocks, stored as an array.
-     * Append padding bits and the length, as described in the MD5 standard.
-     */
-
-    function str2blks_MD5(str) {
-        var nblk = ((str.length + 8) >> 6) + 1;
-        var blks = new Array(nblk * 16);
-        for (var i = 0; i < nblk * 16; i++) blks[i] = 0;
-        for (var i = 0; i < str.length; i++)
-        blks[i >> 2] |= str.charCodeAt(i) << ((i % 4) * 8);
-        blks[i >> 2] |= 0x80 << ((i % 4) * 8);
-        blks[nblk * 16 - 2] = str.length * 8;
-        return blks;
-    }
-
-    /*
-     * Add integers, wrapping at 2^32
-     */
-
-    function add(x, y) {
-        return ((x & 0x7FFFFFFF) + (y & 0x7FFFFFFF)) ^ (x & 0x80000000) ^ (y & 0x80000000);
-    }
-
-    /*
-     * Bitwise rotate a 32-bit number to the left
-     */
-
-    function rol(num, cnt) {
-        return (num << cnt) | (num >>> (32 - cnt));
-    }
-
-    /*
-     * These functions implement the basic operation for each round of the
-     * algorithm.
-     */
-
-    function cmn(q, a, b, x, s, t) {
-        return add(rol(add(add(a, q), add(x, t)), s), b);
-    }
-
-    function ff(a, b, c, d, x, s, t) {
-        return cmn((b & c) | ((~b) & d), a, b, x, s, t);
-    }
-
-    function gg(a, b, c, d, x, s, t) {
-        return cmn((b & d) | (c & (~d)), a, b, x, s, t);
-    }
-
-    function hh(a, b, c, d, x, s, t) {
-        return cmn(b ^ c ^ d, a, b, x, s, t);
-    }
-
-    function ii(a, b, c, d, x, s, t) {
-        return cmn(c ^ (b | (~d)), a, b, x, s, t);
-    }
-
-    /*
-     * Take a string and return the hex representation of its MD5.
-     */
-
-    function calcMD5(str) {
-        var x = str2blks_MD5(str);
-        var a = 0x67452301;
-        var b = 0xEFCDAB89;
-        var c = 0x98BADCFE;
-        var d = 0x10325476;
-
-        for (var i = 0; i < x.length; i += 16) {
-            var olda = a;
-            var oldb = b;
-            var oldc = c;
-            var oldd = d;
-
-            a = ff(a, b, c, d, x[i + 0], 7, 0xD76AA478);
-            d = ff(d, a, b, c, x[i + 1], 12, 0xE8C7B756);
-            c = ff(c, d, a, b, x[i + 2], 17, 0x242070DB);
-            b = ff(b, c, d, a, x[i + 3], 22, 0xC1BDCEEE);
-            a = ff(a, b, c, d, x[i + 4], 7, 0xF57C0FAF);
-            d = ff(d, a, b, c, x[i + 5], 12, 0x4787C62A);
-            c = ff(c, d, a, b, x[i + 6], 17, 0xA8304613);
-            b = ff(b, c, d, a, x[i + 7], 22, 0xFD469501);
-            a = ff(a, b, c, d, x[i + 8], 7, 0x698098D8);
-            d = ff(d, a, b, c, x[i + 9], 12, 0x8B44F7AF);
-            c = ff(c, d, a, b, x[i + 10], 17, 0xFFFF5BB1);
-            b = ff(b, c, d, a, x[i + 11], 22, 0x895CD7BE);
-            a = ff(a, b, c, d, x[i + 12], 7, 0x6B901122);
-            d = ff(d, a, b, c, x[i + 13], 12, 0xFD987193);
-            c = ff(c, d, a, b, x[i + 14], 17, 0xA679438E);
-            b = ff(b, c, d, a, x[i + 15], 22, 0x49B40821);
-
-            a = gg(a, b, c, d, x[i + 1], 5, 0xF61E2562);
-            d = gg(d, a, b, c, x[i + 6], 9, 0xC040B340);
-            c = gg(c, d, a, b, x[i + 11], 14, 0x265E5A51);
-            b = gg(b, c, d, a, x[i + 0], 20, 0xE9B6C7AA);
-            a = gg(a, b, c, d, x[i + 5], 5, 0xD62F105D);
-            d = gg(d, a, b, c, x[i + 10], 9, 0x02441453);
-            c = gg(c, d, a, b, x[i + 15], 14, 0xD8A1E681);
-            b = gg(b, c, d, a, x[i + 4], 20, 0xE7D3FBC8);
-            a = gg(a, b, c, d, x[i + 9], 5, 0x21E1CDE6);
-            d = gg(d, a, b, c, x[i + 14], 9, 0xC33707D6);
-            c = gg(c, d, a, b, x[i + 3], 14, 0xF4D50D87);
-            b = gg(b, c, d, a, x[i + 8], 20, 0x455A14ED);
-            a = gg(a, b, c, d, x[i + 13], 5, 0xA9E3E905);
-            d = gg(d, a, b, c, x[i + 2], 9, 0xFCEFA3F8);
-            c = gg(c, d, a, b, x[i + 7], 14, 0x676F02D9);
-            b = gg(b, c, d, a, x[i + 12], 20, 0x8D2A4C8A);
-
-            a = hh(a, b, c, d, x[i + 5], 4, 0xFFFA3942);
-            d = hh(d, a, b, c, x[i + 8], 11, 0x8771F681);
-            c = hh(c, d, a, b, x[i + 11], 16, 0x6D9D6122);
-            b = hh(b, c, d, a, x[i + 14], 23, 0xFDE5380C);
-            a = hh(a, b, c, d, x[i + 1], 4, 0xA4BEEA44);
-            d = hh(d, a, b, c, x[i + 4], 11, 0x4BDECFA9);
-            c = hh(c, d, a, b, x[i + 7], 16, 0xF6BB4B60);
-            b = hh(b, c, d, a, x[i + 10], 23, 0xBEBFBC70);
-            a = hh(a, b, c, d, x[i + 13], 4, 0x289B7EC6);
-            d = hh(d, a, b, c, x[i + 0], 11, 0xEAA127FA);
-            c = hh(c, d, a, b, x[i + 3], 16, 0xD4EF3085);
-            b = hh(b, c, d, a, x[i + 6], 23, 0x04881D05);
-            a = hh(a, b, c, d, x[i + 9], 4, 0xD9D4D039);
-            d = hh(d, a, b, c, x[i + 12], 11, 0xE6DB99E5);
-            c = hh(c, d, a, b, x[i + 15], 16, 0x1FA27CF8);
-            b = hh(b, c, d, a, x[i + 2], 23, 0xC4AC5665);
-
-            a = ii(a, b, c, d, x[i + 0], 6, 0xF4292244);
-            d = ii(d, a, b, c, x[i + 7], 10, 0x432AFF97);
-            c = ii(c, d, a, b, x[i + 14], 15, 0xAB9423A7);
-            b = ii(b, c, d, a, x[i + 5], 21, 0xFC93A039);
-            a = ii(a, b, c, d, x[i + 12], 6, 0x655B59C3);
-            d = ii(d, a, b, c, x[i + 3], 10, 0x8F0CCC92);
-            c = ii(c, d, a, b, x[i + 10], 15, 0xFFEFF47D);
-            b = ii(b, c, d, a, x[i + 1], 21, 0x85845DD1);
-            a = ii(a, b, c, d, x[i + 8], 6, 0x6FA87E4F);
-            d = ii(d, a, b, c, x[i + 15], 10, 0xFE2CE6E0);
-            c = ii(c, d, a, b, x[i + 6], 15, 0xA3014314);
-            b = ii(b, c, d, a, x[i + 13], 21, 0x4E0811A1);
-            a = ii(a, b, c, d, x[i + 4], 6, 0xF7537E82);
-            d = ii(d, a, b, c, x[i + 11], 10, 0xBD3AF235);
-            c = ii(c, d, a, b, x[i + 2], 15, 0x2AD7D2BB);
-            b = ii(b, c, d, a, x[i + 9], 21, 0xEB86D391);
-
-            a = add(a, olda);
-            b = add(b, oldb);
-            c = add(c, oldc);
-            d = add(d, oldd);
-        }
-        return rhex(a) + rhex(b) + rhex(c) + rhex(d);
-    }
-}
-
-crypto.xorStreams = function(data, prngstream) {
-    if (data.length != prngstream.length) return;
-
-    var output = [];
-    for (var i = 0; i < data.length; i++)
-    output.push(String.fromCharCode(data.charCodeAt(i) ^ prngstream[i]));
-
-    return output.join("");
-};
-
-crypto.ARC4 = function(key, data) {
-    var prngstream = crypto.getARC4Stream(key, data.length + 1024); /* burn first 1024 bytes */
-    prngstream = prngstream.slice(1024);
-
-    return crypto.xorStreams(data, prngstream);
-};
-
-
-util.crypto.getARC4Stream = function(key, length) {
-    var s = [];
-
-    var keyint = [];
-    for (var i = 0; i < key.length; i++) {
-        keyint.push(key.charCodeAt(i));
-    }
-
-    for (var i = 0; i < 256; i++) {
-        s[i] = i;
-    }
-    var j = 0;
-    for (var i = 0; i < 256; i++) {
-        j = (j + s[i] + keyint[i % key.length]) & 255;
-        var w = s[i];
-        s[i] = s[j];
-        s[j] = w;
-    }
-
-    var output = [];
-    var i = 0;
-    var j = 0;
-    for (var k = 0; k < length; k++) {
-        i = (i + 1) & 255;
-        j = (j + s[i]) & 255;
-
-        var w = s[i];
-        s[i] = s[j];
-        s[j] = w;
-        output.push(s[(s[i] + s[j]) & 255]);
-    }
-    return output;
-};
-
 
 Epitome.View.implement({
     template: function(data, template) {
@@ -13101,10 +13969,46 @@ irc.NicknameValidator = new Class({
 });
 
 
+irc.CommandHistory = new Class({
+    Extends: Epitome.Model.Storage,
+    Implements: [Options],
+    options: {
+        lines: 20,
+        minlen: 2,
+        storage: {
+            fallback: false//dont save on shit browsers
+        },
+        key: "cmdhist"
+    },
+
+    addLine: function(name, line) {
+        var data = this.get(name);
+        if(line.length > this.options.minlen && !data.contains(line)) {
+            data.unshift(line);
+            if (data.length > this.options.lines) {
+                data.pop();
+            }
+            this.set(name, data);
+            this.save();
+        }
+    },
+
+    addChannel: function(name) {
+        if(!this.get(name)) this.set(name, []);
+    },
+
+    removeChannel: function(name) {
+        this.unset(name);
+        this.save();
+    }
+});
+
+
 ui.Interface = new Class({
     Implements: [Options, Events],
     options: {
-        baseURL: 'atf2.org',
+        node: false,//use the node implementation with socket.io
+
         dynamicBaseURL: "/",
         staticBaseURL: "/",
         searchURL: true,
@@ -13124,6 +14028,15 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
+        sounds: {
+            minSoundRepeatInterval: 5000
+        },
+
+        icons: {
+            empty_favicon: "images/empty_favicon.ico",
+            menuicon: "images/icon.png"
+        },
+
         loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
 
@@ -13134,24 +14047,10 @@ ui.Interface = new Class({
         var self = this,
             opts = self.options;
 
-        var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
             dynamicBaseURL: opts.dynamicBaseURL,
-            staticBaseURL: sbaseurl,
+            staticBaseURL: opts.staticBaseURL,
             nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
-        };
-
-        opts.icons = {
-            //favicon: sbaseurl + "images/favicon.png",
-            empty_favicon: sbaseurl + "images/empty_favicon.ico",
-            menuicon: sbaseurl + "images/icon.png"
-        };
-
-        opts.sounds = {
-            //soundManagersrc: sbaseurl + "js/soundmanager2-nodebug-jsmin.js",
-            sounds: sbaseurl + "sound",
-            beepsrc: "/beep3.mp3",
-            minSoundRepeatInterval: 5000
         };
 
         opts.specialUserActions = [ //special actions to take when particular users speak
@@ -13175,15 +14074,6 @@ ui.Interface = new Class({
             //cleans up old properties
             if(storage.get('__clean') !== false)
                 self.cleanUp();
-
-            // var cookopts = opts.cookieOpts;
-            //cookies to store connection details
-            var authCookies = {
-                nick: new Storer("nickname"),//initial nick
-                user: new Storer("gamesurge"),//auth account
-                pass: new Storer("password"),//auth password
-                auth: new Storer("enableAuth")//enable full auth
-            };
 
             if (opts.searchURL) {
                 var args = util.parseURI(document.location.toString()),
@@ -13258,10 +14148,10 @@ ui.Interface = new Class({
             inick = opts.initialNickname;
             //}
 
-            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
 
             self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']), loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
                 client.connect();
@@ -13424,43 +14314,55 @@ ui.AuthLogin = function(e) {
 //base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
-    Binds: ["dispatch"],
+    Binds: ["send", "lostConnection", "connected", "retry", "ndispatch", "tdispatch"],
 
     options: {
         nickname: "qwebirc",
         specialUserActions: []
     },
+    __signedOn: false,
+    channels: {},
+    nextctcp: 0,
+    pmodes: {
+        b: irc.PMODE_LIST,
+        l: irc.PMODE_SET_ONLY,
+        k: irc.PMODE_SET_UNSET,
+        o: irc.PMODE_SET_UNSET,
+        v: irc.PMODE_SET_UNSET
+    },
+
+    toIRCLower: irc.RFC1459toIRCLower,//default text codec
 
     initialize: function(options) {
         var self = this;
-        self.setOptions(options);
-        var opts = self.options;
-
-        self.toIRCLower = irc.RFC1459toIRCLower; //default text codec
+        options = self.setOptions(options).options;
 
         self.nickname = options.nickname;
         self.lowerNickname = self.toIRCLower(self.nickname);
 
-        self.__signedOn = false;
-        self.pmodes = {
-            b: irc.PMODE_LIST,
-            l: irc.PMODE_SET_ONLY,
-            k: irc.PMODE_SET_UNSET,
-            o: irc.PMODE_SET_UNSET,
-            v: irc.PMODE_SET_UNSET
-        };
-        self.channels = {};
-        self.nextctcp = 0;
-
-        var conn = self.connection = new irc.IRCConnection({
-            gamesurge: opts.gamesurge,
-            initialNickname: self.nickname,
-            onRecv: self.dispatch,
-            password: opts.password,
-            serverPassword: opts.serverPassword
-        });
-
-        self.send = conn.send;
+        if(options.node) {
+            var conn = self.connection = new irc.NodeConnection({
+                account: options.account,
+                nickname: self.nickname,
+                password: options.password,
+                serverPassword: options.serverPassword
+            });
+            conn.addEvents({
+                "recv": self.ndispatch,
+                "quit": self.quit,
+                "retry": self.retry,
+                "connected": self.connected,
+                "lostConnection": self.lostConnection
+            });
+        } else {
+            self.connection = new irc.TwistedConnection({
+                account: options.account,
+                initialNickname: self.nickname,
+                password: options.password,
+                serverPassword: options.serverPassword
+            });
+            self.connection.addEvent("recv", self.tdispatch);
+        }
 
         self.setupGenericErrors();
     },
@@ -13470,16 +14372,35 @@ irc.BaseIRCClient = new Class({
         return this.fireEvent(type, [type, data]);
     },
 
+    connected: function() {
+    },
+
     connect: function() {
         return this.connection.connect();
     },
 
     disconnect: function() {
-        this.disconnected = true;
         return this.connection.disconnect();
     },
 
-    dispatch: function(data) {
+    retry: util.noop,
+
+    lostConnection: function() {
+    },
+
+    send: function(data) {
+        this.connection.send(data);
+    },
+
+    ndispatch: function(data) {
+        var fn = this["irc_" + data.command];
+
+        if (!(fn && fn.call(this, data.prefix, data.args))) {//fn dne or does not return true
+            this.rawNumeric(data.command, data.prefix, data.args);
+        }
+    },
+
+    tdispatch: function(data) {
         var message = data[0];
         switch(message) {
             case "connect":
@@ -13511,32 +14432,34 @@ irc.BaseIRCClient = new Class({
         }
     },
 
+
     supported: function(key, value) {
+        var self = this;
         switch(key) {
             case "CASEMAPPING":
                 if (value === "ascii") {
-                    this.toIRCLower = irc.ASCIItoIRCLower;
+                    self.toIRCLower = irc.ASCIItoIRCLower;
                 } else if (value === "rfc1459") {
                     //default
                 } else {
                     // TODO: warn 
                     console.log('unsupported codec');
                 }
-                this.lowerNickname = this.toIRCLower(this.nickname); //why does this happen here
+                self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
             break;
             case "CHANMODES":
                 value.split(",").each(function(mode, inx) {
-                    Array.each(mode, function(letter) {
-                        this.pmodes[letter] = inx;
-                    }, this);
-                }, this);
+                    _.each(mode, function(letter) {
+                        self.pmodes[letter] = inx;
+                    });
+                });
             break;
             case "PREFIX":
-                var len = (value.length - 2) / 2, //i think this accounts the double underscore
+                var len = (value.length - 2) / 2,
                     modeprefixes = value.substr(1, len);
-                Array.each(modeprefixes, function(modeprefix) {
-                    this.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
-                }, this);
+                _.each(modeprefixes, function(modeprefix) {
+                    self.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
+                });
             break;
         }
     },
@@ -14048,7 +14971,7 @@ irc.BaseIRCClient = new Class({
         return !this.hidelistout;
     },
 
-    irc_RPL_LISTITEM: function(bot, args) {
+    irc_RPL_LIST: function(bot, args) {
         this.listedChans.push({
             channel: args[1],
             users: _.toInt(args[2]),
@@ -14424,52 +15347,6 @@ irc.commandAliases = {
     "SLAP": "ME"
 };
 
-irc.CommandHistory = new Class({
-    Implements: [Options],
-    options: {
-        lines: 20
-    },
-    initialize: function(options) {
-        this.setOptions(options);
-
-        this.data = [];
-        this.position = 0;
-    },
-    addLine: function(line, moveUp) {
-        if ((this.data.length === 0) || (line !== this.data[0])){
-            this.data.unshift(line);
-        }
-
-        if (moveUp) {
-            this.position = 0;
-        } else {
-            this.position = -1;
-        }
-
-        if (this.data.length > this.options.lines) {
-            this.data.pop();
-        }
-    },
-    upLine: function() {
-        var len = this.data.length;
-        if (len === 0 || this.position >= len)
-            return null;
-
-        this.position += 1;
-        return this.data[this.position];
-    },
-    downLine: function() {
-        this.position -= 1;
-
-        if (this.position <= -1){
-            this.position = -1;
-            return null;
-        }
-
-        return this.data[this.position];
-    }
-});
-
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Extends: irc.BaseIRCClient,
@@ -14505,6 +15382,50 @@ irc.IRCClient = new Class({
         self.writeMessages(lang.copyright);
 
         self.newWindow(BROUHAHA, qwebirc.ui.WINDOW_CHANNEL, false, false);
+    },
+
+
+    connected: function() {
+        // this.newServerLine("CONNECT");
+        this.trigger("connect", {});
+        this.parent();
+    },
+
+    quit: function(message) {
+        this.send("QUIT :" + (message || lang.quit.message), true);
+        this.disconnect();
+        this.trigger("quit", {message: message});
+    },
+
+    disconnect: function() {
+        // for (var k in this.activeTimers) {
+        //     this.activeTimers[k].cancel();
+        // }
+        _.each(this.activeTimers, $clear);
+        this.activeTimers = {};
+        this.writeMessages(lang.disconnected);
+        this.trigger("disconnect", {message: lang.disconnected});
+
+        this.parent();
+    },
+
+    disconnected: function(message) {
+        _.each(this.windows, function(win) {
+            if (util.isChannelType(win.type))
+                win.close();
+        });
+        delete this.tracker;
+        this.trigger("disconnect", {
+            message: message
+        });
+    },
+
+    retry: function(data) {
+        this.trigger("retry", {
+            message: util.formatter(lang.connRetry, {
+                next: (data.next/1000).round(1)
+            })
+        });
     },
 
     newLine: function(winID, type, data) {
@@ -15318,25 +16239,6 @@ irc.IRCClient = new Class({
         }, this);
     },
 
-    disconnected: function(message) {
-        _.each(this.windows, function(win) {
-            if (util.isChannelType(win.type))
-                win.close();
-        });
-        // for (var wid in this.windows) {
-        //     var win = this.windows[wid];
-        //     if (util.isChannelType(win.type))
-        //         win.close();
-        // }
-        delete this.tracker;
-
-        // this.newServerLine("DISCONNECT", {
-        //     "m": message
-        // });
-        this.trigger("disconnect", {
-            message: message
-        })
-    },
 
     nickOnChanHasPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
@@ -15378,34 +16280,11 @@ irc.IRCClient = new Class({
         this.parent(key, value);
     },
 
-    connected: function() {
-        // this.newServerLine("CONNECT");
-        this.trigger("connect", {});
-    },
-
     serverError: function(message) {
         // this.newServerLine("ERROR", {
         //     "m": message
         // });
         this.trigger("error", {message:message})
-    },
-
-    quit: function(message) {
-        this.send("QUIT :" + (message || lang.quit.message), true);
-        this.disconnect();
-        this.trigger("quit", {message: message});
-    },
-
-    disconnect: function() {
-        // for (var k in this.activeTimers) {
-        //     this.activeTimers[k].cancel();
-        // }
-        _.each(this.activeTimers, $clear);
-        this.activeTimers = {};
-        this.writeMessages(lang.disconnected);
-        this.trigger("disconnect", {message: lang.disconnected});
-
-        this.parent();
     },
 
     awayMessage: function(nick, message) {
@@ -15593,9 +16472,10 @@ irc.IRCClient = new Class({
     }
 });
 
-/* This could do with a rewrite from scratch. */
-//COMMANDS = dict(p=push, n=newConnection, s=subscribe)
-irc.IRCConnection = new Class({
+// /* This could do with a rewrite from scratch. */
+//going to rewrite using socket.io commet.
+// //COMMANDS = dict(p=push, n=newConnection, s=subscribe)
+irc.TwistedConnection = new Class({
     Implements: [Events, Options],
     Binds: ["send","__completeRequest"],
     options: {
@@ -15683,7 +16563,7 @@ irc.IRCConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", _.partial(irc.IRCConnection.setXHRHeaders, request.xhr));
+        request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
         if (Browser.ie && Browser.version < 8) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -15846,6 +16726,9 @@ irc.IRCConnection = new Class({
         } else if (this.__lastActiveRequest) {
             this.__lastActiveRequest.cancel();
         }
+        this.fireEvent("timeout", {
+            duration: this.__timeout
+        });
         this.__activeRequest.__replaced = true;
         this.__lastActiveRequest = this.__activeRequest;
         var to = this.__timeout + this.options.timeoutIncrement;
@@ -15856,10 +16739,7 @@ irc.IRCConnection = new Class({
     },
 
     __error: function(message, context) {
-        var msg = message.message;
-        if(context)
-            msg = util.formatter(msg, context);
-
+        var msg = context ? util.formatter(message.message, context) : message.message;
         this.fireEvent("error", msg);
         if (this.options.errorAlert) {
             alert(msg);
@@ -15901,12 +16781,134 @@ irc.IRCConnection = new Class({
     //     // new CookieMonster(xhr);
     // };
 
-    irc.IRCConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
+    irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
 
     // conn.setXHRHeaders = function(xhr) {
     //     kill.each(removeHeaders, xhr);
     // };
 })();
+
+irc.NodeConnection = new Class({
+    Implements: [Options, Events],
+    Binds: ["recv", "error", "_connected", "_disconnected"],
+    options: {
+        socket: {
+            url: document.location.hostname,
+            port: 80
+        },
+        nickname: "ircconnX",
+        password: '',
+        serverPassword: null,
+        autoConnect: true,
+        autoRejoin: false,
+        debug: true,
+        floodProtection: false,
+        /*server: xxx,
+        nick: nick,
+        password: null,
+        userName: 'nodebot',
+        realName: 'nodeJS IRC client',
+        port: 6667,
+        debug: false,
+        showErrors: false,
+        autoRejoin: true,
+        autoConnect: true,
+        channels: [],
+        retryCount: null,
+        retryDelay: 2000,
+        secure: false,
+        selfSigned: false,
+        certExpired: false,
+        floodProtection: false,
+        floodProtectionDelay: 1000,
+        stripColors: false,
+        channelPrefixes: "&#",
+        messageSplit: 512*/
+        retryInterval: 5000,
+        retryScalar: 2
+    },
+    connected: false,
+
+    initialize: function(options) {
+        var self = this;
+        self.setOptions(options);
+        var ip = util.formatter("{url}:{port}", self.options.socket);
+        var socket = self.socket = io.connect(ip);
+
+        var $evts = {
+            "raw": self.recv,
+            "echo": _.log,
+            "connected": self._connected,
+            "disconnect": self._disconnected,
+            // "connected": _.log,
+            "error": self.error
+        };
+
+        _.each($evts, function(fn, key) {
+            if(fn) {
+                socket.on(key, fn);
+            }
+            else {
+                socket.on(key, function() {//pass
+                    self.fireEvent(key);
+                });
+            }
+        });
+
+        self.connect();
+    },
+
+    connect: function() {
+        this.socket.emit("irc", this.options.nickname, this.options);
+    },
+
+    //irc connection on server in
+    _connected: function() {
+        this.connected = true;
+        this.fireEvent("connected");
+        this.__retry = this.options.retryInterval;
+    },
+
+    disconnect: function() {
+        this.emit("quit");
+        this.socket.disconnect();
+    },
+
+    _disconnected: function() {
+        this.connected = false;
+        this.autoretry();
+    },
+
+    recv: function(data) {
+        var processed = util.parseIRCData(data.raw);
+        this.fireEvent("recv", processed);
+    },
+
+    send: function(data) {
+        if(this.connected) {
+            this.socket.emit("send", data);
+            return true;
+        }
+        else {
+            console.error("disconnected dude");
+        }
+    },
+
+    error: function() {
+        console.error(arguments);
+        this.fireEvent("error");
+    },
+
+    autoretry: function() {
+        if(this.connected) {return;}
+        var next = this.__retry *= this.options.retryScalar;
+        this.fireEvent("retry", {
+            next: next
+        });
+        this.socket.emit("retry");
+        return _.delay(this.autoretry, next, this);
+    }
+});
 
 
 irc.IRCTracker = new Class({
@@ -16111,7 +17113,7 @@ irc.IRCTracker = new Class({
 
     source.tabbar = "<div class='tabbar'></div>";
     source.tabbarbtns = [
-    "<div class='tab-buttons'>",
+    "<div class='buttons'>",
         "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
         "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
         "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
@@ -16142,7 +17144,7 @@ irc.IRCTracker = new Class({
     engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
         if(type === "c") {//colour
             var x = new Color(def);
-            var c = x.setHue(this.hue).setSaturation(x.hsb[1] + this.saturation).setBrightness(x.hsb[2] + this.lightness);
+            var c = x.setHue(this.style_hue).setSaturation(x.hsb[1] + this.style_saturation).setBrightness(x.hsb[2] + this.style_brightness);
             if (Browser.ie && c == "255,255,255") c = "255,255,254";// IE confuses white with transparent... 
             
             return "rgb(" + c + ")";
@@ -16219,6 +17221,9 @@ ui.BaseUI = new Class({
     newWindow: function(client, type, name) {
         var win = this.getWindow(client, name);
         if (!$defined(win)) {
+            if(util.windowNeedsInput(type)) {
+                this.commandhistory.addChannel(name);
+            }
             var wId = this.getWindowIdentifier(name);
             var $wrapper = new Element('div', {'class': 'hidden'}).inject(this.windowsPanel);//for delegation - this is not how i should do it
             win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, $wrapper, client, type, name, wId);
@@ -16356,7 +17361,9 @@ ui.BaseUI = new Class({
                     lineParser(type, _.extend({}, data, msg));
                 });
             },
-            "wallops": lineParser
+            "wallops": lineParser,
+
+            "retry": lineParser
         });
 
 
@@ -16438,7 +17445,8 @@ ui.BaseUI = new Class({
             }
         }
 
-        this.tabs.disown(win.tab)
+        this.commandhistory.removeChannel(win.name);
+        this.tabs.disown(win.tab);
         winarr = this.windowArray.erase(win);
         delete this.windows[this.getClientId(win.client)][win.identifier];
     },
@@ -16459,8 +17467,6 @@ ui.StandardUI = new Class({
     Extends: ui.BaseUI,
     Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "updateStylesheet"],
 
-    __styleValues: {},
-
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, theme, windowClass, uiName, options) {
         var self = this;
@@ -16468,16 +17474,14 @@ ui.StandardUI = new Class({
 
         self.theme = theme;
 
-
-        self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
         self.uiOptions2 = new config.OptionModel({
             defaults: self.options.uiOptionsArg
         }, {
             onInit: function() {//merge where necessary
                 var model = this;
-                ["notify_on_mention", "notify_on_pm", "notify_on_notice"].each(function(type) {
-                    var notifier = self.theme.messageParsers.filter(function(n) { return n.id === type; })[0],
+                _.each(["notify_on_mention", "notify_on_pm", "notify_on_notice"], function(type) {
+                    var notifier = _.filter(self.theme.messageParsers, function(n) { return n.id === type; })[0],
                         set = model.get(type);
                     _.merge(notifier, set);
 
@@ -16488,7 +17492,7 @@ ui.StandardUI = new Class({
             }
         });
 
-        function setCustoms(notices) {
+        function setCustomNotice(notices) {
             self.theme.customNotices = _.chain(notices).clone()
                 .reject(function(data) {
                     return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
@@ -16502,7 +17506,7 @@ ui.StandardUI = new Class({
                 })
                 .value();
         }
-        function setSNotice(notices) {
+        function setStandardNotice(notices) {
             _.each(self.theme.messageParsers, function(parser) {
                 if( _.has(notices, parser.id) )
                     _.extend(parser, notices[parser.id]);
@@ -16510,24 +17514,22 @@ ui.StandardUI = new Class({
         }
 
         self.uiOptions2.on({
-            "change:style_hue": function(hue) {
-                self.updateStylesheet({
-                    hue: hue
-                })
+            "change:style_hue": function(style_hue) {
+                self.updateStylesheet();
             },
             "change:font_size": self.updateStylesheet,
-            "change:custom_notices": setCustoms,
-            "change:notices": setSNotice
+            "change:custom_notices": setCustomNotice,
+            "change:notices": setStandardNotice
         });
-        setCustoms(self.uiOptions2.get("custom_notices"));
-        setSNotice(self.uiOptions2.get("notices"));
+        setCustomNotice(self.uiOptions2.get("custom_notices"));
+        setStandardNotice(self.uiOptions2.get("notices"));
 
         self.customWindows = {};
 
         self.setModifiableStylesheet({
-            hue: self.options.hue || self.uiOptions2.get("style_hue"),
-            saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
-            lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
+            style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
+            style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
+            style_brightness: self.options.brightness || self.uiOptions2.get("style_brightness")
         });
     },
 
@@ -16650,12 +17652,6 @@ ui.StandardUI = new Class({
             client.exec("/JOIN " + chan);
     },
 
-    tabComplete: function(element) {
-        this.tabCompleter.tabComplete(element);
-    },
-    resetTabComplete: function() {
-        this.tabCompleter.reset();
-    },
     setModifiableStylesheet: function(vals) {
         this.__styleSheet = new Element("style", {
                                 type: "text/css",
@@ -16664,12 +17660,12 @@ ui.StandardUI = new Class({
         this.updateStylesheet(vals);
     },
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
-        var styles = _.extend(this.__styleValues, this.uiOptions2.toJSON(), values);
+        var styles = _.extend({}, Browser, this.uiOptions2.toJSON(), values);
         var stylesheet = templates.modifiablecss(styles);
         var node = this.__styleSheet;
 
-        if (node.styleSheet) { /* old IE */
-            node.styleSheet.set("cssText", stylesheet);
+        if (node.styleSheet) { /* ie */
+            node.styleSheet.cssText = stylesheet;
         } else {
             node.empty()
                 .appendText(stylesheet);
@@ -16691,6 +17687,13 @@ ui.NotificationUI = new Class({
             icon: "images/qwebircsmall.png",
             title: "IRC Alert",
             body: "New notification!"
+        },
+
+        sounds: {
+            sounds: [{
+                id: "beep",
+                url: ['beep3.ogg', 'beep3.mp3']
+            }]//files in sounds/
         }
     },
     initialize: function() {
@@ -16707,7 +17710,6 @@ ui.NotificationUI = new Class({
         var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
         if ($defined(favIcon)) {
             this.favIcon = favIcon;
-            // this.favIconParent = favIcon.getParent();
             this.favIconVisible = true;
             this.emptyFavIcon = new Element("link", {
                     rel: 'shortcut icon',
@@ -16734,14 +17736,16 @@ ui.NotificationUI = new Class({
     playSound: function(alias) {
         if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
-            this.soundPlayer.sounds[alias]();
+            this.soundPlayer.play(alias, {
+                volume: this.uiOptions2.get("volume")
+            });
         }
     },
 
     soundInit: function() {
         //used to have a bunch of flash checks. going to let the sm handle it
         if(!$defined(this.soundPlayer)) {
-            this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
         }
     },
     flash: function(options) {
@@ -16801,7 +17805,7 @@ ui.NotificationUI = new Class({
 
 
 ui.StandardUI.implement({
-    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network, storage) {
+    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
         this.postInitialize();
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW_CONNECT);
@@ -16809,50 +17813,48 @@ ui.StandardUI.implement({
                 win.close();
                 self.fireEvent("login", data);
             };
-        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName, storage);
+        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName);
         return win;
     }
 });
 
 
-ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName, storage) {
-    if (autoConnect) {
-        ui.ConfirmBox(parentElement, callback, initialNickname, initialChannels, autoNick, networkName,storage);
-    } else {
-        ui.LoginBox(parentElement, callback, initialNickname, initialChannels, networkName,storage);
-    }
+ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName) {
+    ui.LoginBox(parentElement, callback, initialNickname, initialChannels, networkName);
 };
 
-ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, cookies) {
-
+ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
+    var cookies = {
+        nick: new Storer("nickname"),//initial nick
+        user: new Storer("gamesurge"),//auth account
+        pass: new Storer("password"),//auth password
+        auth: new Storer("enableAuth")//enable full auth
+    }
     var nickname = cookies.nick.get() || initialNickname,
-        account = util.B64.decode(cookies.user.get()),
-        password = util.B64.decode(cookies.pass.get()),
+        account = Base64.decode(cookies.user.get()),
+        password = Base64.decode(cookies.pass.get()),
         eauth = auth.enabled || cookies.auth.get();
 
-    var context = {
-        'network':networkName,
-        'nickname':nickname,
-        'username':account,
-        'password':password,
+    
+
+    var page = Element.from(templates.authpage({
+        'network': networkName,
+        'nickname': nickname,
+        'username': account,
+        'password': password,
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
-    };
-    var page = templates.authpage(context);
-    parentElement.insertAdjacentHTML("beforeEnd", page);
+    })).inject(parentElement);
 
-    var form = parentElement.getElementById('login'),
-        nickBox = parentElement.getElementById('nickname'),
-        usernameBox = parentElement.getElementById('username'),
-        passwordBox = parentElement.getElementById('password'),
-        chkAddAuth = parentElement.getElementById('authenticate');
+    var form = page.getElement('#login'),
+        nickBox = page.getElement('#nickname'),
+        usernameBox = page.getElement('#username'),
+        passwordBox = page.getElement('#password'),
+        chkAddAuth = page.getElement('#authenticate');
 
-
-    function toggleFull () {
+    chkAddAuth.addEvent('click', function () {
         form.getElements('[name="full"]').getParent('div').toggle();
-    }
-
-    chkAddAuth.addEvent('click', toggleFull);
+    });
 
     form.addEvent("submit", function(e) {
         e.stop();
@@ -16907,8 +17909,8 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
             }
 
-            cookies.user.set(util.B64.encode(account));
-            cookies.pass.set(util.B64.encode(password));
+            cookies.user.set(Base64.encode(account));
+            cookies.pass.set(Base64.encode(password));
             cookies.auth.set(true);
             auth.enabled = true;
         } else {
@@ -16921,111 +17923,10 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         auth.loggedin = true;
 
         callback(data);
-    }.bind(this));
+    });
 
-    if (window === window.top)
-        nickBox.focus();
+    if (window === window.top) nickBox.focus();
 };
-
-
-//todo clean this up - not currently implemented
-ui.ConfirmBox = function(parentElement, callback, initialNickname, initialChannels, autoNick, networkName) {
-    var outerbox = new Element("table");
-    outerbox.addClass("qwebirc-centrebox");
-    parentElement.appendChild(outerbox);
-    var tbody = new Element("tbody");
-    outerbox.appendChild(tbody);
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    var td = new Element("td");
-    tr.appendChild(td);
-
-    var box = new Element("table");
-    box.addClass("qwebirc-confirmbox");
-    td.appendChild(box);
-
-    var tbody = new Element("tbody");
-    box.appendChild(tbody);
-
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    tr.addClass("tr1");
-
-    var text = new Element("td");
-    tr.appendChild(text);
-
-    var nick = new Element("b");
-    nick.set("text", initialNickname);
-
-    var c = initialChannels.split(" ")[0].split(",");
-
-    text.appendChild(document.createTextNode("To connect to " + networkName + " IRC and join channel" + ((c.length > 1) ? "s" : "") + " "));
-
-    for (var i = 0; i < c.length; i++) {
-        if ((c.length > 1) && (i == c.length - 1)) {
-            text.appendChild(document.createTextNode(" and "));
-        } else if (i > 0) {
-            text.appendChild(document.createTextNode(", "));
-        }
-        text.appendChild(new Element("b").set("text", c[i]));
-
-    }
-
-    if (!autoNick) {
-        text.appendChild(document.createTextNode(" as "));
-        text.appendChild(nick);
-    }
-
-    text.appendChild(document.createTextNode(" click 'Connect'."));
-    text.appendChild(new Element("br"));
-    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin)
-        text.appendChild(document.createTextNode("If you'd like to connect using your Q auth click 'Log in'."));
-
-    var tr = new Element("tr");
-    tbody.appendChild(tr);
-    tr.addClass("tr2");
-
-    var td = new Element("td");
-    tr.appendChild(td);
-
-    var yes = new Element("input", {
-        "type": "submit",
-        "value": "Connect"
-    });
-    td.appendChild(yes);
-    yes.addEvent("click", function(e) {
-        parentElement.removeChild(outerbox);
-        callback({
-            "nickname": initialNickname,
-            "autojoin": initialChannels
-        });
-    });
-
-    if (auth.enabled && auth.quakeNetAuth() && !auth.loggedin) {
-        var auth = new Element("input", {
-            "type": "submit",
-            "value": "Log in"
-        });
-        td.appendChild(auth);
-        auth.addEvent("click", ui.AuthLogin);
-    }
-
-    if (window == window.top)
-        yes.focus();
-}
-
-// ui.authShowHide = function(checkbox, authRow, usernameBox, usernameRow, passwordRow) {
-//     var visible = checkbox.checked;
-//     var display = visible ? null : "none";
-//     usernameRow.setStyle("display", display);
-//     passwordRow.setStyle("display", display);
-
-//     if (visible) {
-//         //    authRow.parentNode.setStyle("display", "none");
-//         usernameBox.focus();
-//     }
-// }
-
 
 
 ui.QuakeNetUI = new Class({
@@ -17055,7 +17956,6 @@ ui.QUI = new Class({
         parentElement.addClass('qui')
                     .addClass('signed-out');
         this.setHotKeys();
-
 
         this.parentElement.addEvents({
             "click:relay(.lines .hyperlink-whois)": this.whoisURL,
@@ -17131,12 +18031,11 @@ ui.QUI = new Class({
         });
 
         //for scrolling tabs with mousewheel
-        tabs.addEvent("mousewheel", function(event) {
-            event.stop();
-            /* up */
-            if (event.wheel > 0) {
+        tabs.addEvent("mousewheel", function(evt) {
+            evt.stop();
+            if (evt.wheel > 0) {//mwup
                 self.nextWindow();
-            } else if (event.wheel < 0) { /* down */
+            } else if (evt.wheel < 0) {
                 self.prevWindow();
             }
         });
@@ -17163,6 +18062,8 @@ ui.QUI = new Class({
                         }
                     });
 
+        // ui.Behaviour.apply(self.outerTabs);
+
 
         //delay for style recalc
         self.__createDropdownHint.delay(500, self);
@@ -17171,7 +18072,8 @@ ui.QUI = new Class({
     newTab: function(win, name) {
         var self = this;
         var $tab = Element.from(templates.ircTab({
-                'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
+                'name': (name === BROUHAHA) ? '&nbsp;' : name,
+                closable: !isBaseWindow(name)
             })).inject(self.tabs);
 
         if(name === BROUHAHA) {
@@ -17188,34 +18090,26 @@ ui.QUI = new Class({
 
         $tab.store("window", win);
 
-        if (!isBaseWindow(name)) {
-            Element.from(templates.tabClose()).inject($tab);
-        }
-
         return $tab;
     },
 
     __createDropdownMenu: function() {
         var self = this,
-            dropdownMenu = Element.from(templates.menudrop());
-        dropdownMenu.inject(self.parentElement);
+            dropdownMenu = Element.from(templates.mainmenu({
+                    menu: self.UICommands,
+                    menuclass: "main-menu"
+                })).inject(self.parentElement);
 
-        var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
-        dropdown.setStyle("opacity", 1);
-
-
-        self.UICommands.each(function(cmd) {
-            var text = cmd[0];
-            var fn = self[cmd[1] + "Window"].bind(self);
-            var ele = Element.from(templates.menuitem({text:text}));
-            ele.addEvent("click", function(e) {
-                    dropdownMenu.hide();
-                    fn();
-                });
-            dropdownMenu.appendChild(ele);
+        dropdownMenu.addEvents({
+            "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
+                var method = target.get("data-value");
+                self[method]();
+            }
         });
+        var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
 
-        var dropdownEffect = new Fx.Tween(dropdown, {
+
+        var dropdownEffect = new Fx.Tween(dropdownbtn, {
             duration: "long",
             property: "opacity",
             link: "chain"
@@ -17226,14 +18120,15 @@ ui.QUI = new Class({
                     .start(0.33)
                     .start(1);
 
-        ui.decorateDropdown(dropdown,dropdownMenu, {
+        ui.decorateDropdown(dropdownbtn, dropdownMenu, {
             onShow: function() {
                 if(self.hideHint)
                     self.hideHint();
                 delete self.hideHint;
             }
         });
-        return dropdown;
+        return dropdownbtn;
+        // return dropdownMenu;
     },
 
     hotkeys: {
@@ -18133,7 +19028,6 @@ ui.EmbedWizard = new Class({
 
 
 
-//not a class?
 ui.MENU_ITEMS = (function() {
     function isOpped(nick) {
         var channel = this.name; /* window name */
@@ -18246,186 +19140,6 @@ ui.RequestTransformHTML = function(options) {
 };
 
 
-// ui.HilightController = new Class({
-//     initialize: function(parent) {
-//         this.parent = parent;
-//         this.regex = null;
-//         this.prevnick = null;
-//     },
-//     match: function(text) {
-//         var nick = this.parent.nickname;
-//         if (nick !== this.prevnick) {
-//             var classes = '[\\s\\.,;:]';
-//             this.regex = new RegExp('(^|' + classes + ')' + RegExp.escape(nick) + '(' + classes + '|$)', "i");
-//         }
-//         return this.regex.test(text);
-//     }
-// });
-
-
-ui.TabCompleterFactory = new Class({
-    initialize: function(ui) {
-        this.ui = ui;
-        this.reset();
-    },
-    tabComplete: function(textBox) {
-        var text = textBox.value;
-
-        if (!$defined(this.obj)) {
-            this.incr = 1;
-
-            var win = this.ui.getActiveWindow();
-            if (!win)
-                return;
-
-            var startingWord = util.getEnclosedWord(text, util.getCaretPos(textBox));
-            var preword = "",
-                word = "",
-                postword = "";
-            if ($defined(startingWord)) {
-                preword = text.substring(0, startingWord[0]);
-                word = startingWord[1];
-                postword = text.substring(startingWord[0] + word.length);
-            }
-
-            var ltext = text.toLowerCase(),
-                obj;
-            if (!text) {
-                preword = "/msg ";
-                obj = ui.QueryTabCompleter;
-            } else if (util.isChannel(word)) {
-                obj = ui.ChannelNameTabCompleter;
-            } /*else if (false //ltext.match(/^\/(q|query|msg) /i) ) {
-                obj = ui.QueryTabCompleter;
-            }*/ else if (win.type === ui.WINDOW_QUERY) {
-                obj = ui.QueryNickTabCompleter;
-            } else if (win.type === ui.WINDOW_CHANNEL) { /* "slug[TAB]" == "slug: " */
-                if (!preword) {
-                    // if ( !! postword && postword.charAt(0) === " ") {
-                    //     postword = ":" + postword; //should i call util.padcolon here?
-                    // } else {
-                    //     postword = ": " + postword;
-                    // }
-                    postword = ": " + postword.trimLeft();
-
-                    this.incr++;
-                }
-                obj = ui.ChannelUsersTabCompleter;
-            } else {
-                return;
-            }
-
-            if (postword === "")
-                postword = " ";
-
-            this.obj = new obj(preword, word, postword, win);
-            if (!$defined(this.obj))
-                return;
-        }
-
-        var ret = this.obj.get();
-        if (!$defined(ret))
-            return;
-
-        textBox.value = ret[1];
-        util.setCaretPos(textBox, ret[0] + this.incr);
-    },
-    reset: function() {
-        this.obj = null;
-    }
-});
-
-ui.TabIterator = new Class({
-    initialize: function(client, prefix, list) {
-        this.prefix = prefix;
-        if (!$defined(list) || list.length === 0) {
-            this.list = null;
-        } else {
-            var prefixes = irc.toIRCCompletion(client, prefix);
-
-            this.list = _.filter(list, _.compose(util.prefixOnNick(prefixes), _.partial(irc.toIRCCompletion, client)));
-        }
-
-        this.pos = -1;
-    },
-    next: function() {
-        /*
-         * ideally next would do the list gubbins recursively, but no JS engine currently
-         * support tail recursion :(
-         */
-        if (!$defined(this.list))
-            return null;
-
-        this.pos = this.pos + 1;
-        if (this.pos >= this.list.length)
-            this.pos = 0;
-
-        return this.list[this.pos];
-    }
-});
-
-ui.BaseTabCompleter = new Class({
-    initialize: function(client, prefix, existingNick, suffix, list) {
-        this.existingNick = existingNick;
-        this.prefix = prefix;
-        this.suffix = suffix;
-        this.iterator = new ui.TabIterator(client, existingNick, list);
-    },
-    get: function() {
-        var n = this.iterator.next();
-        if (!$defined(n))
-            return null;
-
-        var p = this.prefix + n;
-        return [p.length, p + this.suffix];
-    }
-});
-
-ui.QueryTabCompleter = new Class({
-    Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingNick, suffix, win) {
-        this.parent(win.client, prefix, existingNick, suffix, win.client.lastNicks);
-    }
-});
-
-ui.QueryNickTabCompleter = new Class({
-    Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, win) {
-        var chan = win.name;
-        this.parent(win.client, prefix, existingText, suffix, [chan]);
-    }
-});
-
-ui.ChannelNameTabCompleter = new Class({
-    Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, win) {
-
-        var l = [];
-        _.each(win.client.channels, function(chan, name) {
-            if(chan && chan.lastSelected) {
-                chan = chan.lastSelected;
-            }
-            l.push([chan, name]);
-        });
-
-        var l2 = _.sort(l, function(a, b) {
-            return b[0] - a[0];
-        }).map(item(1));
-
-        this.parent(win.client, prefix, existingText, suffix, l2);
-    }
-});
-
-ui.ChannelUsersTabCompleter = new Class({
-    Extends: ui.BaseTabCompleter,
-    initialize: function(prefix, existingText, suffix, win) {
-        var nc = win.client.tracker.getSortedByLastSpoke(irc.activeChannel);
-
-        this.parent(win.client, prefix, existingText, suffix, nc);
-    }
-});
-
-
 
 
 (function(){
@@ -18440,21 +19154,22 @@ config.OptionModel = new Class({
             "use_hiddenhost": true,
             "lastpos_line": true,
             "nick_colours": false,
-            "hide_joinparts": true,
-            "style_hue": 210,
-            "style_saturation": 0,
-            "style_brightness": 0,
+            "hide_joinparts": false,
             "query_on_nick_click": true,
             // "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
-            "volume": 100,
+            "volume": 10, //0-10
 
             "dn_state": false,
             "dn_duration": 4000,
 
             "highlight": true,
             "highlight_mentioned": true,
+
+            "style_hue": 210,
+            "style_saturation": 0,
+            "style_brightness": 0,
 
             "notices": {
                 "on_mention": {flash:true, beep:true},
@@ -18470,7 +19185,7 @@ config.OptionModel = new Class({
                         beep: false,
                         id: String.uniqueID(),
                         autoescape: true
-                    }
+                    };
                 }
         },
         key: "qweboptions",
@@ -18593,11 +19308,6 @@ ui.OptionView = new Class({
             this.addNotifier(notice);
         }, this);
 
-        // this.tabs = new MGFX.Tabs(this.element, {
-        //     tabs: '.option-tabs li',
-        //     content: '.tab-content .control-group'
-        // });
-
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
                 knob = slider.getElement('.knob');
@@ -18616,7 +19326,7 @@ ui.OptionView = new Class({
             'reset': this.reset
         });
 
-        self.behavior = new Behavior().apply(this.element);
+        ui.Behaviour.apply(this.element);
 
         this.parent();
         return this;
@@ -18653,62 +19363,122 @@ ui.OptionView = new Class({
 
 
 //http://indiegamr.com/the-state-of-audio-in-html5-games/
-//consider switching to soundjs
-//http://www.createjs.com/Docs/SoundJS/modules/SoundJS.html
+
+// sound.SoundPlayer = new Class({
+//     Implements: [Options, Events],
+//     options: {
+//         soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
+//         sounds: "/sound/",
+//         beepsrc: "beep.mp3"
+//     },
+//     sounds: {},
+
+//     initialize: function(options) {
+//         this.setOptions(options);
+//         this.loadingSM = false;
+//     },
+//     load: function() {
+//         window.addEvent("domready", this.loadSoundManager.bind(this));
+//         return this;
+//     },
+//     loadSoundManager: function() {
+//         var self = this,
+// 			opts = self.options;
+//         if (self.loadingSM !== false)
+//             return;
+//         self.loadingSM = true;
+//         if ($defined(self.sm)) { //... ugh
+//             self.fireEvent("ready");
+//             return;
+//         }
+
+//         var soundinit = function() {
+// 			//var sm = self.sm = window.soundManager;
+// 			var sm = self.sm = window.createjs.Sound;
+//             sm.url = opts.sounds;
+
+//             //load all sounds here
+//             self.register("beep", opts.sounds + opts.beepsrc);
+//             sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
+//             self.loadingSM = null;
+//         };
+
+// 		//load sound manager
+//         Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+//     },
+// 	register: function(alias,src) {
+// 		this.sm.registerSound(src, alias);
+// 		this.sounds[alias] = _.partial(this.sm.play, alias);
+// 	},
+//     play: function(src) {
+//         this.sm.play(src);
+//         return this;
+//     },
+
+//     isReady: function() {
+//         return this.sm && this.sm.isReady();
+//     }
+// });
 
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
-        sounds: "/sound/",
-        beepsrc: "beep.mp3"
+        soundManagersrc: "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
+        soundsurl: "/sound/",//directory of sounds for sm
+        swfurl: "/swf",
+        flashVersion: 8,
+        sounds: [],
+        preferFlash: false//use html5 if possible
     },
+    loadingSM: false,
+
     initialize: function(options) {
         this.setOptions(options);
-        this.loadingSWF = false;
-		this.sm = undefined; //sound manager
-        this.sounds = {};
-    },
-    load: function() {
-        window.addEvent("domready", this.loadSoundManager.bind(this));
-        return this;
-    },
-    loadSoundManager: function() {
         var self = this,
-			opts = self.options;
-        if (self.loadingSWF !== false)
-            return;
-        self.loadingSWF = true;
-        if ($defined(self.sm)) { //... ugh
-            self.fireEvent("ready");
-            return;
-        }
+            opts = this.options;
 
-        var soundinit = function() {
-			//var sm = self.sm = window.soundManager;
-			var sm = self.sm = window.createjs.Sound;
-            sm.url = opts.sounds;
+        window.addEvent("domready", function() {//load soundmanager ->
+            if (self.loadingSM !== false)
+                return;
+            self.loadingSM = true;
+            if ($defined(self.sm)) {
+                self.fireEvent("ready");
+                return;
+            }
 
-            //load all sounds here
-            self.register("beep", opts.sounds + opts.beepsrc);
-            sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
-            self.loadingSWF = undefined;
-        };
+            var soundinit = function() {
+                var sm = self.sm = window.soundManager;
+                //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
+                // var extension = self.extension = sm.hasHTML5 && (Browser.firefox || Browser.opera || Browser.chrome) ? ".ogg" : ".mp3";
+                sm.setup({
+                    url: opts.swfurl,
+                    preferFlash: opts.preferFlash,
+                    onready: function() {
+                        _.each(opts.sounds, function(sound) {//load all sounds here
+                            // self.register(sound.id, opts.soundsurl + sound.url + extension);
+                            sound = _.clone(sound);
+                            sound.url = _.map(sound.url, function(path) {
+                                return path.contains('/') ? path : opts.soundsurl + path;
+                            });
+                            self.sm.createSound(sound);
+                        })
+                        self.loadingSM = false;
+                        self.fireEvent("ready");
+                    }
+                }).beginDelayedInit();
+                self.play = sm.play;
+            };
 
-		//load sound manager
-        Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+            //load sound manager
+            Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+        });
     },
-	register: function(alias,src) {
-		this.sm.registerSound(src, alias);
-		this.sounds[alias] = _.partial(this.sm.play, alias);
-	},
-    play: function(src) {
-        this.sm.play(src);
-        return this;
+    register: function(alias,src) {
+        this.sm.createSound(alias, src);
     },
 
     isReady: function() {
-        return this.sm.isReady();
+        return this.sm && this.loadingSM === false;
     }
 });
 
@@ -18738,7 +19508,7 @@ ui.Window = new Class({
         this.currentChannel = this.name = name;
         this.client = client;
         this.identifier = identifier;
-        this.commandhistory = this.parentObject.commandhistory;
+        this.history = this.parentObject.commandhistory;
         this.parent({
             element: $par
         });
@@ -18857,16 +19627,15 @@ ui.Window = new Class({
         }
     },
 
-    sendInput: function(e, $tar) {
+    sendInput: function(e/*, $tar*/) {
         if(e) e.stop();
-        if(!$tar || !$tar.hasClass('input-field')) {
-            this.window.getElement('.input .input-field')
-        }
+        // if(!$tar || !$tar.hasClass('input-field')) {
+        var $tar = this.$input;
+        //}
         var unparsed = $tar.val(),
             parsed = util.inputParser.parse(unparsed);
         if (parsed !== "") {
-            this.parentObject.resetTabComplete();
-            this.commandhistory.addLine(unparsed || parsed);
+            this.history.addLine(this.name, unparsed || parsed);
             this.client.exec(parsed, this.currentChannel);
             $tar.val("");
         }
@@ -18889,7 +19658,7 @@ ui.QUI.Window = new Class({
             'click:relay(.nicklist .menu span)': 'menuClick',
 
             'click:relay(.detached-window .attach)': 'attach',
-            'click:relay(.detached-window .tab-close)': 'close',
+            'click:relay(.detached-window .close)': 'close',
             'click:relay(.detached-window)': 'setActive'
         }
     },
@@ -18912,6 +19681,8 @@ ui.QUI.Window = new Class({
 
     render: function() {
         var self = this;
+        var type = self.type;
+        var hasInput = util.windowNeedsInput(type);
         self.element.empty()
             .html(self.template({
                 mobile: Browser.isMobile,
@@ -18919,10 +19690,11 @@ ui.QUI.Window = new Class({
                 channel: self.name,
                 name: self.name,
                 id: self.name.clean().replace(" ", "-"),
-                topic: false
+                topic: false,
+                needsInput: hasInput,
+                nick: self.client ? self.client.nickname : ""
             }))
         var $win = self.window = self.element.getElement('.window').store("window", self);
-        var type = self.type;
 
         var lines = self.lines = $win.getElement('.lines');
         lines.store("window", self);
@@ -18941,8 +19713,9 @@ ui.QUI.Window = new Class({
             $nicklist.addClass("nicklist");
         }
 
-        if(util.windowNeedsInput(type))
-            $win.getElement('.bottompanel').adopt(self.createInput());
+        if(hasInput) {
+            self.$input = $win.getElement('.input .input-field');
+        }
         return self;
     },
 
@@ -18950,7 +19723,7 @@ ui.QUI.Window = new Class({
         if(e) e.stop();
         if (this.closed) return;
 
-        if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
+        if (isChannelType(this.type) && (!util.isBaseWindow(this.name))) {
             var client = this.client,
                 channels = util.removeChannel(client.channels, this.name);
 
@@ -18966,6 +19739,8 @@ ui.QUI.Window = new Class({
             this.resizable.detach().stop();
         if(this.drag)
             this.drag.detach().stop();
+        if(this.completer)
+            this.completer.detach();
 
         return this.parent();
     },
@@ -19041,7 +19816,7 @@ ui.QUI.Window = new Class({
                             });
 
 
-        self.selectUpdates();
+        self._selectUpdates();
 
         wrapper.position();
 
@@ -19068,7 +19843,7 @@ ui.QUI.Window = new Class({
         if(self.name !== BROUHAHA) {
             _.each(self.parentObject.windowArray, function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-                    win.tab.removeClass("tab-selected");
+                    win.tab.removeClass("selected");
                 }
                 if(win.name === BROUHAHA) {
                     if(util.isChannelType(self.type)) {
@@ -19079,8 +19854,8 @@ ui.QUI.Window = new Class({
             });
         }
         irc.activeChannel = self.name;
-        self.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech")
-                .addClass("tab-selected");
+        self.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+                .addClass("selected");
     },
 
     select: function() {//change window elements
@@ -19088,12 +19863,12 @@ ui.QUI.Window = new Class({
         this.parent();
 
         this.selectTab();
-        this.selectUpdates();
+        this._selectUpdates();
         this.fireEvent("selected");
     },
 
     //styles and ui things to update
-    selectUpdates: function() {
+    _selectUpdates: function() {
         var self = this,
             parentObject = self.parentObject;
 
@@ -19111,6 +19886,9 @@ ui.QUI.Window = new Class({
 
         if(self.fxscroll) {//scroll to bottom
             self.fxscroll.autoScroll();
+        }
+        if(!self.completer && util.windowNeedsInput(self.type)) {
+            self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name));
         }
 
         if(util.isChannelType(self.type)) {
@@ -19138,7 +19916,7 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-        this.tab.removeClass("tab-selected");
+        this.tab.removeClass("selected");
     },
 
     editTopic: function() {
@@ -19150,65 +19928,6 @@ ui.QUI.Window = new Class({
             return;
 
         this.client.exec("/TOPIC " + newTopic);
-    },
-
-    //creates the input box on the bottom
-    createInput: function() {
-        var self = this,
-            parentO = self.parentObject,
-
-            inputtype = Browser.isMobile ?  "mobile-input": "keyboard-input",
-
-            nick = self.client.nickname,
-
-            $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
-            $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
-            $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.send');
-
-
-        if (Browser.isMobile) {
-            $inputbtn.addClass("mobile-button");
-        }
-
-        var resettab = parentO.resetTabComplete,
-            complete = function(e) {
-                var resultfn;
-                var cvalue = $inputbox.val();
-
-                if (e.key === "up") {
-                    resultfn = self.commandhistory.upLine;
-                } else if (e.key === "down") {
-                    resultfn = self.commandhistory.downLine;
-                } else if (e.key === "tab" && !e.ctrl) {
-                    e.stop();
-                    return self.tabComplete($inputbox);
-                } else {
-                    return parentO.resetTabComplete();
-                }
-                e.stop();
-
-                parentO.resetTabComplete();
-                if ((!!cvalue) && (self.lastcvalue !== cvalue))
-                    self.commandhistory.addLine(cvalue, true);
-
-                var result = resultfn.call(self.commandhistory);
-
-                if (!result)
-                    result = "";
-                self.lastcvalue = result;
-
-                $inputbox.val(result);
-                util.setAtEnd($inputbox);
-            };
-
-        // $form.addEvent("submit", self.sendInput);
-        $inputbox.addEvents({
-                    "focus": resettab,
-                    "mousedown": resettab,
-                    "keydown": complete
-                    });
-        return $form;
     },
 
     setNickname: function() {
@@ -19228,7 +19947,7 @@ ui.QUI.Window = new Class({
         } else {
             prefix = this.client.getNickStatus(this.name, this.client.nickname)
         }
-        this.$nicklabel.getElement('.status')
+        this.window.getElement('.input .nickname .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
     },
@@ -19245,9 +19964,9 @@ ui.QUI.Window = new Class({
         } else {
             $menu = Element.from(templates.menuContainer()).inject($par)
             _.each(ui.MENU_ITEMS, function(item) {
-                if(_.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate) {
+                if(_.isFunction(item.predicate) ? item.predicate.call(self, $par.retrieve('nick')) : !!item.predicate) {
                     Element.from(templates.nickmenubtn(item))
-                            .store("action", item.fn)
+                            .store("action", item.fn)//could also just do _.find to get the action but still need to store the name somewhere
                             .inject($menu);
                 }
             });
@@ -19289,17 +20008,17 @@ ui.QUI.Window = new Class({
     },
     highlightTab: function(state) {
         if (state != this.hilighted) {
-            this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
+            this.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech");
 
             switch (state) {
             case ui.HILIGHT_US:
-                this.tab.addClass("tab-hilight-us");
+                this.tab.addClass("hilight-us");
                 break;
             case ui.HILIGHT_SPEECH:
-                this.tab.addClass("tab-hilight-speech");
+                this.tab.addClass("hilight-speech");
                 break;
             case ui.HILIGHT_ACTIVITY:
-                this.tab.addClass("tab-hilight-activity");
+                this.tab.addClass("hilight-activity");
                 break;
             }
             this.parent(state);

@@ -13,7 +13,7 @@ ui.QUI.Window = new Class({
             'click:relay(.nicklist .menu span)': 'menuClick',
 
             'click:relay(.detached-window .attach)': 'attach',
-            'click:relay(.detached-window .tab-close)': 'close',
+            'click:relay(.detached-window .close)': 'close',
             'click:relay(.detached-window)': 'setActive'
         }
     },
@@ -36,6 +36,8 @@ ui.QUI.Window = new Class({
 
     render: function() {
         var self = this;
+        var type = self.type;
+        var hasInput = util.windowNeedsInput(type);
         self.element.empty()
             .html(self.template({
                 mobile: Browser.isMobile,
@@ -43,10 +45,11 @@ ui.QUI.Window = new Class({
                 channel: self.name,
                 name: self.name,
                 id: self.name.clean().replace(" ", "-"),
-                topic: false
+                topic: false,
+                needsInput: hasInput,
+                nick: self.client ? self.client.nickname : ""
             }))
         var $win = self.window = self.element.getElement('.window').store("window", self);
-        var type = self.type;
 
         var lines = self.lines = $win.getElement('.lines');
         lines.store("window", self);
@@ -65,8 +68,9 @@ ui.QUI.Window = new Class({
             $nicklist.addClass("nicklist");
         }
 
-        if(util.windowNeedsInput(type))
-            $win.getElement('.bottompanel').adopt(self.createInput());
+        if(hasInput) {
+            self.$input = $win.getElement('.input .input-field');
+        }
         return self;
     },
 
@@ -74,7 +78,7 @@ ui.QUI.Window = new Class({
         if(e) e.stop();
         if (this.closed) return;
 
-        if (isChannelType(this.type) && (!isBaseWindow(this.name))) {
+        if (isChannelType(this.type) && (!util.isBaseWindow(this.name))) {
             var client = this.client,
                 channels = util.removeChannel(client.channels, this.name);
 
@@ -90,6 +94,8 @@ ui.QUI.Window = new Class({
             this.resizable.detach().stop();
         if(this.drag)
             this.drag.detach().stop();
+        if(this.completer)
+            this.completer.detach();
 
         return this.parent();
     },
@@ -165,7 +171,7 @@ ui.QUI.Window = new Class({
                             });
 
 
-        self.selectUpdates();
+        self._selectUpdates();
 
         wrapper.position();
 
@@ -192,7 +198,7 @@ ui.QUI.Window = new Class({
         if(self.name !== BROUHAHA) {
             _.each(self.parentObject.windowArray, function(win) {
                 if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-                    win.tab.removeClass("tab-selected");
+                    win.tab.removeClass("selected");
                 }
                 if(win.name === BROUHAHA) {
                     if(util.isChannelType(self.type)) {
@@ -203,8 +209,8 @@ ui.QUI.Window = new Class({
             });
         }
         irc.activeChannel = self.name;
-        self.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech")
-                .addClass("tab-selected");
+        self.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+                .addClass("selected");
     },
 
     select: function() {//change window elements
@@ -212,12 +218,12 @@ ui.QUI.Window = new Class({
         this.parent();
 
         this.selectTab();
-        this.selectUpdates();
+        this._selectUpdates();
         this.fireEvent("selected");
     },
 
     //styles and ui things to update
-    selectUpdates: function() {
+    _selectUpdates: function() {
         var self = this,
             parentObject = self.parentObject;
 
@@ -235,6 +241,9 @@ ui.QUI.Window = new Class({
 
         if(self.fxscroll) {//scroll to bottom
             self.fxscroll.autoScroll();
+        }
+        if(!self.completer && util.windowNeedsInput(self.type)) {
+            self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name));
         }
 
         if(util.isChannelType(self.type)) {
@@ -262,7 +271,7 @@ ui.QUI.Window = new Class({
 
     deselect: function() {
         this.parent();
-        this.tab.removeClass("tab-selected");
+        this.tab.removeClass("selected");
     },
 
     editTopic: function() {
@@ -274,65 +283,6 @@ ui.QUI.Window = new Class({
             return;
 
         this.client.exec("/TOPIC " + newTopic);
-    },
-
-    //creates the input box on the bottom
-    createInput: function() {
-        var self = this,
-            parentO = self.parentObject,
-
-            inputtype = Browser.isMobile ?  "mobile-input": "keyboard-input",
-
-            nick = self.client.nickname,
-
-            $form = Element.from(templates.ircInput({'nick': nick, 'status': '', type: inputtype})),
-            $nicklabel = self.$nicklabel = $form.getElement('.nickname'),
-            $inputbox = self.$inputbox = $form.getElement('.input-field'),
-            $inputbtn = $form.getElement('.send');
-
-
-        if (Browser.isMobile) {
-            $inputbtn.addClass("mobile-button");
-        }
-
-        var resettab = parentO.resetTabComplete,
-            complete = function(e) {
-                var resultfn;
-                var cvalue = $inputbox.val();
-
-                if (e.key === "up") {
-                    resultfn = self.commandhistory.upLine;
-                } else if (e.key === "down") {
-                    resultfn = self.commandhistory.downLine;
-                } else if (e.key === "tab" && !e.ctrl) {
-                    e.stop();
-                    return self.tabComplete($inputbox);
-                } else {
-                    return parentO.resetTabComplete();
-                }
-                e.stop();
-
-                parentO.resetTabComplete();
-                if ((!!cvalue) && (self.lastcvalue !== cvalue))
-                    self.commandhistory.addLine(cvalue, true);
-
-                var result = resultfn.call(self.commandhistory);
-
-                if (!result)
-                    result = "";
-                self.lastcvalue = result;
-
-                $inputbox.val(result);
-                util.setAtEnd($inputbox);
-            };
-
-        // $form.addEvent("submit", self.sendInput);
-        $inputbox.addEvents({
-                    "focus": resettab,
-                    "mousedown": resettab,
-                    "keydown": complete
-                    });
-        return $form;
     },
 
     setNickname: function() {
@@ -352,7 +302,7 @@ ui.QUI.Window = new Class({
         } else {
             prefix = this.client.getNickStatus(this.name, this.client.nickname)
         }
-        this.$nicklabel.getElement('.status')
+        this.window.getElement('.input .nickname .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
     },
@@ -369,9 +319,9 @@ ui.QUI.Window = new Class({
         } else {
             $menu = Element.from(templates.menuContainer()).inject($par)
             _.each(ui.MENU_ITEMS, function(item) {
-                if(_.isFunction(item.predicate) ? item.predicate.call(self, nick) : !!item.predicate) {
+                if(_.isFunction(item.predicate) ? item.predicate.call(self, $par.retrieve('nick')) : !!item.predicate) {
                     Element.from(templates.nickmenubtn(item))
-                            .store("action", item.fn)
+                            .store("action", item.fn)//could also just do _.find to get the action but still need to store the name somewhere
                             .inject($menu);
                 }
             });
@@ -413,17 +363,17 @@ ui.QUI.Window = new Class({
     },
     highlightTab: function(state) {
         if (state != this.hilighted) {
-            this.tab.removeClasses("tab-hilight-activity", "tab-hilight-us", "tab-hilight-speech");
+            this.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech");
 
             switch (state) {
             case ui.HILIGHT_US:
-                this.tab.addClass("tab-hilight-us");
+                this.tab.addClass("hilight-us");
                 break;
             case ui.HILIGHT_SPEECH:
-                this.tab.addClass("tab-hilight-speech");
+                this.tab.addClass("hilight-speech");
                 break;
             case ui.HILIGHT_ACTIVITY:
-                this.tab.addClass("tab-hilight-activity");
+                this.tab.addClass("hilight-activity");
                 break;
             }
             this.parent(state);

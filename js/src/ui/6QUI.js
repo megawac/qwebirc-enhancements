@@ -9,7 +9,6 @@ ui.QUI = new Class({
                     .addClass('signed-out');
         this.setHotKeys();
 
-
         this.parentElement.addEvents({
             "click:relay(.lines .hyperlink-whois)": this.whoisURL,
             "click:relay(.lines .hyperlink-channel)": this.chanURL
@@ -84,12 +83,11 @@ ui.QUI = new Class({
         });
 
         //for scrolling tabs with mousewheel
-        tabs.addEvent("mousewheel", function(event) {
-            event.stop();
-            /* up */
-            if (event.wheel > 0) {
+        tabs.addEvent("mousewheel", function(evt) {
+            evt.stop();
+            if (evt.wheel > 0) {//mwup
                 self.nextWindow();
-            } else if (event.wheel < 0) { /* down */
+            } else if (evt.wheel < 0) {
                 self.prevWindow();
             }
         });
@@ -116,6 +114,8 @@ ui.QUI = new Class({
                         }
                     });
 
+        // ui.Behaviour.apply(self.outerTabs);
+
 
         //delay for style recalc
         self.__createDropdownHint.delay(500, self);
@@ -124,7 +124,8 @@ ui.QUI = new Class({
     newTab: function(win, name) {
         var self = this;
         var $tab = Element.from(templates.ircTab({
-                'name': (name === BROUHAHA) ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : name
+                'name': (name === BROUHAHA) ? '&nbsp;' : name,
+                closable: !isBaseWindow(name)
             })).inject(self.tabs);
 
         if(name === BROUHAHA) {
@@ -141,34 +142,26 @@ ui.QUI = new Class({
 
         $tab.store("window", win);
 
-        if (!isBaseWindow(name)) {
-            Element.from(templates.tabClose()).inject($tab);
-        }
-
         return $tab;
     },
 
     __createDropdownMenu: function() {
         var self = this,
-            dropdownMenu = Element.from(templates.menudrop());
-        dropdownMenu.inject(self.parentElement);
+            dropdownMenu = Element.from(templates.mainmenu({
+                    menu: self.UICommands,
+                    menuclass: "main-menu"
+                })).inject(self.parentElement);
 
-        var dropdown = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
-        dropdown.setStyle("opacity", 1);
-
-
-        self.UICommands.each(function(cmd) {
-            var text = cmd[0];
-            var fn = self[cmd[1] + "Window"].bind(self);
-            var ele = Element.from(templates.menuitem({text:text}));
-            ele.addEvent("click", function(e) {
-                    dropdownMenu.hide();
-                    fn();
-                });
-            dropdownMenu.appendChild(ele);
+        dropdownMenu.addEvents({
+            "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
+                var method = target.get("data-value");
+                self[method]();
+            }
         });
+        var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
 
-        var dropdownEffect = new Fx.Tween(dropdown, {
+
+        var dropdownEffect = new Fx.Tween(dropdownbtn, {
             duration: "long",
             property: "opacity",
             link: "chain"
@@ -179,14 +172,15 @@ ui.QUI = new Class({
                     .start(0.33)
                     .start(1);
 
-        ui.decorateDropdown(dropdown,dropdownMenu, {
+        ui.decorateDropdown(dropdownbtn, dropdownMenu, {
             onShow: function() {
                 if(self.hideHint)
                     self.hideHint();
                 delete self.hideHint;
             }
         });
-        return dropdown;
+        return dropdownbtn;
+        // return dropdownMenu;
     },
 
     hotkeys: {

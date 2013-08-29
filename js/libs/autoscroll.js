@@ -11,7 +11,7 @@ Fx.AutoScroll = new Class({
     Extends: Fx.Scroll,
     Binds: ["updatePosition"],
     options: {
-        direction: 'Bottom', //Top, Right, Left, Bottom
+        // direction: 'Bottom',
         interval: 500,
         duration: 0, //ms to execute effect
         threshold: null,//px - how close to bottom to start scrolling
@@ -29,7 +29,7 @@ Fx.AutoScroll = new Class({
             timers = self.$timers = {},
 
             //fix for a small bug caused by using throttle - ensures fn is called after scrolling ends
-            throttleToggler = function() {
+            toggler = function() {
                 if(Date.now() > (self.lastUpdate + opts.duration + 20)) {//not self triggered (20ms to compensate for runtime)
                     // console.log('checkin bc last change : ' + (d - (self.lastUpdate + opts.duration + 20)));
                     clearTimeout(timers.throttle);
@@ -44,8 +44,8 @@ Fx.AutoScroll = new Class({
             'window': {
                 "resize": self.updatePosition
             }
-        }
-        this.$events.element["scroll:throttle(" + interval + ")"] = throttleToggler;
+        };
+        this.$events.element["scroll:throttle(" + interval + ")"] = toggler;
 
         this.element.addEvents(this.$events.element);
         window.addEvents(this.$events.window);
@@ -89,7 +89,6 @@ Fx.AutoScroll = new Class({
     },
 
     updatePosition: function(target) {
-        // var fn = "to" + this.options.direction;
         var $ele = this.element;
         if(this.scroll  &&
           /*bug fix for a off by one one in Fx.Scroll*/ Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop()) > 2) {

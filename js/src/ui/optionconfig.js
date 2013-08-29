@@ -12,21 +12,22 @@ config.OptionModel = new Class({
             "use_hiddenhost": true,
             "lastpos_line": true,
             "nick_colours": false,
-            "hide_joinparts": true,
-            "style_hue": 210,
-            "style_saturation": 0,
-            "style_brightness": 0,
+            "hide_joinparts": false,
             "query_on_nick_click": true,
             // "show_nicklist": true,
             "show_timestamps": true,
             "font_size": 12,
-            "volume": 100,
+            "volume": 10, //0-10
 
             "dn_state": false,
             "dn_duration": 4000,
 
             "highlight": true,
             "highlight_mentioned": true,
+
+            "style_hue": 210,
+            "style_saturation": 0,
+            "style_brightness": 0,
 
             "notices": {
                 "on_mention": {flash:true, beep:true},
@@ -42,7 +43,7 @@ config.OptionModel = new Class({
                         beep: false,
                         id: String.uniqueID(),
                         autoescape: true
-                    }
+                    };
                 }
         },
         key: "qweboptions",
@@ -165,11 +166,6 @@ ui.OptionView = new Class({
             this.addNotifier(notice);
         }, this);
 
-        // this.tabs = new MGFX.Tabs(this.element, {
-        //     tabs: '.option-tabs li',
-        //     content: '.tab-content .control-group'
-        // });
-
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
                 knob = slider.getElement('.knob');
@@ -188,7 +184,7 @@ ui.OptionView = new Class({
             'reset': this.reset
         });
 
-        self.behavior = new Behavior().apply(this.element);
+        ui.Behaviour.apply(this.element);
 
         this.parent();
         return this;

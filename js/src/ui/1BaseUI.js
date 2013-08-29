@@ -38,6 +38,9 @@ ui.BaseUI = new Class({
     newWindow: function(client, type, name) {
         var win = this.getWindow(client, name);
         if (!$defined(win)) {
+            if(util.windowNeedsInput(type)) {
+                this.commandhistory.addChannel(name);
+            }
             var wId = this.getWindowIdentifier(name);
             var $wrapper = new Element('div', {'class': 'hidden'}).inject(this.windowsPanel);//for delegation - this is not how i should do it
             win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, $wrapper, client, type, name, wId);
@@ -175,7 +178,9 @@ ui.BaseUI = new Class({
                     lineParser(type, _.extend({}, data, msg));
                 });
             },
-            "wallops": lineParser
+            "wallops": lineParser,
+
+            "retry": lineParser
         });
 
 
@@ -257,7 +262,8 @@ ui.BaseUI = new Class({
             }
         }
 
-        this.tabs.disown(win.tab)
+        this.commandhistory.removeChannel(win.name);
+        this.tabs.disown(win.tab);
         winarr = this.windowArray.erase(win);
         delete this.windows[this.getClientId(win.client)][win.identifier];
     },

@@ -63,6 +63,7 @@
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),
+        connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
         connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 
@@ -171,11 +172,11 @@ ui.themes.Default2 = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
-    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
+    "CHANMSG": "{D}<{@}{(}{N}>{)}{D} {m}",
+    "PRIVMSG": "{(}<{N}>{)} {m}",
 
-    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
-    "OURPRIVMSG": "&lt;{N}&gt; {m}",
+    "OURCHANMSG": "<{@}{N}> {m}",
+    "OURPRIVMSG": "<{N}> {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",
@@ -212,13 +213,26 @@ ui.themes.Default2 = {
 };
 
 ui.UI_COMMANDS = [
-    ["Options", "options"],
-    ["Add webchat to your site", "embedded"],
-    ["Privacy policy", "privacy"],
-    ["Feedback", "feedback"],
-    ["Frequently asked questions", "faq"],
-    ["About qwebirc", "about"]
-];
+        {
+            text: "Options",
+            value: "optionsWindow"//ui method
+        },
+        {
+            text: "Add webchat to your site",
+            value: "embeddedWindow"
+        },
+        {
+            text: "Privacy policy",
+            value: "privacyWindow"
+        },
+        {
+            text: "Frequently asked questions",
+            value: "faqWindow"
+        },
+        {
+            text: "About qwebirc",
+            value: "aboutWindow"
+        }];
 
 
 })();

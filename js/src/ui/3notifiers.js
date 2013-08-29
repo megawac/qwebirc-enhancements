@@ -12,6 +12,13 @@ ui.NotificationUI = new Class({
             icon: "images/qwebircsmall.png",
             title: "IRC Alert",
             body: "New notification!"
+        },
+
+        sounds: {
+            sounds: [{
+                id: "beep",
+                url: ['beep3.ogg', 'beep3.mp3']
+            }]//files in sounds/
         }
     },
     initialize: function() {
@@ -28,7 +35,6 @@ ui.NotificationUI = new Class({
         var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
         if ($defined(favIcon)) {
             this.favIcon = favIcon;
-            // this.favIconParent = favIcon.getParent();
             this.favIconVisible = true;
             this.emptyFavIcon = new Element("link", {
                     rel: 'shortcut icon',
@@ -55,14 +61,16 @@ ui.NotificationUI = new Class({
     playSound: function(alias) {
         if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
-            this.soundPlayer.sounds[alias]();
+            this.soundPlayer.play(alias, {
+                volume: this.uiOptions2.get("volume")
+            });
         }
     },
 
     soundInit: function() {
         //used to have a bunch of flash checks. going to let the sm handle it
         if(!$defined(this.soundPlayer)) {
-            this.soundPlayer = new sound.SoundPlayer(this.options.sounds).load();
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
         }
     },
     flash: function(options) {

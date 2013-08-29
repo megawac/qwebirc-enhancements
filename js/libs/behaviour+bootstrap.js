@@ -1,514 +1,59 @@
-// MooTools: the javascript framework.
-// Load this file's selection again by visiting: http://mootools.net/more/db53fa168c584b0b434828eef6a9d4b3 
-// Or build this file again with packager using: packager build More/Table More/Mask
+
+//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Alert&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FPopup&require=Bootstrap%2FBootstrap.Tooltip&excludeLibs=More
+//Contents: Behavior:Source/Event.Mock.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Behavior:Source/Delegator.js, More-Behaviors:Source/Delegators/Delegator.FxReveal.js, Bootstrap:Source/Behaviors/Behavior.BS.Alert.js, Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
+
+// Begin: Source/Event.Mock.js
 /*
 ---
-name: Table
-description: LUA-Style table implementation.
-license: MIT-style license
-authors:
-  - Valerio Proietti
-requires: [Core/Array]
-provides: [Table]
-...
-*/
+name: Event.Mock
 
-(function(){
-
-var Table = this.Table = function(){
-
-    this.length = 0;
-    var keys = [],
-        values = [];
-    
-    this.set = function(key, value){
-        var index = keys.indexOf(key);
-        if (index == -1){
-            var length = keys.length;
-            keys[length] = key;
-            values[length] = value;
-            this.length++;
-        } else {
-            values[index] = value;
-        }
-        return this;
-    };
-
-    this.get = function(key){
-        var index = keys.indexOf(key);
-        return (index == -1) ? null : values[index];
-    };
-
-    this.erase = function(key){
-        var index = keys.indexOf(key);
-        if (index != -1){
-            this.length--;
-            keys.splice(index, 1);
-            return values.splice(index, 1)[0];
-        }
-        return null;
-    };
-
-    this.each = this.forEach = function(fn, bind){
-        for (var i = 0, l = this.length; i < l; i++) fn.call(bind, keys[i], values[i], this);
-    };
-    
-};
-
-if (this.Type) new Type('Table', Table);
-
-})();
-
-
-
-
-/*
----
-
-script: Class.Occlude.js
-
-name: Class.Occlude
-
-description: Prevents a class from being applied to a DOM element twice.
-
-license: MIT-style license.
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Class
-  - Core/Element
-  - /MooTools.More
-
-provides: [Class.Occlude]
-
-...
-*/
-
-Class.Occlude = new Class({
-
-    occlude: function(property, element){
-        element = document.id(element || this.element);
-        var instance = element.retrieve(property || this.property);
-        if (instance && !this.occluded)
-            return (this.occluded = instance);
-
-        this.occluded = false;
-        element.store(property || this.property, this);
-        return this.occluded;
-    }
-
-});
-
-
-/*
----
-
-script: IframeShim.js
-
-name: IframeShim
-
-description: Defines IframeShim, a class for obscuring select lists and flash objects in IE.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Element.Event
-  - Core/Element.Style
-  - Core/Options
-  - Core/Events
-  - /Element.Position
-  - /Class.Occlude
-
-provides: [IframeShim]
-
-...
-*/
-
-var IframeShim = new Class({
-
-    Implements: [Options, Events, Class.Occlude],
-
-    options: {
-        className: 'iframeShim',
-        src: 'javascript:false;document.write("");',
-        display: false,
-        zIndex: null,
-        margin: 0,
-        offset: {x: 0, y: 0},
-        browsers: (Browser.ie6 || (Browser.firefox && Browser.version < 3 && Browser.Platform.mac))
-    },
-
-    property: 'IframeShim',
-
-    initialize: function(element, options){
-        this.element = document.id(element);
-        if (this.occlude()) return this.occluded;
-        this.setOptions(options);
-        this.makeShim();
-        return this;
-    },
-
-    makeShim: function(){
-        if (this.options.browsers){
-            var zIndex = this.element.getStyle('zIndex').toInt();
-
-            if (!zIndex){
-                zIndex = 1;
-                var pos = this.element.getStyle('position');
-                if (pos == 'static' || !pos) this.element.setStyle('position', 'relative');
-                this.element.setStyle('zIndex', zIndex);
-            }
-            zIndex = ((this.options.zIndex != null || this.options.zIndex === 0) && zIndex > this.options.zIndex) ? this.options.zIndex : zIndex - 1;
-            if (zIndex < 0) zIndex = 1;
-            this.shim = new Element('iframe', {
-                src: this.options.src,
-                scrolling: 'no',
-                frameborder: 0,
-                styles: {
-                    zIndex: zIndex,
-                    position: 'absolute',
-                    border: 'none',
-                    filter: 'progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)'
-                },
-                'class': this.options.className
-            }).store('IframeShim', this);
-            var inject = (function(){
-                this.shim.inject(this.element, 'after');
-                this[this.options.display ? 'show' : 'hide']();
-                this.fireEvent('inject');
-            }).bind(this);
-            if (!IframeShim.ready) window.addEvent('load', inject);
-            else inject();
-        } else {
-            this.position = this.hide = this.show = this.dispose = Function.from(this);
-        }
-    },
-
-    position: function(){
-        if (!IframeShim.ready || !this.shim) return this;
-        var size = this.element.measure(function(){
-            return this.getSize();
-        });
-        if (this.options.margin != undefined){
-            size.x = size.x - (this.options.margin * 2);
-            size.y = size.y - (this.options.margin * 2);
-            this.options.offset.x += this.options.margin;
-            this.options.offset.y += this.options.margin;
-        }
-        this.shim.set({width: size.x, height: size.y}).position({
-            relativeTo: this.element,
-            offset: this.options.offset
-        });
-        return this;
-    },
-
-    hide: function(){
-        if (this.shim) this.shim.setStyle('display', 'none');
-        return this;
-    },
-
-    show: function(){
-        if (this.shim) this.shim.setStyle('display', 'block');
-        return this.position();
-    },
-
-    dispose: function(){
-        if (this.shim) this.shim.dispose();
-        return this;
-    },
-
-    destroy: function(){
-        if (this.shim) this.shim.destroy();
-        return this;
-    }
-
-});
-
-window.addEvent('load', function(){
-    IframeShim.ready = true;
-});
-
-
-/*
----
-
-script: Mask.js
-
-name: Mask
-
-description: Creates a mask element to cover another.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Options
-  - Core/Events
-  - Core/Element.Event
-  - /Class.Binds
-  - /Element.Position
-  - /IframeShim
-
-provides: [Mask]
-
-...
-*/
-
-var Mask = new Class({
-
-    Implements: [Options, Events],
-
-    Binds: ['position'],
-
-    options: {/*
-        onShow: function(){},
-        onHide: function(){},
-        onDestroy: function(){},
-        onClick: function(event){},
-        inject: {
-            where: 'after',
-            target: null,
-        },
-        hideOnClick: false,
-        id: null,
-        destroyOnHide: false,*/
-        style: {},
-        'class': 'mask',
-        maskMargins: false,
-        useIframeShim: true,
-        iframeShimOptions: {}
-    },
-
-    initialize: function(target, options){
-        this.target = document.id(target) || document.id(document.body);
-        this.target.store('mask', this);
-        this.setOptions(options);
-        this.render();
-        this.inject();
-    },
-
-    render: function(){
-        this.element = new Element('div', {
-            'class': this.options['class'],
-            id: this.options.id || 'mask-' + String.uniqueID(),
-            styles: Object.merge({}, this.options.style, {
-                display: 'none'
-            }),
-            events: {
-                click: function(event){
-                    this.fireEvent('click', event);
-                    if (this.options.hideOnClick) this.hide();
-                }.bind(this)
-            }
-        });
-
-        this.hidden = true;
-    },
-
-    toElement: function(){
-        return this.element;
-    },
-
-    inject: function(target, where){
-        where = where || (this.options.inject ? this.options.inject.where : '') || this.target == document.body ? 'inside' : 'after';
-        target = target || (this.options.inject && this.options.inject.target) || this.target;
-
-        this.element.inject(target, where);
-
-        if (this.options.useIframeShim){
-            this.shim = new IframeShim(this.element, this.options.iframeShimOptions);
-
-            this.addEvents({
-                show: this.shim.show.bind(this.shim),
-                hide: this.shim.hide.bind(this.shim),
-                destroy: this.shim.destroy.bind(this.shim)
-            });
-        }
-    },
-
-    position: function(){
-        this.resize(this.options.width, this.options.height);
-
-        this.element.position({
-            relativeTo: this.target,
-            position: 'topLeft',
-            ignoreMargins: !this.options.maskMargins,
-            ignoreScroll: this.target == document.body
-        });
-
-        return this;
-    },
-
-    resize: function(x, y){
-        var opt = {
-            styles: ['padding', 'border']
-        };
-        if (this.options.maskMargins) opt.styles.push('margin');
-
-        var dim = this.target.getComputedSize(opt);
-        if (this.target == document.body){
-            this.element.setStyles({width: 0, height: 0});
-            var win = window.getScrollSize();
-            if (dim.totalHeight < win.y) dim.totalHeight = win.y;
-            if (dim.totalWidth < win.x) dim.totalWidth = win.x;
-        }
-        this.element.setStyles({
-            width: Array.pick([x, dim.totalWidth, dim.x]),
-            height: Array.pick([y, dim.totalHeight, dim.y])
-        });
-
-        return this;
-    },
-
-    show: function(){
-        if (!this.hidden) return this;
-
-        window.addEvent('resize', this.position);
-        this.position();
-        this.showMask.apply(this, arguments);
-
-        return this;
-    },
-
-    showMask: function(){
-        this.element.setStyle('display', 'block');
-        this.hidden = false;
-        this.fireEvent('show');
-    },
-
-    hide: function(){
-        if (this.hidden) return this;
-
-        window.removeEvent('resize', this.position);
-        this.hideMask.apply(this, arguments);
-        if (this.options.destroyOnHide) return this.destroy();
-
-        return this;
-    },
-
-    hideMask: function(){
-        this.element.setStyle('display', 'none');
-        this.hidden = true;
-        this.fireEvent('hide');
-    },
-
-    toggle: function(){
-        this[this.hidden ? 'show' : 'hide']();
-    },
-
-    destroy: function(){
-        this.hide();
-        this.element.destroy();
-        this.fireEvent('destroy');
-        this.target.eliminate('mask');
-    }
-
-});
-
-Element.Properties.mask = {
-
-    set: function(options){
-        var mask = this.retrieve('mask');
-        if (mask) mask.destroy();
-        return this.eliminate('mask').store('mask:options', options);
-    },
-
-    get: function(){
-        var mask = this.retrieve('mask');
-        if (!mask){
-            mask = new Mask(this, this.retrieve('mask:options'));
-            this.store('mask', mask);
-        }
-        return mask;
-    }
-
-};
-
-Element.implement({
-
-    mask: function(options){
-        if (options) this.set('mask', options);
-        this.get('mask').show();
-        return this;
-    },
-
-    unmask: function(){
-        this.get('mask').hide();
-        return this;
-    }
-
-});
-
-
-
-
-//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.Popup&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FBehavior.BS.Tooltip&require=Bootstrap%2FPopup&excludeLibs=More
-//Contents: Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/Behaviors/Behavior.BS.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/Behaviors/Behavior.BS.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
-
-// Begin: Source/UI/Bootstrap.js
-/*
----
-
-name: Bootstrap
-
-description: The BootStrap namespace.
-
-authors: [Aaron Newton]
-
-license: MIT-style license.
-
-provides: [Bootstrap]
-
-...
-*/
-var Bootstrap = {};
-
-// Begin: Source/UI/CSSEvents.js
-/*
----
-
-name: CSSEvents
+description: Supplies a Mock Event object for use on fireEvent
 
 license: MIT-style
 
-authors: [Aaron Newton]
+authors:
+- Arieh Glazer
 
-requires: [Core/DomReady]
+requires: Core/Event
 
-provides: CSSEvents
+provides: [Event.Mock]
+
 ...
 */
 
-Browser.Features.getCSSTransition = function(){
-    Browser.Features.cssTransition = (function () {
-        var thisBody = document.body || document.documentElement
-            , thisStyle = thisBody.style
-            , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
-        return support;
-    })();
+(function($,window,undef){
 
-    // set CSS transition event type
-    if ( Browser.Features.cssTransition ) {
-        Browser.Features.transitionEnd = "TransitionEnd";
-        if ( Browser.safari || Browser.chrome ) {
-            Browser.Features.transitionEnd = "webkitTransitionEnd";
-        } else if ( Browser.firefox ) {
-            Browser.Features.transitionEnd = "transitionend";
-        } else if ( Browser.opera ) {
-            Browser.Features.transitionEnd = "oTransitionEnd";
-        }
+/**
+ * creates a Mock event to be used with fire event
+ * @param Element target an element to set as the target of the event - not required
+ *  @param string type the type of the event to be fired. Will not be used by IE - not required.
+ *
+ */
+Event.Mock = function(target,type){
+    type = type || 'click';
+
+    var e = {
+        type: type,
+        target: target
+    };
+
+    if (document.createEvent){
+        e = document.createEvent('HTMLEvents');
+        e.initEvent(
+            type //event type
+            , false //bubbles - set to false because the event should like normal fireEvent
+            , true //cancelable
+        );
     }
-    Browser.Features.getCSSTransition = Function.from(Browser.Features.transitionEnd);
+
+    e = new Event(e);
+
+    e.target = target;
+
+    return e;
 };
 
-window.addEvent("domready", Browser.Features.getCSSTransition);
+})(document.id,window);
 
 // Begin: Source/Element.Data.js
 /*
@@ -1245,6 +790,409 @@ provides: [Behavior]
 })();
 
 
+// Begin: Source/Delegator.js
+/*
+---
+name: Delegator
+description: Allows for the registration of delegated events on a container.
+requires: [Core/Element.Delegation, Core/Options, Core/Events, /Event.Mock, /Behavior]
+provides: [Delegator]
+...
+*/
+(function(){
+
+    var spaceOrCommaRegex = /\s*,\s*|\s+/g;
+
+    var checkEvent = function(trigger, element, event){
+        if (!event) return true;
+        return trigger.types.some(function(type){
+            var elementEvent = Element.Events[type];
+            if (elementEvent && elementEvent.condition){
+                return elementEvent.condition.call(element, event, type);
+            } else {
+                var eventType = elementEvent && elementEvent.base ? elementEvent.base : event.type;
+                return eventType == type;
+            }
+        });
+    };
+
+    window.Delegator = new Class({
+
+        Implements: [Options, Events, Behavior.PassMethods],
+
+        options: {
+            // breakOnErrors: false,
+            // onTrigger: function(trigger, element, event, result){},
+            getBehavior: function(){},
+            onLog: Behavior.getLog('info'),
+            onError: Behavior.getLog('error'),
+            onWarn: Behavior.getLog('warn')
+        },
+
+        initialize: function(options){
+            this.setOptions(options);
+            this._bound = {
+                eventHandler: this._eventHandler.bind(this)
+            };
+            Delegator._instances.push(this);
+            Object.each(Delegator._triggers, function(trigger){
+                this._eventTypes.combine(trigger.types);
+            }, this);
+            this.API = new Class({ Extends: BehaviorAPI });
+            this.passMethods({
+                addEvent: this.addEvent.bind(this),
+                removeEvent: this.removeEvent.bind(this),
+                addEvents: this.addEvents.bind(this),
+                removeEvents: this.removeEvents.bind(this),
+                fireEvent: this.fireEvent.bind(this),
+                attach: this.attach.bind(this),
+                trigger: this.trigger.bind(this),
+                error: function(){ this.fireEvent('error', arguments); }.bind(this),
+                fail: function(){
+                    var msg = Array.join(arguments, ' ');
+                    throw new Error(msg);
+                },
+                warn: function(){
+                    this.fireEvent('warn', arguments);
+                }.bind(this),
+                getBehavior: function(){
+                    return this.options.getBehavior();
+                }.bind(this)
+            });
+
+            this.bindToBehavior(this.options.getBehavior());
+        },
+
+        bindToBehavior: function(behavior){
+            if (!behavior) return;
+            this.unbindFromBehavior();
+            this._behavior = behavior;
+            if (this._behavior.options.verbose) this.options.verbose = true;
+            if (!this._behaviorEvents){
+                var self = this;
+                this._behaviorEvents = {
+                    destroyDom: function(elements){
+                        Array.from(elements).each(function(element){
+                            self._behavior.cleanup(element);
+                            self._behavior.fireEvent('destroyDom', element);
+                        });
+                    },
+                    ammendDom: function(container){
+                        self._behavior.apply(container);
+                        self._behavior.fireEvent('ammendDom', container);
+                    }
+                };
+            }
+            this.addEvents(this._behaviorEvents);
+        },
+
+        getBehavior: function(){
+            return this._behavior;
+        },
+
+        unbindFromBehavior: function(){
+            if (this._behaviorEvents && this._behavior){
+                this._behavior.removeEvents(this._behaviorEvents);
+                delete this._behavior;
+            }
+        },
+
+        attach: function(target, _method){
+            _method = _method || 'addEvent';
+            target = document.id(target);
+            if ((_method == 'addEvent' && this._attachedTo.contains(target)) ||
+                (_method == 'removeEvent') && !this._attachedTo.contains(target)) return this;
+            this._eventTypes.each(function(event){
+                target[_method](event + ':relay([data-trigger])', this._bound.eventHandler);
+            }, this);
+            this._attachedTo.push(target);
+            return this;
+        },
+
+        detach: function(target){
+            if (target){
+                this.attach(target, 'removeEvent');
+            } else {
+                this._attachedTo.each(this.detach, this);
+            }
+            return this;
+        },
+
+        trigger: function(name, element, event){
+            var e = event;
+            if (!e || typeOf(e) == "string") e = new Event.Mock(element, e);
+            if (this.options.verbose) this.fireEvent('log', ['Applying trigger: ', name, element, event]);
+            var result,
+                    trigger = this.getTrigger(name);
+            if (!trigger){
+                this.fireEvent('warn', 'Could not find a trigger by the name of ' + name);
+            } else if (checkEvent(trigger, element, e)) {
+                if (this.options.breakOnErrors){
+                    result = this._trigger(trigger, element, e);
+                } else {
+                    try {
+                        result = this._trigger(trigger, element, e);
+                    } catch(error) {
+                        this.fireEvent('error', ['Could not apply the trigger', name, error.message]);
+                    }
+                }
+            }
+            if (this.options.verbose && result) this.fireEvent('log', ['Successfully applied trigger: ', name, element, event]);
+            else if (this.options.verbose) this.fireEvent('log', ['Trigger applied, but did not return a result: ', name, element, event]);
+            return result;
+        },
+
+        getTrigger: function(name){
+            return this._triggers[name] || Delegator._triggers[name];
+        },
+
+        addEventTypes: function(triggerName, types){
+            this.getTrigger(triggerName).types.combine(Array.from(types));
+            return this;
+        },
+
+        /******************
+         * PRIVATE METHODS
+         ******************/
+
+        _trigger: function(trigger, element, event){
+            var api = new this.API(element, trigger.name);
+            if (trigger.requireAs){
+                api.requireAs(trigger.requireAs);
+            } else if (trigger.require){
+                api.require.apply(api, Array.from(trigger.require));
+            } if (trigger.defaults){
+                api.setDefault(trigger.defaults);
+            }
+            if (Delegator.debugging && Delegator.debugging.contains(name)) debugger;
+            var result = trigger.handler.apply(this, [event, element, api]);
+            this.fireEvent('trigger', [trigger, element, event, result]);
+            return result;
+        },
+
+        _eventHandler: function(event, target){
+            var triggers = target.getTriggers();
+            if (triggers.contains('Stop')) event.stop();
+            if (triggers.contains('PreventDefault')) event.preventDefault();
+            triggers.each(function(trigger){
+                if (trigger != "Stop" && trigger != "PreventDefault") this.trigger(trigger, target, event);
+            }, this);
+        },
+
+        _onRegister: function(eventTypes){
+            eventTypes.each(function(eventType){
+                if (!this._eventTypes.contains(eventType)){
+                    this._attachedTo.each(function(element){
+                        element.addEvent(eventType + ':relay([data-trigger])', this._bound.eventHandler);
+                    }, this);
+                }
+                this._eventTypes.include(eventType);
+            }, this);
+        },
+
+        _attachedTo: [],
+        _eventTypes: [],
+        _triggers: {}
+
+    });
+
+    Delegator._triggers = {};
+    Delegator._instances = [];
+    Delegator._onRegister = function(eventType){
+        this._instances.each(function(instance){
+            instance._onRegister(eventType);
+        });
+    };
+
+    Delegator.register = function(eventTypes, name, handler, overwrite /** or eventType, obj, overwrite */){
+        eventTypes = Array.from(eventTypes);
+        if (typeOf(name) == "object"){
+            var obj = name;
+            for (name in obj){
+                this.register.apply(this, [eventTypes, name, obj[name], handler]);
+            }
+            return this;
+        }
+        if (!this._triggers[name] || overwrite){
+            if (typeOf(handler) == "function"){
+                handler = {
+                    handler: handler
+                };
+            }
+            handler.types = eventTypes;
+            handler.name = name;
+            this._triggers[name] = handler;
+            this._onRegister(eventTypes);
+        } else {
+            throw new Error('Could add the trigger "' + name +'" as a previous trigger by that same name exists.');
+        }
+        return this;
+    };
+
+    Delegator.getTrigger = function(name){
+        return this._triggers[name];
+    };
+
+    Delegator.addEventTypes = function(triggerName, types){
+        this.getTrigger(triggerName).types.combine(Array.from(types));
+        return this;
+    };
+
+    Delegator.debug = function(name){
+        if (!Delegator.debugging) Delegator.debugging = [];
+        Delegator.debugging.push(name);
+    };
+
+
+    Delegator.implement('register', Delegator.register);
+
+    Element.implement({
+
+        addTrigger: function(name){
+            return this.setData('trigger', this.getTriggers().include(name).join(' '));
+        },
+
+        removeTrigger: function(name){
+            return this.setData('trigger', this.getTriggers().erase(name).join(' '));
+        },
+
+        getTriggers: function(){
+            var triggers = this.getData('trigger');
+            if (!triggers) return [];
+            return triggers.trim().split(spaceOrCommaRegex);
+        },
+
+        hasTrigger: function(name){
+            return this.getTriggers().contains(name);
+        }
+
+    });
+
+})();
+
+// Begin: Source/Delegators/Delegator.FxReveal.js
+/*
+---
+description: Provides methods to reveal, dissolve, nix, and toggle using Fx.Reveal.
+provides: [Delegator.FxReveal, Delegator.Reveal, Delegator.ToggleReveal, Delegator.Dissolve, Delegator.Nix]
+requires: [Behavior/Delegator, More/Fx.Reveal]
+script: Delegator.FxReveal.js
+name: Delegator.FxReveal
+
+...
+*/
+(function(){
+
+    var triggers = {};
+
+    ['reveal', 'toggleReveal', 'dissolve', 'nix'].each(function(action){
+
+        triggers[action] = {
+            handler: function(event, link, api){
+                var targets;
+                if (api.get('target')){
+                    targets = new Elements([link.getElement(api.get('target'))]);
+                    if (!targets) api.fail('could not locate target element to ' + action, link);
+                } else if (api.get('targets')){
+                    targets = link.getElements(api.get('targets'));
+                    if (!targets.length) api.fail('could not locate target elements to ' + action, link);
+                } else {
+                    targets = new Elements([link]);
+                }
+
+                var fxOptions = api.get('fxOptions');
+                if (fxOptions) targets.set('reveal', fxOptions);
+                targets.get('reveal');
+                if (action == 'toggleReveal') targets.get('reveal').invoke('toggle');
+                else targets[action]();
+                if (!api.getAs(Boolean, 'allowEvent')) event.preventDefault();
+            }
+        };
+
+    });
+
+    Delegator.register('click', triggers);
+
+})();
+
+// Begin: Source/Behaviors/Behavior.BS.Alert.js
+/*
+---
+
+name: Behavior.BS.Alert
+
+description: This file just depends on the Fx.Reveal delegator in More-Behaviors to ensure you get it if you load the entire Bootstrap JS package.
+
+license: MIT-style license.
+
+authors: [Aaron Newton]
+
+requires:
+ - More-Behaviors/Delegator.Nix
+
+provides: [Behavior.BS.Alert]
+
+...
+*/
+
+// Begin: Source/UI/Bootstrap.js
+/*
+---
+
+name: Bootstrap
+
+description: The BootStrap namespace.
+
+authors: [Aaron Newton]
+
+license: MIT-style license.
+
+provides: [Bootstrap]
+
+...
+*/
+var Bootstrap = {};
+
+// Begin: Source/UI/CSSEvents.js
+/*
+---
+
+name: CSSEvents
+
+license: MIT-style
+
+authors: [Aaron Newton]
+
+requires: [Core/DomReady]
+
+provides: CSSEvents
+...
+*/
+
+Browser.Features.getCSSTransition = function(){
+    Browser.Features.cssTransition = (function () {
+        var thisBody = document.body || document.documentElement
+            , thisStyle = thisBody.style
+            , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+        return support;
+    })();
+
+    // set CSS transition event type
+    if ( Browser.Features.cssTransition ) {
+        Browser.Features.transitionEnd = "TransitionEnd";
+        if ( Browser.safari || Browser.chrome ) {
+            Browser.Features.transitionEnd = "webkitTransitionEnd";
+        } else if ( Browser.firefox ) {
+            Browser.Features.transitionEnd = "transitionend";
+        } else if ( Browser.opera ) {
+            Browser.Features.transitionEnd = "oTransitionEnd";
+        }
+    }
+    Browser.Features.getCSSTransition = Function.from(Browser.Features.transitionEnd);
+};
+
+window.addEvent("domready", Browser.Features.getCSSTransition);
+
 // Begin: Source/UI/Bootstrap.Tooltip.js
 /*
 ---
@@ -1437,68 +1385,6 @@ Bootstrap.Tooltip = Bootstrap.Twipsy = new Class({
 
 });
 
-// Begin: Source/Behaviors/Behavior.BS.Tooltip.js
-/*
----
-
-name: Behavior.BS.Tooltip
-
-description: Instantiates Bootstrap.Tooltip based on HTML markup.
-
-license: MIT-style license.
-
-authors: [Aaron Newton]
-
-requires:
- - /Bootstrap.Tooltip
- - Behavior/Behavior
- - More/Object.Extras
-
-provides: [Behavior.BS.Twipsy, Behavior.BS.Tooltip]
-
-...
-*/
-(function(){
-    var filter = {
-        defaults: {
-            location: 'above', //below, left, right
-            animate: true,
-            delayIn: 200,
-            delayOut: 0,
-            onOverflow: false,
-            offset: 0,
-            trigger: 'hover' //focus, manual
-        },
-        delayUntil: 'mouseover,focus',
-        returns: Bootstrap.Tooltip,
-        setup: function(el, api){
-            var options = Object.cleanValues(
-                api.getAs({
-                    onOverflow: Boolean,
-                    location: String,
-                    animate: Boolean,
-                    delayIn: Number,
-                    delayOut: Number,
-                    fallback: String,
-                    override: String,
-                    html: Boolean,
-                    offset: Number,
-                    trigger: String
-                })
-            );
-            options.getTitle = Function.from(api.get('content') || el.get('title'));
-            var tip = new Bootstrap.Tooltip(el, options);
-            api.onCleanup(tip.destroy.bind(tip));
-            if (api.event) tip.show();
-            return tip;
-        }
-    };
-    Behavior.addGlobalFilters({
-        'BS.Tooltip': filter,
-        'BS.Twipsy': filter
-    });
-})();
-
 // Begin: Source/UI/Bootstrap.Popup.js
 /*
 ---
@@ -1674,67 +1560,6 @@ Bootstrap.Popup = new Class({
         }
     }
 
-});
-
-// Begin: Source/Behaviors/Behavior.BS.Popup.js
-/*
----
-
-name: Behavior.Popup
-
-description: Creates a bootstrap popup based on HTML markup.
-
-license: MIT-style license.
-
-authors: [Aaron Newton]
-
-requires:
- - Behavior/Behavior
- - More/Object.Extras
- - Bootstrap.Popup
-
-provides: [Behavior.BS.Popup]
-
-...
-*/
-
-Behavior.addGlobalFilters({
-    'BS.Popup': {
-        defaults: {
-            focusOnShow: "input[type=text], select, textarea, .modal-footer .btn-primary, .modal-footer .btn",
-            hide: false,
-            animate: true,
-            closeOnEsc: true,
-            closeOnClickOut: true,
-            mask: true,
-            persist: true
-        },
-        returns: Bootstrap.Popup,
-        setup: function(el, api){
-            var popup = new Bootstrap.Popup(el,
-                Object.cleanValues(
-                    api.getAs({
-                        persist: Boolean,
-                        animate: Boolean,
-                        closeOnEsc: Boolean,
-                        closeOnClickOut: Boolean,
-                        mask: Boolean
-                    })
-                )
-            );
-            popup.addEvent('destroy', function(){
-                api.cleanup(el);
-            });
-            popup.addEvent('show', function(){
-                var focus = document.id(popup).getElement(api.get('focusOnShow'));
-                if (focus) focus.select();
-            });
-            if (!el.hasClass('hide') && !api.getAs(Boolean, 'hide') && (!el.hasClass('in') && !el.hasClass('fade'))) {
-                popup.show();
-            }
-            return popup;
-        }
-    }
 });
 
 // Begin: Source/UI/Bootstrap.Dropdown.js

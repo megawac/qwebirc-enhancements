@@ -536,7 +536,7 @@
     // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
     // available.
     _.bind = function(fn) {
-        return nativeBind.apply(fn, slice.call(arguments, 1));
+        return fn.bind(slice.call(arguments, 1));
     };
 
     // Partially apply a function by creating a version that has had some of its

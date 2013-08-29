@@ -24,7 +24,7 @@ ui.Window = new Class({
         this.currentChannel = this.name = name;
         this.client = client;
         this.identifier = identifier;
-        this.commandhistory = this.parentObject.commandhistory;
+        this.history = this.parentObject.commandhistory;
         this.parent({
             element: $par
         });
@@ -143,16 +143,15 @@ ui.Window = new Class({
         }
     },
 
-    sendInput: function(e, $tar) {
+    sendInput: function(e/*, $tar*/) {
         if(e) e.stop();
-        if(!$tar || !$tar.hasClass('input-field')) {
-            this.window.getElement('.input .input-field')
-        }
+        // if(!$tar || !$tar.hasClass('input-field')) {
+        var $tar = this.$input;
+        //}
         var unparsed = $tar.val(),
             parsed = util.inputParser.parse(unparsed);
         if (parsed !== "") {
-            this.parentObject.resetTabComplete();
-            this.commandhistory.addLine(unparsed || parsed);
+            this.history.addLine(this.name, unparsed || parsed);
             this.client.exec(parsed, this.currentChannel);
             $tar.val("");
         }

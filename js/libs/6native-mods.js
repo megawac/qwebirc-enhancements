@@ -94,17 +94,26 @@
         // },
     });
 
+    Element.Properties.val = Element.Properties.value = {
+        get: function() {
+            return this[(this.get('type') == 'checkbox') ? 'checked' : 'value'];
+        },
+        set: function(val) {
+            this[(this.get('type') == 'checkbox') ? 'checked' : 'value'] = val;
+        }
+    };
 
     var adopt = Element.prototype.adopt,
         inject = Element.prototype.inject;
 
 
-    ["html", "text"].each(function(fn) {
+    ["html", "text", "val"].each(function(fn) {
             Element.implement(fn, function(data) {
-                if (data) return this.set(fn, data);
+                if (typeof data !== 'undefined') return this.set(fn, data);
                 return this.get(fn);
             });
         });
+
 
     Element.implement({
 
@@ -134,15 +143,6 @@
                 ele.destroy();
             }
             return this;
-        },
-
-        val: function(val) {
-            var key = (this.get('type') == 'checkbox') ? 'checked' : 'value';
-
-            if (val != null) {
-                return this.set(key, val);
-            }
-            return this.get(key);
         },
 
         insertAt: function(element, position) {

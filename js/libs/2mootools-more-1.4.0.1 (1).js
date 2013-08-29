@@ -2,7 +2,6 @@
 
 // MooTools: the javascript framework.
 // Load this file's selection again by visiting: http://mootools.net/more/35e6a5fbeab78380421c63debfce3b7c 
-// Or build this file again with packager using: packager build More/Event.Pseudos More.Element.Event.Pseudos More/Class.Refactor More/Class.Binds More/Date More/Hash More/Elements.From More/Element.Measure More/Element.Forms More/Fx.Elements More/Fx.Accordion More/Fx.Move More/Fx.Reveal More/Fx.Scroll More/Fx.Slide More/Drag More/Drag.Move More/Slider More/Assets More/Color More/Keyboard More/Keyboard.Extras
 /*
 ---
 

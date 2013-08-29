@@ -1,8 +1,7 @@
-
-
-
 var whitespace = /\s/,
     notwhitespace = /\S+$/;
+
+ui.Behaviour = new Behavior();
 
 //my helper functions
 //returns itself
@@ -15,7 +14,7 @@ var join = function(by, xs) {
     },
 
     restRight = _.autoCurry(function(xs) {
-        return xs.slice(0, xs.length-1);
+        return xs.slice(0, xs.length - 1);
     }),
 
     test = _.autoCurry(function(reg, str) {
@@ -39,24 +38,21 @@ var join = function(by, xs) {
     joinEmpty = _.partial(join, ""),
 
     // splitEmpty = split(""),
-
-    joinComma = util.joinChans = _.partial(join,","),
+    joinComma = util.joinChans = _.partial(join, ","),
 
     // splitComma = split(","),
-
     concatUnique = _.compose(_.uniq, Array.concat),
 
     concatSep = _.autoCurry(function(sep, s1, s2) {
-        if(_.isArray(s1)) {
+        if (_.isArray(s1)) {
             s1 = s1.join(sep);
         }
-        if(_.isArray(s2)) {
+        if (_.isArray(s2)) {
             s2 = s2.join(sep);
         }
-        if(s1 !== "" && s2 !== "") {
+        if (s1 !== "" && s2 !== "") {
             return s1 + sep + s2;
-        }
-        else {
+        } else {
             return s1 + s2;
         }
     }),
@@ -67,8 +63,8 @@ util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
 
-util.formatterSafe = function (str, object, regexp){//if property not found string is not replaced
-    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
+util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
+    return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
         if (match.charAt(0) == '\\') return match.slice(1);
         return (object[name] != null) ? object[name] : match;
     });
@@ -84,26 +80,25 @@ util.hostToHost = _.compose(Array.getLast, splitBang);
 var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
 
     formatChannel = util.formatChannel = function(chan) {
-        if(chan.length >= 1 && !isChannel(chan)) {
+        if (chan.length >= 1 && !isChannel(chan)) {
             chan = '#' + chan;
         }
         return chan;
     },
 
     unformatChannel = util.unformatChannel = function(chan) {
-        if(isChannel(chan)) {
+        if (isChannel(chan)) {
             chan = chan.slice(1);
         }
         return chan;
     },
 
-    appendChannel = function(chans,chan) {
+    appendChannel = function(chans, chan) {
         return $A(chans).concat(chan);
     },
 
     splitChan = util.splitChans = function(xs) {
-        if(_.isArray(xs))
-            return xs.length > 0 ? xs : [""];
+        if (_.isArray(xs)) return xs.length > 0 ? xs : [""];
         return xs.split(",");
     },
 
@@ -123,27 +118,99 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatCha
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
-util.addChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */appendChannel);
+util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
-util.prependChannel = _.compose(/*joinComma,*/ _.uniq,/* splitChan, */_.flip(appendChannel));
+util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
 
 
 //calls splits string by comma then calls array.erase on value
 util.removeChannel = Array.erase;
 
+(function() {
+/*
+ * taken from https://github.com/martynsmith/node-irc
+ * parseMessage(line, stripColors)
+ *
+ * takes a raw "line" from the IRC server and turns it into an object with
+ * useful keys
+ * ":OCD!~OCD@76.72.16.142 PRIVMSG #tf2mix :mix servers are down. join mumble for an inhouse pug." => {"prefix":"OCD!~OCD@76.72.16.142","nick":"OCD","user":"~OCD","host":"76.72.16.142","command":"PRIVMSG","rawCommand":"PRIVMSG","commandType":"normal","args":["#tf2mix","mix servers are down. join mumble for an inhouse pug."]}
+ */
+
+var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
+    hasprefix_re = /^:([^ ]+) +/,
+    colonrem_re = /^:[^ ]+ +/,
+    command_re = /^([^ ]+) */,
+    data_re = /^[^ ]+ +/;
+util.parseIRCData = function(line/*, stripColors*/) { // {{{
+    var message = {
+        'raw': line,
+        'prefix': ''
+    };
+    var match;
+
+    /*if (stripColors) {
+        line = line.replace(/[\x02\x1f\x16\x0f]|\x03\d{0,2}(?:,\d{0,2})?/g, "");
+    }*/
+
+    // Parse prefix
+    if (match = line.match(hasprefix_re)) {
+        message.prefix = match[1];
+        line = line.replace(colonrem_re, '');
+        if (match = message.prefix.match(prefix_re)) {
+            message.nick = match[1];
+            message.user = match[3];
+            message.host = match[4];
+        } else {
+            message.server = message.prefix;
+        }
+    }
+
+    // Parse command
+    match = line.match(command_re);
+    message.command = match[1].toUpperCase();
+    message.rawCommand = match[1];
+    message.commandType = 'normal';
+    line = line.replace(data_re, '');
+
+    if (irc.Numerics2[message.rawCommand]) {
+        message.command = irc.Numerics2[message.rawCommand].name.toUpperCase();
+        message.commandType = irc.Numerics2[message.rawCommand].type;
+    }
+
+    message.args = [];
+    var middle, trailing;
+
+    // Parse parameters
+    if (line.search(/^:|\s+:/) != -1) {
+        match = line.match(/(.*?)(?:^:|\s+:)(.*)/);
+        middle = match[1].trimRight();
+        trailing = match[2];
+    } else {
+        middle = line;
+    }
+
+    if (middle.length) message.args = middle.split(/ +/);
+
+    if (typeof(trailing) != 'undefined' && trailing.length) message.args.push(trailing);
+
+    return message;
+};
+})();
+
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
-        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1);//qweb issue #349
+        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1); //qweb issue #349
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
     return cmdline.splitMax(" ", 2); //split command from the params
 };
-
 util.nickChanComparitor = function(client, nickHash) {
     var _prefixes = client.prefixes,
         _prefixNone = _prefixes.length,
-        prefixWeight = function(pre) { return pre.length !== 0 ? _prefixes.indexOf(pre) : _prefixNone ; },
+        prefixWeight = function(pre) {
+            return pre.length !== 0 ? _prefixes.indexOf(pre) : _prefixNone;
+        },
         toLower = client.toIRCLower;
     //compares two nick names by channel status > lexigraphy
     return function(nick1, nick2) {
@@ -153,7 +220,7 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b')
+util.nickPrefixer = function(nickHash) { //_.lambda('a -> b -> a[b].prefixes + b')
     return function(nick) {
         return nickHash[nick].prefixes + nick;
     };
@@ -162,8 +229,7 @@ util.nickPrefixer = function(nickHash) {//_.lambda('a -> b -> a[b].prefixes + b'
 util.validPrefix = _.contains;
 
 util.addPrefix = function(nc, pref, prefs) {
-    if(prefs && !util.validPrefix(prefs, pref))
-        return nc.prefixes;
+    if (prefs && !util.validPrefix(prefs, pref)) return nc.prefixes;
     return nc.prefixes = concatUnique(nc.prefixes, pref).join("");
 };
 
@@ -186,18 +252,17 @@ util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
 })
 
-util.testForNick = function(nick, text) {//http://jsperf.com/new-regexp-vs-memoize/2
+util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
     return test(util.createNickRegex(nick), text);
 };
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
-    if (lower == client.lowerNickname)
-        return null;
+    if (lower == client.lowerNickname) return null;
 
     var hash = 0;
     for (var i = 0; i < lower.length; i++)
-        hash = 31 * hash + lower.charCodeAt(i);
+    hash = 31 * hash + lower.charCodeAt(i);
 
     var hue = Math.abs(hash) % 360;
 
@@ -219,19 +284,27 @@ irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke,
 irc.ASCIItoIRCLower = String.toLowerCase;
 
 util.getStyleByName = function(name) {
-    return _.findWhere(irc.styles, {name:name});
+    return _.findWhere(irc.styles, {
+        name: name
+    });
 };
 
 util.getStyleByKey = function(key) {
-    return _.findWhere(irc.styles, {key: _.toInt(key)});
+    return _.findWhere(irc.styles, {
+        key: _.toInt(key)
+    });
 };
 
 util.getColourByName = function(name) {
-    return _.findWhere(irc.colours, {name:name});
+    return _.findWhere(irc.colours, {
+        name: name
+    });
 };
 
 util.getColourByKey = function(key) {
-    return _.findWhere(irc.colours, {key: _.toInt(key)});
+    return _.findWhere(irc.colours, {
+        key: _.toInt(key)
+    });
 };
 
 // returns the arguments 
@@ -249,8 +322,7 @@ util.parseURI = function(uri) {
 
     for (var i = 0; i < args.length; i++) {
         var part = args[i].splitMax("=", 2);
-        if (part.length > 1)
-            result[unescape(part[0])] = unescape(part[1]);
+        if (part.length > 1) result[unescape(part[0])] = unescape(part[1]);
     }
 
     return result;
@@ -320,7 +392,7 @@ irc.nickChanEntry = function(p, l) {
     };
 };
 
-util.noop = function(){};
+util.noop = function() {};
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
@@ -330,4 +402,3 @@ util.generateID = (function() {
         return "qqa-" + id++;
     };
 })();
-

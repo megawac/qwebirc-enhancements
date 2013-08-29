@@ -3,8 +3,6 @@ ui.StandardUI = new Class({
     Extends: ui.BaseUI,
     Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "updateStylesheet"],
 
-    __styleValues: {},
-
     UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, theme, windowClass, uiName, options) {
         var self = this;
@@ -12,16 +10,14 @@ ui.StandardUI = new Class({
 
         self.theme = theme;
 
-
-        self.tabCompleter = new ui.TabCompleterFactory(self);
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
         self.uiOptions2 = new config.OptionModel({
             defaults: self.options.uiOptionsArg
         }, {
             onInit: function() {//merge where necessary
                 var model = this;
-                ["notify_on_mention", "notify_on_pm", "notify_on_notice"].each(function(type) {
-                    var notifier = self.theme.messageParsers.filter(function(n) { return n.id === type; })[0],
+                _.each(["notify_on_mention", "notify_on_pm", "notify_on_notice"], function(type) {
+                    var notifier = _.filter(self.theme.messageParsers, function(n) { return n.id === type; })[0],
                         set = model.get(type);
                     _.merge(notifier, set);
 
@@ -32,7 +28,7 @@ ui.StandardUI = new Class({
             }
         });
 
-        function setCustoms(notices) {
+        function setCustomNotice(notices) {
             self.theme.customNotices = _.chain(notices).clone()
                 .reject(function(data) {
                     return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
@@ -46,7 +42,7 @@ ui.StandardUI = new Class({
                 })
                 .value();
         }
-        function setSNotice(notices) {
+        function setStandardNotice(notices) {
             _.each(self.theme.messageParsers, function(parser) {
                 if( _.has(notices, parser.id) )
                     _.extend(parser, notices[parser.id]);
@@ -54,24 +50,22 @@ ui.StandardUI = new Class({
         }
 
         self.uiOptions2.on({
-            "change:style_hue": function(hue) {
-                self.updateStylesheet({
-                    hue: hue
-                })
+            "change:style_hue": function(style_hue) {
+                self.updateStylesheet();
             },
             "change:font_size": self.updateStylesheet,
-            "change:custom_notices": setCustoms,
-            "change:notices": setSNotice
+            "change:custom_notices": setCustomNotice,
+            "change:notices": setStandardNotice
         });
-        setCustoms(self.uiOptions2.get("custom_notices"));
-        setSNotice(self.uiOptions2.get("notices"));
+        setCustomNotice(self.uiOptions2.get("custom_notices"));
+        setStandardNotice(self.uiOptions2.get("notices"));
 
         self.customWindows = {};
 
         self.setModifiableStylesheet({
-            hue: self.options.hue || self.uiOptions2.get("style_hue"),
-            saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
-            lightness: self.options.lightness || self.uiOptions2.get("style_brightness")
+            style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
+            style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
+            style_brightness: self.options.brightness || self.uiOptions2.get("style_brightness")
         });
     },
 
@@ -194,12 +188,6 @@ ui.StandardUI = new Class({
             client.exec("/JOIN " + chan);
     },
 
-    tabComplete: function(element) {
-        this.tabCompleter.tabComplete(element);
-    },
-    resetTabComplete: function() {
-        this.tabCompleter.reset();
-    },
     setModifiableStylesheet: function(vals) {
         this.__styleSheet = new Element("style", {
                                 type: "text/css",
@@ -208,12 +196,12 @@ ui.StandardUI = new Class({
         this.updateStylesheet(vals);
     },
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
-        var styles = _.extend(this.__styleValues, this.uiOptions2.toJSON(), values);
+        var styles = _.extend({}, Browser, this.uiOptions2.toJSON(), values);
         var stylesheet = templates.modifiablecss(styles);
         var node = this.__styleSheet;
 
-        if (node.styleSheet) { /* old IE */
-            node.styleSheet.set("cssText", stylesheet);
+        if (node.styleSheet) { /* ie */
+            node.styleSheet.cssText = stylesheet;
         } else {
             node.empty()
                 .appendText(stylesheet);

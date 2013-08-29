@@ -1,6 +1,7 @@
 {{! Note this is a handlebars template. Changing values in here requires a grunt rebuild}}
 {{! $css helper contract is f: property_name default_val type default_val2 -> string}}
 {{! not $css generally the context (for property names) is the uiOptions values see ui/standardUI for implementation}}
+{{! update the Browser object is also now part of the context so you can do #if ie6 or something}}
 #ircui {
     height: 100%;
     width: 100%;
@@ -8,7 +9,7 @@
     font-family: Verdana, sans-serif;
 }
 
-.qui .hidden, .qui .tab-invisible {
+.qui .hidden, .qui .invisible {
     display: none;
 }
 
@@ -93,29 +94,33 @@
 .qui .outertabbar {    
     border-bottom: 1px solid {{$css 'tabbar_border' 'c3cee0' 'c'}};
     background: {{$css 'tabbar_background' 'e2ecf9' 'c'}};
+    height: 26px;
+    line-height: 20px;
+    padding: 2px 0;
+    vertical-align: middle;
 }
 
 .qui .tabbar {
-    font-size: 0.8em;
     color: {{$css 'tabbar_text' '000000' 'c'}};
-    line-height: 24px;
     display: inline-block;
-    overflow-x: hidden;
+    /*overflow-x: hidden;*/
     margin-left: 10px;
     font-size: 13px;
+    height: 22px;
 }
 
 .qui .tabbar .tab {
-    border: 1px solid {{$css 'tab_border' 'c8d2dc' 'c'}};
     padding: 2px;
     cursor: default;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
     margin-right: 3px;
     white-space: nowrap;
-    text-decoration: none;
-    color: {{$css 'tab_text' '000000' 'c'}};
     font-weight: bold;
+
+    color: {{$css 'tab_text' '000000' 'c'}};
+    border: 1px solid {{$css 'tab_border' 'c8d2dc' 'c'}};
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
 }
 
 .qui .tabbar .tab:hover {
@@ -125,21 +130,21 @@
     -webkit-border-radius: 4px;
 }
 
-.qui .tabbar .tab-hilight-activity.tab {
+.qui .tabbar .hilight-activity.tab {
     color: #009900;
 }
 
-.qui .tabbar .tab-hilight-speech.tab {
+.qui .tabbar .hilight-speech.tab {
     color: #0000ff;
 }
 
-.qui .tabbar .tab-hilight-us.tab {
+.qui .tabbar .hilight-us.tab {
     color: #ff0000;
     background: rgb(216, 216, 138);
 }
 
 .qui .tabbar .brouhaha {
-    width: 80px;
+    padding-left: 75px;
     background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
@@ -166,7 +171,7 @@
     background-position: 0 0, 1px 0, 1px -1px, 0px 1px;
 }
 
-.qui .tabbar .brouhaha.tab-selected {
+.qui .tabbar .brouhaha.selected {
     /* background: rgb(255,214,94); Old browsers
     background: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+
     background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+
@@ -177,7 +182,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */
 }
 
-.qui .tabbar .brouhaha.tab-unselected {
+.qui .tabbar .brouhaha.unselected {
     /* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
@@ -205,7 +210,7 @@
 }
 
 
-.qui .tabbar .tab-selected.tab {
+.qui .tabbar .selected.tab {
     background: {{$css 'tab_selected' 'ffffff' 'c'}};
     border: 1px solid {{$css 'tab_selected_border' 'c8d2dc' 'c'}};
     -moz-border-radius: 4px;
@@ -213,16 +218,16 @@
     color: {{$css 'tab_selected_text' '333333' 'c'}};
 }
 
-.qui .tab-buttons {
+.qui .buttons {
     display: none;
 }
 
-.qui.signed-in .tab-buttons {
+.qui.signed-in .buttons {
     display: inline-block;
     cursor: pointer;
 }
 
-.tab-buttons span {
+.buttons span {
     vertical-align: middle;
     display: inline-block;
 }
@@ -242,31 +247,31 @@
     width: 100%;
 }
 
-.input div > .input-group-addon {
+.qui .input div > .input-group-addon {
     cursor:pointer;cursor:hand;
     padding: 2px 5px;
 }
 
-.input div > * {
+.qui .input div > * {
     height: 24px;
 }
 
-.input .nickname {
+.qui .input .nickname {
     color: #524F50;
     font-size: 14px;
 }
 
-.input .nickname .status {
+.qui .input .nickname .status {
     border-radius: 50%;
     display: inline-block;
     margin-right: 3px;
 }
 
-.input .nickname:hover {
+.qui .input .nickname:hover {
     
 }
 
-.input .nickname .status.voice {
+.qui .input .nickname .status.voice {
     width: 8px;
     height: 8px;
     background-color: rgb(223, 187, 47);
@@ -292,7 +297,7 @@
     -o-animation-timing-function: linear;
 }
 
-.input .nickname .status.op {
+.qui .input .nickname .status.op {
     width: 8px;
     height: 8px;
     background-color: #7AE60E;
@@ -318,13 +323,19 @@
     -o-animation-timing-function: linear;
 }
 
-.input .input-field {
+.qui .input .input-field {
+    border: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
+    padding: 0;
+    height: 26px;
+    text-indent: 5px;
+}
+
+.qui .input .tt-hint {
     background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
-
     background-image: -webkit-gradient(
         linear,
         left bottom,
@@ -332,14 +343,29 @@
         color-stop(0.54, rgb(235,235,232)),
         color-stop(0.66, rgb(247,250,240))
     );
-
-    border: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
     padding: 0;
     height: 26px;
     text-indent: 5px;
 }
 
-.input .btn.send {
+/*twitter typeahead inspired autocomplete using overlay input box*/
+.qui .tt-hint {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-color: transparent;
+    box-shadow: none;
+    color: #BDBDBD;
+}
+
+.qui .tt-query {
+    position: relative;
+    vertical-align: top;
+    background-color: transparent;
+}
+/*typeahead*/
+
+.qui .input .btn.send {
     color: grey;
     padding: 2px 10px;
 }
@@ -401,8 +427,8 @@
 
 .qui .outertabbar .dropdown-tab {
     cursor: pointer; cursor: hand;
-    float: left;
-    padding: 3px 4px 0;
+    display: inline-block;
+    padding-left: 4px;
     width: 30px;
 }
 
@@ -410,15 +436,16 @@
     z-index: 100;
     border: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
     background: {{$css 'menu_background' 'f2f0ff' 'c'}};
+    list-style: none;
+    padding: 5px 10px;
+    font-size: 0.7em;
 }
 
 .qui .dropdownmenu a {
-    display: block;
-    font-size: 0.7em;
     color: black;
     cursor: pointer;
     cursor: hand;
-    padding: 1px 3px;
+    padding-top: 3px;
 }
 
 .qui .dropdownmenu a:hover {

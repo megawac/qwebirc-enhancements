@@ -34,7 +34,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     font-family: Verdana, sans-serif;
 }
 
-.qui .hidden, .qui .tab-invisible {
+.qui .hidden, .qui .invisible {
     display: none;
 }
 
@@ -157,15 +157,15 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     -webkit-border-radius: 4px;
 }
 
-.qui .tabbar .tab-hilight-activity.tab {
+.qui .tabbar .highlight-activity.tab {
     color: #009900;
 }
 
-.qui .tabbar .tab-hilight-speech.tab {
+.qui .tabbar .highlight-speech.tab {
     color: #0000ff;
 }
 
-.qui .tabbar .tab-hilight-us.tab {
+.qui .tabbar .highlight-us.tab {
     color: #ff0000;
     background: rgb(216, 216, 138);
 }
@@ -198,7 +198,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     background-position: 0 0, 1px 0, 1px -1px, 0px 1px;
 }
 
-.qui .tabbar .brouhaha.tab-selected {
+.qui .tabbar .brouhaha.selected {
     /* background: rgb(255,214,94); Old browsers
     background: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+
     background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+
@@ -209,7 +209,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */
 }
 
-.qui .tabbar .brouhaha.tab-unselected {
+.qui .tabbar .brouhaha.unselected {
     /* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
         -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
@@ -237,7 +237,7 @@ timestamp_padding_left=o,show_timestamps,1em,11px
 }
 
 
-.qui .tabbar .tab-selected.tab {
+.qui .tabbar .selected.tab {
     background: $(tab_selected);
     border: 1px solid $(tab_selected_border);
     -moz-border-radius: 4px;
@@ -245,16 +245,16 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     color: $(tab_selected_text);
 }
 
-.qui .tab-buttons {
+.qui .buttons {
     display: none;
 }
 
-.qui.signed-in .tab-buttons {
+.qui.signed-in .buttons {
     display: inline-block;
     cursor: pointer;
 }
 
-.tab-buttons span {
+.buttons span {
     vertical-align: middle;
     display: inline-block;
 }
@@ -461,15 +461,15 @@ timestamp_padding_left=o,show_timestamps,1em,11px
     z-index: 100;
     border: 1px solid $(menu_border);
     background: $(menu_background);
+    list-style: none;
+    padding: 5px;
+    font-size: 0.7em;
 }
 
 .qui .dropdownmenu a {
-    display: block;
-    font-size: 0.7em;
     color: black;
     cursor: pointer;
     cursor: hand;
-    padding: 1px 3px;
 }
 
 .qui .dropdownmenu a:hover {

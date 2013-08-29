@@ -70,12 +70,22 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     src: ['js/dist/qwebirc-0.93dev.js'],
-                    dest: 'demo/static/'
+                    dest: 'demo/node/static/'
                 },
                 {
                     expand: true,
                     src: ['css/*.css', 'css/*.mcss'],
-                    dest: 'demo/static/'
+                    dest: 'demo/node/static/'
+                },
+                {
+                    expand: true,
+                    src: ['js/dist/qwebirc-0.93dev.js'],
+                    dest: 'demo/twisted/static/'
+                },
+                {
+                    expand: true,
+                    src: ['css/*.css', 'css/*.mcss'],
+                    dest: 'demo/twisted/static/'
                 }]
             }
         },

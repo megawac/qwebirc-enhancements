@@ -41,7 +41,7 @@
 
     source.tabbar = "<div class='tabbar'></div>";
     source.tabbarbtns = [
-    "<div class='tab-buttons'>",
+    "<div class='buttons'>",
         "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
         "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
         "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
@@ -72,7 +72,7 @@
     engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
         if(type === "c") {//colour
             var x = new Color(def);
-            var c = x.setHue(this.hue).setSaturation(x.hsb[1] + this.saturation).setBrightness(x.hsb[2] + this.lightness);
+            var c = x.setHue(this.style_hue).setSaturation(x.hsb[1] + this.style_saturation).setBrightness(x.hsb[2] + this.style_brightness);
             if (Browser.ie && c == "255,255,255") c = "255,255,254";// IE confuses white with transparent... 
             
             return "rgb(" + c + ")";
