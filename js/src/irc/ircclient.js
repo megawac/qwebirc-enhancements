@@ -35,6 +35,50 @@ irc.IRCClient = new Class({
         self.newWindow(BROUHAHA, qwebirc.ui.WINDOW_CHANNEL, false, false);
     },
 
+
+    connected: function() {
+        // this.newServerLine("CONNECT");
+        this.trigger("connect", {});
+        this.parent();
+    },
+
+    quit: function(message) {
+        this.send("QUIT :" + (message || lang.quit.message), true);
+        this.disconnect();
+        this.trigger("quit", {message: message});
+    },
+
+    disconnect: function() {
+        // for (var k in this.activeTimers) {
+        //     this.activeTimers[k].cancel();
+        // }
+        _.each(this.activeTimers, $clear);
+        this.activeTimers = {};
+        this.writeMessages(lang.disconnected);
+        this.trigger("disconnect", {message: lang.disconnected});
+
+        this.parent();
+    },
+
+    disconnected: function(message) {
+        _.each(this.windows, function(win) {
+            if (util.isChannelType(win.type))
+                win.close();
+        });
+        delete this.tracker;
+        this.trigger("disconnect", {
+            message: message
+        });
+    },
+
+    retry: function(data) {
+        this.trigger("retry", {
+            message: util.formatter(lang.connRetry, {
+                next: (data.next/1000).round(1)
+            })
+        });
+    },
+
     newLine: function(winID, type, data) {
         if (!data) data = {};
 
@@ -846,25 +890,6 @@ irc.IRCClient = new Class({
         }, this);
     },
 
-    disconnected: function(message) {
-        _.each(this.windows, function(win) {
-            if (util.isChannelType(win.type))
-                win.close();
-        });
-        // for (var wid in this.windows) {
-        //     var win = this.windows[wid];
-        //     if (util.isChannelType(win.type))
-        //         win.close();
-        // }
-        delete this.tracker;
-
-        // this.newServerLine("DISCONNECT", {
-        //     "m": message
-        // });
-        this.trigger("disconnect", {
-            message: message
-        })
-    },
 
     nickOnChanHasPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
@@ -906,34 +931,11 @@ irc.IRCClient = new Class({
         this.parent(key, value);
     },
 
-    connected: function() {
-        // this.newServerLine("CONNECT");
-        this.trigger("connect", {});
-    },
-
     serverError: function(message) {
         // this.newServerLine("ERROR", {
         //     "m": message
         // });
         this.trigger("error", {message:message})
-    },
-
-    quit: function(message) {
-        this.send("QUIT :" + (message || lang.quit.message), true);
-        this.disconnect();
-        this.trigger("quit", {message: message});
-    },
-
-    disconnect: function() {
-        // for (var k in this.activeTimers) {
-        //     this.activeTimers[k].cancel();
-        // }
-        _.each(this.activeTimers, $clear);
-        this.activeTimers = {};
-        this.writeMessages(lang.disconnected);
-        this.trigger("disconnect", {message: lang.disconnected});
-
-        this.parent();
     },
 
     awayMessage: function(nick, message) {

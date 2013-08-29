@@ -1,43 +1,55 @@
 //base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
-    Binds: ["dispatch"],
+    Binds: ["send", "lostConnection", "connected", "retry", "ndispatch", "tdispatch"],
 
     options: {
         nickname: "qwebirc",
         specialUserActions: []
     },
+    __signedOn: false,
+    channels: {},
+    nextctcp: 0,
+    pmodes: {
+        b: irc.PMODE_LIST,
+        l: irc.PMODE_SET_ONLY,
+        k: irc.PMODE_SET_UNSET,
+        o: irc.PMODE_SET_UNSET,
+        v: irc.PMODE_SET_UNSET
+    },
+
+    toIRCLower: irc.RFC1459toIRCLower,//default text codec
 
     initialize: function(options) {
         var self = this;
-        self.setOptions(options);
-        var opts = self.options;
-
-        self.toIRCLower = irc.RFC1459toIRCLower; //default text codec
+        options = self.setOptions(options).options;
 
         self.nickname = options.nickname;
         self.lowerNickname = self.toIRCLower(self.nickname);
 
-        self.__signedOn = false;
-        self.pmodes = {
-            b: irc.PMODE_LIST,
-            l: irc.PMODE_SET_ONLY,
-            k: irc.PMODE_SET_UNSET,
-            o: irc.PMODE_SET_UNSET,
-            v: irc.PMODE_SET_UNSET
-        };
-        self.channels = {};
-        self.nextctcp = 0;
-
-        var conn = self.connection = new irc.IRCConnection({
-            gamesurge: opts.gamesurge,
-            initialNickname: self.nickname,
-            onRecv: self.dispatch,
-            password: opts.password,
-            serverPassword: opts.serverPassword
-        });
-
-        self.send = conn.send;
+        if(options.node) {
+            var conn = self.connection = new irc.NodeConnection({
+                account: options.account,
+                nickname: self.nickname,
+                password: options.password,
+                serverPassword: options.serverPassword
+            });
+            conn.addEvents({
+                "recv": self.ndispatch,
+                "quit": self.quit,
+                "retry": self.retry,
+                "connected": self.connected,
+                "lostConnection": self.lostConnection
+            });
+        } else {
+            self.connection = new irc.TwistedConnection({
+                account: options.account,
+                initialNickname: self.nickname,
+                password: options.password,
+                serverPassword: options.serverPassword
+            });
+            self.connection.addEvent("recv", self.tdispatch);
+        }
 
         self.setupGenericErrors();
     },
@@ -47,16 +59,35 @@ irc.BaseIRCClient = new Class({
         return this.fireEvent(type, [type, data]);
     },
 
+    connected: function() {
+    },
+
     connect: function() {
         return this.connection.connect();
     },
 
     disconnect: function() {
-        this.disconnected = true;
         return this.connection.disconnect();
     },
 
-    dispatch: function(data) {
+    retry: util.noop,
+
+    lostConnection: function() {
+    },
+
+    send: function(data) {
+        return this.connection.send(data);
+    },
+
+    ndispatch: function(data) {
+        var fn = this["irc_" + data.command];
+
+        if (!(fn && fn.call(this, data.prefix, data.args))) {//fn dne or does not return true
+            this.rawNumeric(data.command, data.prefix, data.args);
+        }
+    },
+
+    tdispatch: function(data) {
         var message = data[0];
         switch(message) {
             case "connect":
@@ -88,32 +119,34 @@ irc.BaseIRCClient = new Class({
         }
     },
 
+
     supported: function(key, value) {
+        var self = this;
         switch(key) {
             case "CASEMAPPING":
                 if (value === "ascii") {
-                    this.toIRCLower = irc.ASCIItoIRCLower;
+                    self.toIRCLower = irc.ASCIItoIRCLower;
                 } else if (value === "rfc1459") {
                     //default
                 } else {
                     // TODO: warn 
                     console.log('unsupported codec');
                 }
-                this.lowerNickname = this.toIRCLower(this.nickname); //why does this happen here
+                self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
             break;
             case "CHANMODES":
                 value.split(",").each(function(mode, inx) {
-                    Array.each(mode, function(letter) {
-                        this.pmodes[letter] = inx;
-                    }, this);
-                }, this);
+                    _.each(mode, function(letter) {
+                        self.pmodes[letter] = inx;
+                    });
+                });
             break;
             case "PREFIX":
-                var len = (value.length - 2) / 2, //i think this accounts the double underscore
+                var len = (value.length - 2) / 2,
                     modeprefixes = value.substr(1, len);
-                Array.each(modeprefixes, function(modeprefix) {
-                    this.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
-                }, this);
+                _.each(modeprefixes, function(modeprefix) {
+                    self.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
+                });
             break;
         }
     },
@@ -625,7 +658,7 @@ irc.BaseIRCClient = new Class({
         return !this.hidelistout;
     },
 
-    irc_RPL_LISTITEM: function(bot, args) {
+    irc_RPL_LIST: function(bot, args) {
         this.listedChans.push({
             channel: args[1],
             users: _.toInt(args[2]),

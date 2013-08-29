@@ -1,0 +1,14 @@
+{
+    "name" : "qwebirc",
+    "description": "socket.io irc server for qwebirc",
+    "repository": "https://github.com/megawac/qwebirc-enhancements",
+    "version" : "0.0.1",
+    "author": {
+        "name": "Graeme Yeates",
+        "email": "megawac@gmail.com"
+    },
+    "dependencies" : {
+        "socket.io": "0.9.x",
+        "express": "3.3.x"
+    }
+}

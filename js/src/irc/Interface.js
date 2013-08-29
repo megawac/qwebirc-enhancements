@@ -2,7 +2,8 @@
 ui.Interface = new Class({
     Implements: [Options, Events],
     options: {
-        baseURL: 'atf2.org',
+        node: false,//use the node implementation with socket.io
+
         dynamicBaseURL: "/",
         staticBaseURL: "/",
         searchURL: true,
@@ -22,6 +23,15 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
+        sounds: {
+            minSoundRepeatInterval: 5000
+        },
+
+        icons: {
+            empty_favicon: "images/empty_favicon.ico",
+            menuicon: "images/icon.png"
+        },
+
         loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
 
@@ -32,24 +42,10 @@ ui.Interface = new Class({
         var self = this,
             opts = self.options;
 
-        var sbaseurl = opts.staticBaseURL;
         qwebirc.global = {
             dynamicBaseURL: opts.dynamicBaseURL,
-            staticBaseURL: sbaseurl,
+            staticBaseURL: opts.staticBaseURL,
             nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
-        };
-
-        opts.icons = {
-            //favicon: sbaseurl + "images/favicon.png",
-            empty_favicon: sbaseurl + "images/empty_favicon.ico",
-            menuicon: sbaseurl + "images/icon.png"
-        };
-
-        opts.sounds = {
-            //soundManagersrc: sbaseurl + "js/soundmanager2-nodebug-jsmin.js",
-            sounds: sbaseurl + "sound",
-            beepsrc: "/beep3.mp3",
-            minSoundRepeatInterval: 5000
         };
 
         opts.specialUserActions = [ //special actions to take when particular users speak
@@ -73,15 +69,6 @@ ui.Interface = new Class({
             //cleans up old properties
             if(storage.get('__clean') !== false)
                 self.cleanUp();
-
-            // var cookopts = opts.cookieOpts;
-            //cookies to store connection details
-            var authCookies = {
-                nick: new Storer("nickname"),//initial nick
-                user: new Storer("gamesurge"),//auth account
-                pass: new Storer("password"),//auth password
-                auth: new Storer("enableAuth")//enable full auth
-            };
 
             if (opts.searchURL) {
                 var args = util.parseURI(document.location.toString()),
@@ -156,10 +143,10 @@ ui.Interface = new Class({
             inick = opts.initialNickname;
             //}
 
-            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName, authCookies);
+            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
 
             self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices']), loginopts);
+                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']), loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
                 client.connect();
