@@ -1,6 +1,8 @@
 *.sublime*
 *.dropbox
 node_modules/
+js/contentscript.js
+manifest.json
 
 # Compiled source #
 ###################

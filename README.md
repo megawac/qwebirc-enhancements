@@ -16,42 +16,42 @@ Done:
     	-redid url parser to be easier to add patterns  
         -reduced network bandwidth load  
     -various new ui features and fixes  
+        -ie detachable windows and resizable components  
 	-fixed tab overflow not showing  
     	-better scrolling implementation  
         -code quality improvements (more dry and intuitive and less hacky)  
     -join-flood detection   
-    -Rewrote options using mv* style  
+    -Rewrote options and windows using mv* style  
 -rewrote irc colouriser and moved to theme  
 -rewrote urlifier and moved to theme + module  
+-moved modifiable css to a precompiled handlebars template  
+-fix some memory leaks
+
   
   
 TODOs:  
--fix split panes   
 -add options for:  
     -notifying on selected text/regex  
         -configure notification type per option  
         -store commands between sessions  
         -configure hotkeys  
         -write tab styles for options page and maybe rewrite the tabifier for all windows  
--create hotkey handlers using keyboard interface  
+-create hotkey handlers using keyboard interface and make configurable  
 -move the embedded wizard to a seperate module (to be imported like privacy pol etc)  
--finish decoupling client from ui  
--write socket connection class for when available - needs server coded as well.  
--fixes for all my blunders  
--get rid of compile.py + dependencies  
--Move broadcast to #brouhaha to the ui so each line only needs to be processed once.  
+-finish decoupling client from ui (90% there)  
+-write socket connection class for when available - needs server coded as well.   
+-Process lines for brouhaha and the proper window once  
   
   
 KNOWN BUGS:  
 -Opera ui is bugged due to https://github.com/mootools/mootools-core/issues/2325  
--Split panes are buggy (disabled currently)  
 -urls arent being matched if they are coloured eg \x03www.google.ca\x03  
     -move prefix patterns to seperate function and take regex class [\x03-\x15] or something  
 -Notices are sent to the wrong window (always to status window...)  
 
-End Goals (some day...):
+End Goals (some day...):  
 -make client portable enough (maybe with mootools and jquery amd versions) to be enabled as an overlay  
--make client ui easily extensible by just configuring some MV* view  
+-make client ui easily extensible by just simple MV* view configuration  
 
 DEMO:  
 To run the demo:  
@@ -59,4 +59,4 @@ To run the demo:
 2) Start demo\run.py  
 3) Navigate to 127.0.0.1:9090  
   
-If you make changes send a pull request :) 
+Code is almost stable. Currently finishing remimplementing and bug testing some features and it should be ready for production. I hope to get a server up with the app soon - money's short :(.
