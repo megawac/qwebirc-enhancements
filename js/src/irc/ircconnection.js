@@ -319,8 +319,7 @@ irc.NodeConnection = new Class({
     Binds: ["recv", "error", "_connected", "_disconnected"],
     options: {
         socket: {
-            url: document.location.hostname,
-            port: 80
+            url: document.location.hostname
         },
         nickname: "ircconnX",
         password: '',
@@ -358,7 +357,7 @@ irc.NodeConnection = new Class({
     initialize: function(options) {
         var self = this;
         self.setOptions(options);
-        var ip = util.formatter("{url}:{port}", self.options.socket);
+        var ip = util.formatter("{url}", self.options.socket);
         var socket = self.socket = io.connect(ip);
 
         var $evts = {
@@ -385,7 +384,7 @@ irc.NodeConnection = new Class({
     },
 
     connect: function() {
-        this.socket.emit("irc", this.options.nickname, this.options);
+        this.socket.emit("irc", this.options);
     },
 
     //irc connection on server in

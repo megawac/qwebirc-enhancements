@@ -1,4 +1,3 @@
-
 /*
     irc.js - Node JS IRC client library
 
@@ -18,221 +17,173 @@
     along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-exports.Client = Client;
-var net  = require('net');
+var net = require('net');
 var util = require('util');
-var tls  = require('tls');
+var tls = require('tls');
+var _ = require('underscore');
 
-// var colors = require('./colors');
-// exports.colors = colors;
+var DEFAULT_OPTIONS = {
+    server: '',
+    nickname: null,
+    password: null,
+    username: null,
+    realname: "a",
+    port: 6667,
+    debug: false,
+    showErrors: false,
+    autoRejoin: true,
+    autoConnect: true,
+    channels: [],
+    retryCount: 0,
+    retryDelay: 2000,
+    secure: false,
+    selfSigned: false,
+    certExpired: false,
+    floodProtection: false,
+    floodProtectionDelay: 1000,
+    stripColors: false,
+    channelPrefixes: "&#",
+    messageSplit: 512
+};
 
-// var replyFor = require('./codes');
-
-function Client(server, nick, opt) {
+function Client(server, opts) {
     var self = this;
-    self.opt = {
-        server: server,
-        nick: nick,
-        password: null,
-        userName: 'nodebot',
-        realName: 'nodeJS IRC client',
-        port: 6667,
-        debug: false,
-        showErrors: false,
-        autoRejoin: true,
-        autoConnect: true,
-        channels: [],
-        retryCount: 0,
-        retryDelay: 2000,
-        secure: false,
-        selfSigned: false,
-        certExpired: false,
-        floodProtection: false,
-        floodProtectionDelay: 1000,
-        stripColors: false,
-        channelPrefixes: "&#",
-        messageSplit: 512
-    };
-    
-    // Features supported by the server
-    // (initial values are RFC 1459 defaults. Zeros signify
-    // no default or unlimited value)
-    self.supported = {
-        channel: {
-            idlength: [],
-            length: 200,
-            limit: [],
-            modes: { a: '', b: '', c: '', d: ''},
-            types: self.opt.channelPrefixes
-        },
-        kicklength: 0,
-        maxlist: [],
-        maxtargets: [],
-        modes: 3,
-        nicklength: 9,
-        topiclength: 0,
-        usermodes: ''
-    };
+    var options = self.options = _.extend({}, DEFAULT_OPTIONS, opts);
+    options.server = server;//client cant touch server for now
 
-    if (typeof arguments[2] == 'object') {
-        var keys = Object.keys(self.opt);
-        for (var i = 0; i < keys.length; i++) {
-            var k = keys[i];
-            if (arguments[2][k] !== undefined)
-                self.opt[k] = arguments[2][k];
-        }
-    }
-
-    if (self.opt.floodProtection) {
+    if (options.floodProtection) {
         self.activateFloodProtection();
     }
 
     // TODO - fail if nick or server missing
     // TODO - fail if username has a space in it
-    if (self.opt.autoConnect === true) {
-      self.connect();
+    if (options.autoConnect === true) {
+        self.connect();
     }
 
-    process.EventEmitter.call(this);
+    process.EventEmitter.call(self);
 }
 
 util.inherits(Client, process.EventEmitter);
 
+Client.setDefaults = function(opts) {
+    _.extend(DEFAULT_OPTIONS, opts);
+};
+
 Client.prototype.conn = null;
-Client.prototype.connect = function ( retryCount, callback ) { // {{{
-    if ( typeof(retryCount) === 'function' ) {
+Client.prototype.connect = function(retryCount, callback) { // {{{
+    if (_.isFunction(retryCount)) {
         callback = retryCount;
-        retryCount = undefined;
+        retryCount = null;
     }
     retryCount = retryCount || 0;
-    if (typeof(callback) === 'function') {
-      this.once('registered', callback);
+    if (_.isFunction(callback)) {
+        this.once('registered', callback);
     }
     var self = this;
-    self.chans = {};
-    // try to connect to the server
-    if (self.opt.secure) {
-        var creds = self.opt.secure;
-        if (typeof self.opt.secure !== 'object') {
-            creds = {};
-        }
+    var options = self.options;
 
-        self.conn = tls.connect(self.opt.port, self.opt.server, creds, function() {
-           // callback called only after successful socket connection
-           self.conn.connected = true;
-           if (self.conn.authorized ||
-                (self.opt.selfSigned &&
-                   (self.conn.authorizationError === 'DEPTH_ZERO_SELF_SIGNED_CERT' ||
-                      self.conn.authorizationError === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE')) ||
-                (self.opt.certExpired &&
-                   self.conn.authorizationError === 'CERT_HAS_EXPIRED')) {
-              // authorization successful
-              self.conn.setEncoding('utf-8');
-                if ( self.opt.certExpired &&
-                   self.conn.authorizationError === 'CERT_HAS_EXPIRED' ) {
-                     util.log('Connecting to server with expired certificate');
-                }
-                if ( self.opt.password !==  null ) {
-                    self.send( "PASS", self.opt.password );
-                }
-                util.log('Sending irc NICK/USER');
-                self.send("NICK", self.opt.nick);
-                self.nick = self.opt.nick;
-                self.send("USER", self.opt.userName, 8, "*", self.opt.realName);
-                self.emit("connect");
-           } else {
-              // authorization failed
-             util.log(self.conn.authorizationError);
-           }
+    function connect() {
+        if (options.password !== null) {
+            self.send(util.format("PASS %s", options.password));
+        }
+        util.log('Sending irc NICK/USER');
+        self.send(util.format("NICK %s", options.nickname));
+        self.send(util.format("USER %s %d %s :%s", options.username, 8, "*", options.realname));
+        self.emit("connect");
+    }
+    // try to connect to the server
+    console.log("Secure connection: %s", options.secure);
+    if (options.secure) {
+        var creds = _.isObject(options.secure) ? options.secure : {};
+
+        self.conn = tls.connect(options.port, options.server, creds, function() {
+            // callback called only after successful socket connection
+            self.conn.connected = true;
+            if (self.conn.authorized || (options.selfSigned && (self.conn.authorizationError === 'DEPTH_ZERO_SELF_SIGNED_CERT' || self.conn.authorizationError === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE')) || (options.certExpired && self.conn.authorizationError === 'CERT_HAS_EXPIRED')) {
+                // authorization successful
+                self.conn.setEncoding('utf-8');
+                connect();
+            } else {
+                // authorization failed
+                util.log(self.conn.authorizationError);
+            }
         });
-    }else {
-        self.conn = net.createConnection(self.opt.port, self.opt.server);
+    } else {
+        console.log("Connecting to %s:%d", options.server, options.port);
+        self.conn = net.createConnection(options.port, options.server);
     }
     self.conn.requestedDisconnect = false;
     self.conn.setTimeout(0);
     self.conn.setEncoding('utf8');
-    self.conn.addListener("connect", function () {
-        if ( self.opt.password !==  null ) {
-            self.send( "PASS", self.opt.password );
-        }
-        self.send("NICK", self.opt.nick);
-        self.nick = self.opt.nick;
-        self.send("USER", self.opt.userName, 8, "*", self.opt.realName);
-        self.emit("connect");
-    });
+    self.conn.addListener("connect", connect);
     var buffer = '';
-    self.conn.addListener("data", function (chunk) {
+    self.conn.addListener("data", function(chunk) {
         buffer += chunk;
         var lines = buffer.split("\r\n");
         buffer = lines.pop();
-        lines.forEach(function (line) {
-            var message = line;//parseMessage(line, self.opt.stripColors);
+        lines.forEach(function(line) {
+            var message = line; //parseMessage(line, options.stripColors);
             try {
                 self.emit('raw', message);
-            } catch ( err ) {
-                if ( !self.conn.requestedDisconnect ) {
+            } catch (err) {
+                if (!self.conn.requestedDisconnect) {
                     throw err;
                 }
             }
         });
     });
     self.conn.addListener("end", function() {
-        if ( self.opt.debug )
-            util.log('Connection got "end" event');
+        if (options.debug) util.log('Connection got "end" event');
     });
     self.conn.addListener("close", function() {
-        if ( self.opt.debug )
-            util.log('Connection got "close" event');
-        if ( self.conn.requestedDisconnect )
-            return;
-        if ( self.opt.debug )
-            util.log('Disconnected: reconnecting');
-        if ( self.opt.retryCount !== null && retryCount >= self.opt.retryCount ) {
-            if ( self.opt.debug ) {
-                util.log( 'Maximum retry count (' + self.opt.retryCount + ') reached. Aborting' );
+        if (options.debug) util.log('Connection got "close" event');
+        if (self.conn.requestedDisconnect) return;
+        if (options.debug) util.log('Disconnected: reconnecting');
+        if (options.retryCount !== null && retryCount >= options.retryCount) {
+            if (options.debug) {
+                util.log('Maximum retry count (' + options.retryCount + ') reached. Aborting');
             }
-            self.emit( 'abort', self.opt.retryCount );
+            self.emit('abort', options.retryCount);
             return;
         }
 
-        if ( self.opt.debug ) {
-            util.log( 'Waiting ' + self.opt.retryDelay + 'ms before retrying' );
+        if (options.debug) {
+            util.log('Waiting ' + options.retryDelay + 'ms before retrying');
         }
-        setTimeout( function() {
-            self.connect( retryCount + 1 );
-        }, self.opt.retryDelay );
+        setTimeout(function() {
+            self.connect(retryCount + 1);
+        }, options.retryDelay);
+
+        self.emit("close");
     });
     self.conn.addListener("error", function(exception) {
         self.emit("netError", exception);
     });
 }; // }}}
-Client.prototype.disconnect = function ( message, callback ) { // {{{
+Client.prototype.disconnect = function(message, callback) { // {{{
     this.conn.requestedDisconnect = true;
-    if (typeof(callback) === 'function') {
-      this.conn.once('end', callback);
+    if (_.isFunction(callback)) {
+        this.conn.once('end', callback);
     }
     this.conn.end();
 }; // }}}
-Client.prototype.send = function(command, formatted) { // {{{
-    var args = Array.prototype.slice.call(arguments);
+Client.prototype.quit = function(message) {
+    this.send(util.format("QUIT :%s", message || "Leaving"));
+    this.disconnect();
+};
+Client.prototype.send = function(command) {
 
-    // Note that the command arg is included in the args array as the first element
+    if (this.options.debug) util.log('SEND: ' + command);
 
-    if (formatted !== true && (args[args.length-1].match(/\s/) || args[args.length-1].match(/^:/) || args[args.length-1] === "") ) {
-        args[args.length-1] = ":" + args[args.length-1];
-    }
-
-    if ( this.opt.debug )
-        util.log('SEND: ' + args.join(" "));
-
-    if ( ! this.conn.requestedDisconnect ) {
-        this.conn.write(args.join(" ") + "\r\n");
+    if (!this.conn.requestedDisconnect) {
+        console.log("SENDING: " + command);
+        this.conn.write(command + "\r\n");
     }
 }; // }}}
 Client.prototype.activateFloodProtection = function(interval) { // {{{
-
     var cmdQueue = [],
-        safeInterval = interval || this.opt.floodProtectionDelay,
+        safeInterval = interval || this.options.floodProtectionDelay,
         self = this,
         origSend = this.send,
         dequeue;
@@ -256,3 +207,4 @@ Client.prototype.activateFloodProtection = function(interval) { // {{{
 
 }; // }}}
 
+exports.Client = Client;

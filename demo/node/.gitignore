@@ -1,7 +1,6 @@
 *.sublime*
 *.dropbox
 node_modules/
-static/
 
 # Compiled source #
 ###################

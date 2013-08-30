@@ -15,12 +15,13 @@
     
     function hinter() {
         var text = this.$input.get("value");
+        var full = "";
         if(text.length >= this.options.minlen) {
-            var full = _.find(this.data, function(txt) {
+            full = _.find(this.data, function(txt) {
                 return txt.startsWith(text);
             });
-            this.seth(full || "");
         }
+        this.seth(full || "");
     }
 
     this.Completer = new Class({

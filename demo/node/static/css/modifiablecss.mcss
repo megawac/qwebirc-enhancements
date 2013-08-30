@@ -1,0 +1,530 @@
+topic_background=c,f2f0ff
+lines_background=c,f2f0ff
+lines_highlight1=c,f6ff94
+lines_highlight2=c,A4FCCA
+lines_highlight3=c,FAC3D5
+mentioned_colour=c,E63772
+topic_border=c,c8d2dc
+tabbar_border=c,c3cee0
+tabbar_background=c,e2ecf9
+tabbar_text=c,000000
+tab_border=c,c8d2dc
+tab_text=c,000000
+tab_hover=c,ffffff
+tab_selected=c,ffffff
+tab_selected_border=c,c8d2dc
+tab_selected_text=c,333333
+input_border=c,c3cee0
+nicklist_border=c,c8d2dc
+nicklist_background=c,f2f0ff
+nicklist_text=c,000000
+nicklist_selected_border=c,c8d2dc
+menu_border=c,c8d2dc
+menu_background=c,f2f0ff
+menu_hover_background=c,FFFE
+lastpositionbar=c,C8D2DC
+windowfont_size=o,font_size,12
+timestamp_display=o,show_timestamps,inline,none
+timestamp_padding_left=o,show_timestamps,1em,11px
+
+#ircui {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: Verdana, sans-serif;
+}
+
+.qui .hidden, .qui .invisible {
+    display: none;
+}
+
+.channel-name {
+    background-color: rgb(255, 255, 191);
+    border: 1px solid #C8D1DB;
+    border-radius: 4px 4px 4px 4px;
+    color: #000000;
+    cursor: default;
+    font-size: 0.8em;
+    padding: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    float: left;
+    margin: 1px 0px 0px 1px;
+    font-weight: bold;
+}
+
+.qui .dynamicpanel {
+  /*position: absolute;*/
+}
+
+.qui .widepanel {
+    width: 100%;
+}
+
+
+.qui .bottompanel {
+    color: red;
+}
+
+.qui .lines {
+    color: black;
+    overflow: auto;
+    font-size: $(windowfont_size)px;
+    background: $(lines_background);
+}
+
+.qui .lines .timestamp {
+    display: $(timestamp_display);
+}
+
+.qui .ircwindow .lines {
+    font-family: Consolas, "Lucida Console", monospace;
+    text-indent: 10px;
+    padding-left: $(timestamp_padding_left);
+    word-wrap: break-word;
+}
+
+.qui .lines .highlight1 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight1);
+}
+
+.qui .lines .highlight2 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight2);
+}
+
+.qui .lines .highlight3 { /*last 5 messages not sent by the bot*/
+    background-color: $(lines_highlight3);
+}
+
+.qui .lines .mentioned {
+    background-color: $(mentioned_colour) !important;
+}
+
+.qui .properties {
+    background-color: $(menu_background);
+    border-top: 1px solid $(menu_border);
+    height: 25px;
+}
+
+.qui .topic .emptytopic {
+    color: gray;
+}
+
+.qui .topic {
+    color: gray;
+    padding-left: 5px;
+    font-size: 0.7em;
+    cursor: default;
+    background-color: $(topic_background);
+    border-bottom: 1px dashed $(topic_border);
+}
+
+/*tab stuff*/
+
+.qui .outertabbar {    
+    border-bottom: 1px solid $(tabbar_border);
+    background: $(tabbar_background);
+}
+
+.qui .tabbar {
+    font-size: 0.8em;
+    color: $(tabbar_text);
+    line-height: 24px;
+    display: inline-block;
+    /*max-width: calc(100% - 60px);*/
+    overflow-x: hidden;
+    margin-left: 10px;
+    font-size: 13px;
+}
+
+.qui .tabbar .tab {
+    border: 1px solid $(tab_border);
+    padding: 2px;
+    cursor: default;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    margin-right: 3px;
+    white-space: nowrap;
+    text-decoration: none;
+    color: $(tab_text);
+    font-weight: bold;
+}
+
+.qui .tabbar .tab:hover {
+    background: $(tab_hover);
+    border: 1px solid #c8d2dc;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.qui .tabbar .highlight-activity.tab {
+    color: #009900;
+}
+
+.qui .tabbar .highlight-speech.tab {
+    color: #0000ff;
+}
+
+.qui .tabbar .highlight-us.tab {
+    color: #ff0000;
+    background: rgb(216, 216, 138);
+}
+
+.qui .tabbar .brouhaha {
+    width: 80px;
+    background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -moz-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));
+    background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -webkit-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -o-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: linear-gradient(45deg, #666 25%, transparent 25%), 
+        linear-gradient(-45deg, #666 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #666 75%), 
+        linear-gradient(-45deg, transparent 75%, #666 75%);
+    -moz-background-size: 2px 2px;
+    background-size: 2px 2px;
+    -webkit-background-size: 2px 2.1px; /* override value for webkit */
+    background-position: 0 0, 1px 0, 1px -1px, 0px 1px;
+}
+
+.qui .tabbar .brouhaha.selected {
+    /* background: rgb(255,214,94); Old browsers
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+
+    background: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+
+    background: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+
+    background: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */
+}
+
+.qui .tabbar .brouhaha.unselected {
+    /* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -moz-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));
+    background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -webkit-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -o-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: linear-gradient(45deg, #666 25%, transparent 25%), 
+        linear-gradient(-45deg, #666 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #666 75%), 
+        linear-gradient(-45deg, transparent 75%, #666 75%);
+    -moz-background-size: 2px 2px;
+    background-size: 2px 2px;
+    -webkit-background-size: 2px 2.1px; override value for webkit
+    background-position: 0 0, 1px 0, 1px -1px, 0px 1px; */
+}
+
+
+.qui .tabbar .selected.tab {
+    background: $(tab_selected);
+    border: 1px solid $(tab_selected_border);
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    color: $(tab_selected_text);
+}
+
+.qui .buttons {
+    display: none;
+}
+
+.qui.signed-in .buttons {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.buttons span {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/* tab stuff */
+
+/*irc input stuff*/
+.qui form.input {
+    background-color: $(menu_background);
+    margin: 0;
+
+}
+
+.qui .input div {
+    border-top: 1px solid $(input_border);
+    padding: 0 5px 1px;
+    margin: 0;
+    width: 100%;
+}
+
+.input div > .input-group-addon {
+    cursor:pointer;cursor:hand;
+    padding: 2px 5px;
+}
+
+.input div > * {
+    height: 24px;
+}
+
+.input .nickname {
+    color: #524F50;
+    font-size: 14px;
+}
+
+.input .nickname .status {
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 3px;
+}
+
+.input .nickname:hover {
+    
+}
+
+.input .nickname .status.voice {
+    width: 8px;
+    height: 8px;
+    background-color: rgb(223, 187, 47);
+    background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);
+    animation-name: spin;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 3s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -o-animation-name: spin;
+    -o-animation-duration: 3s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-timing-function: linear;
+}
+
+.input .nickname .status.op {
+    width: 8px;
+    height: 8px;
+    background-color: #7AE60E;
+    background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+    animation-name: spin;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 3s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -o-animation-name: spin;
+    -o-animation-duration: 3s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-timing-function: linear;
+}
+
+.input .input-field {
+    background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.54, rgb(235,235,232)),
+        color-stop(0.66, rgb(247,250,240))
+    );
+
+    border: 1px solid $(input_border);
+    padding: 0;
+    height: 26px;
+    text-indent: 5px;
+}
+
+.input .btn.send {
+    color: grey;
+    padding: 2px 10px;
+}
+
+/*.input .input-button {
+    width: 20px;
+
+    background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.54, rgb(235,235,232)),
+        color-stop(0.66, rgb(247,250,240))
+    );
+}*/
+
+.qui .nicklist {
+    border-left: 1px solid $(nicklist_border);
+    width: 140px;
+    overflow: auto;
+    background: $(nicklist_background);
+    color: $(nicklist_text);
+    font-size: 0.7em;
+}
+
+.qui .nicklist .user, .qui .nicklist .menu span {
+    display: block;
+    color: black;
+    text-decoration: none;
+    cursor: default;
+    border-top: 1px solid $(nicklist_background);
+    border-bottom: 1px solid $(nicklist_background);
+    padding-left: 1px;
+}
+
+.qui .nicklist .selected {
+    display: block;
+    color: black;
+    background: white;
+    text-decoration: none;
+    border-bottom: $(nicklist_selected_border) 1px solid;
+    cursor: default;
+}
+
+.qui .nicklist .selected-middle {
+    border-top: $(nicklist_selected_border) 1px solid;
+}
+
+#noscript {
+    text-align: center;
+    font-weight: bold;
+}
+
+.qui .nicklist .menu {
+    margin: 0 0 0 5px;
+}
+
+.qui .nicklist .menu a {
+    border-bottom: 0;
+    border-top: 0;
+}
+
+.hyperlink-whois, .hyperlink-channel {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.hyperlink-whois:hover, .hyperlink-channel:hover {
+    text-decoration: underline;
+}
+
+.qui .outertabbar .dropdown-tab {
+    cursor: pointer; cursor: hand;
+    float: left;
+    padding: 3px 4px 0;
+    width: 30px;
+}
+
+.qui .dropdownmenu {
+    z-index: 100;
+    border: 1px solid $(menu_border);
+    background: $(menu_background);
+    list-style: none;
+    padding: 5px;
+    font-size: 0.7em;
+}
+
+.qui .dropdownmenu a {
+    color: black;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.qui .dropdownmenu a:hover {
+    background: $(menu_hover_background);
+ /* IE is rubbish and doesn't like #FFFFFF or white */
+}
+
+.qui .dropdownhint {
+  position: relative;
+  left: -500px;
+  z-index: 10;
+  white-space: nowrap;
+  font-size: 0.7em;
+}
+
+.qui .chanmenu {
+    width: 150px;
+}
+
+.qui .chanmenu .hint {
+    float: right;
+    font-size: 75%;
+    color: grey;
+}
+
+.qui hr.lastpos {
+  border: none;
+  border-top: 1px solid $(lastpositionbar);
+  margin: .5em 3em;
+}
+
+.qwebirc-init-channels {
+    font-size: 95%;
+    color: #928D8D;
+    text-align: center;
+}
+
+
+/************* OPTIONS *****************/
+
+.qwebirc-optionspane .hue-slider {
+    border: 0px solid black;
+    width: 360px;
+    height: 8px;
+    background-image: url(../images/hue.png);
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.qwebirc-optionspane .hue-slider .knob {
+    width: 8px;
+    height: 16px;
+    top: -5px;
+    opacity: 0.75;
+    background: grey;
+    border: 1px solid black;
+}
+

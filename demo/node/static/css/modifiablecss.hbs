@@ -1,0 +1,503 @@
+{{! Note this is a handlebars template. Changing values in here requires a grunt rebuild}}
+{{! $css helper contract is f: property_name default_val type default_val2 -> string}}
+{{! not $css generally the context (for property names) is the uiOptions values see ui/standardUI for implementation}}
+{{! update the Browser object is also now part of the context so you can do #if ie6 or something}}
+#ircui {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: Verdana, sans-serif;
+}
+
+.qui .hidden, .qui .invisible {
+    display: none;
+}
+
+.channel-name {
+    background-color: rgb(255, 255, 191);
+    border: 1px solid #C8D1DB;
+    border-radius: 4px 4px 4px 4px;
+    color: #000000;
+    cursor: default;
+    font-size: 0.8em;
+    padding: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    float: left;
+    margin: 1px 0px 0px 1px;
+    font-weight: bold;
+}
+
+.qui .widepanel {
+    width: 100%;
+}
+
+.qui .bottompanel {
+    color: red;
+}
+
+.qui .lines {
+    color: black;
+    overflow: auto;
+    font-size: {{$css 'font_size' 12}}px;
+    background: {{$css 'lines_background' 'f2f0ff' 'c'}};
+}
+
+.qui .lines .timestamp {
+    display: {{$css 'show_timestamps' 'inline' 'comp' 'none'}};
+}
+
+.qui .ircwindow .lines {
+    font-family: Consolas, "Lucida Console", monospace;
+    text-indent: 10px;
+    padding-left: 1em;
+    word-wrap: break-word;
+}
+
+.qui .lines .highlight1 {
+    background-color: {{$css 'lines_highlight1' 'f6ff94' 'c'}};
+}
+
+.qui .lines .highlight2 {
+    background-color: {{$css 'lines_highlight2' 'A4FCCA' 'c'}};
+}
+
+.qui .lines .highlight3 {
+    background-color: {{$css 'lines_highlight3' 'FAC3D5' 'c'}};
+}
+
+.qui .lines .mentioned {
+    background-color: {{$css 'mentioned_colour' 'E63772' 'c'}} !important;
+}
+
+.qui .properties {
+    background-color: {{$css 'menu_background' 'f2f0ff' 'c'}};
+    border-top: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
+    height: 25px;
+}
+
+.qui .topic .emptytopic {
+    color: gray;
+}
+
+.qui .topic {
+    color: gray;
+    padding-left: 5px;
+    font-size: 0.7em;
+    cursor: default;
+    background-color: {{$css 'topic_background' 'f2f0ff' 'c'}};
+    border-bottom: 1px dashed {{$css 'topic_border' 'c8d2dc' 'c'}};
+}
+
+/*tab stuff*/
+
+.qui .outertabbar {    
+    border-bottom: 1px solid {{$css 'tabbar_border' 'c3cee0' 'c'}};
+    background: {{$css 'tabbar_background' 'e2ecf9' 'c'}};
+    height: 26px;
+    line-height: 20px;
+    padding: 2px 0;
+    vertical-align: middle;
+}
+
+.qui .tabbar {
+    color: {{$css 'tabbar_text' '000000' 'c'}};
+    display: inline-block;
+    /*overflow-x: hidden;*/
+    margin-left: 10px;
+    font-size: 13px;
+    height: 22px;
+}
+
+.qui .tabbar .tab {
+    padding: 2px;
+    cursor: default;
+    margin-right: 3px;
+    white-space: nowrap;
+    font-weight: bold;
+
+    color: {{$css 'tab_text' '000000' 'c'}};
+    border: 1px solid {{$css 'tab_border' 'c8d2dc' 'c'}};
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.qui .tabbar .tab:hover {
+    background: {{$css 'tab_hover' 'ffffff' 'c'}};
+    border: 1px solid #c8d2dc;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.qui .tabbar .hilight-activity.tab {
+    color: #009900;
+}
+
+.qui .tabbar .hilight-speech.tab {
+    color: #0000ff;
+}
+
+.qui .tabbar .hilight-us.tab {
+    color: #ff0000;
+    background: rgb(216, 216, 138);
+}
+
+.qui .tabbar .brouhaha {
+    padding-left: 75px;
+    background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -moz-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));
+    background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -webkit-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -o-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: linear-gradient(45deg, #666 25%, transparent 25%), 
+        linear-gradient(-45deg, #666 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #666 75%), 
+        linear-gradient(-45deg, transparent 75%, #666 75%);
+    -moz-background-size: 2px 2px;
+    background-size: 2px 2px;
+    -webkit-background-size: 2px 2.1px; /* override value for webkit */
+    background-position: 0 0, 1px 0, 1px -1px, 0px 1px;
+}
+
+.qui .tabbar .brouhaha.selected {
+    /* background: rgb(255,214,94); Old browsers
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+
+    background: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+
+    background: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+
+    background: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */
+}
+
+.qui .tabbar .brouhaha.unselected {
+    /* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -moz-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));
+    background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -webkit-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -o-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: linear-gradient(45deg, #666 25%, transparent 25%), 
+        linear-gradient(-45deg, #666 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #666 75%), 
+        linear-gradient(-45deg, transparent 75%, #666 75%);
+    -moz-background-size: 2px 2px;
+    background-size: 2px 2px;
+    -webkit-background-size: 2px 2.1px; override value for webkit
+    background-position: 0 0, 1px 0, 1px -1px, 0px 1px; */
+}
+
+
+.qui .tabbar .selected.tab {
+    background: {{$css 'tab_selected' 'ffffff' 'c'}};
+    border: 1px solid {{$css 'tab_selected_border' 'c8d2dc' 'c'}};
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    color: {{$css 'tab_selected_text' '333333' 'c'}};
+}
+
+.qui .buttons {
+    display: none;
+}
+
+.qui.signed-in .buttons {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.buttons span {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/* tab stuff */
+
+/*irc input stuff*/
+.qui form.input {
+    background-color: {{$css 'menu_background' 'f2f0ff' 'c'}};
+    margin: 0;
+}
+
+.qui .input div {
+    border-top: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
+    padding: 0 5px 1px;
+    margin: 0;
+    width: 100%;
+}
+
+.qui .input div > .input-group-addon {
+    cursor:pointer;cursor:hand;
+    padding: 2px 5px;
+}
+
+.qui .input div > * {
+    height: 24px;
+}
+
+.qui .input .nickname {
+    color: #524F50;
+    font-size: 14px;
+}
+
+.qui .input .nickname .status {
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 3px;
+}
+
+.qui .input .nickname:hover {
+    
+}
+
+.qui .input .nickname .status.voice {
+    width: 8px;
+    height: 8px;
+    background-color: rgb(223, 187, 47);
+    background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+    background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);
+    animation-name: spin;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 3s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -o-animation-name: spin;
+    -o-animation-duration: 3s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-timing-function: linear;
+}
+
+.qui .input .nickname .status.op {
+    width: 8px;
+    height: 8px;
+    background-color: #7AE60E;
+    background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+    background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+    animation-name: spin;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 3s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -o-animation-name: spin;
+    -o-animation-duration: 3s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-timing-function: linear;
+}
+
+.qui .input .input-field {
+    border: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
+    padding: 0;
+    height: 26px;
+    text-indent: 5px;
+}
+
+.qui .input .tt-hint {
+    background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.54, rgb(235,235,232)),
+        color-stop(0.66, rgb(247,250,240))
+    );
+    padding: 0;
+    height: 26px;
+    text-indent: 5px;
+}
+
+/*twitter typeahead inspired autocomplete using overlay input box*/
+.qui .tt-hint {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-color: transparent;
+    box-shadow: none;
+    color: #BDBDBD;
+}
+
+.qui .tt-query {
+    position: relative;
+    vertical-align: top;
+    background-color: transparent;
+}
+/*typeahead*/
+
+.qui .input .btn.send {
+    color: grey;
+    padding: 2px 10px;
+}
+
+.qui .nicklist {
+    border-left: 1px solid {{$css 'nicklist_border' 'c8d2dc' 'c'}};
+    width: 140px;
+    overflow: auto;
+    background: {{$css 'nicklist_background' 'f2f0ff' 'c'}};
+    color: {{$css 'nicklist_text' '000000' 'c'}};
+    font-size: 0.7em;
+}
+
+.qui .nicklist .user, .qui .nicklist .menu span {
+    display: block;
+    color: black;
+    text-decoration: none;
+    cursor: default;
+    border-top: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
+    border-bottom: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
+    padding-left: 1px;
+}
+
+.qui .nicklist .selected {
+    display: block;
+    color: black;
+    background: white;
+    text-decoration: none;
+    border-bottom: {{$css 'nicklist_selected_border' 'c8d2dc' 'c'}} 1px solid;
+    cursor: default;
+}
+
+.qui .nicklist .selected-middle {
+    border-top: {{$css 'nicklist_selected_border' 'c8d2dc' 'c'}} 1px solid;
+}
+
+#noscript {
+    text-align: center;
+    font-weight: bold;
+}
+
+.qui .nicklist .menu {
+    margin: 0 0 0 5px;
+}
+
+.qui .nicklist .menu a {
+    border-bottom: 0;
+    border-top: 0;
+}
+
+.hyperlink-whois, .hyperlink-channel {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.hyperlink-whois:hover, .hyperlink-channel:hover {
+    text-decoration: underline;
+}
+
+.qui .outertabbar .dropdown-tab {
+    cursor: pointer; cursor: hand;
+    display: inline-block;
+    padding-left: 4px;
+    width: 30px;
+}
+
+.qui .dropdownmenu {
+    z-index: 100;
+    border: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
+    background: {{$css 'menu_background' 'f2f0ff' 'c'}};
+    list-style: none;
+    padding: 5px 10px;
+    font-size: 0.7em;
+}
+
+.qui .dropdownmenu a {
+    color: black;
+    cursor: pointer;
+    cursor: hand;
+    padding-top: 3px;
+}
+
+.qui .dropdownmenu a:hover {
+    background: {{$css 'menu_hover_background' 'FFFE' 'c'}};
+}
+
+.qui .dropdownhint {
+  position: relative;
+  left: -500px;
+  z-index: 10;
+  white-space: nowrap;
+  font-size: 0.7em;
+}
+
+.qui .chanmenu {
+    width: 150px;
+}
+
+.qui .chanmenu .hint {
+    float: right;
+    font-size: 75%;
+    color: grey;
+}
+
+.qui hr.lastpos {
+  border: none;
+  border-top: 1px solid {{$css 'lastpositionbar' 'C8D2DC' 'c'}};
+  margin: .5em 3em;
+}
+
+.qwebirc-init-channels {
+    font-size: 95%;
+    color: #928D8D;
+    text-align: center;
+}
+
+
+/************* OPTIONS *****************/
+.qwebirc-optionspane .hue-slider {
+    border: 0px solid black;
+    width: 360px;
+    height: 8px;
+    background-image: url(../images/hue.png);
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.qwebirc-optionspane .hue-slider .knob {
+    width: 8px;
+    height: 16px;
+    top: -5px;
+    opacity: 0.75;
+    background: grey;
+    border: 1px solid black;
+}

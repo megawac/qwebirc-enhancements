@@ -1,0 +1,365 @@
+topic_background=c,f2f0ff
+lines_background=c,f2f0ff
+topic_border=c,c8d2dc
+tabbar_border=c,c3cee0
+tabbar_background=c,e2ecf9
+tabbar_text=c,000000
+tab_border=c,c8d2dc
+tab_text=c,000000
+tab_hover=c,ffffff
+tab_selected=c,ffffff
+tab_selected_border=c,c8d2dc
+tab_selected_text=c,333333
+input_border=c,c3cee0
+nicklist_border=c,c8d2dc
+nicklist_background=c,f2f0ff
+nicklist_text=c,000000
+nicklist_selected_border=c,c8d2dc
+menu_border=c,c8d2dc
+menu_background=c,f2f0ff
+menu_hover_background=c,FFFE
+lastpositionbar=c,C8D2DC
+timestamp_display=o,SHOW_TIMESTAMPS,inline,none
+timestamp_padding_left=o,SHOW_TIMESTAMPS,1em,11px
+timestamp_text_indent=o,SHOW_TIMESTAMPS,0,-9px
+
+#ircui {
+  /*position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;*/
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: Verdana, sans-serif;
+}
+
+.qui .hidden, .qui .tab-invisible {
+    display: none;
+}
+
+.qui-center {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    height: 100%;
+}
+
+.qui-center > * {
+    text-align: center;
+    margin: auto;
+ /*center in parent*/
+} 
+
+.channel-name {
+    background-color: rgb(255, 255, 191);
+    border: 1px solid #C8D1DB;
+    border-radius: 4px 4px 4px 4px;
+    color: #000000;
+    cursor: default;
+    font-size: 0.8em;
+    padding: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    float: left;
+    margin: 1px 0px 0px 1px;
+    font-weight: bold;
+}
+
+.qui .dynamicpanel {
+  /*position: absolute;*/
+}
+
+.qui .widepanel {
+    width: 100%;
+}
+
+
+.qui .bottompanel {
+    color: red;
+}
+
+.qui .lines {
+    color: black;
+    overflow: auto;
+    font-size: 0.8em;
+    background: $(lines_background);
+}
+
+.qui .lines .timestamp {
+    display: $(timestamp_display);
+}
+
+.qui .ircwindow .lines {
+    font-family: Consolas, "Lucida Console", monospace;
+    text-indent: $(timestamp_text_indent);
+    padding-left: $(timestamp_padding_left);
+    word-wrap: break-word;
+}
+
+
+.qui .input input.keyboard-input {
+    border: 0px;
+    margin: 2px 0px 0px 0px;
+    width: 90%;
+}
+
+.qui .input input.mobile-input {
+    border: 0px;
+    margin: 2px 0px 0px 0px;
+}
+
+.qui .input input.mobile-button {
+  /*position: absolute;
+  top: 0px;*/
+}
+
+.qui .topic {
+  /*position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;*/
+    background-color: $(topic_background);
+    border-bottom: 1px dashed $(topic_border);
+}
+
+.qui .properties {
+    background-color: $(menu_background);
+    border-top: 1px solid $(menu_border);
+    height: 25px;
+}
+
+.qui .topic .emptytopic {
+    color: gray;
+}
+
+.qui .topic {
+    color: gray;
+    padding-left: 5px;
+    font-size: 0.7em;
+    cursor: default;
+}
+
+.qui .outertabbar {
+    border-bottom: 1px solid $(tabbar_border);
+    background: $(tabbar_background);
+}
+
+.qui .tabbar {
+    font-size: 0.8em;
+    color: $(tabbar_text);
+    margin-left: 38px;
+    line-height: 24px;
+}
+
+.qui a.tab {
+    border: 1px solid $(tab_border);
+    padding: 2px;
+    cursor: default;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    margin-right: -2px;
+    white-space: nowrap;
+    text-decoration: none;
+    color: $(tab_text);
+    font-weight: bold;
+}
+
+.qui .brouhaha {
+    background-image: url('images/b_background3.gif');
+    width: 80px;
+}
+
+.qui .brouhaha-unselected {
+    background-image: url('images/b_background3_unselected.gif');
+    width: 80px;
+}
+
+.qui .tab:hover {
+    background: $(tab_hover);
+    border: 1px solid #c8d2dc;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.qui .tab-selected {
+    background: $(tab_selected);
+    border: 1px solid $(tab_selected_border);
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    color: $(tab_selected_text);
+}
+
+.qui div.input {
+    border-top: 1px solid $(input_border);
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.qui a.tab-hilight-activity {
+    color: #009900;
+}
+
+.qui a.tab-hilight-speech {
+    color: #0000ff;
+}
+
+.qui a.tab-hilight-us {
+    color: #ff0000;
+}
+
+.qui .nicklist {
+    border-left: 1px solid $(nicklist_border);
+  /*position: absolute;
+  top: 0px;
+  right: 0px;*/
+    width: 140px;
+    overflow: auto;
+    background: $(nicklist_background);
+    color: $(nicklist_text);
+    font-size: 0.7em;
+}
+
+.qui .nicklist a {
+    display: block;
+    color: black;
+    text-decoration: none;
+    cursor: default;
+    border-top: 1px solid $(nicklist_background);
+    border-bottom: 1px solid $(nicklist_background);
+    padding-left: 1px;
+}
+
+.qui .nicklist a.selected {
+    display: block;
+    color: black;
+    background: white;
+    text-decoration: none;
+    border-bottom: $(nicklist_selected_border) 1px solid;
+    cursor: default;
+}
+
+.qui .nicklist a.selected-middle {
+    border-top: $(nicklist_selected_border) 1px solid;
+}
+
+#noscript {
+    text-align: center;
+    font-weight: bold;
+}
+
+.qui .nicklist div.menu {
+    margin: 0px 0px 0px 5px;
+}
+
+.qui .nicklist div.menu a {
+    border-bottom: 0;
+    border-top: 0;
+}
+
+.qui .hyperlink-whois, .hyperlink-qwhois, .hyperlink-channel {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.qui .hyperlink-whois:hover, .hyperlink-qwhois:hover, .hyperlink-channel:hover {
+    text-decoration: underline;
+}
+
+.qui .outertabbar .dropdown-tab {
+    cursor: pointer;
+    cursor: hand;
+    float: left;
+    padding: 4px;
+    width: 30px;
+}
+
+.qui .dropdownmenu {
+    z-index: 100;
+    border: 1px solid $(menu_border);
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: $(menu_background);
+}
+
+.qui .dropdownmenu a {
+    display: block;
+    font-size: 0.7em;
+    color: black;
+    cursor: pointer;
+    cursor: hand;
+    padding-top: 1px;
+    padding-left: 3px;
+    padding-bottom: 1px;
+    padding-right: 3px;
+}
+
+.qui .dropdownmenu a:hover {
+    background: $(menu_hover_background);
+ /* IE is rubbish and doesn't like #FFFFFF or white */
+}
+
+.qui .dropdownhint {
+  position: relative;
+  left: -500px;
+  z-index: 10;
+  white-space: nowrap;
+  font-size: 0.7em;
+}
+
+.qui hr.lastpos {
+  border: none;
+  border-top: 1px solid $(lastpositionbar);
+  margin-left: 3em;
+  margin-right: 3em;
+}
+
+.qwebirc-init-channels span {
+    font-size: 95%;
+    color: #928D8D;
+    padding-right: 15px;
+}
+
+#login {
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+#login div {
+    width: 380px;
+    margin: .5em auto;
+}
+
+#login div > * {
+    margin: 0 .2em;
+}
+
+#login .right {
+    text-align: right;
+    margin-left: 10%; /*seems to center it*/
+}
+
+#login .right input {
+    width: 200px;
+}
+
+
+/************* OPTIONS *****************/
+
+.qwebirc-optionspane div.hue-slider {
+    border: 0px solid black;
+    width: 360px;
+    height: 8px;
+    background-image: url(../images/hue.png);
+}
+
+.qwebirc-optionspane div.hue-slider .knob {
+    width: 8px;
+    height: 16px;
+    top: -5px;
+    opacity: 0.75;
+    background: grey;
+    border: 1px solid black;
+}
+

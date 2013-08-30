@@ -7081,12 +7081,13 @@ window.Base64 = (function() {
     
     function hinter() {
         var text = this.$input.get("value");
+        var full = "";
         if(text.length >= this.options.minlen) {
-            var full = _.find(this.data, function(txt) {
+            full = _.find(this.data, function(txt) {
                 return txt.startsWith(text);
             });
-            this.seth(full || "");
         }
+        this.seth(full || "");
     }
 
     this.Completer = new Class({
@@ -14389,7 +14390,7 @@ irc.BaseIRCClient = new Class({
     },
 
     send: function(data) {
-        this.connection.send(data);
+        return this.connection.send(data);
     },
 
     ndispatch: function(data) {
@@ -16793,8 +16794,7 @@ irc.NodeConnection = new Class({
     Binds: ["recv", "error", "_connected", "_disconnected"],
     options: {
         socket: {
-            url: document.location.hostname,
-            port: 80
+            url: document.location.hostname
         },
         nickname: "ircconnX",
         password: '',
@@ -16832,7 +16832,7 @@ irc.NodeConnection = new Class({
     initialize: function(options) {
         var self = this;
         self.setOptions(options);
-        var ip = util.formatter("{url}:{port}", self.options.socket);
+        var ip = util.formatter("{url}", self.options.socket);
         var socket = self.socket = io.connect(ip);
 
         var $evts = {
@@ -16859,7 +16859,7 @@ irc.NodeConnection = new Class({
     },
 
     connect: function() {
-        this.socket.emit("irc", this.options.nickname, this.options);
+        this.socket.emit("irc", this.options);
     },
 
     //irc connection on server in
@@ -17826,12 +17826,12 @@ ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialC
 ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
     var cookies = {
         nick: new Storer("nickname"),//initial nick
-        user: new Storer("gamesurge"),//auth account
+        user: new Storer("gamesurge"),//auth username
         pass: new Storer("password"),//auth password
         auth: new Storer("enableAuth")//enable full auth
     }
     var nickname = cookies.nick.get() || initialNickname,
-        account = Base64.decode(cookies.user.get()),
+        username = Base64.decode(cookies.user.get()),
         password = Base64.decode(cookies.pass.get()),
         eauth = auth.enabled || cookies.auth.get();
 
@@ -17840,7 +17840,7 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
     var page = Element.from(templates.authpage({
         'network': networkName,
         'nickname': nickname,
-        'username': account,
+        'username': username,
         'password': password,
         'full': eauth, //whether to show the extra auth options (check the checkbox)
         'channels': initialChannels.join()
@@ -17883,7 +17883,8 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
         if (chkAddAuth.checked || auth.enabled) {//disabled
             // we're valid - good to go
-            data.account = account = usernameBox.val();
+            data.username = username = usernameBox.val();
+            data.realname = storage.get("realname") || username || "";
             data.password = password = passwordBox.val();
             if (auth.bouncerAuth()) {
                 if (!$chk(password)) {
@@ -17894,9 +17895,9 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
 
                 data.serverPassword = password;
             }
-            if (!account || !password) {
+            if (!username || !password) {
                 alert(lang.missingAuthInfo);
-                if (!$chk(account)) {
+                if (!$chk(username)) {
                     usernameBox.focus();
                 } else {
                     passwordBox.focus();
@@ -17904,12 +17905,12 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
                 return;
             } else {
                 if(auth.passAuth()){
-                    data.serverPassword = account + " " + password;
+                    data.serverPassword = username + " " + password;
                 }
 
             }
 
-            cookies.user.set(Base64.encode(account));
+            cookies.user.set(Base64.encode(username));
             cookies.pass.set(Base64.encode(password));
             cookies.auth.set(true);
             auth.enabled = true;
