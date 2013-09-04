@@ -14,7 +14,7 @@ Fx.AutoScroll = new Class({
         // direction: 'Bottom',
         interval: 500,
         duration: 0, //ms to execute effect
-        threshold: null,//px - how close to bottom to start scrolling
+        threshold: 5,//px - how close to bottom to start scrolling
         wheelStops: true,
         link: 'cancel'
     },
@@ -94,12 +94,15 @@ Fx.AutoScroll = new Class({
           /*bug fix for a off by one one in Fx.Scroll*/ Math.abs($ele.getScrollHeight() - $ele.getHeight() - $ele.getScrollTop()) > 2) {
             this.lastUpdate = Date.now();
 
-            if(this.options.duration == 0)
+            if(this.options.duration === 0) {
                 this.set($ele.scrollLeft, $ele.scrollHeight); //place at bottom instantly
-            else
+
+            } else {
                 this.toBottom();
-            if(target)
+            }
+            if(target) {
                 this.threshold = this.options.threshold || target.getHeight();
+            }
         }
         return this;
     },

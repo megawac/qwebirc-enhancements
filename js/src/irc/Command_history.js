@@ -8,7 +8,7 @@ irc.CommandHistory = new Class({
         storage: {
             fallback: false//dont save on shit browsers
         },
-        key: "cmdhist"
+        key: cookies.history
     },
 
     addLine: function(name, line) {
@@ -30,5 +30,9 @@ irc.CommandHistory = new Class({
     removeChannel: function(name) {
         this.unset(name);
         this.save();
+    },
+
+    _filter: function(val) {
+        return _.size(val) !== 0;
     }
 });

@@ -26,7 +26,7 @@ var DEFAULT_OPTIONS = {
     server: '',
     nickname: null,
     password: null,
-    username: null,
+    username: 'qwebirc',
     realname: "a",
     port: 6667,
     debug: false,
@@ -123,9 +123,9 @@ Client.prototype.connect = function(retryCount, callback) { // {{{
         var lines = buffer.split("\r\n");
         buffer = lines.pop();
         lines.forEach(function(line) {
-            var message = line; //parseMessage(line, options.stripColors);
+            // var message = parseMessage(line, options.stripColors);
             try {
-                self.emit('raw', message);
+                self.emit('raw', line);
             } catch (err) {
                 if (!self.conn.requestedDisconnect) {
                     throw err;
@@ -173,13 +173,11 @@ Client.prototype.quit = function(message) {
     this.disconnect();
 };
 Client.prototype.send = function(command) {
-
-    if (this.options.debug) util.log('SEND: ' + command);
-
     if (!this.conn.requestedDisconnect) {
-        console.log("SENDING: " + command);
+        if (this.options.debug) util.log('SEND: ' + command);
         this.conn.write(command + "\r\n");
     }
+    return this;
 }; // }}}
 Client.prototype.activateFloodProtection = function(interval) { // {{{
     var cmdQueue = [],

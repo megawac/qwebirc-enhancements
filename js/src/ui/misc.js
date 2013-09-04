@@ -1,5 +1,4 @@
 
-
 ui.MENU_ITEMS = (function() {
     function isOpped(nick) {
         var channel = this.name; /* window name */
@@ -72,42 +71,3 @@ ui.MENU_ITEMS = (function() {
         predicate: _.and(isOpped, targetVoiced)
     }];
 })();
-
-
-ui.RequestTransformHTML = function(options) {
-    var HREF_ELEMENTS = ["IMG"];
-
-    var $update = options.update;
-    var onSuccess = options.onSuccess;
-
-    var fixUp = function(node) {
-            if (node.nodeType !== Node.ELEMENT_NODE)
-                return;
-
-            if (HREF_ELEMENTS.contains(node.nodeName.toUpperCase())) {
-                var attr = node.getAttribute("transform_attr");
-                var value = node.getAttribute("transform_value");
-                if ($defined(attr) && $defined(value)) {
-                    node.removeProperties("transform_attr", "transform_value")
-                        .setProperty(attr, qwebirc.global.staticBaseURL + value);
-                }
-            }
-
-            Array.each(node.childNodes, fixUp);
-        };
-
-    delete options["update"];
-    options.onSuccess = function(tree, elements, html, js) {
-        var container = new Element("div", {'html': html});
-        fixUp(container);
-        $update.empty();
-
-        Array.each(container.childNodes, function(node) {
-            node.swapParent($update);
-        });
-        onSuccess();
-    };
-
-    return new Request.HTML(options);
-};
-

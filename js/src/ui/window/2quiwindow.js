@@ -51,15 +51,16 @@ ui.QUI.Window = new Class({
             }))
         var $win = self.window = self.element.getElement('.window').store("window", self);
 
-        var lines = self.lines = $win.getElement('.lines');
+        var $content = self.content = $win.getElement('.content');
+        var lines = self.lines = $content.getElement('.lines');
         lines.store("window", self);
 
-        if (type !== ui.WINDOW_CUSTOM && type !== ui.WINDOW_CONNECT) {
+        if (type !== ui.WINDOW.custom && type !== ui.WINDOW.connect) {
             $win.addClass('ircwindow');
             self.fxscroll = new Fx.AutoScroll(lines);
         }
 
-        if (type === ui.WINDOW_CHANNEL) {
+        if (type === ui.WINDOW.channel) {
             $win.addClass('channel');
 
             self.updateTopic("");
@@ -116,7 +117,8 @@ ui.QUI.Window = new Class({
         this.resizable.detach().stop();
         this.wrapper = this.resizable = this.drag = null;
 
-        this.tab.show();
+        this.tab.show()
+                .removeClass("detached");
         this.select();
 
         this.fireEvent('attached');
@@ -179,7 +181,8 @@ ui.QUI.Window = new Class({
         self.active = false;
 
         //keeps order
-        self.tab.hide();
+        self.tab.hide()
+                .addClass("detached");
 
         self.fireEvent('detached');
     },
@@ -193,31 +196,31 @@ ui.QUI.Window = new Class({
         }
     },
 
-    selectTab: function(e) {
-        var self = this;
-        if(self.name !== BROUHAHA) {
-            _.each(self.parentObject.windowArray, function(win) {
-                if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-                    win.tab.removeClass("selected");
-                }
-                if(win.name === BROUHAHA) {
-                    if(util.isChannelType(self.type)) {
-                        win.window.getElement('.channel-name').text(self.name); //update current channel in brouhaha
-                        win.currentChannel = self.name;
-                    }
-                }
-            });
-        }
-        irc.activeChannel = self.name;
-        self.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
-                .addClass("selected");
-    },
+    // selectTab: function(e) {
+    //     var self = this;
+    //     if(self.name !== BROUHAHA) {
+    //         _.each(self.parentObject.windowArray, function(win) {
+    //             if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
+    //                 win.tab.removeClass("selected");
+    //             }
+    //             if(win.name === BROUHAHA) {
+    //                 if(util.isChannelType(self.type)) {
+    //                     win.window.getElement('.channel-name').text(self.name); //update current channel in brouhaha
+    //                     win.currentChannel = self.name;
+    //                 }
+    //             }
+    //         });
+    //     }
+    //     irc.activeChannel = self.name;
+    //     self.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+    //             .addClass("selected");
+    // },
 
     select: function() {//change window elements
         if(this.active) return;
         this.parent();
 
-        this.selectTab();
+        this.tab.addClass("selected");
         this._selectUpdates();
         this.fireEvent("selected");
     },
@@ -270,26 +273,44 @@ ui.QUI.Window = new Class({
     },
 
     deselect: function() {
-        this.parent();
         this.tab.removeClass("selected");
+        this.parent();
     },
 
     editTopic: function() {
-        if (!this.client.nickOnChanHasPrefix(this.client.nickname, this.name, "@")) {
-            return alert(lang.needOp.message);
+        var self = this;
+        if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, "@")) {
+            new ui.Alert({
+                text: lang.needOp.message
+            });
+        } else {
+            new ui.Dialog({
+                title: "Set Topic",
+                text: util.formatter(lang.changeTopicConfirm.message, {channel: self.name}),
+                value: self.topic,
+                onSubmit: function(data) {
+                    var topic = data.value;
+                    if (_.isString(topic)) {
+                        self.client.exec("/TOPIC " + topic);
+                    }
+                }
+            });
         }
-        var newTopic = prompt(util.formatter(lang.changeTopicConfirm.message, {channel: this.name}), this.topic);
-        if (!$defined(newTopic))
-            return;
-
-        this.client.exec("/TOPIC " + newTopic);
     },
 
     setNickname: function() {
-        var nick = prompt("Enter a new nickname", self.nickname);
-        if(nick) {
-            self.client.exec("/nick " + nick);
-        }
+        var self = this;
+        new ui.Dialog({
+            title: "Set nickname",
+            text: "Enter a new nickname",
+            value: self.nickname,
+            onSubmit: function(data) {
+                var nick = qwebirc.global.nicknameValidator.validate(data.value);
+                if(nick) {
+                    self.client.exec("/nick " + nick);
+                }
+            }
+        });
     },
 
     updatePrefix: function (data) {
@@ -300,7 +321,7 @@ ui.QUI.Window = new Class({
             else
                 prefix = data.prefix;
         } else {
-            prefix = this.client.getNickStatus(this.name, this.client.nickname)
+            prefix = this.client.getNickStatus(this.name, this.client.nickname);
         }
         this.window.getElement('.input .nickname .status')
                         .removeClasses('op', 'voice')
@@ -358,21 +379,23 @@ ui.QUI.Window = new Class({
 
         if(colourClass)
             $msg.addClass(colourClass);
+        if(data.colourClass)
+            $msg.addClass(data.colourClass);
 
         this.parent(type.toUpperCase(), data, colourClass, $msg);
     },
     highlightTab: function(state) {
-        if (state != this.hilighted) {
+        if (state != this.highlight) {
             this.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech");
 
             switch (state) {
-            case ui.HILIGHT_US:
+            case ui.HIGHLIGHT.us:
                 this.tab.addClass("hilight-us");
                 break;
-            case ui.HILIGHT_SPEECH:
+            case ui.HIGHLIGHT.speech:
                 this.tab.addClass("hilight-speech");
                 break;
-            case ui.HILIGHT_ACTIVITY:
+            case ui.HIGHLIGHT.activity:
                 this.tab.addClass("hilight-activity");
                 break;
             }

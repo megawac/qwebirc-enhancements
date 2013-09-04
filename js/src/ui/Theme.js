@@ -14,8 +14,7 @@ ui.Theme = new Class({
         self.highlightClasses.channels = {};
     },
 
-//I'm under the assumption i dont need to strip tags as handlebars should escape them for me
-
+    //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
             isobj = _.isObject(_data),
@@ -120,14 +119,14 @@ ui.Theme = new Class({
             flash: true,
             beep: true,
             id: 'on_notice',
-            highlight: ui.HILIGHT_SPEECH
+            highlight: ui.HIGHLIGHT.speech
         },
         {
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
             id: 'on_pm',
-            highlight: ui.HILIGHT_SPEECH
+            highlight: ui.HIGHLIGHT.speech
         },
         {
             type: /^OUR/,
@@ -136,18 +135,18 @@ ui.Theme = new Class({
         {//match bots
             nick: /(^tf2)|((serv|bot)$)/i,
             classes: 'bot',
-            types: [ui.WINDOW_CHANNEL]
+            types: [ui.WINDOW.channel]
         },
         {
             msg: /^\!/,
             classes: 'command',
-            types: [ui.WINDOW_CHANNEL]
+            types: [ui.WINDOW.channel]
         },
         {
             mentioned: true,
             highlight: 'mentioned',
             notus: true,
-            tabhl: ui.HILIGHT_US
+            tabhl: ui.HIGHLIGHT.us
         },
         {
             nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
@@ -165,8 +164,8 @@ ui.Theme = new Class({
             highlight: true,
             notus: true,
             id: 'highlighter',
-            tabhl: ui.HILIGHT_ACTIVITY,
-            types: [ui.WINDOW_CHANNEL]
+            tabhl: ui.HIGHLIGHT.activity,
+            types: [ui.WINDOW.channel]
         }
     ],
 
@@ -174,7 +173,7 @@ ui.Theme = new Class({
 
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
-            tabHighlight = ui.HILIGHT_NONE,
+            tabHighlight = ui.HIGHLIGHT.none,
             highlights = self.highlightClasses,
             notus = !(/^OUR/.test(type)),
             parsers = _.clone(self.messageParsers).concat(self.customNotices);
@@ -203,7 +202,7 @@ ui.Theme = new Class({
                     }   
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(Type.isBoolean(parser.highlight) ? highlights.next(highlights.channels[win.name]++) : parser.highlight);
+                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++) : parser.highlight);
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);

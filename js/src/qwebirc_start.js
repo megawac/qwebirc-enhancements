@@ -1,4 +1,5 @@
-/*Copyright (c) 2008-2009 the qwebirc project.
+/*
+Copyright (c) 2008-2009 the qwebirc project.
 http://www.qwebirc.org/
 
 This program is free software; you can redistribute it and/or
@@ -16,28 +17,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Though it is not required, we would appreciate public facing
 instances leaving a mention of the original author(s) and the
-project name and URL in the about dialog, thanks!*/
+project name and URL in the about dialog, thanks!
+*/
 
-
-; (function(window, undefined) {
+; (function(undefined) {
     "use strict";
 
-    //init crap
-    var DEBUG = true;
-
     //common globals
-    var document = window.document,
+    var window = this,
+        document = window.document,
         $ = document.id,
         $$ = document.getElements;
 
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
-    window.QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
+    var QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
 
     //global object
-    //var qwebirc = window.qwebirc = {ui: {themes: {}, style: {}}, irc: {}, util: {crypto: {}}, config: {}, auth: {}, sound: {}};
-
     var qwebirc = window.qwebirc = _.extend(window.qwebirc || {}, {
         irc: {},
         ui: {
@@ -50,6 +47,17 @@ project name and URL in the about dialog, thanks!*/
         auth: {},
         sound: {},
         lang: {},
+        templates: {},
+        cookies: {
+            "channels": "qweb-channels",
+            "nickname": "qweb-nickname",
+            "username": "qweb-account",
+            "password": "qweb-password",
+            "auth": "qweb-auth",
+            "newb": "qweb-visit",
+            "options": "qweb-options",
+            "history": "qweb-hist"
+        },
         BUILD: QWEBIRC_BUILD,
         FILE_SUFFIX: "-" + QWEBIRC_BUILD,
         VERSION: "0.93-dev"
@@ -67,9 +75,10 @@ project name and URL in the about dialog, thanks!*/
         themes = ui.themes,
         style = ui.style,
 
+        cookies = qwebirc.cookies,
+
         sound = qwebirc.sound,//,
 
-        lang = qwebirc.lang;
+        lang = qwebirc.lang,
 
-
-    var templates = qwebirc.templates || {};
+        templates = qwebirc.templates;

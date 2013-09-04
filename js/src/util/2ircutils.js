@@ -1,8 +1,6 @@
 var whitespace = /\s/,
     notwhitespace = /\S+$/;
 
-ui.Behaviour = new Behavior();
-
 //my helper functions
 //returns itself
 var join = function(by, xs) {

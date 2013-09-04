@@ -1,7 +1,6 @@
 ; (function() {
     'use strict';
 
-
     // wrapper function for requirejs or normal object
     var wrap = function(Model) {
 
@@ -67,14 +66,15 @@
 
                 save: function(val) {
                     if(this.validate()) {
-                        var defaults = this.options.defaults,
-                            data = this.options.minimize ? Object.filter(this._attributes, function(val, key) {
-                                return !Epitome.isEqual(val, defaults[key]);//dont store defaults if minimize is true
-                            }) : this._attributes;
+                        var data = this.options.minimize ? Object.filter(this._attributes, this._filter, this) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
                         this.trigger('save');
                     }
                     return this;
+                },
+
+                _filter: function(val, key) {
+                    return !Epitome.isEqual(val, this.options.defaults[key]);//dont store defaults if minimize is true
                 },
 
                 destroy: function() {

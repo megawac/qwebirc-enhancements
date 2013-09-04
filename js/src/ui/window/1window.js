@@ -8,14 +8,15 @@ ui.Window = new Class({
 
         onReady: function() {
             this.render();
-        }
+        },
+        maxLines: 1000
     },
     template: templates.window,
 
     active: false,
     lastSelected: null,
     closed: false,
-    hilighted: ui.HILIGHT_NONE,
+    highlight: ui.HIGHLIGHT.none,
     lastNickHash: {},
 
     initialize: function(parentObject, $par, client, type, name, identifier) {
@@ -41,8 +42,8 @@ ui.Window = new Class({
         if(this.active) return;
         this.active = true;
         this.parentObject.selectWindow(this);
-        if (this.hilighted)
-            this.highlightTab(ui.HILIGHT_NONE);
+        if (this.highlight)
+            this.highlightTab(ui.HIGHLIGHT.none);
 
         this.fireEvent("selected");
         this.lastSelected = new Date();
@@ -65,33 +66,34 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
-        var highlight = ui.HILIGHT_NONE,
+        var highlight = ui.HIGHLIGHT.none,
             hl_line = false;
 
         highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
 
-        if (!self.active && (highlight !== ui.HILIGHT_NONE))
+        if (!self.active && (highlight !== ui.HIGHLIGHT.none))
             self.highlightTab(highlight);
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
 
         var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
-        self.lines.adopt($ele);
+        self.lines.adopt($ele)
+                .maxChildren(this.options.maxLines);
 
         if(uiobj.uiOptions2.get("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
     errorMessage: function(message) {
-        this.addLine("", message, "warncolour");
+        this.addLine("", message, "warn");
     },
     infoMessage: function(message) {
-        this.addLine("", message, "infocolour");
+        this.addLine("", message, "info");
     },
     highlightTab: function(state) {
-        if (state == ui.HILIGHT_NONE || state >= this.hilighted) {
-            this.hilighted = state;
+        if (state == ui.HIGHLIGHT.none || state >= this.highlight) {
+            this.highlight = state;
         }
     },
 

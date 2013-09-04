@@ -13,7 +13,7 @@ var channame_re = /(#|>)[\s\S]*(?=\/)/,
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
 urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
 
-urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {//breaks on names with dashs "qwebirc://whois/envision-#tf2mix/"
+urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
             //given "qwebirc://whois/rushey#tf2mix/"
             if(word.contains("qwebirc://")) {
                 var parsed = this.parsePunctuation(word),

@@ -16,17 +16,22 @@
         */
 
         //returns next item in array with overflow
-        next: function(pos, dir) {
-            var index = pos + (dir || 1);
-            if (index >= this.length) {
-                index %= this.length;
-            }
-            if (index < 0) {
-                index = this.length + (index % this.length);
-            }
-            return this[index];
-        }
+        // next: function(pos, dir) {
+        //     var index = pos + (dir || 1);
+        //     if (index >= this.length) {
+        //         index %= this.length;
+        //     }
+        //     if (index < 0) {
+        //         index = this.length + (index % this.length);
+        //     }
+        //     return this[index];
+        // }
 
+    });
+
+    var strp = String.prototype;
+    ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
+        try{strp[method] && strp[method].protect();}catch(o_O){}
     });
 
     String.implement({
@@ -34,7 +39,7 @@
         //replaces all occurences of the tofind string in this string with
         //alternatively call replace with a regex global
         //http://jsperf.com/replaceall-escape
-        replaceAll: function(tofind, torep) { //gross
+        replaceAll: function(tofind, torep) {
             var ns = this;
             while (ns.indexOf(tofind) > -1) {
                 ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
@@ -48,7 +53,7 @@
         // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
         // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
         //http://jsperf.com/string-splitmax-implementations
-        splitMax: function(by, max) { //wtf
+        splitMax: function(by, max) {
             var items = this.split(by),
                 len = max - 1,
                 newitems = items.slice(0, len);
@@ -70,28 +75,18 @@
         },
         endsWith: function(what, pos) {
             return this.slice(this.length - what.length - (pos || 0)) == what;
+        },
+
+        trimRight: function (){
+            return String(this).replace(/~+$/, '');
+        },
+
+        trimLeft: function() {
+            return String(this).replace(/^\s+/, '');
         }
     })
     .extend({
         escapeHTML: _.escape
-    });
-
-
-    Object.extend({
-        // get: Object.getFromPath,
-
-        // set: function(object, path, value) {
-        //     path = (typeof path == 'string') ? path.split('.') : path.slice(0);
-        //     var key = path.pop(),
-        //         len = path.length,
-        //         i = 0,
-        //         current;
-        //     while (len--) {
-        //         current = path[i++];
-        //         object = current in object ? object[current] : (object[current] = {});
-        //     }
-        //     object[key] = value;
-        // },
     });
 
     Element.Properties.val = Element.Properties.value = {
@@ -113,7 +108,6 @@
                 return this.get(fn);
             });
         });
-
 
     Element.implement({
 
@@ -140,7 +134,7 @@
 
         maxChildren: function(n) {
             for (var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
-                ele.destroy();
+                ele.dispose();
             }
             return this;
         },

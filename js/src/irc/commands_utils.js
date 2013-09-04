@@ -2,8 +2,8 @@
 irc.BaseCommandParser = new Class({
     Binds: ["dispatch"],
     initialize: function(parentObject) {
-        this.send = parentObject.send;
         this.parentObject = parentObject;
+        this.send = this.parentObject.send;
     },
 
     buildExtra: function(extra, target, message) {
@@ -17,39 +17,8 @@ irc.BaseCommandParser = new Class({
         return extra;
     },
 
-    newTargetLine: function(target, type, message, extra) {
-        extra = this.buildExtra(extra, target, message);
-        var win = this.parentObject.getWindow(target);
-        var channel;
-        if (!win) {
-            type = "TARGETED" + type;
-            target = false;
-            this.parentObject.newActiveLine("OUR" + type, extra);
-        } else if (win.type == ui.WINDOW_CHANNEL) {
-            this.parentObject.newChanLine(target, "OURCHAN" + type, null, extra);
-        } else {
-            type = "PRIV" + type;
-            this.parentObject.newLine(target, "OUR" + type, extra);
-        }
-
-    },
-
-    newQueryLine: function(target, type, message, extra) {
-        extra = this.buildExtra(extra, target, message);
-
-        if (this.parentObject.ui.uiOptions2.get("dedicated_msg_window")) {
-            var win = this.parentObject.getWindow(target);
-            if (!win) {
-                var win = this.parentObject.ui.newWindow(this.parentObject, ui.WINDOW_MESSAGES, "Messages");
-                win.addLine("OURTARGETED" + type, extra);
-                return;
-            }
-        }
-        return this.newTargetLine(target, type, message, extra);
-    },
-
     trigger: function(type, data) {
-        this.parentObject.trigger(type, data);
+        return this.parentObject.trigger(type, data);
     },
 
     // routes all outputs with the server
@@ -78,13 +47,13 @@ irc.BaseCommandParser = new Class({
             minargs = cmdopts[2];
             fn = cmdopts[3];
 
-            //errors in command
+           /* //errors in command
             win = chan ? par.windows[chan] : self.getActiveWindow();
             if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
                 par.writeMessages(lang.invalidCommand);
                 break;
             }
-            else if (minargs && ((args && (minargs > args.length)) || (!args && (minargs > 0)))) {
+            else */if (minargs && ((args && (minargs > args.length)) || (!args && (minargs > 0)))) {
                 par.writeMessages(lang.insufficentArgs);
                 break;
             }
@@ -95,10 +64,6 @@ irc.BaseCommandParser = new Class({
             allargs = fn.call(self, args, chan);
             // allargs = fn.run(Array.from(args), this);
         }
-    },
-
-    getActiveWindow: function() {
-        return this.parentObject.getActiveWindow();
     }
 });
 
@@ -108,34 +73,21 @@ irc.BaseCommandParser = new Class({
 irc.Commands = new Class({
     Extends: irc.BaseCommandParser,
 
-    newUIWindow: function(property) {
-        var self = this,
-            prop = self.parentObject.ui[property];
-        if (!$defined(prop)) {
-            self.writeMessages(lang.invalidCommand);
-        } else {
-            prop.call(self.parentObject.ui);
-        }
-    },
-
     /* [require_active_window, splitintoXargs, minargs, function] */
     cmd_ME: [true, undefined, undefined, function(args, target) {
-        if (!args) {
-            args = "";
-        }
+        args = args || "";
 
         target = target || this.getActiveWindow().currentChannel;
         if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
             return;
 
         var nick = this.parentObject.nickname;
-        this.trigger("userAction", {
+        this.trigger("privAction", {
             'nick': nick,
             'message': args,
             'target': target,
             'channel': target,
-            "@": this.parentObject.getNickStatus(target, nick),
-            "type": "privAction"
+            "@": this.parentObject.getNickStatus(target, nick)
         });
     }],
 
@@ -144,18 +96,15 @@ irc.Commands = new Class({
             type = args[1].toUpperCase(),
             message = args[2] || "";
 
-        // if (!!message) {
-        //     if (!this.send("PRIVMSG " + target + " :\x01" + type + "\x01")) return;
-        // } else {
-        //     if (!this.send("PRIVMSG " + target + " :\x01" + type + " " + message + "\x01")) return;
-        // }
-
-        if (!this.send("PRIVMSG " + target + " :\x01" + type + " " + util.padspace(message) + "\x01"))
-            return;
-
-        this.newTargetLine(target, "CTCP", message, {
-            "x": type
-        });
+        if (this.send("PRIVMSG " + target + " :\x01" + type + " " + util.padspace(message) + "\x01")) {
+            this.trigger("privCTCP", {
+                'nick': this.parentObject.nickname,
+                '_type': type,
+                'message': message,
+                'args': args,
+                'type': 'CTCPReply'
+            });
+        }
     }],
 
     cmd_PRIVMSG: [false, 2, 2, function(args) {
@@ -166,20 +115,16 @@ irc.Commands = new Class({
 
         if (!util.isChannel(target)) {
             parentObj.pushLastNick(target);
-            parentObj.newWindow(target, ui.WINDOW_MESSAGES, false);
 
-            this.trigger("userPrivmsg", {
+            this.trigger("query", {
                 'nick': nick,
                 'channel': target,
                 'message': message,
-                'type': 'privmsg'
+                'type': 'ourprivmsg'
             });
         }
 
         if (this.send("PRIVMSG " + target + " :" + message)){
-            // this.newQueryLine(target, "MSG", message, {
-            //     "@": parentObj.getNickStatus(target, nick)
-            // });
             this.trigger("chanMessage", {
                 'nick': nick,
                 'channel': target,
@@ -194,16 +139,7 @@ irc.Commands = new Class({
         var target = args[0];
         var message = args[1];
 
-        // this.parentObject.broadcast(this.parentObject.nickname, BROUHAHA, message, target, "CHANNOTICE");
-
         if (this.send("NOTICE " + target + " :" + message)) {
-            // if (util.isChannel(target)) {
-            //     this.newTargetLine(target, "NOTICE", message, {
-            //         "@": this.parentObject.getNickStatus(target, this.parentObject.nickname)
-            //     });
-            // } else {
-            //     this.newTargetLine(target, "NOTICE", message);
-            // }
             this.trigger("chanNotice", {
                 'nick': this.parentObject.nickname,
                 'channel': target,
@@ -214,14 +150,20 @@ irc.Commands = new Class({
     }],
 
     cmd_QUERY: [false, 2, 1, function(args) {
-        if (util.isChannel(args[0])) {
+        var target = args[0],
+            message = args[1];
+        if (util.isChannel(target)) {
             return this.writeMessages(lang.invalidChanTarget);
         }
 
-        this.parentObject.newWindow(args[0], ui.WINDOW_QUERY, true);
-
-        if ((args.length > 1) && (args[1])) {
-            return ["SAY", args[1]];
+        // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
+        if(this.send("PRIVMSG " + target + " :" + message)) {
+            this.trigger("query", {
+                'nick': this.parentObject.nickname,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg'
+            });
         }
     }],
 
@@ -234,19 +176,31 @@ irc.Commands = new Class({
     }],
 
     cmd_OPTIONS: [false, undefined, undefined, function(args) {
-        this.newUIWindow("optionsWindow");
+        this.trigger("openWindow", {
+            'window': "optionsWindow",
+            'type': ui.WINDOW.custom
+        });
     }],
 
     cmd_EMBED: [false, undefined, undefined, function(args) {
-        this.newUIWindow("embeddedWindow");
+        this.trigger("openWindow", {
+            'window': "embeddedWindow",
+            'type': ui.WINDOW.custom
+        });
     }],
 
     cmd_PRIVACYPOLICY: [false, undefined, undefined, function(args) {
-        this.newUIWindow("privacyWindow");
+        this.trigger("openWindow", {
+            'window': "privacyWindow",
+            'type': ui.WINDOW.custom
+        });
     }],
 
     cmd_ABOUT: [false, undefined, undefined, function(args) {
-        this.newUIWindow("aboutWindow");
+        this.trigger("openWindow", {
+            'window': "aboutWindow",
+            'type': ui.WINDOW.custom
+        });
     }],
 
     cmd_QUOTE: [false, 1, 1, function(args) {
@@ -346,10 +300,10 @@ irc.Commands = new Class({
 irc.commandAliases = {
     "J": "JOIN",
     "P": "PART",
-    "K": "KICK",
     "MESSAGE": "PRIVMSG",
     "M": "PRIVMSG",
     "MSG": "PRIVMSG",
+    "PM": "PRIVMSG",
     "Q": "QUERY",
     "BACK": "AWAY",
     "PRIVACY": "PRIVACYPOLICY",

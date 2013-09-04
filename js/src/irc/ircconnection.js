@@ -430,7 +430,7 @@ irc.NodeConnection = new Class({
         this.fireEvent("retry", {
             next: next
         });
-        this.socket.emit("retry");
+        this.socket.emit("retry", "please");
         return _.delay(this.autoretry, next, this);
     }
 });

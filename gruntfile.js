@@ -1,25 +1,34 @@
 module.exports = function(grunt) {
     var concatfiles = [
-    'js/dist/templates.js',
     'js/src/qwebirc_start.js',
+    'js/templates/qwebirc.js',
     'js/src/util/*.js',
     'js/src/qwebirc.js',
+    'js/src/config/**.js',
     'js/src/irc/*.js',
-    'js/src/ui/Handlebars/*.js',
+    'templates/Templates.js',
     'js/src/ui/*.js',//ui +etc
+    'js/src/ui/panes/*.js',
     'js/src/ui/window/*.js',
     'js/src/qwebirc_end.js'];
+    var fullconcat = [
+    'js/libs/*.js',
+    'js/libs/Epitome/*.js',
+    'js/dist/qwebirc.js'
+    ];
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
         meta: {},
 
         handlebars: {
             dist: {
                 options: {
                     namespace: "qwebirc.templates",
-                    knownHelpers: ['if', 'each', 'unless', 'check', 'pad'],
+                    knownHelpers: ['if', 'each', 'unless', 'check', '$css', 'enableDisable'],
                     wrapped: true,
                     node: false,
+                    // amd: true,
                     processContent: function(content) {//remove whitespace
                         content = content.replace(/^[\x20\t]+/mg, '').replace(/[\x20\t]+$/mg, '');
                         content = content.replace(/^[\r\n]+/, '').replace(/[\r\n]*$/, '');
@@ -31,7 +40,16 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "js/dist/templates.js": ['css/modifiablecss.hbs', 'js/src/ui/Handlebars/templates/*.hbs']
+                    "js/templates/qwebirc.js": ['css/modifiablecss.hbs', 'templates/**.hbs'],
+                    "js/templates/options.js": ["panes/options.hbs"],
+                    "js/templates/wizard.js": ["panes/wizard.hbs"],
+                    "js/templates/feedback.js": ["panes/feedback.hbs"],
+                    "js/templates/about.js": ["panes/about.hbs"],
+                    "js/templates/faq.js": ["panes/faq.hbs"],
+                    "js/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
+                    "js/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
+                    "js/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
+                    "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
                 }
             }
         },
@@ -50,15 +68,7 @@ module.exports = function(grunt) {
 
             full: {
                 // the files to concatenate
-                src: [
-                'js/libs/*.js',
-                'js/libs/Epitome/*.js',
-                // 'js/src/prelude.js',
-                //'js/functional+.js',
-                // //'js/to-function.js',
-                // 'js/src/Templates.js',
-                'js/dist/qwebirc.js'
-                ],
+                src: fullconcat,
                 // the location of the resulting JS file
                 dest: 'js/dist/qwebirc-0.93dev.js'
             }
@@ -69,22 +79,22 @@ module.exports = function(grunt) {
             demo: {
                 files: [{
                     expand: true,
-                    src: ['js/dist/qwebirc-0.93dev.js'],
+                    src: ['js/dist/qwebirc-0.93dev.js', 'js/modules/**', 'js/panes/**', 'js/templates/**'],
                     dest: 'demo/node/static/'
                 },
                 {
                     expand: true,
-                    src: ['css/*.css', 'css/*.mcss'],
+                    src: ['css/*.css'],
                     dest: 'demo/node/static/'
                 },
                 {
                     expand: true,
-                    src: ['js/dist/qwebirc-0.93dev.js'],
+                    src: ['js/dist/qwebirc-0.93dev.js', 'js/modules/**', 'js/panes/**', 'js/templates/**'],
                     dest: 'demo/twisted/static/'
                 },
                 {
                     expand: true,
-                    src: ['css/*.css', 'css/*.mcss'],
+                    src: ['css/*.css'],
                     dest: 'demo/twisted/static/'
                 }]
             }
@@ -101,13 +111,23 @@ module.exports = function(grunt) {
                 preserveComments: 'some',
                 //only comments which start with ! -bang
                 beautify: true,
-                ast_lift_variables: true
-
+                ast_lift_variables: true,
+                banner: [
+                    '/*!',
+                    '<%= pkg.name %> ::: Version <%= pkg.version %> :::',
+                    'Built on <%= grunt.template.today("yyyy-mm-dd") %>',
+                    'Description: <%= pkg.description %>',
+                    'Authors: <%= pkg.author.name %> (<%= pkg.author.url %>)',
+                    'Repository: <%= pkg.repository %>',
+                    '\nThis project is a form of <%= pkg.fork.name %> (<%= pkg.fork.url %>) by <%= pkg.fork.author %>',
+                    '\n\nLicence: <%= pkg.licence.type %> - <%= pkg.licence.url %>',
+                    '<%= grunt.file.read(pkg.licence.file) %>',
+                    '*/\n'
+                ].join("\n")
             },
             strip: {
                 files: {
-                    'js/dist/qwebirc.min.js': ['js/dist/qwebirc.js'],
-                    'js/dist/qwebirc-0.93dev-min.js': ['js/dist/qwebirc-0.93dev.js']
+                    'js/dist/qwebirc-0.93dev.js': fullconcat
                 }
             }
         }
@@ -127,9 +147,10 @@ module.exports = function(grunt) {
 
     'handlebars',
 
-    'concat:qweb', 'concat:full',
-    'copy:demo'
-    // , 'uglify:strip'
+    'concat:qweb',
+    // 'concat:full',
+    'uglify:strip',
+    'copy:demo',
     //, 'uglify:min'
     ]);
 };

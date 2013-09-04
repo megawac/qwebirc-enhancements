@@ -3,17 +3,17 @@ ui.Interface = new Class({
     Implements: [Options, Events],
     options: {
         node: false,//use the node implementation with socket.io
+        debug: false,
 
         dynamicBaseURL: "/",
         staticBaseURL: "/",
         searchURL: true,
 
-        appTitle: "Gamesurge.net Web IRC",
-        networkName: "Gamesurge",
+        appTitle: "Freenode.net Web IRC",
+        networkName: "Freenode",
         networkServices: [],
 
         initialNickname: "",
-        initialChannels: ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
 
         hue: null,
@@ -34,17 +34,17 @@ ui.Interface = new Class({
 
         loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
-
     },
-    //var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {"appTitle":"QuakeNet Web IRC","dynamicBaseURL":"/dynamic/leibniz/","baseURL":"http://webchat.quakenet.org/","validateNickname":false,"networkServices":["Q!TheQBot@CServe.quakenet.org"],"nickValidation":{"maxLen":15,"validSubChars":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|0123456789-","validFirstChar":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_[]{}`^\\|","minLen":2},"staticBaseURL":"/static/leibniz/","loginRegex":"^You are now logged in as [^ ]+\\.$","networkName":"QuakeNet"});
-    initialize: function(element, uitheme, options) {
+    clients: [],
+
+    initialize: function(element, UI, options) {
         this.setOptions(options);
         var self = this,
             opts = self.options;
 
         qwebirc.global = {
-            dynamicBaseURL: opts.dynamicBaseURL,
-            staticBaseURL: opts.staticBaseURL,
+            baseURL: opts.dynamicBaseURL,
+            staticURL: opts.staticBaseURL,
             nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
         };
 
@@ -63,12 +63,8 @@ ui.Interface = new Class({
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
-                ichans = storage.get("channels") || opts.initialChannels,
+                ichans = storage.get(cookies.channels) || opts.initialChannels,
                 autoConnect = false;
-
-            //cleans up old properties
-            if(storage.get('__clean') !== false)
-                self.cleanUp();
 
             if (opts.searchURL) {
                 var args = util.parseURI(document.location.toString()),
@@ -111,48 +107,32 @@ ui.Interface = new Class({
                 if (args["randomnick"] && args["randomnick"] == 1) {
                     inick = opts.initialNickname;
                 }
-
-
-                //Stupid... using variables out of scope can only have one result.
-
-                // we only consider autoconnecting if the nick hasn't been supplied, or it has and it's not "" 
-                // if(canAutoConnect && (!$defined(inick) || !!inick)) {//this is stupid...
-                //     var p = args["prompt"],
-                //         pdefault = false;
-
-                //     if(!$defined(p) || !!p) {
-                //         pdefault = true;
-                //         p = false;
-                //     } else if(p == "0") {
-                //         p = false;
-                //     } else {
-                //         p = true;
-                //     }
-
-                //     // autoconnect if we have channels and nick but only if prompt != 1
-                //     if(($defined(inick) || !pdefault)  && !p) {// OR if prompt=0, but not prompt=(nothing)
-                //         autoConnect = true;
-                //     }
-                // }
             }
+            self.element = document.id(element);
 
-            self.ui_ = new uitheme($(element), new ui.Theme(opts.theme), opts); //unconventional naming scheme
+            self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
 
             var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
             //if(usingAutoNick && autoConnect) {
             inick = opts.initialNickname;
             //}
 
-            var details = self.ui_.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
+            var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
+            //cleans up old properties
+            if(storage.get(cookies.newb) !== true) {
+                self.welcome();
+                storage.set(cookies.newb, true);
+            }
 
-            self.ui_.addEvent("login:once", function(loginopts) {
-                var ircopts = Object.append(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']), loginopts);
+            self.ui.addEvent("login:once", function(loginopts) {
+                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']),
+                                        loginopts);
 
-                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui_);
+                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
                 client.connect();
 
 
-                window.onbeforeunload =  function(e) {
+                window.onbeforeunload = function(e) {
                     if (!client.disconnected) {
                         var message = "This action will close all active IRC connections.";
                         if ((e = e || window.event)) {
@@ -164,10 +144,10 @@ ui.Interface = new Class({
                 window.addEvent('unload', client.quit);
 
                 if(!auth.enabled) {
-                    self.ui_.beep();
+                    self.ui.beep();
                 }
 
-                client.addEvent("auth:once", self.ui_.beep);
+                client.addEvent("auth:once", self.ui.beep);
 
                 self.fireEvent("login", {
                     'IRCClient': client,
@@ -176,14 +156,11 @@ ui.Interface = new Class({
             });
         });
     },
-    cleanUp: function() {
-        var cookies = ['channels', 'nickname', 'gamesurge', 'password', 'opt1'];
-        if($defined(localStorage) && cookies.some(function(id) { return Cookie.read(id) !== null })) {
-            if(confirm('The old app installed cookies that are no longer used... Delete them?')) {
-                cookies.each(Cookie.dispose); //delete old cookies
-            }
-        }
-        storage.set('__clean', false);
+    welcome: function() {
+        ui.WelcomePane.show(this.ui, {
+            element: this.element,
+            firstvisit: true
+        });
     },
     getHueArg: function(args) {
         var hue = args["hue"];

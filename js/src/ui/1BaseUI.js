@@ -4,30 +4,35 @@ ui.BaseUI = new Class({
     options: {
 
     },
-    initialize: function(parentElement, windowClass, uiName, options) {
+    windows: {},
+    customWindows: {},
+    clients: {},
+    windowArray: [],
+    clientId: 0,
+
+    initialize: function(parentElement, Window, uiName, options) {
         var self = this;
         self.setOptions(options);
 
-        self.windows = {};
-        self.clients = {};
-        self.windows[ui.CUSTOM_CLIENT] = {};
-        self.windowArray = [];
-        self.windowClass = windowClass;
+        self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
+        self.Window = Window;
         self.parentElement = parentElement;
         parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
         self.commandhistory = new irc.CommandHistory();
-        self.clientId = 0;
 
-
-        self.outerTabs = Element.from(templates.topPane()).inject(parentElement);
-        self.windowsPanel = Element.from(templates.windowsPane()).inject(parentElement);
+        getTemplate("topPane", function(template) {
+            self.outerTabs = Element.from(template()).inject(parentElement);
+        });
+        getTemplate("windowsPane", function(template) {
+            self.windowsPanel = Element.from(template()).inject(parentElement);
+        });
     },
     newClient: function(client) {
         client.id = this.clientId++;
 
         var windows = this.windows[client.id] = {};
         this.clients[client.id] = client;
-        var win = this.newWindow(client, ui.WINDOW_STATUS, STATUS);
+        var win = this.newWindow(client, ui.WINDOW.status, STATUS);
         this.selectWindow(win);
 
         this.clientEvents(client, windows);
@@ -42,8 +47,8 @@ ui.BaseUI = new Class({
                 this.commandhistory.addChannel(name);
             }
             var wId = this.getWindowIdentifier(name);
-            var $wrapper = new Element('div', {'class': 'hidden'}).inject(this.windowsPanel);//for delegation - this is not how i should do it
-            win = this.windows[this.getClientId(client)][wId] = new this.windowClass(this, $wrapper, client, type, name, wId);
+            var $wrapper = new Element('div.hidden').inject(this.windowsPanel);//for delegation - this is not how i should do it
+            win = this.windows[this.getClientId(client)][wId] = new this.Window(this, $wrapper, client, type, name, wId);
             this.windowArray.push(win);
         }
 
@@ -69,6 +74,7 @@ ui.BaseUI = new Class({
                 t: type,
                 type: type
             }, _data);
+            data.channel = data.c;
             if (!(self.uiOptions2.get("nick_ov_status"))){
                 delete data["@"];
             }
@@ -124,10 +130,20 @@ ui.BaseUI = new Class({
             }
         }
 
+        function partKick(type, data) {
+            if(data.thisclient) {
+                var win = self.getWindow(client, data.channel);
+                if(win) win.close();
+            } else {
+                joinPart(type,data);
+            }
+        }
+
         client.addEvents({
             "connect": lineParser,
             "disconnect": lineParser,
             "error": lineParser,
+            "info": lineParser,
 
             "chanAction": lineParser,
             "chanTopic": updateTopic,
@@ -136,17 +152,35 @@ ui.BaseUI = new Class({
             "chanCTCP": lineParser,
 
             "userJoined": function(type, data) {
+                if(data.thisclient) {
+                    var win = self.newWindow(client, ui.WINDOW.channel, data.channel);//this is client scope
+                    if(data.select) {
+                        win.select();
+                    }
+                }
                 joinPart(data.thisclient ? "ourJoin" : "join", data);
             },
-            "userPart": joinPart,
-            "userQuit": function (type, data) {
-                joinPart("quit", data);
+
+            openWindow: function(type, data) {//create? and select window
+                var win = self.getWindow(data.window);
+                if(!win) {
+                    if(data.type === ui.WINDOW.custom) {
+                        win = self[data.window]();
+                    } else {
+                        win = self.newWindow(client, data.type, data.window);
+                    }
+                }
+                win.select();
             },
-            "userKicked": lineParser,
-            "userInvite": lineParser,
-            "userAction": lineParser,
-            "userCTCP": lineParser,
-            "userCTCPReply": lineParser,
+
+            "away": lineParser,
+            "part": partKick,
+            "quit": partKick,
+            "kick": partKick,
+            "invite": lineParser,
+            "privAction": lineParser,
+            "privCTCP": lineParser,
+            "ctcpReply": lineParser,
             "userMode": lineParser,
             "nickChange": function(type, data) {
                 self.nickChange(data);
@@ -156,7 +190,7 @@ ui.BaseUI = new Class({
 
             "query": function(type, data) {//queries
                 data = formatData(type, data);
-                var win = self.newWindow(client, ui.WINDOW_QUERY, data.channel); //get or create
+                var win = self.newWindow(client, ui.WINDOW.query, data.channel); //get or create
                 if(self.uiOptions2.get("auto_open_pm")) {
                     self.selectWindow(win);
                 }
@@ -179,11 +213,10 @@ ui.BaseUI = new Class({
                 });
             },
             "wallops": lineParser,
-
-            "retry": lineParser
+            "raw": function(type, args) {
+                lineParser(type, args);
+            }
         });
-
-
     },
 
     getClientId: function(client) {
@@ -195,40 +228,40 @@ ui.BaseUI = new Class({
     nickChange: util.noop,
 
     getWindow: function(client, name) {
-        if(_.isNumber(name)) {
-            return _.findWhere(this.windowArray, {
-                type: name
-            });
-        }
-        var wins = this.windows[this.getClientId(client)];
-        if (!$defined(wins))
-            return null;
-
-        return wins[this.getWindowIdentifier(name)];
+        // if(_.isNumber(name)) {
+        //     return _.findWhere(this.windowArray, {
+        //         type: name
+        //     });
+        // }
+        if(_.isString(client)) name = client;
+        var wins = this.windows[this.getClientId(client)] || this.customWindows;
+        if (_.isObject(wins)) 
+            return wins[this.getWindowIdentifier(name)];
     },
     getActiveWindow: function() {
         return this.active;
     },
     getActiveIRCWindow: function(client) {
-        if (!this.active || this.active.type == ui.WINDOW_CUSTOM) {
+        if (!this.active || this.active.type == ui.WINDOW.custom) {
             return this.windows[this.getClientId(client)][this.getWindowIdentifier(STATUS)];
         } else {
             return this.active;
         }
     },
     selectWindow: function(win) {
-        if(Type.isNumber(win))
+        if(_.isNumber(win))
             win = this.windowArray[win];
-        else if(Type.isString(win)) 
+        else if(_.isString(win))
             win = this.getWindow(win);
-        if(win === this.active) return;
-        if (this.active) {
-            this.active.deselect();
-            // this.last = this.active;
+        if(win !== this.active) {
+            if (this.active) {
+                this.active.deselect();
+                this.last = this.active;
+            }
+            if(!win.active) win.select();
+            this.setWindow(win);
+            this.updateTitle(win.name + " - " + this.options.appTitle);
         }
-        if(!win.active) win.select();
-        this.setWindow(win);
-        this.updateTitle(win.name + " - " + this.options.appTitle);
         return win;
     },
     setWindow: function(win) {
@@ -236,7 +269,7 @@ ui.BaseUI = new Class({
     },
     nextWindow: function(direction, fromWin) {
         var windows = this.windowArray,
-            win = windows.next(windows.indexOf(fromWin || this.active), direction); //get window from array
+            win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
         if(win) win.select();
 
         return win;

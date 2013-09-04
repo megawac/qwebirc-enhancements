@@ -95,46 +95,67 @@ ui.QUI = new Class({
 
         //append menu and tabbar
         self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
-                    .addEvents({
-                        "click:relay(.tab .tab-close)": function(e, target) {
-                            e.stop();
-                            target.getParent('.tab').retrieve('window').close();
-                        },
-                        "click:relay(.tab .detach)": function(e, target) {
-                            e.stop();
-                            target.getParent('.tab').retrieve('window').detach();
-                        },
-                        "focus:relay(.tab)": Element.prototype.blur,
-                        "click:relay(.tab)": function(e, target) {//can be called when tab is closed
-                            target.retrieve('window').selectTab();
-                        },
-                        "dblclick:relay(.tab)": function(e, target) {
-                            e.stop();
-                            target.retrieve('window').select();
-                        }
-                    });
-
-        // ui.Behaviour.apply(self.outerTabs);
-
+            .addEvents({
+                "click:relay(.tab .tab-close)": function(e, target) {
+                    e.stop();
+                    target.getParent('.tab').retrieve('window').close();
+                },
+                "click:relay(.tab .detach)": function(e, target) {
+                    e.stop();
+                    target.getParent('.tab').retrieve('window').detach();
+                },
+                "focus:relay(.tab)": Element.prototype.blur,
+                "click:relay(.tab)": function(e, target) {//can be called when tab is closed
+                    self.selectTab(target);
+                },
+                "dblclick:relay(.tab)": function(e, target) {
+                    e.stop();
+                    target.retrieve('window').select();
+                }
+            });
 
         //delay for style recalc
         self.__createDropdownHint.delay(500, self);
     },
 
+    selectTab: function(tab) {
+        var active = this.active;
+        var win = tab.retrieve("window");
+        var isChannel = util.isChannelType(win.type);
+        if(!active || !isChannel || (isChannel && active.name !== BROUHAHA)) {
+            win.select();
+        }
+        if(!util.isBaseWindow(win.name) && isChannel) {//update brouhaha window attrs
+            var brouhaha = this.windows.brouhaha;
+            brouhaha.currentChannel = win.name;
+            brouhaha.window.getElement('.channel-name').text(win.name);
+            tab.addClass('selected');
+        }
+        tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+            .getSiblings(".selected:not(.detached,.brouhaha)").removeClass("selected");//remove last selection
+    },
+
+    selectWindow: function(win) {
+        win = this.parent(win);
+        this.selectTab(win.tab);
+    },
+
     newTab: function(win, name) {
         var self = this;
+        var isBrouhaha = (name === BROUHAHA);
         var $tab = Element.from(templates.ircTab({
-                'name': (name === BROUHAHA) ? '&nbsp;' : name,
+                'name': isBrouhaha ? '&nbsp;' : name,
                 closable: !isBaseWindow(name)
             })).inject(self.tabs);
 
-        if(name === BROUHAHA) {
+        if(isBrouhaha) {
             $tab.addClass('brouhaha');
             _.delay(function() {
                 _.some(self.windowArray, function(otherwin) {
                     if(util.isChannelType(otherwin.type) && !util.isBaseWindow(otherwin.name)) {
                         win.properties.text(otherwin.name); //update current channel in brouhaha
                         win.currentChannel = otherwin.name;
+                        return true;
                     }
                 });
             }, 1000);
@@ -177,7 +198,9 @@ ui.QUI = new Class({
                 if(self.hideHint)
                     self.hideHint();
                 delete self.hideHint;
-            }
+            },
+            btnlistener: true,
+            autohide: true
         });
         return dropdownbtn;
         // return dropdownMenu;
@@ -246,7 +269,7 @@ ui.QUI = new Class({
     setHotKeys: function () {
         var self = this, 
             keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
-            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);;
+            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
             keyboard.scope = self;
 
 
@@ -311,6 +334,7 @@ ui.QUI = new Class({
 
             $btn = self.outerTabs.getElement('.add-chan'),
             $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
+        $oldmen = $oldmen && $oldmen.getParent();
 
         if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
             client.getPopularChannels(function(chans) {
@@ -327,38 +351,31 @@ ui.QUI = new Class({
                         channels: chans
                     }));
 
-                if($oldmen) {
-                    $menu.replaces($oldmen)
-                        .position.delay(50, $menu.parentElement, {
-                            relativeTo: $btn,
-                            position: {x: 'left', y: 'bottom'},
-                            edge: {x: 'left', y: 'top'}
-                        });
-                }
-                else {
-                    var wrapper = new Element('div').inject(self.parentElement).adopt($menu);
-                    ui.decorateDropdown($btn, wrapper, {btn: false});
-                    wrapper.addEvent("click:relay(a)", function(e, target) {
-                        var chan = target.get('data-value');
-                        client.exec("/JOIN " + chan);
-                    });
-                }
+                var wrapper = new Element('div').inject(self.parentElement)
+                                                .adopt($menu);
+                ui.decorateDropdown($btn, wrapper);
+                wrapper.addEvent("click:relay(a)", function(e, target) {
+                    var chan = target.get('data-value');
+                    client.exec("/JOIN " + chan);
+                });
                 $btn.store('time', Date.now());//so we dont have to refresh maybe
             });
-        } else if (!$oldmen.parentElement.isDisplayed()) { //show old menu
-            $oldmen.parentElement
-                .position({
+        } else if (!$oldmen.isDisplayed()) { //show old menu
+            $oldmen.retrieve("toggle")();
+            $oldmen.position({
                     relativeTo: $btn,
                     position: {x: 'left', y: 'bottom'},
                     edge: {x: 'left', y: 'top'}
-                })
-                .retrieve("toggle")();
+                });
         }
     },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');
-        return this.parent(client);
+        var status = this.parent(client);
+        //load brouhaha window (b4 connecting)
+        this.windows.brouhaha = this.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+        return status;
     },
 
     setWindow: function(win) {

@@ -2,13 +2,13 @@
 var storage = util.storage = new Storage({
     duration: 365,
     domain: '/',
-    debug: DEBUG
+    debug: true
 }),
 
 session = util.sessionStorage = new Storage({
     storageType: 'sessionStorage',
     duration: 1,
-    debug: DEBUG,
+    debug: true,
     fallback: false
 });
 

@@ -13,19 +13,6 @@ ui.StandardUI = new Class({
         // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
         self.uiOptions2 = new config.OptionModel({
             defaults: self.options.uiOptionsArg
-        }, {
-            onInit: function() {//merge where necessary
-                var model = this;
-                _.each(["notify_on_mention", "notify_on_pm", "notify_on_notice"], function(type) {
-                    var notifier = _.filter(self.theme.messageParsers, function(n) { return n.id === type; })[0],
-                        set = model.get(type);
-                    _.merge(notifier, set);
-
-                    model.on("change:" + type, function() {
-                        _.merge(notifier, set);
-                    });
-                });
-            }
         });
 
         function setCustomNotice(notices) {
@@ -60,8 +47,6 @@ ui.StandardUI = new Class({
         setCustomNotice(self.uiOptions2.get("custom_notices"));
         setStandardNotice(self.uiOptions2.get("notices"));
 
-        self.customWindows = {};
-
         self.setModifiableStylesheet({
             style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
             style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
@@ -70,7 +55,7 @@ ui.StandardUI = new Class({
     },
 
     newCustomWindow: function(name, select, type) {
-        type = type || ui.WINDOW_CUSTOM;
+        type = type || ui.WINDOW.custom;
 
         var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
 
@@ -79,59 +64,58 @@ ui.StandardUI = new Class({
         return win;
     },
 
-    addCustomWindow: function(windowName, class_, cssClass, options) {
-        if (!$defined(options))
-            options = {};
-
-        if (this.customWindows[windowName]) {
-            this.selectWindow(this.customWindows[windowName]);
-            return;
+    addCustomWindow: function(windowName, CustomView, cssClass, options) {
+        var wid = this.getWindowIdentifier(windowName);
+        if (_.has(this.customWindows, wid)) {
+            return this.selectWindow(this.customWindows[wid]);
         }
 
         var win = this.newCustomWindow(windowName, true);
-        this.customWindows[windowName] = win;
+        this.customWindows[wid] = win;
 
         win.addEvent("destroy", function() {
-            this.customWindows[windowName] = null;
+            delete this.customWindows[wid];
         }.bind(this));
 
-        if (cssClass)
-            win.lines.addClass("qwebirc-" + cssClass);
+        if(_.isString(cssClass)) {
+            win.lines.addClass(cssClass);
+        }
 
-        var ew = new class_(win.lines, options);
-        ew.addEvent("close", win.close);
-    },
-    embeddedWindow: function() {
-        this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embeddedwizard", {
-            baseURL: this.options.baseURL,
-            uiOptions: this.uiOptions2,
-            optionsCallback: this.optionsWindow
-        });
+        options = _.extend({
+            element: win.lines
+        }, options);
+        new CustomView(options)
+            .addEvent("close", win.close);
+
+
+        return win;
     },
     optionsWindow: function() {
         var self = this;
-        var constructor = function(element, data) {
-            return new ui.OptionView({
-                element: element,
-                model: data,
-                onNoticeTest: function() {
-                    self.flash({force:true});
-                }
-            });
-        }
-        self.addCustomWindow("Options", constructor, "optionspane", self.uiOptions2);
+        self.addCustomWindow("Options", ui.OptionView, "options", {
+            model: self.uiOptions2,
+            onNoticeTest: function() {
+                self.flash({force:true});
+            },
+            getUI: function() {
+                return self;
+            }
+        });
+    },
+    embeddedWindow: function() {
+        return this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embedded-wizard");
     },
     aboutWindow: function() {
-        this.addCustomWindow("About", ui.AboutPane, "aboutpane", this.uiOptions2);
+        return this.addCustomWindow("About", ui.AboutPane, "about");
     },
     privacyWindow: function() {
-        this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicypane", this.uiOptions2);
+        return this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicy");
     },
     feedbackWindow: function() {
-        this.addCustomWindow("Feedback", ui.FeedbackPane, "feedbackpane", this.uiOptions2);
+        return this.addCustomWindow("Feedback", ui.FeedbackPane, "feedback");
     },
     faqWindow: function() {
-        this.addCustomWindow("FAQ", ui.FAQPane, "faqpane", this.uiOptions2);
+        return this.addCustomWindow("FAQ", ui.FAQPane, "faq");
     },
     urlDispatcher: function(name, window) {
         if (name == "embedded") {
@@ -196,15 +180,18 @@ ui.StandardUI = new Class({
         this.updateStylesheet(vals);
     },
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
-        var styles = _.extend({}, Browser, this.uiOptions2.toJSON(), values);
-        var stylesheet = templates.modifiablecss(styles);
-        var node = this.__styleSheet;
+        var self = this;
+        getTemplate("modifiablecss", function(template) {
+            var styles = _.extend({}, Browser, self.uiOptions2.toJSON(), values);
+            var stylesheet = template(styles);
+            var node = self.__styleSheet;
 
-        if (node.styleSheet) { /* ie */
-            node.styleSheet.cssText = stylesheet;
-        } else {
-            node.empty()
-                .appendText(stylesheet);
-        }
+            if (node.styleSheet) { /* ie */
+                node.styleSheet.cssText = stylesheet;
+            } else {
+                node.empty()
+                    .appendText(stylesheet);
+            }
+        });
     }
 });

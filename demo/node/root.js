@@ -2,6 +2,7 @@
 
 var express = require('express');
 var http = require('http');
+var util = require('util');
 
 /**
  *  Define the sample application.
@@ -27,7 +28,7 @@ var Qwebirc = function() {
      */
     self.terminator = function(sig){
         if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
+           util.log('%s: Received %s - terminating sample app ...',
                        Date(Date.now()), sig);
            process.exit(1);
         }
@@ -37,7 +38,7 @@ var Qwebirc = function() {
             client.quit();
         }
 
-        console.log('%s: Node server stopped.', Date(Date.now()) );
+        util.log('%s: Node server stopped.', Date(Date.now()) );
     };
 
 
@@ -75,6 +76,8 @@ var Qwebirc = function() {
             }
         });
         io.sockets.on('connection', function (socket) {
+            var address = socket.handshake.address;
+            util.log('Connection from ' + address.address + ':' + address.port);
             socket.once('irc', function(ircopts) {//connect to the server
                 var timers = {};
                 var irc  = require('./irc.js');

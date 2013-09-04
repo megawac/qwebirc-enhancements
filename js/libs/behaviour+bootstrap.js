@@ -1,6 +1,6 @@
 
-//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Alert&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FPopup&require=Bootstrap%2FBootstrap.Tooltip&excludeLibs=More
-//Contents: Behavior:Source/Event.Mock.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Behavior:Source/Delegator.js, More-Behaviors:Source/Delegators/Delegator.FxReveal.js, Bootstrap:Source/Behaviors/Behavior.BS.Alert.js, Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/CSSEvents.js, Bootstrap:Source/UI/Bootstrap.Tooltip.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
+//This library: http://dev.clientcide.com/depender/build?download=true&version=MooTools+Bootstrap&excludeLibs=Core&require=Bootstrap%2FBehavior.BS.Alert&require=Bootstrap%2FBehavior.BS.Dropdown&require=Bootstrap%2FBehavior.BS.Tabs&require=Bootstrap%2FPopup&excludeLibs=More
+//Contents: Behavior:Source/Event.Mock.js, Behavior:Source/Element.Data.js, Behavior:Source/BehaviorAPI.js, Behavior:Source/Behavior.js, Behavior:Source/Delegator.js, More-Behaviors:Source/Delegators/Delegator.FxReveal.js, Bootstrap:Source/Behaviors/Behavior.BS.Alert.js, Bootstrap:Source/UI/CSSEvents.js, Bootstrap:Source/UI/Bootstrap.js, Bootstrap:Source/UI/Bootstrap.Popup.js, Bootstrap:Source/UI/Bootstrap.Dropdown.js, Bootstrap:Source/Behaviors/Behavior.BS.Dropdown.js, Clientcide:Source/Layout/TabSwapper.js, Clientcide:Source/3rdParty/MooHashChange.js, Clientcide:Source/Layout/TabSwapper.Hash.js, Clientcide:Source/Behaviors/Behavior.Tabs.js, Bootstrap:Source/Behaviors/Behavior.BS.Tabs.js
 
 // Begin: Source/Event.Mock.js
 /*
@@ -326,6 +326,32 @@ provides: [Behavior]
 
     });
 
+    var GetAPI = new Class({
+        _getAPI: function(element, filter){
+            var api = new this.API(element, filter.name);
+            api.getElement = function(apiKey, breakIfNotFound){
+                var elements = api.getElements(apiKey, breakIfNotFound);
+                return elements ? elements[0] : null;
+            };
+            api.getElements = function(apiKey, warnOrFail){
+                var method = warnOrFail || "fail";
+                var selector = api.get(apiKey);
+                if (!selector){
+                    api[method]("Could not find selector for " + apiKey);
+                    return;
+                }
+
+                if (selector == 'window') return window;
+                else if (selector == 'self') return element;
+
+                var targets = element.getElements(selector);
+                if (!targets.length) api[method]("Could not find any elements for target '" + apiKey + "' using selector '" + selector + "'");
+                return targets;
+            };
+            return api;
+        }
+    });
+
     var spaceOrCommaRegex = /\s*,\s*|\s+/g;
 
     BehaviorAPI.implement({
@@ -346,7 +372,7 @@ provides: [Behavior]
 
     this.Behavior = new Class({
 
-        Implements: [Options, Events, PassMethods],
+        Implements: [Options, Events, PassMethods, GetAPI],
 
         options: {
             //by default, errors thrown by filters are caught; the onError event is fired.
@@ -365,6 +391,7 @@ provides: [Behavior]
         initialize: function(options){
             this.setOptions(options);
             this.API = new Class({ Extends: BehaviorAPI });
+            var self = this;
             this.passMethods({
                 getDelegator: this.getDelegator.bind(this),
                 addEvent: this.addEvent.bind(this),
@@ -473,7 +500,7 @@ provides: [Behavior]
 
         //runs custom initiliazer defined in filter.config.initializer
         _customInit: function(element, filter, force){
-            var api = new this.API(element, filter.name);
+            var api = this._getAPI(element, filter);
             api.runSetup = this.applyFilter.pass([element, filter, force], this);
             filter.config.initializer(element, api);
         },
@@ -510,7 +537,7 @@ provides: [Behavior]
                 if (this.options.verbose) this.fireEvent('log', ['Applying behavior: ', filter.name, element]);
                 //if it was previously applied, garbage collect it
                 if (applied[filter.name]) applied[filter.name].cleanup(element);
-                var api = new this.API(element, filter.name);
+                var api = this._getAPI(element, filter);
 
                 //deprecated
                 api.markForCleanup = filter.markForCleanup.bind(filter);
@@ -589,6 +616,7 @@ provides: [Behavior]
     //Export these for use elsewhere (notabily: Delegator).
     Behavior.getLog = getLog;
     Behavior.PassMethods = PassMethods;
+    Behavior.GetAPI = GetAPI;
 
 
     //Returns the applied behaviors for an element.
@@ -818,7 +846,7 @@ provides: [Delegator]
 
     window.Delegator = new Class({
 
-        Implements: [Options, Events, Behavior.PassMethods],
+        Implements: [Options, Events, Behavior.PassMethods, Behavior.GetAPI],
 
         options: {
             // breakOnErrors: false,
@@ -956,7 +984,7 @@ provides: [Delegator]
          ******************/
 
         _trigger: function(trigger, element, event){
-            var api = new this.API(element, trigger.name);
+            var api = this._getAPI(element, trigger);
             if (trigger.requireAs){
                 api.requireAs(trigger.requireAs);
             } else if (trigger.require){
@@ -1100,9 +1128,12 @@ name: Delegator.FxReveal
                     targets = new Elements([link]);
                 }
 
-                var fxOptions = api.get('fxOptions');
-                if (fxOptions) targets.set('reveal', fxOptions);
-                targets.get('reveal');
+                var fxOptions = api.getAs(Object, 'fxOptions');
+                if (fxOptions){
+                    targets.each(function(target){
+                        target.get('reveal').setOptions(fxOptions);
+                    });
+                }
                 if (action == 'toggleReveal') targets.get('reveal').invoke('toggle');
                 else targets[action]();
                 if (!api.getAs(Boolean, 'allowEvent')) event.preventDefault();
@@ -1134,24 +1165,6 @@ provides: [Behavior.BS.Alert]
 
 ...
 */
-
-// Begin: Source/UI/Bootstrap.js
-/*
----
-
-name: Bootstrap
-
-description: The BootStrap namespace.
-
-authors: [Aaron Newton]
-
-license: MIT-style license.
-
-provides: [Bootstrap]
-
-...
-*/
-var Bootstrap = {};
 
 // Begin: Source/UI/CSSEvents.js
 /*
@@ -1193,197 +1206,25 @@ Browser.Features.getCSSTransition = function(){
 
 window.addEvent("domready", Browser.Features.getCSSTransition);
 
-// Begin: Source/UI/Bootstrap.Tooltip.js
+// Begin: Source/UI/Bootstrap.js
 /*
 ---
 
-name: Bootstrap.Tooltip
+name: Bootstrap
 
-description: A simple tooltip implementation that works with the Twitter Bootstrap css framework.
+description: The BootStrap namespace.
 
 authors: [Aaron Newton]
 
 license: MIT-style license.
 
-requires:
- - /Bootstrap
- - /CSSEvents
- - More/Element.Position
- - More/Element.Shortcuts
- - Behavior/Behavior
-
-provides: [Bootstrap.Twipsy, Bootstrap.Tooltip]
+provides: [Bootstrap]
 
 ...
 */
-
-Bootstrap.Tooltip = Bootstrap.Twipsy = new Class({
-
-    Implements: [Options, Events],
-
-    options: {
-        location: 'above', //below, left, right, bottom, top
-        animate: true,
-        delayIn: 200,
-        delayOut: 0,
-        fallback: '',
-        override: '',
-        onOverflow: false,
-        offset: 0,
-        title: 'title', //element property
-        trigger: 'hover', //focus, manual
-        getContent: function(el){
-            return el.get(this.options.title);
-        }
-    },
-
-    initialize: function(el, options){
-        this.element = document.id(el);
-        this.setOptions(options);
-        var location = this.options.location;
-        if (location == 'above') this.options.location = 'top';    //bootstrap 2.0
-        if (location == 'below') this.options.location = 'bottom'; //bootstrap 2.0
-        this._attach();
-    },
-
-    show: function(){
-        this._clear();
-        this._makeTip();
-        var pos, edge, offset = {x: 0, y: 0};
-        switch(this.options.location){
-            case 'below': case 'bottom':
-                pos = 'centerBottom';
-                edge = 'centerTop';
-                offset.y = this.options.offset;
-                break;
-            case 'left':
-                pos = 'centerLeft';
-                edge = 'centerRight';
-                offset.x = this.options.offset;
-                break;
-            case 'right':
-                pos = 'centerRight';
-                edge = 'centerLeft';
-                offset.x = this.options.offset;
-                break;
-            default: //top
-                pos = 'centerTop';
-                edge = 'centerBottom';
-                offset.y = this.options.offset;
-        }
-        if (typeOf(this.options.offset) == "object") offset = this.options.offset;
-        this.tip.inject(document.body).show().position({
-            relativeTo: this.element,
-            position: pos,
-            edge: edge,
-            offset: offset
-        }).removeClass('out').addClass('in');
-        this.visible = true;
-        if (!Browser.Features.cssTransition || !this.options.animate) this._complete();
-        this.fireEvent('show');
-        return this;
-    },
-
-    hide: function(){
-        this._makeTip();
-        this.tip.removeClass('in').addClass('out');
-        this.visible = false;
-        if (!Browser.Features.cssTransition || !this.options.animate) this._complete();
-        this.fireEvent('hide');
-        return this;
-    },
-
-    destroy: function(){
-        this._detach();
-        if (this.tip) this.tip.destroy();
-        this.destroyed = true;
-        return this;
-    },
-
-    // PRIVATE METHODS
-
-    _makeTip: function(){
-        if (!this.tip){
-            var location = this.options.location;
-            if (location == 'above') location = 'top';    //bootstrap 2.0
-            if (location == 'below') location = 'bottom'; //bootstrap 2.0
-            this.tip = new Element('div.tooltip').addClass(location)
-                 .adopt(new Element('div.tooltip-arrow'))
-                 .adopt(
-                   new Element('div.tooltip-inner', {
-                     html: this.options.override || this.options.getContent.apply(this, [this.element]) || this.options.fallback
-                   })
-                 );
-            if (this.options.animate) this.tip.addClass('fade');
-            if (Browser.Features.cssTransition && this.tip.addEventListener){
-                this.tip.addEventListener(Browser.Features.transitionEnd, this.bound.complete);
-            }
-            this.element.set('alt', '').set('title', '');
-        }
-        return this.tip;
-    },
-
-    _attach: function(method){
-        method = method || 'addEvents';
-        this.bound = {
-            enter: this._enter.bind(this),
-            leave: this._leave.bind(this),
-            complete: this._complete.bind(this)
-        };
-
-        if (this.options.trigger == 'hover') {
-            this.element[method]({
-                mouseenter: this.bound.enter,
-                mouseleave: this.bound.leave
-            });
-        } else if (this.options.trigger == 'focus'){
-            this.element[method]({
-                focus: this.bound.enter,
-                blur: this.bound.leave
-            });
-        }
-    },
-
-    _detach: function(){
-        this._attach('removeEvents');
-    },
-
-    _clear: function(){
-        clearTimeout(this._inDelay);
-        clearTimeout(this._outDelay);
-    },
-
-    _enter: function(){
-        if (this.options.onOverflow){
-            var scroll = this.element.getScrollSize(),
-                size = this.element.getSize();
-            if (scroll.x <= size.x && scroll.y <= size.y) return;
-        }
-        this._clear();
-        if (this.options.delayIn){
-            this._inDelay = this.show.delay(this.options.delayIn, this);
-        } else {
-            this.show();
-        }
-    },
-
-    _leave: function(){
-        this._clear();
-        if (this.options.delayOut){
-            this._outDelay = this.hide.delay(this.options.delayOut, this);
-        } else {
-            this.hide();
-        }
-    },
-
-    _complete: function(){
-        if (!this.visible){
-            this.tip.dispose();
-        }
-        this.fireEvent('complete', this.visible);
-    }
-
-});
+var Bootstrap = {
+    version: 3
+};
 
 // Begin: Source/UI/Bootstrap.Popup.js
 /*
@@ -1439,9 +1280,7 @@ Bootstrap.Popup = new Class({
         this.bound = {
             hide: this.hide.bind(this),
             bodyClick: function(e){
-                if (!this.element.contains(e.target)){
-                    this.hide();
-                }
+                if (this.element == e.target) this.hide();
             }.bind(this),
             keyMonitor: function(e){
                 if (e.key == 'esc') this.hide();
@@ -1452,6 +1291,12 @@ Bootstrap.Popup = new Class({
             (!this.element.hasClass('hide') && !this.element.hasClass('fade'))){
             if (this.element.hasClass('fade')) this.element.removeClass('in');
             this.show();
+        }
+
+        if (Bootstrap.version > 2){
+            if (this.options.closeOnClickOut){
+                this.element.addEvent('click', this.bound.bodyClick);
+            }
         }
     },
 
@@ -1473,7 +1318,7 @@ Bootstrap.Popup = new Class({
 
     show: function(){
         if (this.visible || this.animating) return;
-        this.element.addEvent('click:relay(.close, .dismiss)', this.bound.hide);
+        this.element.addEvent('click:relay(.close, .dismiss, [data-dismiss=modal])', this.bound.hide);
         if (this.options.closeOnEsc) document.addEvent('keyup', this.bound.keyMonitor);
         this._makeMask();
         if (this._mask) this._mask.inject(document.body);
@@ -1530,9 +1375,10 @@ Bootstrap.Popup = new Class({
         if (event && clicked && clicked.hasClass('stopEvent')){
             event.preventDefault();
         }
-        document.id(document.body).removeEvent('click', this.bound.hide);
+
+        if (Bootstrap.version == 2) document.id(document.body).removeEvent('click', this.bound.hide);
         document.removeEvent('keyup', this.bound.keyMonitor);
-        this.element.removeEvent('click:relay(.close, .dismiss)', this.bound.hide);
+        this.element.removeEvent('click:relay(.close, .dismiss, [data-dismiss=modal])', this.bound.hide);
 
         if (this._checkAnimate()){
             this.element.removeClass('in');
@@ -1550,11 +1396,11 @@ Bootstrap.Popup = new Class({
     _makeMask: function(){
         if (this.options.mask){
             if (!this._mask){
-                this._mask = new Element('div.modal-backdrop');
+                this._mask = new Element('div.modal-backdrop.in');
                 if (this._checkAnimate()) this._mask.addClass('fade');
             }
         }
-        if (this.options.closeOnClickOut){
+        if (this.options.closeOnClickOut && Bootstrap.version == 2){
             if (this._mask) this._mask.addEvent('click', this.bound.hide);
             else document.id(document.body).addEvent('click', this.bound.hide);
         }
@@ -1603,7 +1449,7 @@ Bootstrap.Dropdown = new Class({
     },
 
     hideAll: function(){
-        var els = this.element.getElements('.open').removeClass('open');
+        var els = this.element.removeClass('open').getElements('.open').removeClass('open');
         this.fireEvent('hide', els);
         return this;
     },
@@ -1628,13 +1474,13 @@ Bootstrap.Dropdown = new Class({
         var open = el.getParent('.open');
         if (!el.match(this.options.ignore) || !open) this.hideAll();
         if (this.element.contains(el)) {
-            var parent = null;
-            if (el.match('[data-toggle="dropdown"]') || el.getParent('[data-toggle="dropdown"] !')) {
+            var parent;
+            if (el.match('[data-toggle="dropdown"]') || el.getParent('[data-toggle="dropdown"] !')){
                 parent = el.getParent('.dropdown, .btn-group');
             }
-            // backwards compatibility
+            // backwards compatibility
             if (!parent) parent = el.match('.dropdown-toggle') ? el.getParent() : el.getParent('.dropdown-toggle !');
-            if (parent) {
+            if (parent){
                 e.preventDefault();
                 if (!open) this.show(parent);
             }
@@ -1681,7 +1527,7 @@ description: Handles the scripting for a common UI layout; the tabbed box.
 
 license: MIT-Style License
 
-requires: [Core/Element.Event, Core/Fx.Tween, Core/Fx.Morph, Core/Element.Dimensions, More/Element.Shortcuts, More/Element.Measure]
+requires: [Core/Element.Event, Core/Fx.Tween, Core/Fx.Morph, Core/Element.Dimensions, Core/Cookie, More/Element.Shortcuts, More/Element.Measure]
 
 provides: TabSwapper
 
@@ -1881,13 +1727,155 @@ var TabSwapper = new Class({
 });
 
 
+// Begin: Source/3rdParty/MooHashChange.js
+/*
+---
+name: MooHashChange
+
+description: Added the onhashchange event
+
+license: MIT-style
+
+authors:
+- sdf1981cgn
+- Greggory Hernandez
+
+requires:
+- Core/Element.Event
+
+provides: [Element.Events.hashchange]
+
+...
+*/
+Element.Events.hashchange = {
+  onAdd: function () {
+    var hash = location.hash;
+
+    var hashchange = function () {
+      if (hash == location.hash) return;
+      else hash = location.hash;
+
+      var value = (hash.indexOf('#') == 0 ? hash.substr(1) : hash);
+      window.fireEvent('hashchange', value);
+      document.fireEvent('hashchange', value);
+    };
+
+    if (("onhashchange" in window) && ((document.documentMode != 5) && (document.documentMode != 7))) {
+      window.onhashchange = hashchange;
+    }
+    else {
+      hashchange.periodical(50);
+    }
+  }
+};
+
+// Begin: Source/Layout/TabSwapper.Hash.js
+/*
+---
+
+name: TabSwapper.Hash
+
+description: Stores tab selection in the window.hash
+
+license: MIT-Style License
+
+requires: [/TabSwapper, More/String.QueryString, More/Object.Extras, /Element.Events.hashchange]
+
+provides: TabSwapper.Hash
+
+...
+*/
+
+var getHash = function(){
+  return window.location.hash.substring(1, window.location.hash.length).parseQueryString();
+};
+
+TabSwapper.Hash = new Class({
+  Extends: TabSwapper,
+  options: {
+    hash: null // the hash value to store the state in
+  },
+  initialize: function(options){
+    this.setOptions(options);
+    // delete the hash option on startup so that the call to show(0) doesn't change the location hash
+    hash = this.options.hash;
+    if (hash){
+      delete options.hash;
+      delete this.options.hash;
+      options.preventDefault = true;
+    }
+    this.parent(options);
+    if (hash){
+      // put the hash back
+      this.options.hash = hash;
+      this.bound = {
+        showByHash: this.showByHash.bind(this)
+      };
+      // watch hashchange for changes
+      window.addEvent('hashchange', this.bound.showByHash);
+      this.showByHash();
+    }
+  },
+  // shows a section based on the window location hash value
+  showByHash: function(){
+    var i = this.getIndexByHash();
+    if (i || i===0) this.show(i);
+    return this;
+  },
+  // gets the index to show based on an elementID
+  // returns NULL if nothing is found
+  getIndexById: function(id){
+    var target = document.id(id);
+    if (target && this.tabs.contains(target)) return this.tabs.indexOf(target);
+    else if (target && this.sections.contains(target)) return this.sections.indexOf(target);
+    return null;
+  },
+  // gets the hash value and returns the index to be shown
+  // returns UNDEFINED if there was no hash value
+  // returns NULL if no element was found and the value wasn't an int already
+  // NOTE: hash value may be an int or a string; int if the tab/section had no id
+  getIndexByHash: function(){
+    var hash = getHash();
+    if (!hash) return this;
+    var value = hash[this.options.hash];
+    if (value && isNaN(value.toInt())){
+      var i = this.getIndexById(value);
+      if (i !== null) value = i;
+      else return null;
+    }
+    return value;
+  },
+  // for optimization purposes, we store the sections, the base class doesn't do this
+  addTab: function(tab, section, clicker, index){
+    this.parent.apply(this, arguments);
+    this.sections[this.tabs.indexOf(tab)] = section;
+  },
+  // on show, update the hash
+  show: function(i){
+    this.parent.apply(this, arguments);
+    if (this.options.hash) {
+      var hash = getHash() || {};
+      hash[this.options.hash] = this.tabs[i].get('id') || this.sections[i].get('id') || i;
+      window.location.hash = Object.cleanValues(Object.toQueryString(hash));
+    }
+  },
+  destroy: function(){
+    if (this.bound) window.removeEvent('hashchange', this.bound.showByHash);
+    this.tabs.each(function(el){
+      el.removeEvents();
+    });
+    this.tabs = null;
+    this.sections = null;
+  }
+});
+
 // Begin: Source/Behaviors/Behavior.Tabs.js
 /*
 ---
 name: Behavior.Tabs
 description: Adds a tab interface (TabSwapper instance) for elements with .css-tab_ui. Matched with tab elements that are .tabs and sections that are .tab_sections.
 provides: [Behavior.Tabs]
-requires: [Behavior/Behavior, /TabSwapper, More/String.QueryString, More/Object.Extras]
+requires: [Behavior/Behavior, /TabSwapper.Hash]
 script: Behavior.Tabs.js
 
 ...
@@ -1910,19 +1898,18 @@ Behavior.addGlobalFilters({
             if (tabs.length != sections.length || tabs.length == 0) {
                 api.fail('warning; sections and sections are not of equal number. tabs: ' + tabs.length + ', sections: ' + sections.length);
             }
-            var getHash = function(){
-                return window.location.hash.substring(1, window.location.hash.length).parseQueryString();
-            };
 
-            var ts = new TabSwapper(
+            var ts = new TabSwapper.Hash(
                 Object.merge(
                     {
                         tabs: tabs,
-                        sections: sections,
-                        initPanel: api.get('hash') ? getHash()[api.get('hash')] : null
+                        sections: sections
                     },
                     Object.cleanValues(
                         api.getAs({
+                            initPanel: Number,
+                            hash: String,
+                            cookieName: String,
                             smooth: Boolean,
                             smoothSize: Boolean,
                             rearrangeDOM: Boolean,
@@ -1934,19 +1921,41 @@ Behavior.addGlobalFilters({
                 )
             );
             ts.addEvent('active', function(index){
-                if (api.get('hash')) {
-                    var hash = getHash();
-                    hash[api.get('hash')] = index;
-                    window.location.hash = Object.cleanValues(Object.toQueryString(hash));
-                }
                 api.fireEvent('layout:display', sections[0].getParent());
             });
+
+            // get the element to delegate clicks to - defaults to the container
+            var target = element;
+            if (api.get('delegationTarget')) target = element.getElement(api.get('delegationTarget'));
+            if (!target) api.fail('Could not find delegation target for tabs');
+
+            // delegate watching click events for any element with an #href
+            target.addEvent('click:relay([href^=#])', function(event, link){
+                if (link.get('href') == "#") return;
+                // attempt to find the target for the link within the page
+                var target = element.getElement(link.get('href'));
+                // if the target IS a tab, do nothing; valid targets are *sections*
+                if (ts.tabs.contains(target)) return;
+                // if no target was found at all, warn
+                if (!target) api.warn('Could not switch tab; no section found for ' + link.get('href'));
+                // if the target is a section, show it.
+                if (ts.sections.contains(target)) {
+                    event.preventDefault();
+                    var delegator = api.getDelegator();
+                    if (delegator) delegator._eventHandler(event, ts.tabs[ts.sections.indexOf(target)]);
+                    ts.show(ts.sections.indexOf(target));
+                }
+            });
+
             element.store('TabSwapper', ts);
+            api.onCleanup(function(){
+                ts.destroy();
+                element.eliminate('TabSwapper');
+            });
             return ts;
         }
     }
 });
-
 
 // Begin: Source/Behaviors/Behavior.BS.Tabs.js
 /*

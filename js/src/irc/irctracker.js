@@ -1,8 +1,8 @@
 
 irc.IRCTracker = new Class({
+    channels: {},
+    nicknames: {},
     initialize: function(owner) {
-        this.channels = {};
-        this.nicknames = {};
         this.owner = owner;
     },
 

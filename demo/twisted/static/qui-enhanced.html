@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base>
+  <title>WebIRC Using QWebirc V0.93-dev</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <link rel="shortcut icon" type="image/png" href="images/favicon.png">
+  <link href="css/bootstrap.css" rel="stylesheet">
+  <link href="css/qwebirc.css" rel="stylesheet">
+  <script src='js/dist/mootools-1.4.5.js'></script>
+  <!--<script src="//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js"></script>-->
+  <script src="js/dist/qwebirc-0.93dev.js"></script>
+  <script>
+    var ui = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {
+      "appTitle": "GameSurge Web IRC",
+      "networkServices": ["AuthServ!AuthServ@Services.GameSurge.net", "ChanServ!ChanServ@Services.GameSurge.net"],
+      "initialChannels": ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
+      "loginRegex": /^I recogni[sz]e you/,
+      "dynamicBaseURL": "",
+      "staticBaseURL": "",
+      "networkName": "GameSurge",
+      "baseURL": ""
+    });
+  </script>
+</head>
+<body>
+  <div id="ircui">
+    <noscript>
+      <div id="noscript">
+        Javascript is required to use IRC.
+      </div>
+    </noscript>
+  </div>
+</body>
+</html>

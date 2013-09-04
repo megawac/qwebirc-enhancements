@@ -19,33 +19,33 @@ ui.NotificationUI = new Class({
                 id: "beep",
                 url: ['beep3.ogg', 'beep3.mp3']
             }]//files in sounds/
+        },
+        icons: {
+            empty_favicon: "images/empty_favicon.ico"
         }
     },
+    canFlash: false,
+    lastSound: 0,
+    titleText: document.title,
+
     initialize: function() {
         // this.parent(parentElement, windowClass, uiName, options);
-        this.parent.apply(this, arguments);
-
+        this.parent.apply(this, arguments);//pass
 
         this.soundInit();
-        this.lastSound = 0;
-
-        this.windowFocused = false;
-        this.titleText = document.title;
 
         var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
-        if ($defined(favIcon)) {
-            this.favIcon = favIcon;
-            this.favIconVisible = true;
-            this.emptyFavIcon = new Element("link", {
-                    rel: 'shortcut icon',
-                    type: 'image/x-icon',
-                    href: this.options.icons.empty_favicon
-                });
-
+        if (favIcon) {
+            this.favIcons = {
+                normal: favIcon,
+                empty: new Element("link", {
+                            rel: 'shortcut icon',
+                            type: 'image/x-icon',
+                            href: this.options.icons.empty_favicon
+                        })
+            };
             this.flashing = false;
             this.canFlash = true;
-        } else {
-            this.canFlash = false;
         }
     },
     setBeepOnMention: function(value) {
@@ -88,12 +88,12 @@ ui.NotificationUI = new Class({
         if(self.uiOptions2.get("dn_state")) {
             var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
             self.__notice = notify.createNotification(opts.title, opts);
-            (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
+            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
         }
 
         self.flashing = true;
         // flashA();
-        self.__flasher = flash.periodical(750);
+        self.__flasher = _.periodical(flash, 750);
         window.addEvents({//whatever comes first
             "mousedown:once": self.cancelFlash,
             "keydown:once": self.cancelFlash,
@@ -103,26 +103,30 @@ ui.NotificationUI = new Class({
     cancelFlash: function() {
         this.flashing = false;
 
-        if(this.__flasher)
+        if(this.__flasher){
             $clear(this.__flasher);
-        this.__flasher = null;
+            this.__flasher = null;
+        }
 
-        if(this.__notice)
+        if(this.__notice) {
+            $clear(this.__notice.waiter);
             this.__notice.close();
-        this.__notice = null;
+            this.__notice = null;
+        }
 
         this.toggleFavIcon(true);
         ui.setTitle(this.titleText);
     },
     //not sure if changing the favicon is a good idea - messes with peoples bookmarks
     toggleFavIcon: function(state) {
-        var vis = $defined(state) ? state : !this.favIconVisible;
-        this.favIconVisible = vis;
-        if(vis && !this.favIconVisible) {
-            this.favIcon.replaces(this.emptyFavIcon);
+        var icons = this.favIcons;
+        var isNormalVis = !!icons.normal.getParent();
+        var vis = _.isBoolean(state) ? state : !isNormalVis;
+        if(vis && !isNormalVis) {
+            icons.normal.replaces(icons.empty);
         }
-        else if (!vis && this.favIconVisible) {
-            this.emptyFavIcon.replaces(this.favIcon);
+        else if (!vis && isNormalVis) {
+            icons.empty.replaces(icons.normal);
         }
         return vis;
     }

@@ -1,7 +1,7 @@
 //base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
-    Binds: ["send", "lostConnection", "connected", "retry", "ndispatch", "tdispatch"],
+    Binds: ["lostConnection", "send", "connected", "retry", "ndispatch", "tdispatch"],
 
     options: {
         nickname: "qwebirc",
@@ -351,7 +351,7 @@ irc.BaseIRCClient = new Class({
         }, this);
 
         if ((user === "") || user.contains("!") || this.options.networkServices.contains(host)) {
-            this.serverNotice(host, message);
+            this.serverNotice(host, message, target);
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
             if (ctcp) {
@@ -405,14 +405,10 @@ irc.BaseIRCClient = new Class({
                 }
                 return !dir;
             }).map(function(mode) {
-                var m,
-                    pmode = this.pmodes[mode];
-                if (pmode === irc.PMODE_LIST || pmode === irc.PMODE_SET_UNSET/* || (cmode === OPED && pmode === irc.PMODE_SET_ONLY)*/) { //last case cant happen...
-                    m = [cmode, mode, xargs[argindx++]]; //go to hell
-                } else {
-                    m = [cmode, mode];
-                }
-
+                var pmode = this.pmodes[mode],
+                    m = (pmode === irc.PMODE_LIST || pmode === irc.PMODE_SET_UNSET/* || (cmode === OPED && pmode === irc.PMODE_SET_ONLY)*/) ?
+                            [cmode, mode, xargs[argindx++]] :
+                            [cmode, mode];
                 return m;
             }, this);
 
@@ -421,6 +417,10 @@ irc.BaseIRCClient = new Class({
 
         return true;
     },
+
+    // irc_RPL_MOTD: function(prefix, params) {
+    //     console.warn(arguments);
+    // },
 
     irc_RPL_ISUPPORT: function(prefix, params) {
         var supported = params.slice(1, -1); //everything but nick and server msg

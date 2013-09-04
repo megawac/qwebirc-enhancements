@@ -107,7 +107,12 @@ sound.SoundPlayer = new Class({
             };
 
             //load sound manager
-            Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+            if(window.soundManager) {
+                soundinit();
+            }
+            else {
+                Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+            }
         });
     },
     register: function(alias,src) {

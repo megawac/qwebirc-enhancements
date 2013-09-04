@@ -1,10 +1,51 @@
 
-ui.setTitle = function(title, options) {
-    if (options && options.alert) {
-        ui.setTitleAlert(title, options);
-    } else {
-        document.title = title;
+ui.Behaviour = (function() {
+    var behaviour = new Behavior();
+    var delegator = new Delegator({
+        getBehavior: function(){ return behaviour; }
+    });
+    return {
+        apply: function($ele) {
+            behaviour.apply($ele);
+            delegator.attach($ele);
+        }
+    };
+})();
+
+var getTemplate = util.getTemplate = function(name, cb, options) {
+    /*
+        Loads a template. If its already on page call callback immediately otherwise load asyncronously
+        Note: Should use deferred if available
+        Still need to finish implementing this.
+    */
+
+    if(!_.isFunction(cb)) {
+        cb = util.noop;
     }
+    if(_.isFunction(name)) {
+        cb(name);//assume identity
+    }
+    else if(_.has(templates, name)) {
+        cb(_.lookup(templates, name));
+    }
+    else {
+        var path = options && options.path || "js/templates/",
+            file = options && options.file || name,
+            type = options && options.type || ".js",
+            $script;
+        if(!path.endsWith("/")) path += "/";
+        if(!type.startsWith(".")) type = "." + type;
+        $script = Asset.javascript(path + file + type, {onLoad: function() {
+            cb(_.lookup(templates, name));
+            $script.dispose();
+        }});
+        //$script.addEvent("error", ..now what?)
+    }
+    //return deferred
+};
+
+ui.setTitle = function(title, options) {
+    document.title = title;
 };
 
 util.setCaretPos = Element.setCaretPosition;
@@ -38,42 +79,42 @@ util.percentToPixel= function(data, par) {
         x: size.x * (data.x / 100),
         y: size.y * (data.y / 100)
     };
-}
+};
 
 ui.decorateDropdown = function($btn, $ddm, options) {
+    options = options || {};
     function hideMenu() {
-        if(options && options.onHide)
+        if(options.onHide)
             options.onHide.call(this, $ddm);
         return $ddm.hide();
     }
-    function toggleMenu() {
-        if(options && options.onShow)
+    function toggleMenu(state) {
+        if(options.onShow)
             options.onShow.call(this, $ddm);
 
-        if ($ddm.isDisplayed()) {
-           hideMenu();
-        } else {
+        if (state===true || !$ddm.isDisplayed()) {
             $ddm.show();
             document.addEvent("click:once", hideMenu);
+        } else {
+           hideMenu();
         }
         return $ddm;
     }
 
-    $ddm.store("toggle", toggleMenu);
+    $ddm.store("toggle", toggleMenu)
+        .position.delay(50, $ddm, {
+            relativeTo: $btn,
+            position: {x: 'left', y: 'bottom'},
+            edge: {x: 'left', y: 'top'}
+        });
 
-    $ddm.position.delay(50, $ddm, {
-        relativeTo: $btn,
-        position: {x: 'left', y: 'bottom'},
-        edge: {x: 'left', y: 'top'}
-    });
-
-    if(options && (options.btn || options.btn == null)) {
+    if(options.btnlistener) {
         $btn.addEvent("click", function(e) {
             e.stop();
             toggleMenu();
         });
     }
-    return hideMenu();
+    return options.autohide ? hideMenu() : $ddm;
 };
 
 //dirty function please help with css :(

@@ -43,18 +43,16 @@
         invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
         insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
 
-        
-
         loadingPage: "Loading . . .",
-        submittingPage: message("Submitting . . .", types.INFO),
-        fishSlap: message("slaps {nick} with a large fishbot", types.MESSAGE),
+        fishSlap: "slaps {nick} with a large fishbot",
 
         copyright: [message("qwebirc v" + qwebirc.VERSION, types.INFO),
                     message("Copyright (C) 2008-2011 Chris Porter and the qwebirc project.", types.INFO),
-                    message("Current version by Emanuel \"megawac\" Jackstare"),
+                    message("Current version by Emanuel \"megawac\" Jackstare", types.INFO),
                     message("http://www.qwebirc.org", types.INFO),
                     message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
 
+        alertNotice: "Alert!",
         activityNotice: message("Activity!", types.MISC),
         partChan: message("Part", types.MESSAGE),
         logOut: message("Logged out", types.MESSAGE),
@@ -129,89 +127,6 @@
     // };
 
 
-ui.themes.ThemeControlCodeMap2 = {
-    "C": irc.styles.colour.key,
-    "B": util.getStyleByName('bold').key,
-    "U": util.getStyleByName('underline').key,
-    "O": irc.styles.colour.key,
-    "D": irc.styles.normal.key,
-    //little clever here
-    "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
-    "CN": templates.userlink({'userid':'{w}', 'username': '{w}'}),// change nick
-    "P": "{C}4=={O} "
-    // "[": "qwebirc://whois/",
-    // "]": "/"
-};
-
-ui.themes.Default2 = {
-    "SIGNON": "{P}Signed on!",
-    "CONNECT": "{P}Connected to server.",
-
-    "RAW": "{P}{m}",
-    "DISCONNECT": "{P}Disconnected from server: {m}",
-    "ERROR": "{P}ERROR: {m}",
-
-    "SERVERNOTICE": "{P}{m}",
-    "OURTARGETEDNOTICE": "[notice({[}{t}{]})] {m}",
-    "OURCHANNOTICE": "-{N}:{t}- {m}",
-    "OURPRIVNOTICE": "-{N}- {m}",
-    "CHANNOTICE": "-{D}{(}{N}{)}{D}:{c}- {m}",
-    "PRIVNOTICE": "-{(}{N}{)}- {m}",
-
-    "JOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
-    "OURJOIN": "{P}{D}{N}{D} [{h}] has joined {c}",
-    "PART": "{P}{D}{N}{D} [{h}] has left {c} [{m}]",
-    "KICK": "{P}{D}{v}{D} was kicked from {c} by {D}{N}{D} [{m}]",
-    "MODE": "{P}mode/{c} gives [{m}] to {D}{N}{D}",
-    "QUIT": "{P}{D}{N}{D} [{h}] has quit [{m}]",
-    "NICK": "{P}{D}{n}{D} has changed nick to {CN}",
-    "TOPIC": "{P}{D}{N}{D} changed the topic of {c} to: {m}",
-    "UMODE": "Usermode change: {m}",
-    "INVITE": "{N} invites you to join {c}",
-
-    "HILIGHT": "{C}4",
-    "HILIGHTEND": "{O}",
-
-    "CHANMSG": "{D}<{@}{(}{N}>{)}{D} {m}",
-    "PRIVMSG": "{(}<{N}>{)} {m}",
-
-    "OURCHANMSG": "<{@}{N}> {m}",
-    "OURPRIVMSG": "<{N}> {m}",
-    "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
-    "OURCHANACTION": " * {N} {m}",
-    "OURPRIVACTION": " * {N} {m}",
-
-    "CHANACTION": " * {D}{(}{N}{)}{D} {m}",
-    "PRIVACTION": " * {(}{N}{)} {m}",
-    "CHANCTCP": "{N} [{h}] requested CTCP {x} from {c}: {m}",
-    "PRIVCTCP": "{N} [{h}] requested CTCP {x} from {-}: {m}",
-    "CTCPREPLY": "CTCP {x} reply from {N}: {m}",
-
-    "OURCHANCTCP": "[ctcp({t})] {x} {m}",
-    "OURPRIVCTCP": "[ctcp({t})] {x} {m}",
-    "OURTARGETEDCTCP": "[ctcp({t})] {x} {m}",
-
-    "WHOISUSER": "{P}{B}{N}{B} [{h}]",
-    "WHOISREALNAME": "{P} realname : {m}",
-    "WHOISCHANNELS": "{P} channels : {m}",
-    "WHOISSERVER": "{P} server   : {x} [{m}]",
-    "WHOISACCOUNT": "{P} account : m",
-    "WHOISIDLE": "{P} idle     : {x} [connected: {m}]",
-    "WHOISAWAY": "{P} away     : {m}",
-    "WHOISOPER": "{P}          : {B}IRC Operator{B}",
-    "WHOISOPERNAME": "{P} operedas : {m}",
-    "WHOISACTUALLY": "{P} realhost : {m} [ip: {x}]",
-    "WHOISGENERICTEXT": "{P} note  : {m}",
-    "WHOISEND": "{P}End of WHOIS",
-
-    "AWAY": "{P}{N} is away: {m}",
-    "GENERICERROR": "{P}{m}: {t}",
-    "GENERICMESSAGE": "{P}{m}",
-    "WALLOPS": "{P}WALLOP {n}: {t}",
-    "CHANNELCREATIONTIME": "{P}Channel {c} was created at: {m}",
-    "CHANNELMODEIS": "{P}Channel modes on {c} are: {m}"
-};
-
 ui.UI_COMMANDS = [
         {
             text: "Options",
@@ -230,9 +145,12 @@ ui.UI_COMMANDS = [
             value: "faqWindow"
         },
         {
+            text: "Submit feedback",
+            value: "feedbackWindow"
+        },
+        {
             text: "About qwebirc",
             value: "aboutWindow"
         }];
-
 
 })();

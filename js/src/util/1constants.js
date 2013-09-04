@@ -1,18 +1,22 @@
-ui.WINDOW_STATUS = 1;
-ui.WINDOW_QUERY = 2;
-ui.WINDOW_CHANNEL = 4;
-ui.WINDOW_CUSTOM = 8;
-ui.WINDOW_CONNECT = 16;
-ui.WINDOW_MESSAGES = 32;
+
+ui.WINDOW = {
+    status: 1,
+    query: 2,
+    channel: 4,
+    custom: 8,
+    connect: 16,
+    messages: 32
+};
+
 ui.CUSTOM_CLIENT = "custom";
 
-ui.HILIGHT_NONE = 0;
-ui.HILIGHT_ACTIVITY = 1;
-ui.HILIGHT_SPEECH = 2;
-ui.HILIGHT_US = 3;
+ui.HIGHLIGHT = {
+    none: 0,
+    activity: 1,
+    speech: 2,
+    us: 3
+};
 
-ui.MAXIMUM_LINES_PER_WINDOW = 1000;
-ui.WINDOW_LASTLINE = ui.WINDOW_QUERY | ui.WINDOW_MESSAGES | ui.WINDOW_CHANNEL | ui.WINDOW_STATUS;
 
 irc.PMODE_LIST = 0;
 irc.PMODE_SET_UNSET = 1;
@@ -28,8 +32,8 @@ var BROUHAHA = '#brouhaha',
 
 
     BASE_WINDOWS = [BROUHAHA, CONNECTION_DETAILS, STATUS],
-    CHANNEL_TYPES = [ui.WINDOW_CHANNEL, ui.WINDOW_QUERY, ui.WINDOW_MESSAGES],
-    INPUT_TYPES = [ui.WINDOW_STATUS, ui.WINDOW_QUERY, ui.WINDOW_CHANNEL, ui.WINDOW_MESSAGES];
+    CHANNEL_TYPES = [ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages],
+    INPUT_TYPES = [ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages];
 
 var OPED = "+",
     DEOPED = "-",
@@ -286,207 +290,207 @@ irc.Numerics = {
 
 irc.Numerics2 = { // from node-irc
     "001": {
-        "name": "rpl_welcome",
+        "name": "RPL_WELCOME",
         "type": "reply"
     },
     "004": {
-        "name": "rpl_myinfo",
+        "name": "RPL_MYINFO",
         "type": "reply"
     },
     "005": {
-        "name": "rpl_isupport",
+        "name": "RPL_ISUPPORT",
         "type": "reply"
     },
     "200": {
-        "name": "rpl_tracelink",
+        "name": "RPL_TRACELINK",
         "type": "reply"
     },
     "201": {
-        "name": "rpl_traceconnecting",
+        "name": "RPL_TRACECONNECTING",
         "type": "reply"
     },
     "202": {
-        "name": "rpl_tracehandshake",
+        "name": "RPL_TRACEHANDSHAKE",
         "type": "reply"
     },
     "203": {
-        "name": "rpl_traceunknown",
+        "name": "RPL_TRACEUNKNOWN",
         "type": "reply"
     },
     "204": {
-        "name": "rpl_traceoperator",
+        "name": "RPL_TRACEOPERATOR",
         "type": "reply"
     },
     "205": {
-        "name": "rpl_traceuser",
+        "name": "RPL_TRACEUSER",
         "type": "reply"
     },
     "206": {
-        "name": "rpl_traceserver",
+        "name": "RPL_TRACESERVER",
         "type": "reply"
     },
     "208": {
-        "name": "rpl_tracenewtype",
+        "name": "RPL_TRACENEWTYPE",
         "type": "reply"
     },
     "211": {
-        "name": "rpl_statslinkinfo",
+        "name": "RPL_STATSLINKINFO",
         "type": "reply"
     },
     "212": {
-        "name": "rpl_statscommands",
+        "name": "RPL_STATSCOMMANDS",
         "type": "reply"
     },
     "213": {
-        "name": "rpl_statscline",
+        "name": "RPL_STATSCLINE",
         "type": "reply"
     },
     "214": {
-        "name": "rpl_statsnline",
+        "name": "RPL_STATSNLINE",
         "type": "reply"
     },
     "215": {
-        "name": "rpl_statsiline",
+        "name": "RPL_STATSILINE",
         "type": "reply"
     },
     "216": {
-        "name": "rpl_statskline",
+        "name": "RPL_STATSKLINE",
         "type": "reply"
     },
     "218": {
-        "name": "rpl_statsyline",
+        "name": "RPL_STATSYLINE",
         "type": "reply"
     },
     "219": {
-        "name": "rpl_endofstats",
+        "name": "RPL_ENDOFSTATS",
         "type": "reply"
     },
     "221": {
-        "name": "rpl_umodeis",
+        "name": "RPL_UMODEIS",
         "type": "reply"
     },
     "241": {
-        "name": "rpl_statslline",
+        "name": "RPL_STATSLLINE",
         "type": "reply"
     },
     "242": {
-        "name": "rpl_statsuptime",
+        "name": "RPL_STATSUPTIME",
         "type": "reply"
     },
     "243": {
-        "name": "rpl_statsoline",
+        "name": "RPL_STATSOLINE",
         "type": "reply"
     },
     "244": {
-        "name": "rpl_statshline",
+        "name": "RPL_STATSHLINE",
         "type": "reply"
     },
     "250": {
-        "name": "rpl_statsconn",
+        "name": "RPL_STATSCONN",
         "type": "reply"
     },
     "251": {
-        "name": "rpl_luserclient",
+        "name": "RPL_LUSERCLIENT",
         "type": "reply"
     },
     "252": {
-        "name": "rpl_luserop",
+        "name": "RPL_LUSEROP",
         "type": "reply"
     },
     "253": {
-        "name": "rpl_luserunknown",
+        "name": "RPL_LUSERUNKNOWN",
         "type": "reply"
     },
     "254": {
-        "name": "rpl_luserchannels",
+        "name": "RPL_LUSERCHANNELS",
         "type": "reply"
     },
     "255": {
-        "name": "rpl_luserme",
+        "name": "RPL_LUSERME",
         "type": "reply"
     },
     "256": {
-        "name": "rpl_adminme",
+        "name": "RPL_ADMINME",
         "type": "reply"
     },
     "257": {
-        "name": "rpl_adminloc1",
+        "name": "RPL_ADMINLOC1",
         "type": "reply"
     },
     "258": {
-        "name": "rpl_adminloc2",
+        "name": "RPL_ADMINLOC2",
         "type": "reply"
     },
     "259": {
-        "name": "rpl_adminemail",
+        "name": "RPL_ADMINEMAIL",
         "type": "reply"
     },
     "261": {
-        "name": "rpl_tracelog",
+        "name": "RPL_TRACELOG",
         "type": "reply"
     },
     "265": {
-        "name": "rpl_localusers",
+        "name": "RPL_LOCALUSERS",
         "type": "reply"
     },
     "266": {
-        "name": "rpl_globalusers",
+        "name": "RPL_GLOBALUSERS",
         "type": "reply"
     },
     "300": {
-        "name": "rpl_none",
+        "name": "RPL_NONE",
         "type": "reply"
     },
     "301": {
-        "name": "rpl_away",
+        "name": "RPL_AWAY",
         "type": "reply"
     },
     "302": {
-        "name": "rpl_userhost",
+        "name": "RPL_USERHOST",
         "type": "reply"
     },
     "303": {
-        "name": "rpl_ison",
+        "name": "RPL_ISON",
         "type": "reply"
     },
     "305": {
-        "name": "rpl_unaway",
+        "name": "RPL_UNAWAY",
         "type": "reply"
     },
     "306": {
-        "name": "rpl_nowaway",
+        "name": "RPL_NOWAWAY",
         "type": "reply"
     },
     "311": {
-        "name": "rpl_whoisuser",
+        "name": "RPL_WHOISUSER",
         "type": "reply"
     },
     "312": {
-        "name": "rpl_whoisserver",
+        "name": "RPL_WHOISSERVER",
         "type": "reply"
     },
     "313": {
-        "name": "rpl_whoisoperator",
+        "name": "RPL_WHOISOPERATOR",
         "type": "reply"
     },
     "314": {
-        "name": "rpl_whowasuser",
+        "name": "RPL_WHOWASUSER",
         "type": "reply"
     },
     "315": {
-        "name": "rpl_endofwho",
+        "name": "RPL_ENDOFWHO",
         "type": "reply"
     },
     "317": {
-        "name": "rpl_whoisidle",
+        "name": "RPL_WHOISIDLE",
         "type": "reply"
     },
     "318": {
-        "name": "rpl_endofwhois",
+        "name": "RPL_ENDOFWHOIS",
         "type": "reply"
     },
     "319": {
-        "name": "rpl_whoischannels",
+        "name": "RPL_WHOISCHANNELS",
         "type": "reply"
     },
 
@@ -511,19 +515,19 @@ irc.Numerics2 = { // from node-irc
         "type": "reply"
     },
     "321": {
-        "name": "rpl_liststart",
+        "name": "RPL_LISTSTART",
         "type": "reply"
     },
     "322": {
-        "name": "rpl_list",
+        "name": "RPL_LIST",
         "type": "reply"
     },
     "323": {
-        "name": "rpl_listend",
+        "name": "RPL_LISTEND",
         "type": "reply"
     },
     "324": {
-        "name": "rpl_channelmodeis",
+        "name": "RPL_CHANNELMODEIS",
         "type": "reply"
     },
     "329": {
@@ -531,11 +535,11 @@ irc.Numerics2 = { // from node-irc
         "type": "reply"
     },
     "331": {
-        "name": "rpl_notopic",
+        "name": "RPL_NOTOPIC",
         "type": "reply"
     },
     "332": {
-        "name": "rpl_topic",
+        "name": "RPL_TOPIC",
         "type": "reply"
     },
     "333": {
@@ -543,271 +547,271 @@ irc.Numerics2 = { // from node-irc
         "type": "reply"
     },
     "341": {
-        "name": "rpl_inviting",
+        "name": "RPL_INVITING",
         "type": "reply"
     },
     "342": {
-        "name": "rpl_summoning",
+        "name": "RPL_SUMMONING",
         "type": "reply"
     },
     "351": {
-        "name": "rpl_version",
+        "name": "RPL_VERSION",
         "type": "reply"
     },
     "352": {
-        "name": "rpl_whoreply",
+        "name": "RPL_WHOREPLY",
         "type": "reply"
     },
     "353": {
-        "name": "rpl_namreply",
+        "name": "RPL_NAMREPLY",
         "type": "reply"
     },
     "364": {
-        "name": "rpl_links",
+        "name": "RPL_LINKS",
         "type": "reply"
     },
     "365": {
-        "name": "rpl_endoflinks",
+        "name": "RPL_ENDOFLINKS",
         "type": "reply"
     },
     "366": {
-        "name": "rpl_endofnames",
+        "name": "RPL_ENDOFNAMES",
         "type": "reply"
     },
     "367": {
-        "name": "rpl_banlist",
+        "name": "RPL_BANLIST",
         "type": "reply"
     },
     "368": {
-        "name": "rpl_endofbanlist",
+        "name": "RPL_ENDOFBANLIST",
         "type": "reply"
     },
     "369": {
-        "name": "rpl_endofwhowas",
+        "name": "RPL_ENDOFWHOWAS",
         "type": "reply"
     },
     "371": {
-        "name": "rpl_info",
+        "name": "RPL_INFO",
         "type": "reply"
     },
     "372": {
-        "name": "rpl_motd",
+        "name": "RPL_MOTD",
         "type": "reply"
     },
     "374": {
-        "name": "rpl_endofinfo",
+        "name": "RPL_ENDOFINFO",
         "type": "reply"
     },
     "375": {
-        "name": "rpl_motdstart",
+        "name": "RPL_MOTDSTART",
         "type": "reply"
     },
     "376": {
-        "name": "rpl_endofmotd",
+        "name": "RPL_ENDOFMOTD",
         "type": "reply"
     },
     "381": {
-        "name": "rpl_youreoper",
+        "name": "RPL_YOUREOPER",
         "type": "reply"
     },
     "382": {
-        "name": "rpl_rehashing",
+        "name": "RPL_REHASHING",
         "type": "reply"
     },
     "391": {
-        "name": "rpl_time",
+        "name": "RPL_TIME",
         "type": "reply"
     },
     "392": {
-        "name": "rpl_usersstart",
+        "name": "RPL_USERSSTART",
         "type": "reply"
     },
     "393": {
-        "name": "rpl_users",
+        "name": "RPL_USERS",
         "type": "reply"
     },
     "394": {
-        "name": "rpl_endofusers",
+        "name": "RPL_ENDOFUSERS",
         "type": "reply"
     },
     "395": {
-        "name": "rpl_nousers",
+        "name": "RPL_NOUSERS",
         "type": "reply"
     },
     "401": {
-        "name": "err_nosuchnick",
+        "name": "ERR_NOSUCHNICK",
         "type": "error"
     },
     "402": {
-        "name": "err_nosuchserver",
+        "name": "ERR_NOSUCHSERVER",
         "type": "error"
     },
     "403": {
-        "name": "err_nosuchchannel",
+        "name": "ERR_NOSUCHCHANNEL",
         "type": "error"
     },
     "404": {
-        "name": "err_cannotsendtochan",
+        "name": "ERR_CANNOTSENDTOCHAN",
         "type": "error"
     },
     "405": {
-        "name": "err_toomanychannels",
+        "name": "ERR_TOOMANYCHANNELS",
         "type": "error"
     },
     "406": {
-        "name": "err_wasnosuchnick",
+        "name": "ERR_WASNOSUCHNICK",
         "type": "error"
     },
     "407": {
-        "name": "err_toomanytargets",
+        "name": "ERR_TOOMANYTARGETS",
         "type": "error"
     },
     "409": {
-        "name": "err_noorigin",
+        "name": "ERR_NOORIGIN",
         "type": "error"
     },
     "411": {
-        "name": "err_norecipient",
+        "name": "ERR_NORECIPIENT",
         "type": "error"
     },
     "412": {
-        "name": "err_notexttosend",
+        "name": "ERR_NOTEXTTOSEND",
         "type": "error"
     },
     "413": {
-        "name": "err_notoplevel",
+        "name": "ERR_NOTOPLEVEL",
         "type": "error"
     },
     "414": {
-        "name": "err_wildtoplevel",
+        "name": "ERR_WILDTOPLEVEL",
         "type": "error"
     },
     "421": {
-        "name": "err_unknowncommand",
+        "name": "ERR_UNKNOWNCOMMAND",
         "type": "error"
     },
     "422": {
-        "name": "err_nomotd",
+        "name": "ERR_NOMOTD",
         "type": "error"
     },
     "423": {
-        "name": "err_noadmininfo",
+        "name": "ERR_NOADMININFO",
         "type": "error"
     },
     "424": {
-        "name": "err_fileerror",
+        "name": "ERR_FILEERROR",
         "type": "error"
     },
     "431": {
-        "name": "err_nonicknamegiven",
+        "name": "ERR_NONICKNAMEGIVEN",
         "type": "error"
     },
     "432": {
-        "name": "err_erroneusnickname",
+        "name": "ERR_ERRONEUSNICKNAME",
         "type": "error"
     },
     "433": {
-        "name": "err_nicknameinuse",
+        "name": "ERR_NICKNAMEINUSE",
         "type": "error"
     },
     "436": {
-        "name": "err_nickcollision",
+        "name": "ERR_NICKCOLLISION",
         "type": "error"
     },
     "441": {
-        "name": "err_usernotinchannel",
+        "name": "ERR_USERNOTINCHANNEL",
         "type": "error"
     },
     "442": {
-        "name": "err_notonchannel",
+        "name": "ERR_NOTONCHANNEL",
         "type": "error"
     },
     "443": {
-        "name": "err_useronchannel",
+        "name": "ERR_USERONCHANNEL",
         "type": "error"
     },
     "444": {
-        "name": "err_nologin",
+        "name": "ERR_NOLOGIN",
         "type": "error"
     },
     "445": {
-        "name": "err_summondisabled",
+        "name": "ERR_SUMMONDISABLED",
         "type": "error"
     },
     "446": {
-        "name": "err_usersdisabled",
+        "name": "ERR_USERSDISABLED",
         "type": "error"
     },
     "451": {
-        "name": "err_notregistered",
+        "name": "ERR_NOTREGISTERED",
         "type": "error"
     },
     "461": {
-        "name": "err_needmoreparams",
+        "name": "ERR_NEEDMOREPARAMS",
         "type": "error"
     },
     "462": {
-        "name": "err_alreadyregistred",
+        "name": "ERR_ALREADYREGISTRED",
         "type": "error"
     },
     "463": {
-        "name": "err_nopermforhost",
+        "name": "ERR_NOPERMFORHOST",
         "type": "error"
     },
     "464": {
-        "name": "err_passwdmismatch",
+        "name": "ERR_PASSWDMISMATCH",
         "type": "error"
     },
     "465": {
-        "name": "err_yourebannedcreep",
+        "name": "ERR_YOUREBANNEDCREEP",
         "type": "error"
     },
     "467": {
-        "name": "err_keyset",
+        "name": "ERR_KEYSET",
         "type": "error"
     },
     "471": {
-        "name": "err_channelisfull",
+        "name": "ERR_CHANNELISFULL",
         "type": "error"
     },
     "472": {
-        "name": "err_unknownmode",
+        "name": "ERR_UNKNOWNMODE",
         "type": "error"
     },
     "473": {
-        "name": "err_inviteonlychan",
+        "name": "ERR_INVITEONLYCHAN",
         "type": "error"
     },
     "474": {
-        "name": "err_bannedfromchan",
+        "name": "ERR_BANNEDFROMCHAN",
         "type": "error"
     },
     "475": {
-        "name": "err_badchannelkey",
+        "name": "ERR_BADCHANNELKEY",
         "type": "error"
     },
     "481": {
-        "name": "err_noprivileges",
+        "name": "ERR_NOPRIVILEGES",
         "type": "error"
     },
     "482": {
-        "name": "err_chanopprivsneeded",
+        "name": "ERR_CHANOPPRIVSNEEDED",
         "type": "error"
     },
     "483": {
-        "name": "err_cantkillserver",
+        "name": "ERR_CANTKILLSERVER",
         "type": "error"
     },
     "491": {
-        "name": "err_nooperhost",
+        "name": "ERR_NOOPERHOST",
         "type": "error"
     },
     "501": {
-        "name": "err_umodeunknownflag",
+        "name": "ERR_UMODEUNKNOWNFLAG",
         "type": "error"
     },
     "502": {
-        "name": "err_usersdontmatch",
+        "name": "ERR_USERSDONTMATCH",
         "type": "error"
     }
 }

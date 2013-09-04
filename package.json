@@ -1,0 +1,21 @@
+{
+    "name": "qwebirc WebIRC client",
+    "description": "webirc client - See qwebirc.org",
+    "repository": "www.github.com/megawac/qwebirc-enhancements",
+    "version": "0.93.11",
+    "author": {
+        "name": "Graeme Yeates",
+        "url": "www.github.com/megawac",
+        "email": "megawac@gmail.com"
+    },
+    "fork": {
+        "author": "Chris Porter",
+        "name": "qwebirc",
+        "url": "www.qwebirc.org"
+    },
+    "licence": {
+        "type": "GNU",
+        "url": "http://www.gnu.org/licenses/gpl.html",
+        "file": "licence.lic"
+    }
+}

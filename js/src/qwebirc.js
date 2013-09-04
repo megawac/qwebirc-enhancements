@@ -1,6 +1,5 @@
 
 
-
 irc.RegisteredCTCPs = {
     "VERSION": $lambda("qwebirc v" + qwebirc.VERSION + ", copyright (C) 2008-2011 Chris Porter and the qwebirc project -- " + qwebirc.util.browserVersion()),
     "USERINFO": $lambda("qwebirc"),
@@ -13,7 +12,9 @@ irc.RegisteredCTCPs = {
 };
 
 irc.DummyNicknameValidator = new Class({
-    validate: $identity
+    validate: function(name) {
+        return _.isString(name) && name.length > 1 && name;
+    }
 });
 
 irc.NicknameValidator = new Class({
@@ -21,8 +22,9 @@ irc.NicknameValidator = new Class({
         this.options = options;
     },
     validate: function(nick, permitDot) {
+        if(!_.isString(nick)) return false;
         var self = this,
-            generated = [],
+            generated = "",
             max = Math.min(self.options.maxLen, nick.length);
 
         max.times(function(indx) {
@@ -30,16 +32,9 @@ irc.NicknameValidator = new Class({
 
             var valid = (indx === 0) ? self.options.validFirstChar : self.options.validSubChars;
 
-            if (valid.contains(_char) || permitDot && _char === ".") {
-                generated.push(_char);
-            } else {
-                generated.push("_"); //yeah we assume this is valid... 
-            }
+            generated += (valid.contains(_char) || permitDot && _char === ".") ? _char : "_";
         });
 
-        while (generated.length < this.options.minLen) {
-            generated.push("_"); // yeah we assume this is valid... 
-        }
-        return generated.join("");
+        return String.pad(generated, this.options.minLen, "_");
     }
 });

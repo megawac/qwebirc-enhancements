@@ -24,13 +24,12 @@
         PERMISSION_GRANTED = "granted",
         PERMISSION_DENIED = "denied",
         PERMISSION = [PERMISSION_GRANTED, PERMISSION_DEFAULT, PERMISSION_DENIED],
-        defaultSetting = {
+        settings = {
             autoClose: 0
         },
-        empty = {},
         emptyString = "",
-        isSupported = (function () {
-            var isSupported = false;
+        external = win.external,
+        isSupported = Browser.Features.notifications = (function() {
             /*
              * Use try {} catch() {} because the check for IE may throws an exception
              * if the code is run on browser that is not Safar/Chrome/IE or
@@ -41,14 +40,10 @@
              * object returns undefined. So, we try to run it - if it runs 
              * successfully - then it is IE9+, if not - an exceptions is thrown.
              */
-            try {
-                isSupported = !!(/* Safari, Chrome */win.Notification || /* Chrome & ff-html5notifications plugin */win.webkitNotifications || /* Firefox Mobile */navigator.mozNotification || /* IE9+ */(win.external && win.external.msIsSiteMode() !== undefined));
-            } catch (e) {}
-            return isSupported;
-        }()),
+            return!!(/* Safari, Chrome */win.Notification || /* Chrome & ff-html5notifications plugin */win.webkitNotifications || /* Firefox Mobile */navigator.mozNotification || /* IE9+ */(external && external.msIsSiteMode() !== undefined));
+        }).attempt() || false,
         ieVerification = Math.floor((Math.random() * 10) + 1),
-        noop = function () {},
-        settings = defaultSetting;
+        noop = function () {};
     function getNotification(title, options) {
         var notification;
         if (win.Notification) { /* Safari 6, Chrome (23+) */
@@ -69,11 +64,11 @@
         } else if (navigator.mozNotification) { /* Firefox Mobile */
             notification = navigator.mozNotification.createNotification(title, options.body, options.icon);
             notification.show();
-        } else if (win.external && win.external.msIsSiteMode()) { /* IE9+ */
+        } else if (external && external.msIsSiteMode()) { /* IE9+ */
             //Clear any previous notifications
-            win.external.msSiteModeClearIconOverlay();
-            win.external.msSiteModeSetIconOverlay((_.isString(options.icon) ? options.icon : options.icon.x16), title);
-            win.external.msSiteModeActivate();
+            external.msSiteModeClearIconOverlay();
+            external.msSiteModeSetIconOverlay((_.isString(options.icon) ? options.icon : options.icon.x16), title);
+            external.msSiteModeActivate();
             notification = {
                 "ieVerification": ieVerification + 1
             };
@@ -87,9 +82,9 @@
                     if (notification.close) {
                         //http://code.google.com/p/ff-html5notifications/issues/detail?id=58
                         notification.close();
-                    } else if (win.external && win.external.msIsSiteMode()) {
+                    } else if (external && external.msIsSiteMode()) {
                         if (notification.ieVerification === ieVerification) {
-                            win.external.msSiteModeClearIconOverlay();
+                            external.msSiteModeClearIconOverlay();
                         }
                     }
                 }
@@ -128,9 +123,9 @@
         } else if (win.Notification && win.Notification.permission) {
             // Firefox 23+
             permission = win.Notification.permission;
-        } else if (win.external && (win.external.msIsSiteMode() !== undefined)) { /* keep last */
+        } else if (external && (external.msIsSiteMode() !== undefined)) { /* keep last */
             //IE9+
-            permission = win.external.msIsSiteMode() ? PERMISSION_GRANTED : PERMISSION_DEFAULT;
+            permission = external.msIsSiteMode() ? PERMISSION_GRANTED : PERMISSION_DEFAULT;
         }
         return permission;
     }
@@ -138,7 +133,7 @@
      *  
      */
     function config(params) {
-        if (params && _.isObject(params)) {
+        if (_.isObject(params)) {
             _.extend(settings, params);
         }
         return settings;
