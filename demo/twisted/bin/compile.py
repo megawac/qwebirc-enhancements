@@ -4,7 +4,7 @@ dependencies.vcheck()
 
 import pages, os, subprocess, pagegen, shutil, sys, time
 
-COPYRIGHT = open("js/copyright.js", "rb").read()
+# COPYRIGHT = open("js/copyright.js", "rb").read()
 
 class MinifyException(Exception):
   pass
@@ -23,7 +23,7 @@ def jarit(src):
 
 JAVA_WARNING_SURPRESSED = False
 def jmerge_files(prefix, suffix, output, files, *args, **kwargs):
-  global COPYRIGHT
+  # global COPYRIGHT
   output = output + "." + suffix
   o = os.path.join(prefix, "compiled", output)
   merge_files(o, files, *args)
@@ -49,7 +49,7 @@ def jmerge_files(prefix, suffix, output, files, *args, **kwargs):
     os.unlink(o)
     
   f = open(os.path.join(prefix, "static", suffix, output), "wb")
-  f.write(COPYRIGHT)
+  # f.write(COPYRIGHT)
 
   if kwargs.get("file_prefix"):
     f.write(kwargs.get("file_prefix"))

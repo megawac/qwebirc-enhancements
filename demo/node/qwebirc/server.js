@@ -13,13 +13,14 @@ var Qwebirc = function(options) {
     //  Scope.
     var self = this;
     self.options = _.extend({
-        DEBUG: false,
-        IRCSERVER: 'irc.gamesurge.net', //irc server adress
+        DEBUG: true,
         IRCPORT: 6667, //irc servers port
         USE_WEBSOCKETS: true, //whether to use websockets - some servers dont support the protocol. Fallbacks are done through socket.io
         APP_PORT: process.env.PORT || 8080,
         root: process.cwd()
     }, options);
+
+    if(!self.options.IRCSERVER) throw "init without irc server";
 
     self.clients = [];
 
