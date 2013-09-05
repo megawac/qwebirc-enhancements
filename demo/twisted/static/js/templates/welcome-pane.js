@@ -15,7 +15,7 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = "", stack1, stack2;
-  buffer += "\r\nYour browser does not support desktop notifications. Consider downloading\r\n";
+  buffer += "\r\nYour browser does not support desktop notifications. Consider installing\r\n";
   stack2 = helpers['if'].call(depth0, ((stack1 = depth0.Browser),stack1 == null || stack1 === false ? stack1 : stack1.ie), {hash:{},inverse:self.program(6, program6, data),fn:self.program(4, program4, data),data:data});
   if(stack2 || stack2 === 0) { buffer += stack2; }
   buffer += "\r\n";

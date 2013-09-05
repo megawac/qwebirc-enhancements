@@ -28,7 +28,7 @@
             autoClose: 0
         },
         emptyString = "",
-        external = win.external,
+        // external = win.external,
         isSupported = Browser.Features.notifications = (function() {
             /*
              * Use try {} catch() {} because the check for IE may throws an exception
@@ -40,7 +40,7 @@
              * object returns undefined. So, we try to run it - if it runs 
              * successfully - then it is IE9+, if not - an exceptions is thrown.
              */
-            return!!(/* Safari, Chrome */win.Notification || /* Chrome & ff-html5notifications plugin */win.webkitNotifications || /* Firefox Mobile */navigator.mozNotification || /* IE9+ */(external && external.msIsSiteMode() !== undefined));
+            return!!(/* Safari, Chrome */win.Notification || /* Chrome & ff-html5notifications plugin */win.webkitNotifications || /* Firefox Mobile */navigator.mozNotification /* || IE9+ (external && external.msIsSiteMode() !== undefined)*/);
         }).attempt() || false,
         ieVerification = Math.floor((Math.random() * 10) + 1),
         noop = function () {};
@@ -64,7 +64,7 @@
         } else if (navigator.mozNotification) { /* Firefox Mobile */
             notification = navigator.mozNotification.createNotification(title, options.body, options.icon);
             notification.show();
-        } else if (external && external.msIsSiteMode()) { /* IE9+ */
+        }/* else if (external && external.msIsSiteMode()) { // IE9+ on win7+
             //Clear any previous notifications
             external.msSiteModeClearIconOverlay();
             external.msSiteModeSetIconOverlay((_.isString(options.icon) ? options.icon : options.icon.x16), title);
@@ -72,7 +72,7 @@
             notification = {
                 "ieVerification": ieVerification + 1
             };
-        }
+        }*/
         return notification;
     }
     function getWrapper(notification) {
@@ -82,11 +82,11 @@
                     if (notification.close) {
                         //http://code.google.com/p/ff-html5notifications/issues/detail?id=58
                         notification.close();
-                    } else if (external && external.msIsSiteMode()) {
+                    }/* else if (external && external.msIsSiteMode()) {
                         if (notification.ieVerification === ieVerification) {
                             external.msSiteModeClearIconOverlay();
                         }
-                    }
+                    }*/
                 }
             }
         };
@@ -123,10 +123,10 @@
         } else if (win.Notification && win.Notification.permission) {
             // Firefox 23+
             permission = win.Notification.permission;
-        } else if (external && (external.msIsSiteMode() !== undefined)) { /* keep last */
+        }/* else if (external && (external.msIsSiteMode() !== undefined)) { //keep last 
             //IE9+
             permission = external.msIsSiteMode() ? PERMISSION_GRANTED : PERMISSION_DEFAULT;
-        }
+        }*/
         return permission;
     }
     /**

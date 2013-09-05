@@ -54,7 +54,7 @@ project name and URL in the about dialog, thanks!
             "username": "qweb-account",
             "password": "qweb-password",
             "auth": "qweb-auth",
-            "newb": "qweb-visit",
+            "newb": "qweb-new",
             "options": "qweb-options",
             "history": "qweb-hist"
         },

@@ -4688,17 +4688,13 @@ TabSwapper.Hash = new Class({
             body: options.body || emptyString,
             tag: options.tag || emptyString
         }) : win.webkitNotifications ? (notification = win.webkitNotifications.createNotification(options.icon, title, options.body), 
-        notification.show()) : navigator.mozNotification ? (notification = navigator.mozNotification.createNotification(title, options.body, options.icon), 
-        notification.show()) : external && external.msIsSiteMode() && (external.msSiteModeClearIconOverlay(), 
-        external.msSiteModeSetIconOverlay(_.isString(options.icon) ? options.icon : options.icon.x16, title), 
-        external.msSiteModeActivate(), notification = {
-            ieVerification: ieVerification + 1
-        }), notification;
+        notification.show()) : navigator.mozNotification && (notification = navigator.mozNotification.createNotification(title, options.body, options.icon), 
+        notification.show()), notification;
     }
     function getWrapper(notification) {
         return {
             close: function() {
-                notification && (notification.close ? notification.close() : external && external.msIsSiteMode() && notification.ieVerification === ieVerification && external.msSiteModeClearIconOverlay());
+                notification && notification.close && notification.close();
             }
         };
     }
@@ -4710,7 +4706,7 @@ TabSwapper.Hash = new Class({
     }
     function permissionLevel() {
         var permission;
-        if (isSupported) return win.Notification && win.Notification.permissionLevel ? permission = win.Notification.permissionLevel() : win.webkitNotifications && win.webkitNotifications.checkPermission ? permission = PERMISSION[win.webkitNotifications.checkPermission()] : navigator.mozNotification ? permission = PERMISSION_GRANTED : win.Notification && win.Notification.permission ? permission = win.Notification.permission : external && void 0 !== external.msIsSiteMode() && (permission = external.msIsSiteMode() ? PERMISSION_GRANTED : PERMISSION_DEFAULT), 
+        if (isSupported) return win.Notification && win.Notification.permissionLevel ? permission = win.Notification.permissionLevel() : win.webkitNotifications && win.webkitNotifications.checkPermission ? permission = PERMISSION[win.webkitNotifications.checkPermission()] : navigator.mozNotification ? permission = PERMISSION_GRANTED : win.Notification && win.Notification.permission && (permission = win.Notification.permission), 
         permission;
     }
     function config(params) {
@@ -4728,9 +4724,9 @@ TabSwapper.Hash = new Class({
     }
     var PERMISSION_DEFAULT = "default", PERMISSION_GRANTED = "granted", PERMISSION_DENIED = "denied", PERMISSION = [ PERMISSION_GRANTED, PERMISSION_DEFAULT, PERMISSION_DENIED ], settings = {
         autoClose: 0
-    }, emptyString = "", external = win.external, isSupported = Browser.Features.notifications = function() {
-        return !!(win.Notification || win.webkitNotifications || navigator.mozNotification || external && void 0 !== external.msIsSiteMode());
-    }.attempt() || !1, ieVerification = Math.floor(10 * Math.random() + 1), noop = function() {};
+    }, emptyString = "", isSupported = Browser.Features.notifications = function() {
+        return !!(win.Notification || win.webkitNotifications || navigator.mozNotification);
+    }.attempt() || !1, noop = (Math.floor(10 * Math.random() + 1), function() {});
     win.notify = {
         PERMISSION_DEFAULT: PERMISSION_DEFAULT,
         PERMISSION_GRANTED: PERMISSION_GRANTED,
@@ -6616,7 +6612,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
             username: "qweb-account",
             password: "qweb-password",
             auth: "qweb-auth",
-            newb: "qweb-visit",
+            newb: "qweb-new",
             options: "qweb-options",
             history: "qweb-hist"
         },
@@ -8428,7 +8424,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         P: "{C}4=={O} "
     }, ui.themes.Default2 = {
         SIGNON: "{P}Signed on!",
-        CONNECT: "{P}Connected to server.",
+        CONNECT: "{P}Connected to server - establishing IRC connection.",
         INFO: "{m}",
         RAW: "{P}{m}",
         DISCONNECT: "{P}Disconnected from server: {m}",
@@ -8567,7 +8563,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 var usingAutoNick = !0;
                 //!$defined(nick);//stupid used out of scope
                 inick = opts.initialNickname, self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName), 
-                storage.get(cookies.newb) !== !0 && (self.welcome(), storage.set(cookies.newb, !0)), 
+                storage.get(cookies.newb) !== !1 && (self.welcome(), storage.set(cookies.newb, !1)), 
                 self.ui.addEvent("login:once", function(loginopts) {
                     var ircopts = _.extend(Object.subset(opts, [ "initialChannels", "specialUserActions", "minRejoinTime", "networkServices", "node" ]), loginopts), client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
                     client.connect(), window.onbeforeunload = function(e) {
@@ -8626,6 +8622,71 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     $defined(key) && (channel = channel + " " + key)), not_supported.length > 0 && alert("The following IRC URL components were not accepted: " + not_supported.join(", ") + "."), 
                     channel;
                 }
+            }
+        }
+    }), irc.NodeConnection = new Class({
+        Implements: [ Options, Events ],
+        Binds: [ "recv", "error", "_connected", "_disconnected" ],
+        options: {
+            socket: {
+                url: document.location.hostname
+            },
+            nickname: "ircconnX",
+            password: "",
+            serverPassword: null,
+            autoConnect: !0,
+            autoRejoin: !1,
+            debug: !0,
+            floodProtection: !1,
+            retryInterval: 5e3,
+            retryScalar: 2
+        },
+        connected: !1,
+        initialize: function(options) {
+            var self = this;
+            self.setOptions(options);
+            var ip = util.formatter("{url}", self.options.socket), socket = self.socket = io.connect(ip), $evts = {
+                raw: self.recv,
+                echo: _.log,
+                connected: self._connected,
+                disconnect: self._disconnected,
+                error: self.error
+            };
+            _.each($evts, function(fn, key) {
+                fn ? socket.on(key, fn) : socket.on(key, function() {
+                    self.fireEvent(key);
+                });
+            }), self.connect();
+        },
+        connect: function() {
+            this.socket.emit("irc", this.options);
+        },
+        _connected: function() {
+            this.connected = !0, this.fireEvent("connected"), this.__retry = this.options.retryInterval;
+        },
+        disconnect: function() {
+            this.emit("quit"), this.socket.disconnect();
+        },
+        _disconnected: function() {
+            this.connected = !1, this.autoretry();
+        },
+        recv: function(data) {
+            var processed = util.parseIRCData(data.raw);
+            this.fireEvent("recv", processed);
+        },
+        send: function(data) {
+            return this.connected ? (this.socket.emit("send", data), !0) : (console.error("disconnected dude"), 
+            void 0);
+        },
+        error: function() {
+            console.error(arguments), this.fireEvent("error");
+        },
+        autoretry: function() {
+            if (!this.connected) {
+                var next = this.__retry *= this.options.retryScalar;
+                return this.fireEvent("retry", {
+                    next: next
+                }), this.socket.emit("retry", "please"), _.delay(this.autoretry, next, this);
             }
         }
     }), auth.loggedin = !1, auth.enabled = !1, auth.authed = !1, auth.signedIn = !1, 
@@ -9238,6 +9299,8 @@ var io = "undefined" == typeof module ? {} : module.exports;
         retry: function(data) {
             this.trigger("retry", data), this.writeMessages(lang.connRetry, {
                 next: (data.next / 1e3).round(1)
+            }, {
+                channels: [ STATUS, BROUHAHA ].concat(this.channels)
             });
         },
         updateNickList: function(channel) {
@@ -9848,72 +9911,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         }
     }), function() {
         irc.TwistedConnection.setXHRHeaders = _.identity;
-    }(), irc.NodeConnection = new Class({
-        Implements: [ Options, Events ],
-        Binds: [ "recv", "error", "_connected", "_disconnected" ],
-        options: {
-            socket: {
-                url: document.location.hostname
-            },
-            nickname: "ircconnX",
-            password: "",
-            serverPassword: null,
-            autoConnect: !0,
-            autoRejoin: !1,
-            debug: !0,
-            floodProtection: !1,
-            retryInterval: 5e3,
-            retryScalar: 2
-        },
-        connected: !1,
-        initialize: function(options) {
-            var self = this;
-            self.setOptions(options);
-            var ip = util.formatter("{url}", self.options.socket), socket = self.socket = io.connect(ip), $evts = {
-                raw: self.recv,
-                echo: _.log,
-                connected: self._connected,
-                disconnect: self._disconnected,
-                error: self.error
-            };
-            _.each($evts, function(fn, key) {
-                fn ? socket.on(key, fn) : socket.on(key, function() {
-                    self.fireEvent(key);
-                });
-            }), self.connect();
-        },
-        connect: function() {
-            this.socket.emit("irc", this.options);
-        },
-        _connected: function() {
-            this.connected = !0, this.fireEvent("connected"), this.__retry = this.options.retryInterval;
-        },
-        disconnect: function() {
-            this.emit("quit"), this.socket.disconnect();
-        },
-        _disconnected: function() {
-            this.connected = !1, this.autoretry();
-        },
-        recv: function(data) {
-            var processed = util.parseIRCData(data.raw);
-            this.fireEvent("recv", processed);
-        },
-        send: function(data) {
-            return this.connected ? (this.socket.emit("send", data), !0) : (console.error("disconnected dude"), 
-            void 0);
-        },
-        error: function() {
-            console.error(arguments), this.fireEvent("error");
-        },
-        autoretry: function() {
-            if (!this.connected) {
-                var next = this.__retry *= this.options.retryScalar;
-                return this.fireEvent("retry", {
-                    next: next
-                }), this.socket.emit("retry", "please"), _.delay(this.autoretry, next, this);
-            }
-        }
-    }), irc.IRCTracker = new Class({
+    }(), irc.IRCTracker = new Class({
         channels: {},
         nicknames: {},
         initialize: function(owner) {
@@ -10088,9 +10086,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
             function parser(type, data, win, channel) {
                 if (type = data.type || data.t || type, channel = data.channel || STATUS, win.addLine(data.type, data), 
                 !util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
-                    var data2 = _.clone(data), brouhaha = self.getWindow(client, BROUHAHA);
+                    var data2 = _.clone(data);
                     data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c : data.n + ">" + data.c, 
-                    brouhaha.addLine(data.type, data2);
+                    self.windows.brouhaha.addLine(data.type, data2);
                 }
             }
             function updateTopic(type, data) {
@@ -10098,7 +10096,8 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 lineParser("topic", data));
             }
             function joinPart(type, data) {
-                (data.thisclient && "PART" != data.type && "QUIT" != data.type || !self.uiOptions2.get("hide_joinparts") && !util.isBaseWindow(data.channel)) && lineParser(type, data);
+                (data.thisclient && "PART" != data.type && "QUIT" != data.type || !self.uiOptions2.get("hide_joinparts")) && (data = _.clone(data), 
+                data.channels = _.reject(formatChans(data), util.isBaseWindow), lineParser(type, data));
             }
             function partKick(type, data) {
                 if (data.thisclient) {
@@ -10590,13 +10589,6 @@ var io = "undefined" == typeof module ? {} : module.exports;
         },
         hotkeys: {
             keyboard: {
-                focusInput: {
-                    keys: "space",
-                    description: "",
-                    handler: function(e) {
-                        e.stop(), this.scope.active.$inputbox && this.scope.active.$inputbox.focus();
-                    }
-                },
                 nextWindow: {
                     keys: "right",
                     description: "",
@@ -10644,6 +10636,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
             }
         },
         setHotKeys: function() {
+            function isChar(code) {
+                return 32 === code || code > 46 && !(code >= 91 && 123 >= code) && 144 !== code && 145 !== code;
+            }
             var self = this, keyboard = this.keyboard = new Keyboard({
                 active: !0
             }).addShortcuts(self.hotkeys.keyboard), inputKeyboard = new Keyboard({
@@ -10657,7 +10652,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     inputKeyboard.activate();
                 },
                 keydown: function(e) {
-                    keyboard.isActive() && !isNaN(e.key) && e.key <= self.windowArray.length && self.selectWindow(e.key - 1);
+                    keyboard.isActive() && (e.alt && !isNaN(e.key) && e.key <= self.windowArray.length ? self.selectWindow(e.key - 1) : !self.active.$input || e.alt || e.control || e.meta || !isChar(e.code) || self.active.$input.focus());
                 }
             });
         },
@@ -10683,8 +10678,8 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     left: [ 5, -900 ]
                 });
             }.delay(4e3);
-            var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
-            hider2.delay(4e3), document.addEvents({
+            var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
+            _.delay(hider2, 4e3), document.addEvents({
                 "mousedown:once": hider2,
                 "keydown:once": hider2
             });

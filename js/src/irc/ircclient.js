@@ -70,6 +70,8 @@ irc.IRCClient = new Class({
         this.trigger("retry", data);
         this.writeMessages(lang.connRetry, {
             next: (data.next/1000).round(1)
+        }, {
+            channels: [STATUS, BROUHAHA].concat(this.channels)
         });
     },
 

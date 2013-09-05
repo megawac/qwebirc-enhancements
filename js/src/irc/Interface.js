@@ -119,9 +119,9 @@ ui.Interface = new Class({
 
             var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
             //cleans up old properties
-            if(storage.get(cookies.newb) !== true) {
+            if(storage.get(cookies.newb) !== false) {
                 self.welcome();
-                storage.set(cookies.newb, true);
+                storage.set(cookies.newb, false);
             }
 
             self.ui.addEvent("login:once", function(loginopts) {

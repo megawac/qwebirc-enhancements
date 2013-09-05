@@ -54,7 +54,7 @@ project name and URL in the about dialog, thanks!
             "username": "qweb-account",
             "password": "qweb-password",
             "auth": "qweb-auth",
-            "newb": "qweb-visit",
+            "newb": "qweb-new",
             "options": "qweb-options",
             "history": "qweb-hist"
         },
@@ -2595,7 +2595,7 @@ ui.themes.ThemeControlCodeMap2 = {
 
 ui.themes.Default2 = {
     "SIGNON": "{P}Signed on!",
-    "CONNECT": "{P}Connected to server - establishing IRC connection",
+    "CONNECT": "{P}Connected to server - establishing IRC connection.",
 
     "INFO": "{m}",
     "RAW": "{P}{m}",
@@ -2822,9 +2822,9 @@ ui.Interface = new Class({
 
             var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
             //cleans up old properties
-            if(storage.get(cookies.newb) !== true) {
+            if(storage.get(cookies.newb) !== false) {
                 self.welcome();
-                storage.set(cookies.newb, true);
+                storage.set(cookies.newb, false);
             }
 
             self.ui.addEvent("login:once", function(loginopts) {
@@ -2961,6 +2961,128 @@ ui.Interface = new Class({
         if (not_supported.length > 0) alert("The following IRC URL components were not accepted: " + not_supported.join(", ") + ".");
 
         return channel;
+    }
+});
+
+
+irc.NodeConnection = new Class({
+    Implements: [Options, Events],
+    Binds: ["recv", "error", "_connected", "_disconnected"],
+    options: {
+        socket: {
+            url: document.location.hostname
+        },
+        nickname: "ircconnX",
+        password: '',
+        serverPassword: null,
+        autoConnect: true,
+        autoRejoin: false,
+        debug: true,
+        floodProtection: false,
+        /*server: xxx,
+        nick: nick,
+        password: null,
+        userName: 'nodebot',
+        realName: 'nodeJS IRC client',
+        port: 6667,
+        debug: false,
+        showErrors: false,
+        autoRejoin: true,
+        autoConnect: true,
+        channels: [],
+        retryCount: null,
+        retryDelay: 2000,
+        secure: false,
+        selfSigned: false,
+        certExpired: false,
+        floodProtection: false,
+        floodProtectionDelay: 1000,
+        stripColors: false,
+        channelPrefixes: "&#",
+        messageSplit: 512*/
+        retryInterval: 5000,
+        retryScalar: 2
+    },
+    connected: false,
+
+    initialize: function(options) {
+        var self = this;
+        self.setOptions(options);
+        var ip = util.formatter("{url}", self.options.socket);
+        var socket = self.socket = io.connect(ip);
+
+        var $evts = {
+            "raw": self.recv,
+            "echo": _.log,
+            "connected": self._connected,
+            "disconnect": self._disconnected,
+            // "connected": _.log,
+            "error": self.error
+        };
+
+        _.each($evts, function(fn, key) {
+            if(fn) {
+                socket.on(key, fn);
+            }
+            else {
+                socket.on(key, function() {//pass
+                    self.fireEvent(key);
+                });
+            }
+        });
+
+        self.connect();
+    },
+
+    connect: function() {
+        this.socket.emit("irc", this.options);
+    },
+
+    //irc connection on server in
+    _connected: function() {
+        this.connected = true;
+        this.fireEvent("connected");
+        this.__retry = this.options.retryInterval;
+    },
+
+    disconnect: function() {
+        this.emit("quit");
+        this.socket.disconnect();
+    },
+
+    _disconnected: function() {
+        this.connected = false;
+        this.autoretry();
+    },
+
+    recv: function(data) {
+        var processed = util.parseIRCData(data.raw);
+        this.fireEvent("recv", processed);
+    },
+
+    send: function(data) {
+        if(this.connected) {
+            this.socket.emit("send", data);
+            return true;
+        }
+        else {
+            console.error("disconnected dude");
+        }
+    },
+
+    error: function() {
+        console.error(arguments);
+        this.fireEvent("error");
+    },
+
+    autoretry: function() {
+        if(this.connected) {return;}
+        var next = this.__retry *= this.options.retryScalar;
+        this.fireEvent("retry", {
+            next: next
+        });
+        this.socket.emit("retry", "please");
+        return _.delay(this.autoretry, next, this);
     }
 });
 
@@ -4048,6 +4170,8 @@ irc.IRCClient = new Class({
         this.trigger("retry", data);
         this.writeMessages(lang.connRetry, {
             next: (data.next/1000).round(1)
+        }, {
+            channels: [STATUS, BROUHAHA].concat(this.channels)
         });
     },
 
@@ -5122,128 +5246,6 @@ irc.TwistedConnection = new Class({
     // };
 })();
 
-irc.NodeConnection = new Class({
-    Implements: [Options, Events],
-    Binds: ["recv", "error", "_connected", "_disconnected"],
-    options: {
-        socket: {
-            url: document.location.hostname
-        },
-        nickname: "ircconnX",
-        password: '',
-        serverPassword: null,
-        autoConnect: true,
-        autoRejoin: false,
-        debug: true,
-        floodProtection: false,
-        /*server: xxx,
-        nick: nick,
-        password: null,
-        userName: 'nodebot',
-        realName: 'nodeJS IRC client',
-        port: 6667,
-        debug: false,
-        showErrors: false,
-        autoRejoin: true,
-        autoConnect: true,
-        channels: [],
-        retryCount: null,
-        retryDelay: 2000,
-        secure: false,
-        selfSigned: false,
-        certExpired: false,
-        floodProtection: false,
-        floodProtectionDelay: 1000,
-        stripColors: false,
-        channelPrefixes: "&#",
-        messageSplit: 512*/
-        retryInterval: 5000,
-        retryScalar: 2
-    },
-    connected: false,
-
-    initialize: function(options) {
-        var self = this;
-        self.setOptions(options);
-        var ip = util.formatter("{url}", self.options.socket);
-        var socket = self.socket = io.connect(ip);
-
-        var $evts = {
-            "raw": self.recv,
-            "echo": _.log,
-            "connected": self._connected,
-            "disconnect": self._disconnected,
-            // "connected": _.log,
-            "error": self.error
-        };
-
-        _.each($evts, function(fn, key) {
-            if(fn) {
-                socket.on(key, fn);
-            }
-            else {
-                socket.on(key, function() {//pass
-                    self.fireEvent(key);
-                });
-            }
-        });
-
-        self.connect();
-    },
-
-    connect: function() {
-        this.socket.emit("irc", this.options);
-    },
-
-    //irc connection on server in
-    _connected: function() {
-        this.connected = true;
-        this.fireEvent("connected");
-        this.__retry = this.options.retryInterval;
-    },
-
-    disconnect: function() {
-        this.emit("quit");
-        this.socket.disconnect();
-    },
-
-    _disconnected: function() {
-        this.connected = false;
-        this.autoretry();
-    },
-
-    recv: function(data) {
-        var processed = util.parseIRCData(data.raw);
-        this.fireEvent("recv", processed);
-    },
-
-    send: function(data) {
-        if(this.connected) {
-            this.socket.emit("send", data);
-            return true;
-        }
-        else {
-            console.error("disconnected dude");
-        }
-    },
-
-    error: function() {
-        console.error(arguments);
-        this.fireEvent("error");
-    },
-
-    autoretry: function() {
-        if(this.connected) {return;}
-        var next = this.__retry *= this.options.retryScalar;
-        this.fireEvent("retry", {
-            next: next
-        });
-        this.socket.emit("retry", "please");
-        return _.delay(this.autoretry, next, this);
-    }
-});
-
-
 irc.IRCTracker = new Class({
     channels: {},
     nicknames: {},
@@ -5623,10 +5625,9 @@ ui.BaseUI = new Class({
 
             if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
                 var data2 = _.clone(data);
-                var brouhaha = self.getWindow(client, BROUHAHA);
                 data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c ://chanmsg
                                                                 data.n + ">" + data.c;//pm
-                brouhaha.addLine(data.type, data2);
+                self.windows.brouhaha.addLine(data.type, data2);
             }
         }
 
@@ -5640,7 +5641,9 @@ ui.BaseUI = new Class({
 
         function joinPart(type, data) {
             if ((data.thisclient && data.type != "PART" && data.type != "QUIT") ||
-                    !(self.uiOptions2.get("hide_joinparts")) && !util.isBaseWindow(data.channel)) {
+                    !(self.uiOptions2.get("hide_joinparts"))) {
+                data = _.clone(data);
+                data.channels = _.reject(formatChans(data),  util.isBaseWindow);
                 lineParser(type, data);
             }
         }
@@ -6518,14 +6521,6 @@ ui.QUI = new Class({
 
     hotkeys: {
         keyboard: {
-            focusInput: {
-                keys: 'space',
-                description: '',
-                handler: function(e) {
-                    e.stop();
-                    if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
-                }
-            },
             nextWindow: {
                 keys: 'right',
                 description: '',
@@ -6582,8 +6577,9 @@ ui.QUI = new Class({
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
             keyboard.scope = self;
 
-
-        // document.addEvent("keydown", self.__handleHotkey);
+        function isChar(code) {//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+            return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
+        }
 
         document.addEvents({
             "blur:relay(input)": function() {
@@ -6593,9 +6589,12 @@ ui.QUI = new Class({
                 inputKeyboard.activate();
             },
             "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
-                if(keyboard.isActive() && !isNaN(e.key)) {
-                    if(e.key <= self.windowArray.length)
+                if(keyboard.isActive()) {
+                    if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
                         self.selectWindow(e.key - 1);
+                    } else if(self.active.$input && !(e.alt||e.control||e.meta) && isChar(e.code) ) {
+                        self.active.$input.focus();
+                    }
                 }
             }
         });
@@ -6626,9 +6625,9 @@ ui.QUI = new Class({
                 });
             }.delay(4000);
 
-        var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
+        var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
 
-        hider2.delay(4000);
+        _.delay(hider2, 4000);
 
         document.addEvents({
             "mousedown:once": hider2,

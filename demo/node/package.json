@@ -14,7 +14,7 @@
     "dependencies": {
         "socket.io": "0.9.x",
         "express": "3.x.x",
-        "underscore": ">= 1.5.0"
+        "underscore": "*"
     },
-    "main": "root.js"
+    "main": "config.js"
 }

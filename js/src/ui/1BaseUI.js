@@ -108,10 +108,9 @@ ui.BaseUI = new Class({
 
             if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
                 var data2 = _.clone(data);
-                var brouhaha = self.getWindow(client, BROUHAHA);
                 data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c ://chanmsg
                                                                 data.n + ">" + data.c;//pm
-                brouhaha.addLine(data.type, data2);
+                self.windows.brouhaha.addLine(data.type, data2);
             }
         }
 
@@ -125,7 +124,9 @@ ui.BaseUI = new Class({
 
         function joinPart(type, data) {
             if ((data.thisclient && data.type != "PART" && data.type != "QUIT") ||
-                    !(self.uiOptions2.get("hide_joinparts")) && !util.isBaseWindow(data.channel)) {
+                    !(self.uiOptions2.get("hide_joinparts"))) {
+                data = _.clone(data);
+                data.channels = _.reject(formatChans(data),  util.isBaseWindow);
                 lineParser(type, data);
             }
         }

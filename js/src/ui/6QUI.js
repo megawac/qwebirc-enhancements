@@ -208,14 +208,6 @@ ui.QUI = new Class({
 
     hotkeys: {
         keyboard: {
-            focusInput: {
-                keys: 'space',
-                description: '',
-                handler: function(e) {
-                    e.stop();
-                    if(this.scope.active.$inputbox) this.scope.active.$inputbox.focus();
-                }
-            },
             nextWindow: {
                 keys: 'right',
                 description: '',
@@ -272,8 +264,9 @@ ui.QUI = new Class({
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
             keyboard.scope = self;
 
-
-        // document.addEvent("keydown", self.__handleHotkey);
+        function isChar(code) {//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+            return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
+        }
 
         document.addEvents({
             "blur:relay(input)": function() {
@@ -283,9 +276,12 @@ ui.QUI = new Class({
                 inputKeyboard.activate();
             },
             "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
-                if(keyboard.isActive() && !isNaN(e.key)) {
-                    if(e.key <= self.windowArray.length)
+                if(keyboard.isActive()) {
+                    if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
                         self.selectWindow(e.key - 1);
+                    } else if(self.active.$input && !(e.alt||e.control||e.meta) && isChar(e.code) ) {
+                        self.active.$input.focus();
+                    }
                 }
             }
         });
@@ -316,9 +312,9 @@ ui.QUI = new Class({
                 });
             }.delay(4000);
 
-        var hider2 = this.hideHint = _.partial(Element.destroy, dropdownhint);
+        var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
 
-        hider2.delay(4000);
+        _.delay(hider2, 4000);
 
         document.addEvents({
             "mousedown:once": hider2,
