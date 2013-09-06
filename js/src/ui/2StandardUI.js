@@ -1,98 +1,106 @@
 
 ui.StandardUI = new Class({
-    Extends: ui.BaseUI,
-    Binds: ["__handleHotkey", "optionsWindow", "embeddedWindow", "urlDispatcher", "resetTabComplete", "whoisURL", "updateStylesheet"],
-
-    UICommands: ui.UI_COMMANDS,
-    initialize: function(parentElement, theme, windowClass, uiName, options) {
+    Extends: ui.NotificationUI,
+    Implements: [ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions],
+    Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
+            "nextWindow", "prevWindow",
+            //custom windows
+            "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
+    options: {
+        routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
+    },
+    initialize: function(parentElement, theme, uiName, options) {
         var self = this;
-        self.parent(parentElement, windowClass, uiName, options);
+        self.parent(options);
 
         self.theme = theme;
+        self.config();
 
-        // self.uiOptions = new ui.DefaultOptionsClass(self, options.uiOptionsArg);
-        self.uiOptions2 = new config.OptionModel({
-            defaults: self.options.uiOptionsArg
+        self.element = self.parentElement = parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
+        self.commandhistory = new irc.CommandHistory();
+        self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
+
+        getTemplate("topPane", function(template) {
+            self.outerTabs = Element.from(template()).inject(parentElement);
+        });
+        getTemplate("windowsPane", function(template) {
+            self.windowsPanel = Element.from(template()).inject(parentElement);
         });
 
-        function setCustomNotice(notices) {
-            self.theme.customNotices = _.chain(notices).clone()
-                .reject(function(data) {
-                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
-                })
-                .map(function(notice) {
-                    return {
-                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
-                        beep: notice.beep,
-                        flash: notice.flash
-                    };
-                })
-                .value();
-        }
-        function setStandardNotice(notices) {
-            _.each(self.theme.messageParsers, function(parser) {
-                if( _.has(notices, parser.id) )
-                    _.extend(parser, notices[parser.id]);
-            });
-        }
+    },
 
-        self.uiOptions2.on({
-            "change:style_hue": function(style_hue) {
-                self.updateStylesheet();
+    postInitialize: function() {
+        var self = this,
+            rprefix = self.options.routerPrefix;
+
+        self.nav = new ui.NavBar({
+            element: self.outerTabs,
+            menuElement: self.element
+        });
+        self.nav.on({
+            "selectWindow": function(e, target) {
+                e.stop();
+                target.retrieve('window').select();
             },
-            "change:font_size": self.updateStylesheet,
-            "change:custom_notices": setCustomNotice,
-            "change:notices": setStandardNotice
+            "closeWindow": function(e, target) {
+                e.stop();
+                target.getParent('.tab').retrieve('window').close();
+            },
+            "nextWindow": self.nextWindow,
+            "prevWindow": self.prevWindow
         });
-        setCustomNotice(self.uiOptions2.get("custom_notices"));
-        setStandardNotice(self.uiOptions2.get("notices"));
 
-        self.setModifiableStylesheet({
-            style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
-            style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
-            style_brightness: self.options.brightness || self.uiOptions2.get("style_brightness")
+        self.router = new Epitome.Router({
+            // routes definition will proxy the events
+            routes: {
+                '': 'index',
+                '#options': 'options',
+                "#feedback": 'feedback',
+                "#about": "about",
+                "#faq": "faq",
+                "#embedded": 'embedded',
+                // '#add webchat to your site': 'embedded',
+                "#privacy": "privacy"//,
+                // "#privacy policy": "privacy"
+            },
+            // no route event was found, though route was defined
+            onError: function(error){
+                console.error(error);
+                // recover by going default route
+                this.navigate('');
+            },
+            //try to select the window if it exists
+            onUndefined: function(data) {
+                var request = data.request.startsWith(rprefix) && data.request.slice(rprefix.length);
+                if(request) {
+                    var win = _.findWhere(self.windowArray, {identifier:request}) || _.findWhere(self.windowArray, {identifier:util.formatChannel(request)});
+                    if(win) {
+                        win.select();
+                    }
+                }
+            },
+            'onIndex': function() {
+                //update options with query string?
+            },
+            'onOptions': self.optionsWindow,
+            'onFaq': self.faqWindow,
+            'onPrivacy': self.privacyWindow,
+            'onAbout': self.aboutWindow,
+            'onFeedback': self.feedbackWindow,
+            'onEmbedded': self.embeddedWindow
         });
+        
+        return this;
     },
-
-    newCustomWindow: function(name, select, type) {
-        type = type || ui.WINDOW.custom;
-
-        var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
-
-        if (select) this.selectWindow(win);
-
-        return win;
-    },
-
-    addCustomWindow: function(windowName, CustomView, cssClass, options) {
-        var wid = this.getWindowIdentifier(windowName);
-        if (_.has(this.customWindows, wid)) {
-            return this.selectWindow(this.customWindows[wid]);
+    updateURI: function() {
+        if(this.router instanceof Epitome.Router && this.active) {
+            this.router.navigate(this.options.routerPrefix + util.unformatChannel(this.active.identifier));
         }
-
-        var win = this.newCustomWindow(windowName, true);
-        this.customWindows[wid] = win;
-
-        win.addEvent("destroy", function() {
-            delete this.customWindows[wid];
-        }.bind(this));
-
-        if(_.isString(cssClass)) {
-            win.lines.addClass(cssClass);
-        }
-
-        options = _.extend({
-            element: win.lines
-        }, options);
-        new CustomView(options)
-            .addEvent("close", win.close);
-
-
-        return win;
     },
+
     optionsWindow: function() {
         var self = this;
-        self.addCustomWindow("Options", ui.OptionView, "options", {
+        return self.addCustomWindow("Options", ui.OptionView, "options", {
             model: self.uiOptions2,
             onNoticeTest: function() {
                 self.flash({force:true});
@@ -170,28 +178,5 @@ ui.StandardUI = new Class({
             chan = target.get('data-chan');
         if(util.isChannel(chan))
             client.exec("/JOIN " + chan);
-    },
-
-    setModifiableStylesheet: function(vals) {
-        this.__styleSheet = new Element("style", {
-                                type: "text/css",
-                                media: "all"
-                            }).inject(document.head);
-        this.updateStylesheet(vals);
-    },
-    updateStylesheet: function(values) {//todo calculate all the values and just sub in
-        var self = this;
-        getTemplate("modifiablecss", function(template) {
-            var styles = _.extend({}, Browser, self.uiOptions2.toJSON(), values);
-            var stylesheet = template(styles);
-            var node = self.__styleSheet;
-
-            if (node.styleSheet) { /* ie */
-                node.styleSheet.cssText = stylesheet;
-            } else {
-                node.empty()
-                    .appendText(stylesheet);
-            }
-        });
     }
 });

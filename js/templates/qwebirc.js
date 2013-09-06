@@ -52,7 +52,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + ";\r\nheight: 26px;\r\nline-height: 20px;\r\npadding: 2px 0;\r\nvertical-align: middle;\r\n}\r\n\r\n.qui .tabbar {\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
-    + ";\r\ndisplay: inline-block;\r\n/*overflow-x: hidden;*/\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
+    + ";\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
     + ";\r\nborder: 1px solid ";
@@ -302,7 +302,7 @@ function program1(depth0,data) {
   buffer += "\r\n";
   stack1 = self.invokePartial(partials.tabAttach, 'tabAttach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n</div>";
+  buffer += "\r\n</div>\r\n<div class=\"content\"></div>\r\n<div><span class=\"resize-handle ui-icon ui-icon-grip-diagonal-se\"></span></div>\r\n</div>";
   return buffer;
   });
 
@@ -393,26 +393,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
 this["qwebirc"]["templates"]["mainmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
-  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
-
-function program1(depth0,data) {
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
-  var stack1;
-  stack1 = self.invokePartial(partials.menuitem, 'menuitem', depth0, helpers, partials, data);
-  if(stack1 || stack1 === 0) { return stack1; }
-  else { return ''; }
-  }
 
-  buffer += "<div>\r\n<ul class='";
-  if (stack1 = helpers.menuclass) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.menuclass; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " dropdownmenu'>\r\n";
-  stack1 = helpers.each.call(depth0, depth0.menu, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</ul>\r\n</div>";
-  return buffer;
+
+  return "<div class=\"hidden\">\r\n<ul class=\"main-menu dropdownmenu\">\r\n<a href=\"#options\"><li><span>Options</span></li></a>\r\n<a href=\"#embedded\"><li><span>Add webchat to your site</span></li></a>\r\n<a href=\"#privacy\"><li><span>Privacy policy</span></li></a>\r\n<a href=\"#faq\"><li><span>Frequently asked questions</span></li></a>\r\n<a href=\"#feedback\"><li><span>Submit feedback</span></li></a>\r\n<a href=\"#about\"><li><span>About qwebirc</span></li></a>\r\n</ul>\r\n</div>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -486,6 +471,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += escapeExpression(stack1)
     + "</span></div>";
   return buffer;
+  });
+
+this["qwebirc"]["templates"]["navbar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  
+
+
+  return "<div class=\"main-menu dropdown-tab\">\r\n<img src=\"images/icon.png\" title=\"menu\" alt=\"menu\">\r\n</div>\r\n<div class=\"tabbar\"></div>\r\n<div class=\"buttons\">\r\n<span class=\"to-left ui-icon ui-icon-circle-triangle-w hidden\" name=\"tabscroll\"></span>\r\n<span class=\"to-right ui-icon ui-icon-circle-triangle-e hidden\" name=\"tabscroll\"></span>\r\n<span class=\"add-chan ui-icon ui-icon-circle-plus\" title=\"Join a channel\"></span>\r\n</div>";
   });
 
 this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -604,7 +598,11 @@ function program1(depth0,data) {
   buffer += "<span class='";
   stack1 = helpers['if'].call(depth0, depth0.empty, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>[<span>";
+  buffer += "' title=\"";
+  if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">[<span>";
   if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)

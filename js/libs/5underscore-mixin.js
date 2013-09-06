@@ -164,7 +164,8 @@
         //xs array
         //pos start index
         //dir ammount direction +/-
-        nextItem: function(xs, pos, dir) {
+        nextItem: function(xs, pos, dir) {//#note: will always returns an item
+            pos = Math.min(_.size(xs), pos);
             var index = pos + (dir || 1);
             if (index >= xs.length) {
                 index %= xs.length;

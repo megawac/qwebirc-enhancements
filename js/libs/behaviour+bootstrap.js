@@ -1907,7 +1907,6 @@ Behavior.addGlobalFilters({
                     },
                     Object.cleanValues(
                         api.getAs({
-                            initPanel: Number,
                             hash: String,
                             cookieName: String,
                             smooth: Boolean,

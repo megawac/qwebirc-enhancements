@@ -56,7 +56,7 @@
         activityNotice: message("Activity!", types.MISC),
         partChan: message("Part", types.MESSAGE),
         logOut: message("Logged out", types.MESSAGE),
-        quit: message("Page closed", types.MESSAGE),
+        quit: "Page closed",
         disconnected: message("Client has been disconnected", types.INFO),
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
@@ -127,30 +127,30 @@
     // };
 
 
-ui.UI_COMMANDS = [
-        {
-            text: "Options",
-            value: "optionsWindow"//ui method
-        },
-        {
-            text: "Add webchat to your site",
-            value: "embeddedWindow"
-        },
-        {
-            text: "Privacy policy",
-            value: "privacyWindow"
-        },
-        {
-            text: "Frequently asked questions",
-            value: "faqWindow"
-        },
-        {
-            text: "Submit feedback",
-            value: "feedbackWindow"
-        },
-        {
-            text: "About qwebirc",
-            value: "aboutWindow"
-        }];
+// ui.UI_COMMANDS = [
+//         {
+//             text: "Options",
+//             value: "optionsWindow"//ui method
+//         },
+//         {
+//             text: "Add webchat to your site",
+//             value: "embeddedWindow"
+//         },
+//         {
+//             text: "Privacy policy",
+//             value: "privacyWindow"
+//         },
+//         {
+//             text: "Frequently asked questions",
+//             value: "faqWindow"
+//         },
+//         {
+//             text: "Submit feedback",
+//             value: "feedbackWindow"
+//         },
+//         {
+//             text: "About qwebirc",
+//             value: "aboutWindow"
+//         }];
 
 })();

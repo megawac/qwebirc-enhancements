@@ -30,22 +30,22 @@
     //     "</div>",
     // "</div>"].join("");
 
-    source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
+    // source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
 
-    source.menuContainer = "<div class='menu'></div>";
+    source.nickMenu = "<div class='menu'></div>";
     // source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
-    source.menudrop = "<div class='main-menu dropdownmenu'></div>";
+    // source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     // source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
     // source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
-    source.tabbarbtns = [
-    "<div class='buttons'>",
-        "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
-        "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
-        "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
-    "</div>"].join("");
+    // source.tabbarbtns = [
+    // "<div class='buttons'>",
+    //     "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
+    //     "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
+    //     "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
+    // "</div>"].join("");
     // source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
     source.tabDetach = "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>";
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";

@@ -7,9 +7,10 @@ module.exports = function(grunt) {
     'js/src/config/**.js',
     'js/src/irc/*.js',
     'templates/Templates.js',
+    'js/src/ui/interfaces/*.js',
     'js/src/ui/*.js',//ui +etc
-    'js/src/ui/panes/*.js',
     'js/src/ui/window/*.js',
+    'js/src/ui/panes/*.js',
     'js/src/qwebirc_end.js'];
     var fullconcat = [
     'js/libs/*.js',
@@ -148,8 +149,8 @@ module.exports = function(grunt) {
     'handlebars',
 
     'concat:qweb',
-    // 'concat:full',
-    'uglify:strip',
+    'concat:full',
+    // 'uglify:strip',
     'copy:demo',
     //, 'uglify:min'
     ]);

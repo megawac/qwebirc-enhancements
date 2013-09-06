@@ -135,8 +135,9 @@ ui.QUI.Window = new Class({
                                                 })),
             header = wrapper.getElement('.header'),
 
-            resizeWrapper = Element.from(templates.resizeHandle()),
-            resizeHandle = resizeWrapper.getElement('.resize-handle');
+            // resizeWrapper = Element.from(templates.resizeHandle()),
+            // resizeHandle = resizeWrapper.getElement('.resize-handle');
+            resizeHandle = wrapper.getElement('.resize-handle');
         self.element.addClass('detached');
 
 
@@ -149,14 +150,14 @@ ui.QUI.Window = new Class({
                 "width": size.x,
                 "height": size.y
             })
-            .wraps(win) //*** adds wrapper to dom
-            .adopt(resizeWrapper);
+            .replaces(win); //*** adds wrapper to dom;
         win.show()
             .addEvent("mousedown", function(e) {
                 var tag = e.target.tagName.toLowerCase();
                 if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
                     e.stopPropagation();
-            });
+            })
+            .replaces(wrapper.getElement('.content'));
         self.setActive();
 
         self.resizable = wrapper.makeResizable({
@@ -196,28 +197,8 @@ ui.QUI.Window = new Class({
         }
     },
 
-    // selectTab: function(e) {
-    //     var self = this;
-    //     if(self.name !== BROUHAHA) {
-    //         _.each(self.parentObject.windowArray, function(win) {
-    //             if(!win.detached && (!e || e.type !== "click" || win.name !== BROUHAHA)) {//keep brouhaha selected if its from a single click
-    //                 win.tab.removeClass("selected");
-    //             }
-    //             if(win.name === BROUHAHA) {
-    //                 if(util.isChannelType(self.type)) {
-    //                     win.window.getElement('.channel-name').text(self.name); //update current channel in brouhaha
-    //                     win.currentChannel = self.name;
-    //                 }
-    //             }
-    //         });
-    //     }
-    //     irc.activeChannel = self.name;
-    //     self.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
-    //             .addClass("selected");
-    // },
-
     select: function() {//change window elements
-        if(this.active) return;
+        if(this.active || this.closed) return;
         this.parent();
 
         this.tab.addClass("selected");
@@ -338,7 +319,7 @@ ui.QUI.Window = new Class({
         if($menu) {
             $menu.toggle();
         } else {
-            $menu = Element.from(templates.menuContainer()).inject($par)
+            $menu = Element.from(templates.nickMenu()).inject($par);
             _.each(ui.MENU_ITEMS, function(item) {
                 if(_.isFunction(item.predicate) ? item.predicate.call(self, $par.retrieve('nick')) : !!item.predicate) {
                     Element.from(templates.nickmenubtn(item))

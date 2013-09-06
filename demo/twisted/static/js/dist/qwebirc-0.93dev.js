@@ -6062,7 +6062,8 @@ Handlebars.template = Handlebars.VM.template;
         //xs array
         //pos start index
         //dir ammount direction +/-
-        nextItem: function(xs, pos, dir) {
+        nextItem: function(xs, pos, dir) {//#note: will always returns an item
+            pos = Math.min(_.size(xs), pos);
             var index = pos + (dir || 1);
             if (index >= xs.length) {
                 index %= xs.length;
@@ -11165,7 +11166,11 @@ var io="undefined"==typeof module?{}:module.exports;(function(){(function(a,b){v
 				// the event map should be like `elementEvent`: `instanceEvent`
 				// for example: '{click:relay(a.task-remove)': 'removeTask'}
 				// will fire instance's onRemoveTask handler when a.task-remove is pressed within the element.
-				events: {}
+				events: {},
+
+				//Automatically match methods from the instances methods to element events
+				//e.g. if view has method removeTask clicking a.task-remove will call removeTask
+				autoEvents: true
 			},
 
 			initialize: function(options){
@@ -11258,7 +11263,7 @@ var io="undefined"==typeof module?{}:module.exports;(function(){(function(a,b){v
 				// add events to main element.
 				var self = this;
 				Object.each(events, function(method, type){
-					if(!self.$events[method]) {
+					if(self.options.autoEvents && Type.isFunction(self[method])) {
 						self.$events[method] = [self[method]];
 					}
 					self.element.addEvent(type, function(){
@@ -11472,7 +11477,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + ";\r\nheight: 26px;\r\nline-height: 20px;\r\npadding: 2px 0;\r\nvertical-align: middle;\r\n}\r\n\r\n.qui .tabbar {\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
-    + ";\r\ndisplay: inline-block;\r\n/*overflow-x: hidden;*/\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
+    + ";\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
     + ";\r\nborder: 1px solid ";
@@ -11722,7 +11727,7 @@ function program1(depth0,data) {
   buffer += "\r\n";
   stack1 = self.invokePartial(partials.tabAttach, 'tabAttach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n</div>";
+  buffer += "\r\n</div>\r\n<div class=\"content\"></div>\r\n<div><span class=\"resize-handle ui-icon ui-icon-grip-diagonal-se\"></span></div>\r\n</div>";
   return buffer;
   });
 
@@ -11813,26 +11818,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
 this["qwebirc"]["templates"]["mainmenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
-  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
-
-function program1(depth0,data) {
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
-  var stack1;
-  stack1 = self.invokePartial(partials.menuitem, 'menuitem', depth0, helpers, partials, data);
-  if(stack1 || stack1 === 0) { return stack1; }
-  else { return ''; }
-  }
 
-  buffer += "<div>\r\n<ul class='";
-  if (stack1 = helpers.menuclass) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.menuclass; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + " dropdownmenu'>\r\n";
-  stack1 = helpers.each.call(depth0, depth0.menu, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</ul>\r\n</div>";
-  return buffer;
+
+  return "<div class=\"hidden\">\r\n<ul class=\"main-menu dropdownmenu\">\r\n<a href=\"#options\"><li><span>Options</span></li></a>\r\n<a href=\"#embedded\"><li><span>Add webchat to your site</span></li></a>\r\n<a href=\"#privacy\"><li><span>Privacy policy</span></li></a>\r\n<a href=\"#faq\"><li><span>Frequently asked questions</span></li></a>\r\n<a href=\"#feedback\"><li><span>Submit feedback</span></li></a>\r\n<a href=\"#about\"><li><span>About qwebirc</span></li></a>\r\n</ul>\r\n</div>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -11906,6 +11896,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += escapeExpression(stack1)
     + "</span></div>";
   return buffer;
+  });
+
+this["qwebirc"]["templates"]["navbar"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  
+
+
+  return "<div class=\"main-menu dropdown-tab\">\r\n<img src=\"images/icon.png\" title=\"menu\" alt=\"menu\">\r\n</div>\r\n<div class=\"tabbar\"></div>\r\n<div class=\"buttons\">\r\n<span class=\"to-left ui-icon ui-icon-circle-triangle-w hidden\" name=\"tabscroll\"></span>\r\n<span class=\"to-right ui-icon ui-icon-circle-triangle-e hidden\" name=\"tabscroll\"></span>\r\n<span class=\"add-chan ui-icon ui-icon-circle-plus\" title=\"Join a channel\"></span>\r\n</div>";
   });
 
 this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -12024,7 +12023,11 @@ function program1(depth0,data) {
   buffer += "<span class='";
   stack1 = helpers['if'].call(depth0, depth0.empty, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "'>[<span>";
+  buffer += "' title=\"";
+  if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">[<span>";
   if (stack1 = helpers.topic) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.topic; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -13381,7 +13384,7 @@ util.generateID = (function() {
         activityNotice: message("Activity!", types.MISC),
         partChan: message("Part", types.MESSAGE),
         logOut: message("Logged out", types.MESSAGE),
-        quit: message("Page closed", types.MESSAGE),
+        quit: "Page closed",
         disconnected: message("Client has been disconnected", types.INFO),
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
@@ -13452,31 +13455,31 @@ util.generateID = (function() {
     // };
 
 
-ui.UI_COMMANDS = [
-        {
-            text: "Options",
-            value: "optionsWindow"//ui method
-        },
-        {
-            text: "Add webchat to your site",
-            value: "embeddedWindow"
-        },
-        {
-            text: "Privacy policy",
-            value: "privacyWindow"
-        },
-        {
-            text: "Frequently asked questions",
-            value: "faqWindow"
-        },
-        {
-            text: "Submit feedback",
-            value: "feedbackWindow"
-        },
-        {
-            text: "About qwebirc",
-            value: "aboutWindow"
-        }];
+// ui.UI_COMMANDS = [
+//         {
+//             text: "Options",
+//             value: "optionsWindow"//ui method
+//         },
+//         {
+//             text: "Add webchat to your site",
+//             value: "embeddedWindow"
+//         },
+//         {
+//             text: "Privacy policy",
+//             value: "privacyWindow"
+//         },
+//         {
+//             text: "Frequently asked questions",
+//             value: "faqWindow"
+//         },
+//         {
+//             text: "Submit feedback",
+//             value: "feedbackWindow"
+//         },
+//         {
+//             text: "About qwebirc",
+//             value: "aboutWindow"
+//         }];
 
 })();
 
@@ -13544,7 +13547,6 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
         Note: Should use deferred if available
         Still need to finish implementing this.
     */
-
     if(!_.isFunction(cb)) {
         cb = util.noop;
     }
@@ -13569,6 +13571,12 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
     }
     //return deferred
 };
+
+util.loadTemplate = function(name) {//helper to preload a template
+    var template;
+    getTemplate(name, function(tmpl) {template = tmpl});
+    return function() {return template.apply(this, arguments);};
+}
 
 ui.setTitle = function(title, options) {
     document.title = title;
@@ -13655,15 +13663,16 @@ util.fillContainer = function ($ele, options) {
             var method = style.contains('width') ? 'x' : 'y',
                 offset = options.offset;
 
-            $ele.getSiblings().each(function(sib) {
-                offset += sib.getSize()[method];
-            });
+            $ele.getSiblings()
+                .each(function(sib) {
+                    offset += sib.getSize()[method];
+                });
 
             $ele.setStyle(style, "calc(100% - " + offset + "px)");
         });
     }
 
-    filler.delay(20);
+    _.delay(filler, 20);
     return $ele;
 };
 
@@ -14118,7 +14127,7 @@ irc.NodeConnection = new Class({
     },
 
     disconnect: function() {
-        this.emit("quit");
+        this.socket.emit("quit");
         this.socket.disconnect();
     },
 
@@ -14249,7 +14258,12 @@ irc.BaseIRCClient = new Class({
     },
 
     disconnect: function() {
+        this.send("QUIT :" + (message || lang.quit), true);
         return this.connection.disconnect();
+    },
+
+    isConnected: function() {
+        return this.__signedOn && this.connection.connected;
     },
 
     retry: util.noop,
@@ -14374,7 +14388,7 @@ irc.BaseIRCClient = new Class({
         self.signedOn(self.nickname);
         (function() {
             self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
-        }).delay(1000);
+        }).delay(2000);
     },
 
     irc_ERR_NICKNAMEINUSE: function(prefix, params) {
@@ -15210,17 +15224,14 @@ irc.IRCClient = new Class({
     },
 
     quit: function(message) {
-        this.send("QUIT :" + (message || lang.quit.message), true);
         this.disconnect();
-        this.trigger("quit", {message: message});
     },
 
     disconnect: function() {
         _.each(this.activeTimers, $clear);
         this.activeTimers = {};
-        this.writeMessages(lang.disconnected);
-        this.trigger("disconnect", {message: lang.disconnected});
-
+        this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+        this.trigger("disconnect");
         this.parent();
     },
 
@@ -15240,7 +15251,7 @@ irc.IRCClient = new Class({
         this.writeMessages(lang.connRetry, {
             next: (data.next/1000).round(1)
         }, {
-            channels: [STATUS, BROUHAHA].concat(this.channels)
+            channels: "ALL"
         });
     },
 
@@ -15270,6 +15281,7 @@ irc.IRCClient = new Class({
             channel: STATUS,
             message: []
         }, data);
+        data.channels = data.channels === "ALL" ? [STATUS, BROUHAHA].concat(this.channels) : data.channels;
         var client = this,
             types = lang.TYPES;
 
@@ -15304,24 +15316,18 @@ irc.IRCClient = new Class({
 
     signedOn: function(nickname) {
         var options = this.options,
-            channels,
-            hash = window.location.hash;
+            channels;
 
         this.nickname = nickname;
         // this.newServerLine("SIGNON");
         this.writeMessages(lang.signOn);
 
-        if (hash.length > 1) {
-            options.autojoin = channels = hash.replace(/&/g, ',#');
+        channels = this.getChannels();
+        if (channels.length > 0) {
+            options.autojoin = channels;
+        } else { //if no stored channels join intial channels from interface options
+            options.autojoin = channels = options.initialChannels;
             this.storeChannels(channels);
-        } else {
-            channels = this.getChannels();
-            if (channels.length > 0) {
-                options.autojoin = channels;
-            } else { //if no stored channels join intial channels from interface options
-                options.autojoin = channels = options.initialChannels;
-                this.storeChannels(channels);
-            }
         }
         // Sort the autojoin channels.
         channels = options.autojoin = util.prependChannel(channels, BROUHAHA);
@@ -16506,22 +16512,22 @@ irc.IRCTracker = new Class({
     //     "</div>",
     // "</div>"].join("");
 
-    source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
+    // source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
 
-    source.menuContainer = "<div class='menu'></div>";
+    source.nickMenu = "<div class='menu'></div>";
     // source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
-    source.menudrop = "<div class='main-menu dropdownmenu'></div>";
+    // source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     // source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
     // source.menuitem = "<a{{#if value}} data-value='{{value}}'{{/if}}><span>{{text}}</span>{{#if hint}}<span class='hint'>{{hint}}</span>{{/if}}</a>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
-    source.tabbarbtns = [
-    "<div class='buttons'>",
-        "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
-        "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
-        "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
-    "</div>"].join("");
+    // source.tabbarbtns = [
+    // "<div class='buttons'>",
+    //     "<span class='ui-icon ui-icon-circle-triangle-w to-left hidden' name='tabscroll'></span>",
+    //     "<span class='ui-icon ui-icon-circle-triangle-e to-right hidden' name='tabscroll'></span>",
+    //     "<span class='add-chan ui-icon ui-icon-circle-plus' title='Join a channel'></span>",
+    // "</div>"].join("");
     // source.ircTab = "<a href='#' class='tab'>{{{name}}} {{> tabDetach}}</a>";
     source.tabDetach = "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>";
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
@@ -16585,14 +16591,32 @@ irc.IRCTracker = new Class({
 })(Handlebars);
 
 
+ui.WINDOW_ID_MAP = [
+    {
+        id: "privacy",
+        keys: ["privacy policy"]
+    },
+    {
+        id: "embedded",
+        keys: ["add webchat to your site"]
+    },
+    {
+        id: "login",
+        keys: ["connection details"]
+    }
+];
+
 ui.IWindows = new Class({
     windows: {},
     customWindows: {},
     windowArray: [],
     Window: ui.Window,//OVERRIDE!
+    nav: null,
 
     getWindowIdentifier: function(name) {
-        return name.toLowerCase();
+        var id = name.toLowerCase()
+        var wid = _.find(qwebirc.ui.WINDOW_ID_MAP, function(val) {return val.keys.contains(id);});
+        return wid && wid.id || id;
     },
 
     getClientId: function(client) {
@@ -16641,17 +16665,15 @@ ui.IWindows = new Class({
             }
             win.select();
             this.setWindow(win);
-            this.updateTitle(win.name + " - " + this.options.appTitle);
+            ui.setTitle(win.name + " - " + this.options.appTitle);
             this.updateURI();
         }
         return win;
     },
     updateURI: util.noop,
     setWindow: function(win) {
-        if(this.active && !this.active.closed) {
+        if(!this.active || (win !== this.active && !this.active.closed)) {
             this.last = this.active;
-        } else {
-            delete this.last;
         }
         this.active = win;
     },
@@ -16660,23 +16682,18 @@ ui.IWindows = new Class({
         var isActive = win === this.active;
 
         this.commandhistory.removeChannel(win.name);
-        this.tabs.disown(win.tab);
+        this.nav.removeTab(win.tab);
+        var index = winarr.indexOf(win);
         winarr = this.windowArray.erase(win);
         delete this.windows[this.getClientId(win.client)][win.identifier];
 
         if (isActive) {
+            delete this.active;
             if(this.last) {//select last active window
                 this.last.select();
             }
-            else if (winarr.length !== 1) {
-                var index = winarr.indexOf(win);
-                if(index === -1) {
-                    return;
-                } else if (index === (winarr.length - 1)) {
-                    this.prevWindow();
-                } else {
-                    this.nextWindow();
-                }
+            else if (!_.isEmpty(winarr)) {//case for 2 consecutive closes
+                _.nextItem(winarr, index).select();
             }
         }
     },
@@ -16729,7 +16746,6 @@ ui.IWindows = new Class({
     }
 });
 
-
 (function() {
 
 //expects to be implemented with windowsui
@@ -16750,6 +16766,19 @@ ui.IIRCClient = new Class({
         addClientEvents.call(this, client, windows);
 
         return win;
+    },
+    logout: function() {
+        if (!auth.loggedin)
+            return;
+        if (confirm("Log out?")) {
+            _.each(this.clients, function(client) {
+                client.quit(lang.logOut.message);
+            });
+
+            (function() {
+                document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
+            }).delay(500);
+        }
     },
 
     nickChange: util.noop,
@@ -16839,7 +16868,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
     client.addEvents({
         "connect": lineParser,
-        "disconnect": lineParser,
+        // "disconnect": lineParser,
         "error": lineParser,
         "info": lineParser,
 
@@ -17120,17 +17149,149 @@ ui.IUIOptions = new Class({
     }
 });
 
-ui.StandardUI = new Class({
-    Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions],
-    Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
-            //custom windows
-            "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow"],
-    options: {},
-    initialize: function(parentElement, theme, Window, uiName, options) {
-        var self = this;
-        self.setOptions(options);
+(function() {
+    var favIcons = {};
+    document.store("favicon", favIcons);
+    document.addEvent("domready", function() {
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        if (favIcon) {
+            favIcons.normal = favIcon;
+        }
+    });
+ui.NotificationUI = new Class({
+    Implements: [Options],
 
-        self.Window = Window;
+    Binds: ["beep", "flash", "cancelFlash"],
+
+    options: {
+        minSoundRepeatInterval: 1000,
+
+        notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
+            icon: "images/qwebircsmall.png",
+            title: "IRC Alert",
+            body: "New notification!"
+        },
+
+        sounds: {
+            sounds: [{
+                id: "beep",
+                url: ['beep3.ogg', 'beep3.mp3']
+            }]//files in sounds/
+        },
+        icons: {
+            empty_favicon: "images/empty_favicon.ico"
+        }
+    },
+    canFlash: false,
+    lastSound: 0,
+    titleText: document.title,
+
+    initialize: function(options) {
+        this.setOptions(options);
+
+        this.soundInit();
+
+        if (favIcons.normal) {
+            favIcons.empty = new Element("link", {
+                        rel: 'shortcut icon',
+                        type: 'image/x-icon',
+                        href: this.options.icons.empty_favicon
+                    });
+            this.flashing = false;
+            this.canFlash = true;
+        }
+    },
+    beep: function() {
+        this.playSound('beep');
+    },
+    playSound: function(alias) {
+        if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+            this.lastSound = Date.now();
+            this.soundPlayer.play(alias, {
+                volume: this.uiOptions2.get("volume")
+            });
+        }
+    },
+    soundInit: function() {
+        //used to have a bunch of flash checks. going to let the sm handle it
+        if(!(this.soundPlayer instanceof sound.SoundPlayer)) {
+            this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
+        }
+    },
+
+    flash: function(options) {
+        var self = this;
+        if ((!options.force && document.hasFocus()) || !self.canFlash || self.flashing)
+            return;
+
+        self.titleText = document.title;
+
+        var flash = function() {
+            var vis = self.toggleFavIcon();
+            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
+        };
+
+        if(self.uiOptions2.get("dn_state")) {
+            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
+            self.__notice = notify.createNotification(opts.title, opts);
+            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
+        }
+
+        self.flashing = true;
+        // flashA();
+        self.__flasher = _.periodical(flash, 750);
+        window.addEvents({//whatever comes first
+            "mousedown:once": self.cancelFlash,
+            "keydown:once": self.cancelFlash,
+            "focus:once": self.cancelFlash
+        });
+    },
+    cancelFlash: function() {
+        this.flashing = false;
+
+        if(this.__flasher){
+            $clear(this.__flasher);
+            this.__flasher = null;
+        }
+
+        if(this.__notice) {
+            $clear(this.__notice.waiter);
+            this.__notice.close();
+            this.__notice = null;
+        }
+
+        this.toggleFavIcon(true);
+        ui.setTitle(this.titleText);
+    },
+    //not sure if changing the favicon is a good idea - messes with peoples bookmarks
+    toggleFavIcon: function(state) {
+        var isNormalVis = !!favIcons.normal.getParent();
+        var vis = _.isBoolean(state) ? state : !isNormalVis;
+        if(vis && !isNormalVis) {
+            favIcons.normal.replaces(favIcons.empty);
+        }
+        else if (!vis && isNormalVis) {
+            favIcons.empty.replaces(favIcons.normal);
+        }
+        return vis;
+    }
+});
+})();
+
+ui.StandardUI = new Class({
+    Extends: ui.NotificationUI,
+    Implements: [ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions],
+    Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
+            "nextWindow", "prevWindow",
+            //custom windows
+            "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
+    options: {
+        routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
+    },
+    initialize: function(parentElement, theme, uiName, options) {
+        var self = this;
+        self.parent(options);
+
         self.theme = theme;
         self.config();
 
@@ -17148,18 +17309,38 @@ ui.StandardUI = new Class({
     },
 
     postInitialize: function() {
-        var self = this;
-        if(self.router instanceof Epitome.Router) return this;
+        var self = this,
+            rprefix = self.options.routerPrefix;
+
+        self.nav = new ui.NavBar({
+            element: self.outerTabs,
+            menuElement: self.element
+        });
+        self.nav.on({
+            "selectWindow": function(e, target) {
+                e.stop();
+                target.retrieve('window').select();
+            },
+            "closeWindow": function(e, target) {
+                e.stop();
+                target.getParent('.tab').retrieve('window').close();
+            },
+            "nextWindow": self.nextWindow,
+            "prevWindow": self.prevWindow
+        });
+
         self.router = new Epitome.Router({
             // routes definition will proxy the events
             routes: {
-                // '': 'index',
+                '': 'index',
                 '#options': 'options',
                 "#feedback": 'feedback',
                 "#about": "about",
                 "#faq": "faq",
-                "#privacy": "privacy",
-                "#privacy policy": "privacy"
+                "#embedded": 'embedded',
+                // '#add webchat to your site': 'embedded',
+                "#privacy": "privacy"//,
+                // "#privacy policy": "privacy"
             },
             // no route event was found, though route was defined
             onError: function(error){
@@ -17169,33 +17350,36 @@ ui.StandardUI = new Class({
             },
             //try to select the window if it exists
             onUndefined: function(data) {
-                var win = _.findWhere(self.windowArray, {name:data.request}) || _.findWhere(self.windowArray, {name:util.formatChannel(data.request)});
-                if(win) {
-                    win.select();
-                } else {
-                    this.navigate('');
+                var request = data.request.startsWith(rprefix) && data.request.slice(rprefix.length);
+                if(request) {
+                    var win = _.findWhere(self.windowArray, {identifier:request}) || _.findWhere(self.windowArray, {identifier:util.formatChannel(request)});
+                    if(win) {
+                        win.select();
+                    }
                 }
             },
-            // 'onIndex': function() {
-            //     //update options with query string?
-            // },
+            'onIndex': function() {
+                //update options with query string?
+            },
             'onOptions': self.optionsWindow,
             'onFaq': self.faqWindow,
             'onPrivacy': self.privacyWindow,
             'onAbout': self.aboutWindow,
-            'onFeedback': self.feedbackWindow
+            'onFeedback': self.feedbackWindow,
+            'onEmbedded': self.embeddedWindow
         });
+        
         return this;
     },
     updateURI: function() {
         if(this.router instanceof Epitome.Router && this.active) {
-            this.router.navigate(util.unformatChannel(this.active.name).toLowerCase());
+            this.router.navigate(this.options.routerPrefix + util.unformatChannel(this.active.identifier));
         }
     },
 
     optionsWindow: function() {
         var self = this;
-        self.addCustomWindow("Options", ui.OptionView, "options", {
+        return self.addCustomWindow("Options", ui.OptionView, "options", {
             model: self.uiOptions2,
             onNoticeTest: function() {
                 self.flash({force:true});
@@ -17277,278 +17461,146 @@ ui.StandardUI = new Class({
 });
 
 
-
-ui.NotificationUI = new Class({
-    Extends: ui.StandardUI,
-
-    Binds: ["beep", "flash", "cancelFlash"],
-
-    options: {
-        minSoundRepeatInterval: 1000,
-
-        notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
-            icon: "images/qwebircsmall.png",
-            title: "IRC Alert",
-            body: "New notification!"
-        },
-
-        sounds: {
-            sounds: [{
-                id: "beep",
-                url: ['beep3.ogg', 'beep3.mp3']
-            }]//files in sounds/
-        },
-        icons: {
-            empty_favicon: "images/empty_favicon.ico"
-        }
-    },
-    canFlash: false,
-    lastSound: 0,
-    titleText: document.title,
-
-    initialize: function() {
-        // this.parent(parentElement, windowClass, uiName, options);
-        this.parent.apply(this, arguments);//pass
-
-        this.soundInit();
-
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
-        if (favIcon) {
-            this.favIcons = {
-                normal: favIcon,
-                empty: new Element("link", {
-                            rel: 'shortcut icon',
-                            type: 'image/x-icon',
-                            href: this.options.icons.empty_favicon
-                        })
-            };
-            this.flashing = false;
-            this.canFlash = true;
-        }
-    },
-    setBeepOnMention: function(value) {
-        if (value)
-            this.soundInit();
-    },
-    updateTitle: function(text) {
-        ui.setTitle(text);
-    },
-    beep: function() {
-        this.playSound('beep');
-    },
-    playSound: function(alias) {
-        if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
-            this.lastSound = Date.now();
-            this.soundPlayer.play(alias, {
-                volume: this.uiOptions2.get("volume")
-            });
-        }
-    },
-
-    soundInit: function() {
-        //used to have a bunch of flash checks. going to let the sm handle it
-        if(!$defined(this.soundPlayer)) {
-            this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
-        }
-    },
-    flash: function(options) {
-        var self = this;
-        if ((!options.force && document.hasFocus()) || !self.canFlash || self.flashing)
-            return;
-
-        self.titleText = document.title;
-
-        var flash = function() {
-            var vis = self.toggleFavIcon();
-            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
-        };
-
-        if(self.uiOptions2.get("dn_state")) {
-            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
-            self.__notice = notify.createNotification(opts.title, opts);
-            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
-        }
-
-        self.flashing = true;
-        // flashA();
-        self.__flasher = _.periodical(flash, 750);
-        window.addEvents({//whatever comes first
-            "mousedown:once": self.cancelFlash,
-            "keydown:once": self.cancelFlash,
-            "focus:once": self.cancelFlash
-        });
-    },
-    cancelFlash: function() {
-        this.flashing = false;
-
-        if(this.__flasher){
-            $clear(this.__flasher);
-            this.__flasher = null;
-        }
-
-        if(this.__notice) {
-            $clear(this.__notice.waiter);
-            this.__notice.close();
-            this.__notice = null;
-        }
-
-        this.toggleFavIcon(true);
-        ui.setTitle(this.titleText);
-    },
-    //not sure if changing the favicon is a good idea - messes with peoples bookmarks
-    toggleFavIcon: function(state) {
-        var icons = this.favIcons;
-        var isNormalVis = !!icons.normal.getParent();
-        var vis = _.isBoolean(state) ? state : !isNormalVis;
-        if(vis && !isNormalVis) {
-            icons.normal.replaces(icons.empty);
-        }
-        else if (!vis && isNormalVis) {
-            icons.empty.replaces(icons.normal);
-        }
-        return vis;
-    }
-});
-
-
-ui.QuakeNetUI = new Class({
-    Extends: ui.NotificationUI,
-    logout: function() {
-        if (!auth.loggedin)
-            return;
-        if (confirm("Log out?")) {
-            _.each(this.clients, function(client) {
-                client.quit(lang.logOut.message);
-            });
-
-            (function() {
-                document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
-            }).delay(500);
-        }
-    }
-});
-
-
 ui.QUI = new Class({
-    Extends: ui.QuakeNetUI,
+    Extends: ui.StandardUI,
     Binds: ["__createChannelMenu"],
-    UICommands: ui.UI_COMMANDS,
     initialize: function(parentElement, theme, options) {
-        this.parent(parentElement, theme, ui.QUI.Window, "qui", options);
+        this.Window = ui.QUI.Window;
+        this.parent(parentElement, theme, "qui", options);
 
-        parentElement.addClass('qui')
-                    .addClass('signed-out');
+        parentElement.addClasses('qui', 'signed-out');
         this.setHotKeys();
 
         this.parentElement.addEvents({
-            "click:relay(.lines .hyperlink-whois)": this.whoisURL,
+           "click:relay(.lines .hyperlink-whois)": this.whoisURL,
             "click:relay(.lines .hyperlink-channel)": this.chanURL
         });
     },
     postInitialize: function() {
-        var self = this;
+        var self = this.parent();
 
-        // qjsui.addEvent("reflow", function() {
-        //     var win = self.getActiveWindow();
-        //     if ($defined(win))
-        //         win.onResize();
+        // var tabs = self.tabs = Element.from(templates.tabbar()),
+        //     joinChan =  function(){
+        //         new ui.Dialog({
+        //             element: self.element,
+        //             text: "Enter channel name",
+        //             onSubmit: function(data) {
+        //                 if(data.val && data.val.trim() !== ""){
+        //                     _.each(self.clients, function(client) {
+        //                         client.exec("/JOIN " + data.val);
+        //                     });
+        //                 }
+        //             }
+        //         });
+        //     },
+        //     tabbtns = Element.from(templates.tabbarbtns()),
+        //     addTab = tabbtns.getElement('.add-chan'),
+        //     scrollers = tabbtns.getElements('[name="tabscroll"]'),
+        //     scroller = new Fx.Scroll(tabs),
+        //     resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
+        //     tabsResize = function() {
+        //         var wid = tabs.getWidth(),
+        //             swid = tabs.getScrollWidth();
+
+        //         if(swid > wid) {
+        //             scrollers.show();
+        //         }
+        //         else {
+        //             scrollers.hide();
+        //         }
+
+        //         resizeTabs();
+        //     };
+
+        // window.addEvent('resize', tabsResize);
+        // tabs.addEvents({
+        //     'adopt': tabsResize,
+        //     'disown': tabsResize
         // });
 
-        var tabs = self.tabs = Element.from(templates.tabbar()),
-            joinChan =  function(){
-                var chan = prompt("Enter channel name:");
-                if(chan && chan.trim() !== ""){
-                    _.each(self.clients, function(client) {
-                        client.exec("/JOIN " + chan);
-                    });
-                }
+        // scrollers.filter('.to-left')
+        //     .addEvent('click', function(e) {
+        //         e.stop();
+        //         var pos = tabs.getScrollLeft(),
+        //             $ele = util.elementAtScrollPos(tabs, pos);
+
+        //         scroller.toElement($ele, 'x');
+        //     });
+        // scrollers.filter('.to-right')
+        //     .addEvent('click', function(e) {
+        //         e.stop();
+        //         var pos = tabs.getScrollLeft() + tabs.getWidth(),
+        //             $ele = util.elementAtScrollPos(tabs, pos);
+
+        //         scroller.toElementEdge($ele, 'x');
+        //         console.log($ele);
+        //     });
+
+        // resizeTabs();
+        // addTab.addEvents({
+        //     'dblclick': joinChan,
+        //     'click': self.__createChannelMenu
+        // });
+
+        // //for scrolling tabs with mousewhee
+        // tabs.addEvent("mousewheel", function(evt) {
+        //     evt.stop();
+        //     if (evt.wheel > 0) {//mwup
+        //         self.nextWindow();
+        //     } else if (evt.wheel < 0) {
+        //         self.prevWindow();
+        //     }
+        // });
+
+
+        // //append menu and tabbar
+        // self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
+        //     .addEvents({
+        //         "click:relay(.tab .tab-close)": function(e, target) {
+        //             e.stop();
+        //             target.getParent('.tab').retrieve('window').close();
+        //         },
+        //         "click:relay(.tab .detach)": function(e, target) {
+        //             e.stop();
+        //             target.getParent('.tab').retrieve('window').detach();
+        //         },
+        //         "focus:relay(.tab)": Element.prototype.blur,
+        //         "click:relay(.tab)": function(e, target) {//can be called when tab is closed
+        //             self.selectTab(target);
+        //         },
+        //         "dblclick:relay(.tab)": function(e, target) {
+        //             e.stop();
+        //             target.retrieve('window').select();
+        //         }
+        //     });
+        self.nav.on({
+            "selectTab": function(e,tab) {
+                self.selectTab(tab);
             },
-            tabbtns = Element.from(templates.tabbarbtns()),
-            addTab = tabbtns.getElement('.add-chan'),
-            scrollers = tabbtns.getElements('[name="tabscroll"]'),
-            scroller = new Fx.Scroll(tabs),
-            resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
-            tabsResize = function() {
-                var wid = tabs.getWidth(),
-                    swid = tabs.getScrollWidth();
-
-                if(swid > wid) {
-                    scrollers.show();
-                }
-                else {
-                    scrollers.hide();
-                }
-
-                resizeTabs();
-            };
-
-        window.addEvent('resize', tabsResize);
-        tabs.addEvents({
-            'adopt': tabsResize,
-            'disown': tabsResize
-        });
-
-        scrollers.filter('.to-left')
-            .addEvent('click', function(e) {
+            "detachWindow": function(e, target) {
                 e.stop();
-                var pos = tabs.getScrollLeft(),
-                    $ele = util.elementAtScrollPos(tabs, pos);
-
-                scroller.toElement($ele, 'x');
-                console.log($ele);
-            });
-        scrollers.filter('.to-right')
-            .addEvent('click', function(e) {
-                e.stop();
-                var pos = tabs.getScrollLeft() + tabs.getWidth(),
-                    $ele = util.elementAtScrollPos(tabs, pos);
-
-                scroller.toElementEdge($ele, 'x');
-                console.log($ele);
-            });
-
-        resizeTabs();
-        addTab.addEvents({
-            'dblclick': joinChan,
-            'click': self.__createChannelMenu
+                target.getParent('.tab').retrieve('window').detach();
+            },
+            // promptChan: function(){
+            //     new ui.Dialog({
+            //         element: self.element,
+            //         text: "Enter channel name",
+            //         onSubmit: function(data) {
+            //             if(data.val && data.val.trim() !== ""){
+            //                 _.each(self.clients, function(client) {
+            //                     client.exec("/JOIN " + data.val);
+            //                 });
+            //             }
+            //         }
+            //     });
+            // },
+            "addChan": self.__createChannelMenu
         });
-
-        //for scrolling tabs with mousewheel
-        tabs.addEvent("mousewheel", function(evt) {
-            evt.stop();
-            if (evt.wheel > 0) {//mwup
-                self.nextWindow();
-            } else if (evt.wheel < 0) {
-                self.prevWindow();
-            }
-        });
-
-
-        //append menu and tabbar
-        self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
-            .addEvents({
-                "click:relay(.tab .tab-close)": function(e, target) {
-                    e.stop();
-                    target.getParent('.tab').retrieve('window').close();
-                },
-                "click:relay(.tab .detach)": function(e, target) {
-                    e.stop();
-                    target.getParent('.tab').retrieve('window').detach();
-                },
-                "focus:relay(.tab)": Element.prototype.blur,
-                "click:relay(.tab)": function(e, target) {//can be called when tab is closed
-                    self.selectTab(target);
-                },
-                "dblclick:relay(.tab)": function(e, target) {
-                    e.stop();
-                    target.retrieve('window').select();
-                }
-            });
 
         //delay for style recalc
-        self.__createDropdownHint.delay(500, self);
+        // self.__createDropdownHint.delay(500, self);
 
-        return this.parent();
+        return self;
     },
 
     selectTab: function(tab) {
@@ -17579,7 +17631,8 @@ ui.QUI = new Class({
         var $tab = Element.from(templates.ircTab({
                 'name': isBrouhaha ? '&nbsp;' : name,
                 closable: !isBaseWindow(name)
-            })).inject(self.tabs);
+            }));
+        this.nav.addTab($tab);
 
         if(isBrouhaha) {
             $tab.addClass('brouhaha');
@@ -17599,45 +17652,76 @@ ui.QUI = new Class({
         return $tab;
     },
 
-    __createDropdownMenu: function() {
-        var self = this,
-            dropdownMenu = Element.from(templates.mainmenu({
-                    menu: self.UICommands,
-                    menuclass: "main-menu"
-                })).inject(self.parentElement);
+    // __createDropdownMenu: function() {
+    //     var self = this,
+    //         dropdownMenu = Element.from(templates.mainmenu({
+    //                 menu: self.UICommands,
+    //                 menuclass: "main-menu"
+    //             })).inject(self.parentElement);
 
-        dropdownMenu.addEvents({
-            "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
-                var method = target.get("data-value");
-                self[method]();
-            }
-        });
-        var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
+    //     dropdownMenu.addEvents({
+    //         "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
+    //             var method = target.get("data-value");
+    //             self[method]();
+    //         }
+    //     });
+    //     var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
 
 
-        var dropdownEffect = new Fx.Tween(dropdownbtn, {
-            duration: "long",
-            property: "opacity",
-            link: "chain"
-        });
+    //     var dropdownEffect = new Fx.Tween(dropdownbtn, {
+    //         duration: "long",
+    //         property: "opacity",
+    //         link: "chain"
+    //     });
+    //     var dropdownhint = Element.from(templates.dropdownhint())
+    //                 .inject(this.parentElement)
+    //                 .position({
+    //                     relativeTo: this.outerTabs,
+    //                     position: {'y': 'bottom'},
+    //                     offset: {y:10}
+    //                 });
 
-        dropdownEffect.start(0.25)
-                    .start(1)
-                    .start(0.33)
-                    .start(1);
+    //     dropdownEffect.start(0.25)
+    //                 .start(1)
+    //                 .start(0.33)
+    //                 .start(1);
 
-        ui.decorateDropdown(dropdownbtn, dropdownMenu, {
-            onShow: function() {
-                if(self.hideHint)
-                    self.hideHint();
-                delete self.hideHint;
-            },
-            btnlistener: true,
-            autohide: true
-        });
-        return dropdownbtn;
-        // return dropdownMenu;
-    },
+    //     ui.decorateDropdown(dropdownbtn, dropdownMenu, {
+    //         onShow: function() {
+    //             if(self.hideHint)
+    //                 self.hideHint();
+    //             delete self.hideHint;
+    //         },
+    //         btnlistener: true,
+    //         autohide: true
+    //     });
+
+    //     new Fx.Morph(dropdownhint, {
+    //         duration: "normal",
+    //         transition: Fx.Transitions.Sine.easeOut
+    //     }).start({
+    //         left: [900, 5]
+    //     });
+
+    //     var hider = function() {
+    //             new Fx.Morph(dropdownhint, {
+    //                 duration: "long"
+    //             }).start({
+    //                 left: [5, -900]
+    //             });
+    //         }.delay(4000);
+
+    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
+
+    //     _.delay(hider2, 4000);
+
+    //     document.addEvents({
+    //         "mousedown:once": hider2,
+    //         "keydown:once": hider2
+    //     });
+    //     return dropdownbtn;
+    //     // return dropdownMenu;
+    // },
 
     hotkeys: {
         keyboard: {
@@ -17692,7 +17776,7 @@ ui.QUI = new Class({
     },
 
     setHotKeys: function () {
-        var self = this, 
+        var self = this,
             keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
             keyboard.scope = self;
@@ -17721,39 +17805,39 @@ ui.QUI = new Class({
     },
 
     //the effect on page load
-    __createDropdownHint: function() {
-        var dropdownhint = Element.from(templates.dropdownhint());
-        dropdownhint.inject(this.parentElement)
-                    .position({
-                        relativeTo: this.outerTabs,
-                        position: {'y': 'bottom'},
-                        offset: {y:10}
-                    });
+    // __createDropdownHint: function() {
+    //     var dropdownhint = Element.from(templates.dropdownhint())
+    //                 .inject(this.parentElement)
+    //                 .position({
+    //                     relativeTo: this.outerTabs,
+    //                     position: {'y': 'bottom'},
+    //                     offset: {y:10}
+    //                 });
 
-        new Fx.Morph(dropdownhint, {
-            duration: "normal",
-            transition: Fx.Transitions.Sine.easeOut
-        }).start({
-            left: [900, 5]
-        });
+    //     new Fx.Morph(dropdownhint, {
+    //         duration: "normal",
+    //         transition: Fx.Transitions.Sine.easeOut
+    //     }).start({
+    //         left: [900, 5]
+    //     });
 
-        var hider = function() {
-                new Fx.Morph(dropdownhint, {
-                    duration: "long"
-                }).start({
-                    left: [5, -900]
-                });
-            }.delay(4000);
+    //     var hider = function() {
+    //             new Fx.Morph(dropdownhint, {
+    //                 duration: "long"
+    //             }).start({
+    //                 left: [5, -900]
+    //             });
+    //         }.delay(4000);
 
-        var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
+    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
 
-        _.delay(hider2, 4000);
+    //     _.delay(hider2, 4000);
 
-        document.addEvents({
-            "mousedown:once": hider2,
-            "keydown:once": hider2
-        });
-    },
+    //     document.addEvents({
+    //         "mousedown:once": hider2,
+    //         "keydown:once": hider2
+    //     });
+    // },
 
     //todo use other dropdown menu code
     __createChannelMenu: function(e) {
@@ -17918,7 +18002,7 @@ ui.Interface = new Class({
 
 
                 window.onbeforeunload = function(e) {
-                    if (!client.disconnected) {
+                    if (client.isConnected()) {//ie has gotten passed the IRC gate
                         var message = "This action will close all active IRC connections.";
                         if ((e = e || window.event)) {
                             e.returnValue = message;
@@ -17948,6 +18032,158 @@ ui.Interface = new Class({
         });
     }
 });
+
+
+ui.NavBar = new Class({
+    Extends: Epitome.View,
+    Binds: ['adjust'],
+    options: {
+        template: util.loadTemplate("navbar"),
+        events: {
+            'click:relay(.tabbar .tab)': 'selectTab',
+            'dblclick:relay(.tabbar .tab)': 'selectWindow',
+            'click:relay(.tabbar .tab .tab-close)': 'closeWindow',
+            'click:relay(.tabbar .tab .detach)': 'detachWindow',
+            'adopt:relay(.tabbar)': 'adjust',
+            'disown:relay(.tabbar)': 'adjust',
+            'mousewheel:relay(.tabbar)': 'scrollTabs',
+
+            'click:relay(.main-menu a)': 'openMenu',
+            'click:relay(.buttons .to-left)': 'scrollLeft',
+            'click:relay(.buttons .to-right)': 'scrollRight',
+            'click:relay(.buttons .add-chan)': 'addChannel'
+        },
+        onReady: function() {
+            this.render();
+            window.addEvent('resize', this.adjust);
+        },
+        onScrollTabs: function(evt) {
+            evt.stop();
+            if (evt.wheel > 0) {//mwup
+                this.nextWindow();
+            } else if (evt.wheel < 0) {
+                this.prevWindow();
+            }
+        }
+    },
+    render: function() {
+        Elements.from(this.template({lang: lang})).filter(Type.isElement)//strip random text nodes
+                                                .inject(this.element);
+        this.tabs = this.element.getElement('.tabbar');
+        this.scroller = new Fx.Scroll(this.tabs);
+        this.adjust();
+
+        var self = this,
+            dropdownMenu = Element.from(templates.mainmenu({
+                lang: lang
+            })).inject(self.options.menuElement);
+
+        var dropdownbtn = this.element.getElement('.main-menu');
+
+        ui.decorateDropdown(dropdownbtn, dropdownMenu, {
+            onShow: function() {
+                if(self.hideHint)
+                    self.hideHint();
+                delete self.hideHint;
+            },
+            btnlistener: true,
+            autohide: true
+        });
+
+        var dropdownEffect = new Fx.Tween(dropdownbtn, {
+            duration: "long",
+            property: "opacity",
+            link: "chain"
+        });
+        var dropdownhint = Element.from(templates.dropdownhint())
+                    .inject(this.element)
+                    .position({
+                        relativeTo: this.element,
+                        position: {'y': 'bottom'},
+                        offset: {y:10}
+                    });
+
+        dropdownEffect.start(0.25)
+                    .start(1)
+                    .start(0.33)
+                    .start(1);
+
+        new Fx.Morph(dropdownhint, {
+            duration: "normal",
+            transition: Fx.Transitions.Sine.easeOut
+        }).start({
+            left: [900, 5]
+        });
+
+        (function() {
+            new Fx.Morph(dropdownhint, {
+                duration: "long"
+            }).start({
+                left: [5, -900]
+            });
+        }).delay(4000);
+
+        var hider2 = _.once(_.partial(Element.destroy, dropdownhint));
+
+        _.delay(hider2, 4000);
+
+        document.addEvents({
+            "mousedown:once": hider2,
+            "keydown:once": hider2
+        });
+    },
+
+    adjust: function() {
+        var wid = this.tabs.getWidth(),
+            swid = this.tabs.getScrollWidth(),
+            scrollers = this.element.getElements('[name="tabscroll"]');
+
+        if(swid > wid) {
+            scrollers.show();
+        }
+        else {
+            scrollers.hide();
+        }
+
+        util.fillContainer(this.tabs, {style: 'max-width'});
+    },
+
+    addTab: function(tab) {
+        if(_.isString(tab)) tab = Element.from(tab);
+        this.tabs.adopt(tab);
+    },
+
+    removeTab: function(tab) {
+        this.tabs.disown(tab);
+    },
+
+    scrollLeft: function(e, target) {
+        e.stop();
+        var pos = this.tabs.getScrollLeft(),
+            $ele = util.elementAtScrollPos(this.tabs, pos);
+
+        this.scroller.toElement($ele, 'x');
+    },
+    scrollRight: function(e) {
+        e.stop();
+        var pos = this.tabs.getScrollLeft() + this.tabs.getWidth(),
+            $ele = util.elementAtScrollPos(this.tabs, pos);
+
+        this.scroller.toElementEdge($ele, 'x');
+    },
+    nextWindow: function() {
+        this.trigger('nextWindow');
+    },
+    prevWindow: function() {
+        this.trigger('prevWindow');
+    },
+    destroy: function() {
+        window.removeEvent('resize', this.adjust);
+        return this.parent();
+    }
+
+});
+
 
 
 ui.Theme = new Class({
@@ -18344,62 +18580,6 @@ ui.Alert = new Class({
 
 //http://indiegamr.com/the-state-of-audio-in-html5-games/
 
-// sound.SoundPlayer = new Class({
-//     Implements: [Options, Events],
-//     options: {
-//         soundManagersrc: "//cdnjs.cloudflare.com/ajax/libs/SoundJS/0.4.1/soundjs.min.js",
-//         sounds: "/sound/",
-//         beepsrc: "beep.mp3"
-//     },
-//     sounds: {},
-
-//     initialize: function(options) {
-//         this.setOptions(options);
-//         this.loadingSM = false;
-//     },
-//     load: function() {
-//         window.addEvent("domready", this.loadSoundManager.bind(this));
-//         return this;
-//     },
-//     loadSoundManager: function() {
-//         var self = this,
-// 			opts = self.options;
-//         if (self.loadingSM !== false)
-//             return;
-//         self.loadingSM = true;
-//         if ($defined(self.sm)) { //... ugh
-//             self.fireEvent("ready");
-//             return;
-//         }
-
-//         var soundinit = function() {
-// 			//var sm = self.sm = window.soundManager;
-// 			var sm = self.sm = window.createjs.Sound;
-//             sm.url = opts.sounds;
-
-//             //load all sounds here
-//             self.register("beep", opts.sounds + opts.beepsrc);
-//             sm.addEventListener("fileload", self.fireEvent.bind(self, "ready"));
-//             self.loadingSM = null;
-//         };
-
-// 		//load sound manager
-//         Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
-//     },
-// 	register: function(alias,src) {
-// 		this.sm.registerSound(src, alias);
-// 		this.sounds[alias] = _.partial(this.sm.play, alias);
-// 	},
-//     play: function(src) {
-//         this.sm.play(src);
-//         return this;
-//     },
-
-//     isReady: function() {
-//         return this.sm && this.sm.isReady();
-//     }
-// });
-
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
@@ -18466,282 +18646,6 @@ sound.SoundPlayer = new Class({
         return this.sm && this.loadingSM === false;
     }
 });
-
-
-(function() {
-//class to be inheritted
-var PanelView = new Class({
-    Extends: Epitome.View,
-    options: {
-        pane: '',
-
-        events: {
-            'click:relay([data-event="close"])': '_close'
-        },
-
-        onReady: function() {
-            return this.render();
-        }
-    },
-
-    getData: function() {
-        return this.model && this.model.toJSON() || this.options && this.options.data || {};
-    },
-
-    render: function() {
-        var self = this.empty();
-        var pane = self.options.pane;
-        var $loader = Element.from(templates.loadingPage()).inject(self.element);
-
-        getTemplate(pane, function(template) {
-            var eles = Elements.from(template(self.getData()));
-            self.element.adopt(eles);//not inject because it can have text nodes
-            $loader.dispose();
-            self.postRender();
-        });
-        return self.parent();
-    },
-
-    postRender: function() {
-        ui.Behaviour.apply(this.element);
-        return this;
-    },
-
-    empty: function() {
-        return this.parent(true);
-    },
-
-    _close: function() {
-        this.trigger('close');
-        return this.destroy();
-    }
-});
-//this must refer to a model
-function toggleNotifications(model, state) {
-    if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
-        notify.requestPermission(function() {
-            model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
-        });
-    }
-    else {
-        model.set('dn_state', state || !model.get('dn_state'));
-    }
-}
-ui.PrivacyPolicyPane = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'privacypolicy'
-    }
-});
-ui.AboutPane = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'about',
-        data: {
-            version: qwebirc.VERSION
-        }
-    }
-});
-ui.FAQPane = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'faq'
-    }
-});
-ui.FeedbackPane = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'feedback'
-    }
-});
-
-ui.OptionView = new Class({
-    Extends: PanelView,
-    Binds: ['save', 'reset'],
-    options: {
-        pane: 'options',
-        events: {
-            'change:relay(#options input)': 'inputChange',
-            'change:relay(#options #standard-notices input)': 'snoticeChange',
-            'change:relay(#options #custom-notices input)': 'noticeChange',
-            'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
-            'click:relay(#options #dn_state)': 'dnToggle',
-            'click:relay(#options #notice-test)': 'noticeTest'
-        },
-
-        onSnoticeChange: function(e, target) {
-            e.stop();
-            var notices = _.clone(this.model.get('notices'));
-            _.assign(notices, target.get('id'), target.val());
-            this.model.set('notices', notices);
-        },
-
-        onAddNotifier: function(e) {
-            e.stop();
-            this.addNotifier();
-        },
-        
-        onDnToggle: function(e, target) {
-            toggleNotifications(this.model);
-            target.val(this.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
-        },
-
-        onReady: function() {
-            return this.render();
-        }
-
-        //get ui
-    },
-
-    /*********LISTENERS**************/
-
-    inputChange: function(e, target) {//set model values when inputs are clicked
-        var id = target.get('id');
-
-        //handle sub props
-        if(id && $defined(this.model.get(id))) {
-            this.model.set(id, target.val());
-        }
-    },
-
-    addNotifier: function(data) {
-        if(!data) {
-            data = this.model.get("default_notice")();
-            var n = _.clone(this.model.get("custom_notices"));
-            n.push(data);
-            this.model.set("custom_notices", n);
-        }
-
-        var parent = this.element.getElement('#custom-notices');
-
-        var _data = _.clone(data);
-        _data.lang = lang;
-
-        var temp = templates.customNotice(_data);
-
-        parent.insertAdjacentHTML('beforeend', temp);
-    },
-
-    removeNotifier: function(e, target) {
-        e.stop();
-        var par = target.getParent('.custom-notice').dispose();
-        this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
-    },
-
-    noticeChange: function(e, target) {
-        e.stop();
-        var notices = _.clone(this.model.get('custom_notices'));
-        var par = target.getParent('.custom-notice');
-        _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
-        this.model.set('custom_notices', notices);
-    },
-    /*********LISTENERS**************/
-
-    postRender: function() {
-        var model = this.model,
-            options = this.options;
-
-        _.each(model.get("custom_notices"), function(notice) {
-            notice.lang = lang;
-            this.addNotifier(notice);
-        }, this);
-
-        this.element.getElements(".slider").each(function(slider) {
-            var id = slider.get('id'),
-                knob = slider.getElement('.knob');
-                new Slider(slider, knob, {
-                    steps: 36,
-                    range: [0, 369],
-                    wheel: true
-                }).addEvent("change", function(val) {
-                    model.set(id, val);
-                })
-                .set(model.get(id));
-        });
-
-        this.element.getElement('#options').addEvents({ //default will fire before bubble
-            'submit': this.save,
-            'reset': this.reset
-        });
-
-        if(_.isFunction(options.getUI)) {
-            ui.WelcomePane.show(options.getUI(), {
-                element: this.element
-            });
-        }
-
-        return this.parent();
-    },
-
-    getData: function() {
-        var data = this.model.toJSON();
-        data.lang = lang;
-        return data;
-    },
-
-    save: function(e) {
-        if(e) e.stop();
-        this.model.save();
-        this.destroy();
-    },
-
-    reset: function(e) {
-        if(e) e.stop();
-        this.model.sync();
-        this.destroy();
-    },
-
-    destroy: function() {
-        this.trigger('close');
-        return this.parent();
-    }
-});
-ui.WelcomePane = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'welcome-pane',
-        events: {
-            'click:relay(.enable-notifications)': 'enableNotifications',
-            'click:relay(.options)': 'openOptions'
-        },
-        onOpenOptions: function() {
-            this.ui.optionsWindow();
-            if(this.clicked) this._close();
-        },
-        onEnableNotifications: function() {
-            toggleNotifications(this.ui.uiOptions2, true);
-            this.clicked = true;
-            if(!this.options.firstvisit) this._close();
-        }
-    },
-    initialize: function(ui, options) {
-        this.ui = ui;
-        this.parent(options);
-    },
-    getData: function() {
-        return _.extend({
-            options: this.ui.options,
-            Browser: window.Browser
-        }, this.options);
-    }
-})
-.extend({
-    show: function(_ui, options) {//determines if needs to be shown and shows
-        if(options.firstvisit || notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
-            options.element = new Element("div.welcome").inject(options.element);
-            return new ui.WelcomePane(_ui, options);
-        }
-        return false;
-    }
-});
-ui.EmbedWizard = new Class({
-    Extends: PanelView,
-    options: {
-        pane: 'wizard'
-    }
-});
-})();
 
 
 ui.Window = new Class({
@@ -19043,8 +18947,9 @@ ui.QUI.Window = new Class({
                                                 })),
             header = wrapper.getElement('.header'),
 
-            resizeWrapper = Element.from(templates.resizeHandle()),
-            resizeHandle = resizeWrapper.getElement('.resize-handle');
+            // resizeWrapper = Element.from(templates.resizeHandle()),
+            // resizeHandle = resizeWrapper.getElement('.resize-handle');
+            resizeHandle = wrapper.getElement('.resize-handle');
         self.element.addClass('detached');
 
 
@@ -19057,14 +18962,14 @@ ui.QUI.Window = new Class({
                 "width": size.x,
                 "height": size.y
             })
-            .wraps(win) //*** adds wrapper to dom
-            .adopt(resizeWrapper);
+            .replaces(win); //*** adds wrapper to dom;
         win.show()
             .addEvent("mousedown", function(e) {
                 var tag = e.target.tagName.toLowerCase();
                 if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
                     e.stopPropagation();
-            });
+            })
+            .replaces(wrapper.getElement('.content'));
         self.setActive();
 
         self.resizable = wrapper.makeResizable({
@@ -19226,7 +19131,7 @@ ui.QUI.Window = new Class({
         if($menu) {
             $menu.toggle();
         } else {
-            $menu = Element.from(templates.menuContainer()).inject($par)
+            $menu = Element.from(templates.nickMenu()).inject($par);
             _.each(ui.MENU_ITEMS, function(item) {
                 if(_.isFunction(item.predicate) ? item.predicate.call(self, $par.retrieve('nick')) : !!item.predicate) {
                     Element.from(templates.nickmenubtn(item))
@@ -19291,6 +19196,282 @@ ui.QUI.Window = new Class({
         }
     }
 });
+
+
+(function() {
+//class to be inheritted
+var PanelView = new Class({
+    Extends: Epitome.View,
+    options: {
+        pane: '',
+
+        events: {
+            'click:relay([data-event="close"])': '_close'
+        },
+
+        onReady: function() {
+            return this.render();
+        }
+    },
+
+    getData: function() {
+        return this.model && this.model.toJSON() || this.options && this.options.data || {};
+    },
+
+    render: function() {
+        var self = this.empty();
+        var pane = self.options.pane;
+        var $loader = Element.from(templates.loadingPage()).inject(self.element);
+
+        getTemplate(pane, function(template) {
+            var eles = Elements.from(template(self.getData()));
+            self.element.adopt(eles);//not inject because it can have text nodes
+            $loader.dispose();
+            self.postRender();
+        });
+        return self.parent();
+    },
+
+    postRender: function() {
+        ui.Behaviour.apply(this.element);
+        return this;
+    },
+
+    empty: function() {
+        return this.parent(true);
+    },
+
+    _close: function() {
+        this.trigger('close');
+        return this.destroy();
+    }
+});
+//this must refer to a model
+function toggleNotifications(model, state) {
+    if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
+        notify.requestPermission(function() {
+            model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
+        });
+    }
+    else {
+        model.set('dn_state', state || !model.get('dn_state'));
+    }
+}
+ui.PrivacyPolicyPane = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'privacypolicy'
+    }
+});
+ui.AboutPane = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'about',
+        data: {
+            version: qwebirc.VERSION
+        }
+    }
+});
+ui.FAQPane = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'faq'
+    }
+});
+ui.FeedbackPane = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'feedback'
+    }
+});
+
+ui.OptionView = new Class({
+    Extends: PanelView,
+    Binds: ['save', 'reset'],
+    options: {
+        pane: 'options',
+        events: {
+            'change:relay(#options input)': 'inputChange',
+            'change:relay(#options #standard-notices input)': 'snoticeChange',
+            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'click:relay(#options #add-notice)': 'addNotifier',
+            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
+            'click:relay(#options #dn_state)': 'dnToggle',
+            'click:relay(#options #notice-test)': 'noticeTest'
+        },
+
+        onSnoticeChange: function(e, target) {
+            e.stop();
+            var notices = _.clone(this.model.get('notices'));
+            _.assign(notices, target.get('id'), target.val());
+            this.model.set('notices', notices);
+        },
+
+        onAddNotifier: function(e) {
+            e.stop();
+            this.addNotifier();
+        },
+        
+        onDnToggle: function(e, target) {
+            toggleNotifications(this.model);
+            target.val(this.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
+        },
+
+        onReady: function() {
+            return this.render();
+        }
+
+        //get ui
+    },
+
+    /*********LISTENERS**************/
+
+    inputChange: function(e, target) {//set model values when inputs are clicked
+        var id = target.get('id');
+
+        //handle sub props
+        if(id && $defined(this.model.get(id))) {
+            this.model.set(id, target.val());
+        }
+    },
+
+    addNotifier: function(data) {
+        if(!data) {
+            data = this.model.get("default_notice")();
+            var n = _.clone(this.model.get("custom_notices"));
+            n.push(data);
+            this.model.set("custom_notices", n);
+        }
+
+        var parent = this.element.getElement('#custom-notices');
+
+        var _data = _.clone(data);
+        _data.lang = lang;
+
+        var temp = templates.customNotice(_data);
+
+        parent.insertAdjacentHTML('beforeend', temp);
+    },
+
+    removeNotifier: function(e, target) {
+        e.stop();
+        var par = target.getParent('.custom-notice').dispose();
+        this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+    },
+
+    noticeChange: function(e, target) {
+        e.stop();
+        var notices = _.clone(this.model.get('custom_notices'));
+        var par = target.getParent('.custom-notice');
+        _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+        this.model.set('custom_notices', notices);
+    },
+    /*********LISTENERS**************/
+
+    postRender: function() {
+        var model = this.model,
+            options = this.options;
+
+        _.each(model.get("custom_notices"), function(notice) {
+            notice.lang = lang;
+            this.addNotifier(notice);
+        }, this);
+
+        this.element.getElements(".slider").each(function(slider) {
+            var id = slider.get('id'),
+                knob = slider.getElement('.knob');
+                new Slider(slider, knob, {
+                    steps: 36,
+                    range: [0, 369],
+                    wheel: true
+                }).addEvent("change", function(val) {
+                    model.set(id, val);
+                })
+                .set(model.get(id));
+        });
+
+        this.element.getElement('#options').addEvents({ //default will fire before bubble
+            'submit': this.save,
+            'reset': this.reset
+        });
+
+        if(_.isFunction(options.getUI)) {
+            ui.WelcomePane.show(options.getUI(), {
+                element: this.element
+            });
+        }
+
+        return this.parent();
+    },
+
+    getData: function() {
+        var data = this.model.toJSON();
+        data.lang = lang;
+        return data;
+    },
+
+    save: function(e) {
+        if(e) e.stop();
+        this.model.save();
+        this.destroy();
+    },
+
+    reset: function(e) {
+        if(e) e.stop();
+        this.model.sync();
+        this.destroy();
+    },
+
+    destroy: function() {
+        this.trigger('close');
+        return this.parent();
+    }
+});
+ui.WelcomePane = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'welcome-pane',
+        events: {
+            'click:relay(.enable-notifications)': 'enableNotifications',
+            'click:relay(.options)': 'openOptions'
+        },
+        onOpenOptions: function() {
+            this.ui.optionsWindow();
+            if(this.clicked) this._close();
+        },
+        onEnableNotifications: function() {
+            toggleNotifications(this.ui.uiOptions2, true);
+            this.clicked = true;
+            if(!this.options.firstvisit) this._close();
+        }
+    },
+    initialize: function(ui, options) {
+        this.ui = ui;
+        this.parent(options);
+    },
+    getData: function() {
+        return _.extend({
+            options: this.ui.options,
+            Browser: window.Browser
+        }, this.options);
+    }
+})
+.extend({
+    show: function(_ui, options) {//determines if needs to be shown and shows
+        if(options.firstvisit || notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
+            options.element = new Element("div.welcome").inject(options.element);
+            return new ui.WelcomePane(_ui, options);
+        }
+        return false;
+    }
+});
+ui.EmbedWizard = new Class({
+    Extends: PanelView,
+    options: {
+        pane: 'wizard'
+    }
+});
+})();
 
 //close the iife and call with this
 }).call(this);

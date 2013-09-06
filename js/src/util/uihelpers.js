@@ -18,7 +18,6 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
         Note: Should use deferred if available
         Still need to finish implementing this.
     */
-
     if(!_.isFunction(cb)) {
         cb = util.noop;
     }
@@ -43,6 +42,12 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
     }
     //return deferred
 };
+
+util.loadTemplate = function(name) {//helper to preload a template
+    var template;
+    getTemplate(name, function(tmpl) {template = tmpl});
+    return function() {return template.apply(this, arguments);};
+}
 
 ui.setTitle = function(title, options) {
     document.title = title;
@@ -129,15 +134,16 @@ util.fillContainer = function ($ele, options) {
             var method = style.contains('width') ? 'x' : 'y',
                 offset = options.offset;
 
-            $ele.getSiblings().each(function(sib) {
-                offset += sib.getSize()[method];
-            });
+            $ele.getSiblings()
+                .each(function(sib) {
+                    offset += sib.getSize()[method];
+                });
 
             $ele.setStyle(style, "calc(100% - " + offset + "px)");
         });
     }
 
-    filler.delay(20);
+    _.delay(filler, 20);
     return $ele;
 };
 

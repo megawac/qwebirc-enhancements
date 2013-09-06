@@ -39,7 +39,7 @@ ui.Window = new Class({
     },
 
     select: function() {
-        if(this.active) return;
+        if(this.active || this.closed) return;
         this.active = true;
         this.parentObject.selectWindow(this);
         if (this.highlight)

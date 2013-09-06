@@ -1,24 +1,5 @@
-
-ui.StandardUI.implement({
-    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
-        this.postInitialize();
-        var self = this;
-        var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
-        var callback = function(data) {
-                win.close();
-                self.fireEvent("login", data);
-            };
-        ui.GenericLoginBox(win.lines, callback, initialNickname, initialChannels, autoConnect, autoNick, network || this.options.networkName);
-        return win;
-    }
-});
-
-
-ui.GenericLoginBox = function(parentElement, callback, initialNickname, initialChannels, autoConnect, autoNick, networkName) {
-    ui.LoginBox(parentElement, callback, initialNickname, initialChannels, networkName);
-};
-
-ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
+(function() {
+var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
     var Base64 = window.Base64;
     var _nick = new Storer(cookies.nickname),//initial nick
         _user = new Storer(cookies.username),//auth username
@@ -128,3 +109,20 @@ ui.LoginBox = function(parentElement, callback, initialNickname, initialChannels
         ui.Behaviour.apply(page);
     });
 };
+
+ui.ILogin = new Class({
+    Implements: [Events],
+    LoginBox: LoginBox,
+    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
+        this.postInitialize();
+        var self = this;
+        var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
+        var callback = function(data) {
+                win.close();
+                self.fireEvent("login", data);
+            };
+        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName);
+        return win;
+    }
+});
+})();

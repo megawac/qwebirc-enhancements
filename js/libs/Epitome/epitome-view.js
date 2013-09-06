@@ -24,7 +24,11 @@
 				// the event map should be like `elementEvent`: `instanceEvent`
 				// for example: '{click:relay(a.task-remove)': 'removeTask'}
 				// will fire instance's onRemoveTask handler when a.task-remove is pressed within the element.
-				events: {}
+				events: {},
+
+				//Automatically match methods from the instances methods to element events
+				//e.g. if view has method removeTask clicking a.task-remove will call removeTask
+				autoEvents: true
 			},
 
 			initialize: function(options){
@@ -117,7 +121,7 @@
 				// add events to main element.
 				var self = this;
 				Object.each(events, function(method, type){
-					if(!self.$events[method]) {
+					if(self.options.autoEvents && Type.isFunction(self[method])) {
 						self.$events[method] = [self[method]];
 					}
 					self.element.addEvent(type, function(){

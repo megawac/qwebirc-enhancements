@@ -1,7 +1,15 @@
 
-
+(function() {
+    var favIcons = {};
+    document.store("favicon", favIcons);
+    document.addEvent("domready", function() {
+        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        if (favIcon) {
+            favIcons.normal = favIcon;
+        }
+    });
 ui.NotificationUI = new Class({
-    Extends: ui.StandardUI,
+    Implements: [Options],
 
     Binds: ["beep", "flash", "cancelFlash"],
 
@@ -28,32 +36,20 @@ ui.NotificationUI = new Class({
     lastSound: 0,
     titleText: document.title,
 
-    initialize: function() {
-        // this.parent(parentElement, windowClass, uiName, options);
-        this.parent.apply(this, arguments);//pass
+    initialize: function(options) {
+        this.setOptions(options);
 
         this.soundInit();
 
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
-        if (favIcon) {
-            this.favIcons = {
-                normal: favIcon,
-                empty: new Element("link", {
-                            rel: 'shortcut icon',
-                            type: 'image/x-icon',
-                            href: this.options.icons.empty_favicon
-                        })
-            };
+        if (favIcons.normal) {
+            favIcons.empty = new Element("link", {
+                        rel: 'shortcut icon',
+                        type: 'image/x-icon',
+                        href: this.options.icons.empty_favicon
+                    });
             this.flashing = false;
             this.canFlash = true;
         }
-    },
-    setBeepOnMention: function(value) {
-        if (value)
-            this.soundInit();
-    },
-    updateTitle: function(text) {
-        ui.setTitle(text);
     },
     beep: function() {
         this.playSound('beep');
@@ -66,13 +62,13 @@ ui.NotificationUI = new Class({
             });
         }
     },
-
     soundInit: function() {
         //used to have a bunch of flash checks. going to let the sm handle it
-        if(!$defined(this.soundPlayer)) {
+        if(!(this.soundPlayer instanceof sound.SoundPlayer)) {
             this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
         }
     },
+
     flash: function(options) {
         var self = this;
         if ((!options.force && document.hasFocus()) || !self.canFlash || self.flashing)
@@ -119,15 +115,15 @@ ui.NotificationUI = new Class({
     },
     //not sure if changing the favicon is a good idea - messes with peoples bookmarks
     toggleFavIcon: function(state) {
-        var icons = this.favIcons;
-        var isNormalVis = !!icons.normal.getParent();
+        var isNormalVis = !!favIcons.normal.getParent();
         var vis = _.isBoolean(state) ? state : !isNormalVis;
         if(vis && !isNormalVis) {
-            icons.normal.replaces(icons.empty);
+            favIcons.normal.replaces(favIcons.empty);
         }
         else if (!vis && isNormalVis) {
-            icons.empty.replaces(icons.normal);
+            favIcons.empty.replaces(favIcons.normal);
         }
         return vis;
     }
 });
+})();

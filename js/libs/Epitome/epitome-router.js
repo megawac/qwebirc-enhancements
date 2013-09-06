@@ -64,7 +64,7 @@
 				window.addEvent(hc, function(){
 					/*jshint loopfunc:true */
 					var hash = location.hash,
-						path = hash.split('?')[0],
+						path = hash.split('?')[0].replace(/%20/g, " "),
 						query = hash.split('?')[1] || '',
 						notfound = true,
 						route;
@@ -117,7 +117,12 @@
 						}
 					}
 
-					notfound && self.trigger('undefined');
+					notfound && self.trigger('undefined', {
+						hash: hash,
+						request: path.slice(1),
+						path: path,
+						query: query
+					});
 					/*jshint loopfunc:false */
 				});
 
@@ -126,6 +131,7 @@
 			},
 
 			navigate: function(route, trigger){
+				route = route.replace(/\s+/g, "%20");
 				if (location.hash === route && trigger){
 					window.fireEvent(hc);
 				}
