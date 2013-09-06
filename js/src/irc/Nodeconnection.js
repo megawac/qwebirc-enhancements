@@ -80,7 +80,7 @@ irc.NodeConnection = new Class({
     },
 
     disconnect: function() {
-        this.emit("quit");
+        this.socket.emit("quit");
         this.socket.disconnect();
     },
 

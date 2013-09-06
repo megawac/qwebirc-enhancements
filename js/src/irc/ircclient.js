@@ -38,20 +38,14 @@ irc.IRCClient = new Class({
     },
 
     quit: function(message) {
-        this.send("QUIT :" + (message || lang.quit.message), true);
         this.disconnect();
-        this.trigger("quit", {message: message});
     },
 
     disconnect: function() {
-        // for (var k in this.activeTimers) {
-        //     this.activeTimers[k].cancel();
-        // }
         _.each(this.activeTimers, $clear);
         this.activeTimers = {};
-        this.writeMessages(lang.disconnected);
-        this.trigger("disconnect", {message: lang.disconnected});
-
+        this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+        this.trigger("disconnect");
         this.parent();
     },
 
@@ -71,7 +65,7 @@ irc.IRCClient = new Class({
         this.writeMessages(lang.connRetry, {
             next: (data.next/1000).round(1)
         }, {
-            channels: [STATUS, BROUHAHA].concat(this.channels)
+            channels: "ALL"
         });
     },
 
@@ -101,6 +95,7 @@ irc.IRCClient = new Class({
             channel: STATUS,
             message: []
         }, data);
+        data.channels = data.channels === "ALL" ? [STATUS, BROUHAHA].concat(this.channels) : data.channels;
         var client = this,
             types = lang.TYPES;
 
@@ -135,24 +130,18 @@ irc.IRCClient = new Class({
 
     signedOn: function(nickname) {
         var options = this.options,
-            channels,
-            hash = window.location.hash;
+            channels;
 
         this.nickname = nickname;
         // this.newServerLine("SIGNON");
         this.writeMessages(lang.signOn);
 
-        if (hash.length > 1) {
-            options.autojoin = channels = hash.replace(/&/g, ',#');
+        channels = this.getChannels();
+        if (channels.length > 0) {
+            options.autojoin = channels;
+        } else { //if no stored channels join intial channels from interface options
+            options.autojoin = channels = options.initialChannels;
             this.storeChannels(channels);
-        } else {
-            channels = this.getChannels();
-            if (channels.length > 0) {
-                options.autojoin = channels;
-            } else { //if no stored channels join intial channels from interface options
-                options.autojoin = channels = options.initialChannels;
-                this.storeChannels(channels);
-            }
         }
         // Sort the autojoin channels.
         channels = options.autojoin = util.prependChannel(channels, BROUHAHA);

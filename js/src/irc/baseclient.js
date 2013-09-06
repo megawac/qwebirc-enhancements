@@ -67,7 +67,12 @@ irc.BaseIRCClient = new Class({
     },
 
     disconnect: function() {
+        this.send("QUIT :" + (message || lang.quit), true);
         return this.connection.disconnect();
+    },
+
+    isConnected: function() {
+        return this.__signedOn && this.connection.connected;
     },
 
     retry: util.noop,
@@ -192,7 +197,7 @@ irc.BaseIRCClient = new Class({
         self.signedOn(self.nickname);
         (function() {
             self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
-        }).delay(1000);
+        }).delay(2000);
     },
 
     irc_ERR_NICKNAMEINUSE: function(prefix, params) {
