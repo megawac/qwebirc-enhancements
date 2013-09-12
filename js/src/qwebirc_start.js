@@ -41,7 +41,7 @@ project name and URL in the about dialog, thanks!
             themes: {}
         },
         util: {
-            crypto: {},
+            crypto: {}
         },
         config: {},
         auth: {},

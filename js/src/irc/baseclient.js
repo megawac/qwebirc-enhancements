@@ -1,22 +1,23 @@
+(function() {
+    function genericError(prefix, params) {
+        var target = params[1],
+            message = params.getLast();
+
+        this.genericError(target, message);
+        return true;
+    }
+    function genericQueryError(prefix, params) {
+        var target = params[1],
+            message = params.getLast();
+
+        this.genericQueryError(target, message);
+        return true;
+    }
+
 //base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
     Binds: ["lostConnection", "send", "connected", "retry", "ndispatch", "tdispatch"],
-
-    options: {
-        nickname: "qwebirc",
-        specialUserActions: []
-    },
-    __signedOn: false,
-    channels: {},
-    nextctcp: 0,
-    pmodes: {
-        b: irc.PMODE_LIST,
-        l: irc.PMODE_SET_ONLY,
-        k: irc.PMODE_SET_UNSET,
-        o: irc.PMODE_SET_UNSET,
-        v: irc.PMODE_SET_UNSET
-    },
 
     toIRCLower: irc.RFC1459toIRCLower,//default text codec
 
@@ -50,25 +51,12 @@ irc.BaseIRCClient = new Class({
             });
             self.connection.addEvent("recv", self.tdispatch);
         }
-
-        self.setupGenericErrors();
     },
 
     trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
+        if(!data) data = {};
         data["-"] = this.nickname;
         return this.fireEvent(type, [type, data]);
-    },
-
-    connected: function() {
-    },
-
-    connect: function() {
-        return this.connection.connect();
-    },
-
-    disconnect: function() {
-        this.send("QUIT :" + (message || lang.quit), true);
-        return this.connection.disconnect();
     },
 
     isConnected: function() {
@@ -186,31 +174,29 @@ irc.BaseIRCClient = new Class({
         return c;
     },
 
-    canJoinChannel: function(c) {
-        return true;
-    },
+    canJoinChannel: $lambda(true),
 
     irc_RPL_WELCOME: function(prefix, params) {
         var self = this;
         self.nickname = params[0];
         self.lowerNickname = self.toIRCLower(self.nickname);
         self.signedOn(self.nickname);
-        (function() {
+        _.delay(function() {
             self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
-        }).delay(2000);
+        }, 2000);
     },
 
-    irc_ERR_NICKNAMEINUSE: function(prefix, params) {
-        this.genericError(params[1], params.getLast().replace("in use.", "in use")); //................... fix the program not the 
+    irc_ERR_NICKNAMEINUSE: function(prefix, params) {//add some number to the nick and resend
+        this.genericError(params[1], params.getLast());
 
         if (this.__signedOn) {
             return true;
         }
 
         var nick = params[1],
-            newnick = nick + Number.random(1, 1000);
+            newnick = nick + Number.random(0, 9);
 
-        this.send("NICK " + newnick);
+        this.send(format(cmd.NICK, {nick: newnick}));
         this.lastnick = newnick;
         return true;
     },
@@ -275,7 +261,6 @@ irc.BaseIRCClient = new Class({
 
     irc_PING: function(prefix, params) {
         this.send("PONG :" + params.getLast());
-
         return true;
     },
 
@@ -324,7 +309,11 @@ irc.BaseIRCClient = new Class({
                 var t = Date.now() / 1000;
                 if (t > this.nextctcp) { //too quick? why not just a buffer?
                     var repctcp = replyfn(ctcp[1]);
-                    this.send("NOTICE " + util.hostToNick(user) + " :\x01" + type + " " + repctcp + "\x01");
+                    this.send(format(cmd.CTCP, {
+                        target: util.hostToNick(user),
+                        type: type,
+                        text: repctcp
+                    }));
                 }
                 this.nextctcp = t + 5;
             }
@@ -347,15 +336,15 @@ irc.BaseIRCClient = new Class({
     irc_NOTICE: function(host, params) {
         var user = util.hostToNick(host),
             target = params[0],
-            message = params.getLast();
+            message = params.getLast(),
+            options = this.options,
+            isNetworkService = options.networkServices.contains(host);
 
-        //call functions for particular users
-        //expects only one per user     
-        this.options.specialUserActions.some(function(fn) {
-            fn.call(this, user, message, target, this);
-        }, this);
+        if(isNetworkService && options.loginRegex.test(message)) {
+            this.authEvent();
+        }
 
-        if ((user === "") || user.contains("!") || this.options.networkServices.contains(host)) {
+        if (isNetworkService || user == "" || user.contains("!")) {
             this.serverNotice(host, message, target);
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
@@ -476,9 +465,7 @@ irc.BaseIRCClient = new Class({
         }
     },
 
-    irc_RPL_TOPICWHOTIME: $lambda(true),/*function(prefix, params) {
-        return true; //...
-    },*/
+    irc_RPL_TOPICWHOTIME: $lambda(true),
 
     irc_RPL_WHOISUSER: function(prefix, params) {
         var nick = params[1];
@@ -589,27 +576,13 @@ irc.BaseIRCClient = new Class({
         return this.whois(nick, "end", {});
     },
 
-    irc_genericError: function(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
+    irc_genericError: genericError,
+    irc_ERR_CHANOPPRIVSNEEDED: genericError,
+    irc_ERR_CANNOTSENDTOCHAN: genericError,
 
-        this.genericError(target, message);
-        return true;
-    },
+    irc_genericQueryError: genericQueryError,
 
-    irc_genericQueryError: function(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
-
-        this.genericQueryError(target, message);
-        return true;
-    },
-
-    setupGenericErrors: function() {
-        this.irc_ERR_CHANOPPRIVSNEEDED = this.irc_ERR_CANNOTSENDTOCHAN = this.irc_genericError;
-        this.irc_ERR_NOSUCHNICK = this.irc_genericQueryError;
-        return true;
-    },
+    irc_ERR_NOSUCHNICK: genericQueryError,
 
     irc_RPL_AWAY: function(prefix, params) {
         var nick = params[1],
@@ -676,6 +649,5 @@ irc.BaseIRCClient = new Class({
         this.trigger("listend", this.listedChans);
         return !this.hidelistout;
     }
-
-});
-
+})
+})();

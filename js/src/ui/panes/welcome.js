@@ -4,16 +4,14 @@ ui.WelcomePane = new Class({
         pane: 'welcome-pane',
         events: {
             'click:relay(.enable-notifications)': 'enableNotifications',
-            'click:relay(.options)': 'openOptions'
-        },
-        onOpenOptions: function() {
-            this.ui.optionsWindow();
-            if(this.clicked) this._close();
+            'click:relay(.controls)': 'controlClick'
         },
         onEnableNotifications: function() {
-            toggleNotifications(this.ui.uiOptions2, true);
-            this.clicked = true;
-            if(!this.options.firstvisit) this._close();
+            toggleNotifications(this.ui.uiOptions2, true, true);
+        },
+        onControlClick: function(e, controls) {
+            controls.dispose();
+            if(!this.element.getElement('.controls')) this._close();
         }
     },
     initialize: function(ui, options) {
@@ -21,10 +19,10 @@ ui.WelcomePane = new Class({
         this.parent(options);
     },
     getData: function() {
-        return _.extend({
+        return {
             options: this.ui.options,
             Browser: window.Browser
-        }, this.options);
+        };
     }
 })
 .extend({

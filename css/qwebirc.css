@@ -47,7 +47,7 @@ html, body {
 }
 
 /*otherwise 100%*/
-.channel .leftpanel {
+.show-nicklist .leftpanel {
     position: absolute;
     left: 0;
     right: 141px;

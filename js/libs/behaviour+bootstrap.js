@@ -21,7 +21,7 @@ provides: [Event.Mock]
 ...
 */
 
-(function($,window,undef){
+(function(Event){
 
 /**
  * creates a Mock event to be used with fire event
@@ -53,7 +53,7 @@ Event.Mock = function(target,type){
     return e;
 };
 
-})(document.id,window);
+})(window.Event = window.Event || function(){});
 
 // Begin: Source/Element.Data.js
 /*

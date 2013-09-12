@@ -87,8 +87,6 @@
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
                             }
-                        } else if (options.autoescape) {
-                            word = _.escape(word);
                         }
                         return word;
                     }
@@ -111,7 +109,7 @@
         parse: function(text) {
             var self = this,
                 result = (self.options.autoescape ? _.escape(text) : text).split(" "),
-                funcs = self.patterns.filter(function(pat) {
+                funcs = _.filter(self.patterns, function(pat) {
                     return !pat.entireStr;
                 }),
 

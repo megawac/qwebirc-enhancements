@@ -3,7 +3,7 @@
     var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        var favIcon = $(document.head).getElement("link[rel^='shortcut'][rel$='icon']");
         if (favIcon) {
             favIcons.normal = favIcon;
         }
@@ -58,7 +58,7 @@ ui.NotificationUI = new Class({
         if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.play(alias, {
-                volume: this.uiOptions2.get("volume")
+                volume: this.uiOptions.get("volume")
             });
         }
     },
@@ -81,11 +81,7 @@ ui.NotificationUI = new Class({
             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
 
-        if(self.uiOptions2.get("dn_state")) {
-            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
-            self.__notice = notify.createNotification(opts.title, opts);
-            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
-        }
+        self.showNotice();
 
         self.flashing = true;
         // flashA();
@@ -96,6 +92,16 @@ ui.NotificationUI = new Class({
             "focus:once": self.cancelFlash
         });
     },
+
+    showNotice: function(options) {
+        var self = this;
+        if(self.uiOptions.get("dn_state")) {
+            var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
+            self.__notice = notify.createNotification(opts.title, opts);
+            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions.get("dn_duration"));
+        }
+    },
+
     cancelFlash: function() {
         this.flashing = false;
 

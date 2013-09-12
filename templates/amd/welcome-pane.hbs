@@ -1,23 +1,25 @@
 <div class="alert alert-block fade in">
     <button type="button" class="close" data-trigger="nix" data-nix-options="'target': '!div.alert'">×</button>
     <h4>Welcome to {{options.appTitle}}</h4>
-    <p>
-    {{#if Browser.Features.notifications}}
-        Before you login please enable desktop notifications <a class="enable-notifications btn btn-danger btn-small" href="#">Enable notifications</a>
-    {{else}}
-        Your browser does not support desktop notifications. Consider installing
-        {{#if Browser.ie}} <a href="http://www.google.com/chromeframe/?prefersystemlevel=true">Chrome frame for Internet Explorer</a>
+    <div class="controls">
+        <p>
+        {{#if Browser.Features.notifications}}
+            Before you login please enable desktop notifications <a class="enable-notifications btn btn-danger btn-small" href="#">Enable notifications</a>
         {{else}}
-        {{#if Browser.firefox}} <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/">the Firefox Tab-notifier extension</a>
-        {{else}}{{! http://caniuse.com/notifications }}
-        an extension to add <a href="http://caniuse.com/notifications">Desktop notifications</a>
+            Your browser does not support desktop notifications. Consider installing
+            {{#if Browser.ie}} <a href="http://www.google.com/chromeframe/?prefersystemlevel=true">Chrome frame for Internet Explorer</a>
+            {{else}}
+            {{#if Browser.firefox}} <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/">the Firefox Tab-notifier extension</a>
+            {{else}}{{! http://caniuse.com/notifications }}
+            an extension to add <a href="http://caniuse.com/notifications">Desktop notifications</a>
+            {{/if}}
+            {{/if}}
         {{/if}}
-        {{/if}}
-    {{/if}}
-    </p>
+        </p>
+    </div>
     {{#if firstvisit}}
-    <p>
-        Also check out the new options <a class="options btn btn-default btn-small" href="#">Options</a>
-    </p>
+    <div class="controls">
+        <p>Also check out the new options <a class="btn btn-default btn-small" href="#!options">Options</a></p>
+    </div>
     {{/if}}
 </div>

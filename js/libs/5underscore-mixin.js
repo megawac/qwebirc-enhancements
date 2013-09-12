@@ -195,7 +195,7 @@
             var type = typeof key;
             if (type == 'string' || type == "number") key = (""+key).split('.');
             for (var i = 0, l = key.length; i < l; i++){
-                if (hasOwnProperty.call(obj, key[i])) obj = obj[key[i]];
+                if (_.has(obj, key[i])) obj = obj[key[i]];
                 else return undefined;
             }
             return obj;

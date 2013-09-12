@@ -23,6 +23,7 @@ provides: [Elements.from, Elements.From]
 ...
 */
 window.addEvent("domready", function(){
+    function getChildren($ele) {return new Elements($ele.childNodes);}//fix for #2527
     function tableFix(match, text) {
         var container = new Element('table');
         var tag = match[1].toLowerCase();
@@ -30,11 +31,11 @@ window.addEvent("domready", function(){
             container = new Element('tbody').inject(container);
             if (tag != 'tr') container = new Element('tr').inject(container);
         }
-        return container.set('html', text).getChildren();
+        return getChildren(container.set('html', text));
     }
     var table_re = /^\s*<(t[dhr]|tbody|tfoot|thead)/i;
-    var range = document.createRange();
-    if(range.createContextualFragment) {
+    var range = document.createRange && document.createRange();
+    if(range && range.createContextualFragment) {
         var reference = document.getElement("div");
         range.selectNode(reference);
 
@@ -44,7 +45,7 @@ window.addEvent("domready", function(){
             var match = text.match(table_re);
             if(match) return tableFix(match,text);
 
-            return new Elements(range.createContextualFragment(text).childNodes);
+            return getChildren(range.createContextualFragment(text));
         };
 
     } else { //fall back for ie<9
@@ -54,7 +55,7 @@ window.addEvent("domready", function(){
             var match = text.match(table_re);
             if(match) return tableFix(match,text);
 
-            return new Element('div').set('html', text).getChildren();
+            return getChildren(new Element('div').set('html', text));
         };
     }
 });

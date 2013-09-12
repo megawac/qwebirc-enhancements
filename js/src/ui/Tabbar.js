@@ -116,10 +116,12 @@ ui.NavBar = new Class({
     addTab: function(tab) {
         if(_.isString(tab)) tab = Element.from(tab);
         this.tabs.adopt(tab);
+        return this;
     },
 
     removeTab: function(tab) {
         this.tabs.disown(tab);
+        return this;
     },
 
     scrollLeft: function(e, target) {

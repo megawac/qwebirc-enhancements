@@ -132,7 +132,7 @@ ui.QUI = new Class({
             //         }
             //     });
             // },
-            "addChan": self.__createChannelMenu
+            "addChannel": self.__createChannelMenu
         });
 
         //delay for style recalc

@@ -2,13 +2,13 @@
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            defaults = _.extend({}, ui.themes.Default2, themeDict);
+            defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
         
-        var thememap = _.map(ui.themes.ThemeControlCodeMap2, function(str) {
-            return util.formatterSafe(str, ui.themes.ThemeControlCodeMap2);
+        var thememap = _.map(config.ThemeControlCodeMap, function(str) {
+            return util.formatSafe(str, config.ThemeControlCodeMap);
         });
         self.__theme = _.map(defaults, function(str) {
-            return util.formatterSafe(str, thememap);
+            return util.formatSafe(str, thememap);
         });
 
         self.highlightClasses.channels = {};
@@ -18,17 +18,15 @@ ui.Theme = new Class({
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
             isobj = _.isObject(_data),
-            data = isobj ? _.clone(_data) : _data, //sometimes an internal reference
-            val;
+            data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
-
-            if (data["n"]){
+            if (data["n"]) {
                 data["N"] = "qwebirc://whois/" + data.n + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             _.each(["N", "m", "c"], function(key) {//urlerize message and nick
-                val = data[key];
+                var val = data[key];
                 if(val) {
                     if(_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
@@ -53,7 +51,6 @@ ui.Theme = new Class({
     },
 
     formatText: function(type, data, highlight) {
-        // if(highlight) data = _.extend({}, data, this.__ccmaph)
         return util.formatter(this.__theme[type], data);//most formatting done on init
     },
 
@@ -185,7 +182,7 @@ ui.Theme = new Class({
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
-                    (!parser.type || parser.type.test(type)) && 
+                    (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )

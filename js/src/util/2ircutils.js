@@ -57,11 +57,11 @@ var join = function(by, xs) {
 
     concatSpace = concatSep(" ");
 
-util.formatter = function(message, data) {
+util.format = util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
 
-util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
+util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
     return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
         if (match.charAt(0) == '\\') return match.slice(1);
         return (object[name] != null) ? object[name] : match;
@@ -247,7 +247,7 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
 util.createNickRegex = _.memoize(function(nick) {
-    return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
+    return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
 })
 
 util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
@@ -362,9 +362,9 @@ util.getEnclosedWord = function(str, pos) {
 
 // NOT cryptographically secure! 
 util.randHexString = function(numBytes) {
-    var getByte = function() {
-            return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
-        };
+    function getByte() {
+        return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
+    };
 
     var l = [];
     for (var i = 0; i < numBytes; i++) {

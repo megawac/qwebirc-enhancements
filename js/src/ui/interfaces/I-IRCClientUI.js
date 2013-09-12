@@ -34,7 +34,7 @@ ui.IIRCClient = new Class({
         }
     },
 
-    nickChange: util.noop,
+    nickChange: util.noop
 });
 var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
 function formatChans(data) {
@@ -124,6 +124,13 @@ function addClientEvents(client, windows) { // mi gusta xD
         // "disconnect": lineParser,
         "error": lineParser,
         "info": lineParser,
+        "auth:once": function() {
+            ui_.beep();
+            ui_.showNotice({
+                title: "Successful auth",
+                body: "Successfully authed with server and set your hostmask"
+            });
+        },
 
         "chanAction": lineParser,
         "chanTopic": updateTopic,
@@ -179,7 +186,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         "awayStatus": lineParser,
         "mode": function(type, data) {
-            var win = ui_.getWindow(data.channel);
+            var win = ui_.getWindow(client, data.channel);
             if(win) {
                 win.updatePrefix(data);
             }

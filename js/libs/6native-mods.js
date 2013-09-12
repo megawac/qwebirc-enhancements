@@ -184,42 +184,6 @@
     });
 
     if (this.document) {
-        //By Eli Grey, https://gist.github.com/eligrey/1276030
-        if(!("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
-            HTMLElement.implement("insertAdjacentHTML", function(position, html) {
-                var ref = this,
-                    container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
-                    ref_parent = ref.parentNode,
-                    node, first_child, next_sibling;
-
-                container.innerHTML = html;
-
-                switch (position.toLowerCase()) {
-                    case "beforebegin":
-                        while ((node = container.firstChild)) {
-                            ref_parent.insertBefore(node, ref);
-                        }
-                        break;
-                    case "afterbegin":
-                        first_child = ref.firstChild;
-                        while ((node = container.lastChild)) {
-                            first_child = ref.insertBefore(node, first_child);
-                        }
-                        break;
-                    case "beforeend":
-                        while ((node = container.firstChild)) {
-                            ref.appendChild(node);
-                        }
-                        break;
-                    case "afterend":
-                        next_sibling = ref.nextSibling;
-                        while ((node = container.lastChild)) {
-                            next_sibling = ref_parent.insertBefore(node, next_sibling);
-                        }
-                        break;
-                }
-            });
-        }
         if(!(Type.isFunction(document.hasFocus))) {//crude focus polyfill
             var focus = true;
             window.addEvents({

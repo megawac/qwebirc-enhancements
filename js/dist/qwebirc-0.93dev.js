@@ -6093,7 +6093,7 @@ Handlebars.template = Handlebars.VM.template;
             var type = typeof key;
             if (type == 'string' || type == "number") key = (""+key).split('.');
             for (var i = 0, l = key.length; i < l; i++){
-                if (hasOwnProperty.call(obj, key[i])) obj = obj[key[i]];
+                if (_.has(obj, key[i])) obj = obj[key[i]];
                 else return undefined;
             }
             return obj;
@@ -6307,42 +6307,6 @@ Handlebars.template = Handlebars.VM.template;
     });
 
     if (this.document) {
-        //By Eli Grey, https://gist.github.com/eligrey/1276030
-        if(!("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
-            HTMLElement.implement("insertAdjacentHTML", function(position, html) {
-                var ref = this,
-                    container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_"),
-                    ref_parent = ref.parentNode,
-                    node, first_child, next_sibling;
-
-                container.innerHTML = html;
-
-                switch (position.toLowerCase()) {
-                    case "beforebegin":
-                        while ((node = container.firstChild)) {
-                            ref_parent.insertBefore(node, ref);
-                        }
-                        break;
-                    case "afterbegin":
-                        first_child = ref.firstChild;
-                        while ((node = container.lastChild)) {
-                            first_child = ref.insertBefore(node, first_child);
-                        }
-                        break;
-                    case "beforeend":
-                        while ((node = container.firstChild)) {
-                            ref.appendChild(node);
-                        }
-                        break;
-                    case "afterend":
-                        next_sibling = ref.nextSibling;
-                        while ((node = container.lastChild)) {
-                            next_sibling = ref_parent.insertBefore(node, next_sibling);
-                        }
-                        break;
-                }
-            });
-        }
         if(!(Type.isFunction(document.hasFocus))) {//crude focus polyfill
             var focus = true;
             window.addEvents({
@@ -7107,7 +7071,7 @@ window.Base64 = (function() {
 
     this.Completer = new Class({
         Implements: [Options],
-        Binds: ["process", "_update"],
+        Binds: ["process", "update"],
         index: -1,
         options: {
             stopPropogation: false,
@@ -7137,8 +7101,8 @@ window.Base64 = (function() {
             this.$hint = target.getElement(options.selectors.hint);
             if(options.autoPosition) {
                 this.$hint.setStyle("position", "absolute");
-                this._update.delay(50);
-                window.addEvent("resize", this._update);
+                this.update.delay(50);
+                window.addEvent("resize", this.update);
             }
         },
 
@@ -7198,14 +7162,14 @@ window.Base64 = (function() {
             this.index = -1;
         },
 
-        _update: function() {
+        update: function() {
             this.$hint.setStyles(this.$input.getCoordinates(this.$input.getParent()));
         },
 
         detach: function() {
             this.$input.removeEvents(this.$events);
             window.removeEvents({
-                "resize": this._update
+                "resize": this.update
             });
         }
     });
@@ -7236,6 +7200,7 @@ provides: [Elements.from, Elements.From]
 ...
 */
 window.addEvent("domready", function(){
+    function getChildren($ele) {return new Elements($ele.childNodes);}//fix for #2527
     function tableFix(match, text) {
         var container = new Element('table');
         var tag = match[1].toLowerCase();
@@ -7243,11 +7208,11 @@ window.addEvent("domready", function(){
             container = new Element('tbody').inject(container);
             if (tag != 'tr') container = new Element('tr').inject(container);
         }
-        return container.set('html', text).getChildren();
+        return getChildren(container.set('html', text));
     }
     var table_re = /^\s*<(t[dhr]|tbody|tfoot|thead)/i;
-    var range = document.createRange();
-    if(range.createContextualFragment) {
+    var range = document.createRange && document.createRange();
+    if(range && range.createContextualFragment) {
         var reference = document.getElement("div");
         range.selectNode(reference);
 
@@ -7257,7 +7222,7 @@ window.addEvent("domready", function(){
             var match = text.match(table_re);
             if(match) return tableFix(match,text);
 
-            return new Elements(range.createContextualFragment(text).childNodes);
+            return getChildren(range.createContextualFragment(text));
         };
 
     } else { //fall back for ie<9
@@ -7267,7 +7232,7 @@ window.addEvent("domready", function(){
             var match = text.match(table_re);
             if(match) return tableFix(match,text);
 
-            return new Element('div').set('html', text).getChildren();
+            return getChildren(new Element('div').set('html', text));
         };
     }
 });
@@ -7498,8 +7463,6 @@ Copyright (c) 2010 Arieh Glazer
                                 middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
                                 word = parsed.lead + middle + parsed.end;
                             }
-                        } else if (options.autoescape) {
-                            word = _.escape(word);
                         }
                         return word;
                     }
@@ -7522,7 +7485,7 @@ Copyright (c) 2010 Arieh Glazer
         parse: function(text) {
             var self = this,
                 result = (self.options.autoescape ? _.escape(text) : text).split(" "),
-                funcs = self.patterns.filter(function(pat) {
+                funcs = _.filter(self.patterns, function(pat) {
                     return !pat.entireStr;
                 }),
 
@@ -7663,7 +7626,7 @@ Fx.AutoScroll = new Class({
                 "resize": self.updatePosition
             }
         };
-        this.$events.element["scroll:throttle(" + interval + ")"] = toggler;
+        this.$events.element["scroll:throttle(" + interval + ")"] = toggler;//****should use a debounce function*****
 
         this.element.addEvents(this.$events.element);
         window.addEvents(this.$events.window);
@@ -7756,7 +7719,7 @@ provides: [Event.Mock]
 ...
 */
 
-(function($,window,undef){
+(function(Event){
 
 /**
  * creates a Mock event to be used with fire event
@@ -7788,7 +7751,7 @@ Event.Mock = function(target,type){
     return e;
 };
 
-})(document.id,window);
+})(window.Event = window.Event || function(){});
 
 // Begin: Source/Element.Data.js
 /*
@@ -11381,7 +11344,7 @@ project name and URL in the about dialog, thanks!
             themes: {}
         },
         util: {
-            crypto: {},
+            crypto: {}
         },
         config: {},
         auth: {},
@@ -11432,112 +11395,109 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 
-  buffer += "\r\n"
-    + "\r\n"
-    + "\r\n"
-    + "\r\n#ircui {\r\nheight: 100%;\r\nwidth: 100%;\r\noverflow: hidden;\r\nfont-family: Verdana, sans-serif;\r\n}\r\n\r\n.qui .hidden, .qui .invisible {\r\ndisplay: none;\r\n}\r\n\r\n.channel-name {\r\nbackground-color: rgb(255, 255, 191);\r\nborder: 1px solid #C8D1DB;\r\nborder-radius: 4px 4px 4px 4px;\r\ncolor: #000000;\r\ncursor: default;\r\nfont-size: 0.8em;\r\npadding: 2px;\r\ntext-decoration: none;\r\nwhite-space: nowrap;\r\nfloat: left;\r\nmargin: 1px 0px 0px 1px;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .widepanel {\r\nwidth: 100%;\r\n}\r\n\r\n.qui .bottompanel {\r\ncolor: red;\r\n}\r\n\r\n.qui .lines {\r\ncolor: black;\r\noverflow: auto;\r\nfont-size: ";
+  buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .bottompanel {color: red;}.qui .lines {color: black;overflow: auto;font-size: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
-    + "px;\r\nbackground: ";
+    + "px;background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "lines_background", "f2f0ff", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .lines .timestamp {\r\ndisplay: ";
+    + ";}.qui .lines .timestamp {display: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "show_timestamps", "inline", "comp", "none", options) : helperMissing.call(depth0, "$css", "show_timestamps", "inline", "comp", "none", options)))
-    + ";\r\n}\r\n\r\n.qui .ircwindow .lines {\r\nfont-family: Consolas, \"Lucida Console\", monospace;\r\ntext-indent: 10px;\r\npadding-left: 1em;\r\nword-wrap: break-word;\r\n}\r\n\r\n.qui .lines .highlight1 {\r\nbackground-color: ";
+    + ";}.qui .ircwindow .lines {font-family: Consolas, \"Lucida Console\", monospace;text-indent: 10px;padding-left: 1em;word-wrap: break-word;}.qui .lines .highlight1 {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight1", "f6ff94", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight1", "f6ff94", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .lines .highlight2 {\r\nbackground-color: ";
+    + ";}.qui .lines .highlight2 {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight2", "A4FCCA", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight2", "A4FCCA", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .lines .highlight3 {\r\nbackground-color: ";
+    + ";}.qui .lines .highlight3 {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight3", "FAC3D5", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight3", "FAC3D5", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .lines .mentioned {\r\nbackground-color: ";
+    + ";}.qui .lines .mentioned {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "mentioned_colour", "E63772", "c", options) : helperMissing.call(depth0, "$css", "mentioned_colour", "E63772", "c", options)))
-    + " !important;\r\n}\r\n\r\n.qui .properties {\r\nbackground-color: ";
+    + " !important;}.qui .properties {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";\r\nborder-top: 1px solid ";
+    + ";border-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
-    + ";\r\nheight: 25px;\r\n}\r\n\r\n.qui .topic .emptytopic {\r\ncolor: gray;\r\n}\r\n\r\n.qui .topic {\r\ncolor: gray;\r\npadding-left: 5px;\r\nfont-size: 0.7em;\r\ncursor: default;\r\nbackground-color: ";
+    + ";height: 25px;}.qui .topic .emptytopic {color: gray;}.qui .topic {color: gray;padding-left: 5px;font-size: 0.7em;cursor: default;background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "topic_background", "f2f0ff", "c", options)))
-    + ";\r\nborder-bottom: 1px dashed ";
+    + ";border-bottom: 1px dashed ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "topic_border", "c8d2dc", "c", options)))
-    + ";\r\n}\r\n\r\n/*tab stuff*/\r\n\r\n.qui .outertabbar {\r\nborder-bottom: 1px solid ";
+    + ";}/*tab stuff*/.qui .outertabbar {border-bottom: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "tabbar_border", "c3cee0", "c", options)))
-    + ";\r\nbackground: ";
+    + ";background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_background", "e2ecf9", "c", options) : helperMissing.call(depth0, "$css", "tabbar_background", "e2ecf9", "c", options)))
-    + ";\r\nheight: 26px;\r\nline-height: 20px;\r\npadding: 2px 0;\r\nvertical-align: middle;\r\n}\r\n\r\n.qui .tabbar {\r\ncolor: ";
+    + ";height: 26px;line-height: 20px;padding: 2px 0;}.qui .outertabbar > * {vertical-align: top;}.qui .tabbar {color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
-    + ";\r\ndisplay: inline-block;\r\noverflow-x: hidden;\r\nmargin-left: 10px;\r\nfont-size: 13px;\r\nheight: 22px;\r\n}\r\n\r\n.qui .tabbar .tab {\r\npadding: 2px;\r\ncursor: default;\r\nmargin-right: 3px;\r\nwhite-space: nowrap;\r\nfont-weight: bold;\r\n\r\ncolor: ";
+    + ";display: inline-block;overflow-x: hidden;margin-left: 10px;font-size: 13px;height: 22px;}.qui .tabbar .tab {padding: 2px;cursor: default;margin-right: 3px;white-space: nowrap;font-weight: bold;color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
-    + ";\r\nborder: 1px solid ";
+    + ";border: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
-    + ";\r\nborder-radius: 4px;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .tab:hover {\r\nbackground: ";
+    + ";border-radius: 4px;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .tab:hover {background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_hover", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_hover", "ffffff", "c", options)))
-    + ";\r\nborder: 1px solid #c8d2dc;\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\n}\r\n\r\n.qui .tabbar .hilight-activity.tab {\r\ncolor: #009900;\r\n}\r\n\r\n.qui .tabbar .hilight-speech.tab {\r\ncolor: #0000ff;\r\n}\r\n\r\n.qui .tabbar .hilight-us.tab {\r\ncolor: #ff0000;\r\nbackground: rgb(216, 216, 138);\r\n}\r\n\r\n.qui .tabbar .brouhaha {\r\npadding-left: 75px;\r\nbackground-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; /* override value for webkit */\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px;\r\n}\r\n\r\n.qui .tabbar .brouhaha.selected {\r\n/* background: rgb(255,214,94); Old browsers\r\nbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+\r\nbackground: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+\r\nbackground: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+\r\nbackground: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+\r\nbackground: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+\r\nbackground: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3C\r\nfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */\r\n}\r\n\r\n.qui .tabbar .brouhaha.unselected {\r\n/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-moz-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-moz-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),\r\n-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),\r\n-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));\r\nbackground-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-webkit-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(-45deg, #666 25%, transparent 25%),\r\n-o-linear-gradient(45deg, transparent 75%, #666 75%),\r\n-o-linear-gradient(-45deg, transparent 75%, #666 75%);\r\nbackground-image: linear-gradient(45deg, #666 25%, transparent 25%),\r\nlinear-gradient(-45deg, #666 25%, transparent 25%),\r\nlinear-gradient(45deg, transparent 75%, #666 75%),\r\nlinear-gradient(-45deg, transparent 75%, #666 75%);\r\n-moz-background-size: 2px 2px;\r\nbackground-size: 2px 2px;\r\n-webkit-background-size: 2px 2.1px; override value for webkit\r\nbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */\r\n}\r\n\r\n\r\n.qui .tabbar .selected.tab {\r\nbackground: ";
+    + ";border: 1px solid #c8d2dc;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .hilight-activity.tab {color: #009900;}.qui .tabbar .hilight-speech.tab {color: #0000ff;}.qui .tabbar .hilight-us.tab {color: #ff0000;background: rgb(216, 216, 138);}.qui .tabbar .brouhaha {padding-left: 75px;background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),-moz-linear-gradient(-45deg, #666 25%, transparent 25%),-moz-linear-gradient(45deg, transparent 75%, #666 75%),-moz-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),-webkit-linear-gradient(45deg, transparent 75%, #666 75%),-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),-o-linear-gradient(-45deg, #666 25%, transparent 25%),-o-linear-gradient(45deg, transparent 75%, #666 75%),-o-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: linear-gradient(45deg, #666 25%, transparent 25%),linear-gradient(-45deg, #666 25%, transparent 25%),linear-gradient(45deg, transparent 75%, #666 75%),linear-gradient(-45deg, transparent 75%, #666 75%);-moz-background-size: 2px 2px;background-size: 2px 2px;-webkit-background-size: 2px 2.1px; /* override value for webkit */background-position: 0 0, 1px 0, 1px -1px, 0px 1px;}.qui .tabbar .brouhaha.selected {/* background: rgb(255,214,94); Old browsersbackground: -moz-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%, rgba(254,191,4,1) 100%); FF3.6+background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,214,94,1)), color-stop(100%,rgba(254,191,4,1))); Chrome,Safari4+background: -webkit-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Chrome10+,Safari5.1+background: -o-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); Opera 12+background: -ms-radial-gradient(center, ellipse cover,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); IE10+background: radial-gradient(ellipse at center,  rgba(255,214,94,1) 0%,rgba(254,191,4,1) 100%); W3Cfilter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd65e', endColorstr='#febf04',GradientType=1 ); IE6-9 fallback on horizontal gradient */}.qui .tabbar .brouhaha.unselected {/* background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%),-moz-linear-gradient(-45deg, #666 25%, transparent 25%),-moz-linear-gradient(45deg, transparent 75%, #666 75%),-moz-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)),-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)),-webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)),-webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%),-webkit-linear-gradient(-45deg, #666 25%, transparent 25%),-webkit-linear-gradient(45deg, transparent 75%, #666 75%),-webkit-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%),-o-linear-gradient(-45deg, #666 25%, transparent 25%),-o-linear-gradient(45deg, transparent 75%, #666 75%),-o-linear-gradient(-45deg, transparent 75%, #666 75%);background-image: linear-gradient(45deg, #666 25%, transparent 25%),linear-gradient(-45deg, #666 25%, transparent 25%),linear-gradient(45deg, transparent 75%, #666 75%),linear-gradient(-45deg, transparent 75%, #666 75%);-moz-background-size: 2px 2px;background-size: 2px 2px;-webkit-background-size: 2px 2.1px; override value for webkitbackground-position: 0 0, 1px 0, 1px -1px, 0px 1px; */}.qui .tabbar .selected.tab {background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_selected", "ffffff", "c", options)))
-    + ";\r\nborder: 1px solid ";
+    + ";border: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_border", "c8d2dc", "c", options)))
-    + ";\r\n-moz-border-radius: 4px;\r\n-webkit-border-radius: 4px;\r\ncolor: ";
+    + ";-moz-border-radius: 4px;-webkit-border-radius: 4px;color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .buttons {\r\ndisplay: none;\r\n}\r\n\r\n.qui.signed-in .buttons {\r\ndisplay: inline-block;\r\ncursor: pointer;\r\n}\r\n\r\n.buttons span {\r\nvertical-align: middle;\r\ndisplay: inline-block;\r\n}\r\n\r\n/* tab stuff */\r\n\r\n/*irc input stuff*/\r\n.qui form.input {\r\nbackground-color: ";
+    + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui form.input {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";\r\nmargin: 0;\r\n}\r\n\r\n.qui .input div {\r\nborder-top: 1px solid ";
+    + ";margin: 0;}.qui .input div {border-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";\r\npadding: 0 5px 1px;\r\nmargin: 0;\r\nwidth: 100%;\r\n}\r\n\r\n.qui .input div > .input-group-addon {\r\ncursor:pointer;cursor:hand;\r\npadding: 2px 5px;\r\n}\r\n\r\n.qui .input div > * {\r\nheight: 24px;\r\n}\r\n\r\n.qui .input .nickname {\r\ncolor: #524F50;\r\nfont-size: 14px;\r\n}\r\n\r\n.qui .input .nickname .status {\r\nborder-radius: 50%;\r\ndisplay: inline-block;\r\nmargin-right: 3px;\r\n}\r\n\r\n.qui .input .nickname:hover {\r\n\r\n}\r\n\r\n.qui .input .nickname .status.voice {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: rgb(223, 187, 47);\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.qui .input .nickname .status.op {\r\nwidth: 8px;\r\nheight: 8px;\r\nbackground-color: #7AE60E;\r\nbackground-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nbackground-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);\r\nanimation-name: spin;\r\nanimation-duration: 3s;\r\nanimation-iteration-count: infinite;\r\nanimation-timing-function: linear;\r\n-webkit-animation-name: spin;\r\n-webkit-animation-duration: 3s;\r\n-webkit-animation-iteration-count: infinite;\r\n-webkit-animation-timing-function: linear;\r\n-moz-animation-name: spin;\r\n-moz-animation-duration: 3s;\r\n-moz-animation-iteration-count: infinite;\r\n-moz-animation-timing-function: linear;\r\n-o-animation-name: spin;\r\n-o-animation-duration: 3s;\r\n-o-animation-iteration-count: infinite;\r\n-o-animation-timing-function: linear;\r\n}\r\n\r\n.qui .input .input-field {\r\nborder: 1px solid ";
+    + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .nickname:hover {}.qui .input .nickname .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .nickname .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n.qui .input .tt-hint {\r\nbackground-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);\r\nbackground-image: -webkit-gradient(\r\nlinear,\r\nleft bottom,\r\nleft top,\r\ncolor-stop(0.54, rgb(235,235,232)),\r\ncolor-stop(0.66, rgb(247,250,240))\r\n);\r\npadding: 0;\r\nheight: 26px;\r\ntext-indent: 5px;\r\n}\r\n\r\n/*twitter typeahead inspired autocomplete using overlay input box*/\r\n.qui .tt-hint {\r\nposition: absolute;\r\ntop: 0px;\r\nleft: 0px;\r\nborder-color: transparent;\r\nbox-shadow: none;\r\ncolor: #BDBDBD;\r\n}\r\n\r\n.qui .tt-query {\r\nposition: relative;\r\nvertical-align: top;\r\nbackground-color: transparent;\r\n}\r\n/*typeahead*/\r\n\r\n.qui .input .btn.send {\r\ncolor: grey;\r\npadding: 2px 10px;\r\n}\r\n\r\n.qui .nicklist {\r\nborder-left: 1px solid ";
+    + ";padding: 0;height: 26px;text-indent: 5px;}.qui .input .tt-hint {background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.54, rgb(235,235,232)),color-stop(0.66, rgb(247,250,240)));padding: 0;height: 26px;text-indent: 5px;}/*twitter typeahead inspired autocomplete using overlay input box*/.qui .tt-hint {position: absolute;top: 0px;left: 0px;border-color: transparent;box-shadow: none;color: #BDBDBD;}.qui .tt-query {position: relative;vertical-align: top;background-color: transparent;}/*typeahead*/.qui .input .btn.send {color: grey;padding: 2px 10px;}.qui .nicklist {border-left: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_border", "c8d2dc", "c", options)))
-    + ";\r\nwidth: 140px;\r\noverflow: auto;\r\nbackground: ";
+    + ";width: 140px;overflow: auto;background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";\r\ncolor: ";
+    + ";color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "nicklist_text", "000000", "c", options)))
-    + ";\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .nicklist .user, .qui .nicklist .menu span {\r\ndisplay: block;\r\ncolor: black;\r\ntext-decoration: none;\r\ncursor: default;\r\nborder-top: 1px solid ";
+    + ";font-size: 0.7em;}.qui .nicklist .user, .qui .nicklist .menu span {display: block;color: black;text-decoration: none;cursor: default;border-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";\r\nborder-bottom: 1px solid ";
+    + ";border-bottom: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";\r\npadding-left: 1px;\r\n}\r\n\r\n.qui .nicklist .selected {\r\ndisplay: block;\r\ncolor: black;\r\nbackground: white;\r\ntext-decoration: none;\r\nborder-bottom: ";
+    + ";padding-left: 1px;}.qui .nicklist .selected {display: block;color: black;background: white;text-decoration: none;border-bottom: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
-    + " 1px solid;\r\ncursor: default;\r\n}\r\n\r\n.qui .nicklist .selected-middle {\r\nborder-top: ";
+    + " 1px solid;cursor: default;}.qui .nicklist .selected-middle {border-top: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
-    + " 1px solid;\r\n}\r\n\r\n#noscript {\r\ntext-align: center;\r\nfont-weight: bold;\r\n}\r\n\r\n.qui .nicklist .menu {\r\nmargin: 0 0 0 5px;\r\n}\r\n\r\n.qui .nicklist .menu a {\r\nborder-bottom: 0;\r\nborder-top: 0;\r\n}\r\n\r\n.hyperlink-whois, .hyperlink-channel {\r\ncursor: pointer;\r\ncursor: hand;\r\n}\r\n\r\n.hyperlink-whois:hover, .hyperlink-channel:hover {\r\ntext-decoration: underline;\r\n}\r\n\r\n.qui .outertabbar .dropdown-tab {\r\ncursor: pointer; cursor: hand;\r\ndisplay: inline-block;\r\npadding-left: 4px;\r\nwidth: 30px;\r\n}\r\n\r\n.qui .dropdownmenu {\r\nz-index: 100;\r\nborder: 1px solid ";
+    + " 1px solid;}#noscript {text-align: center;font-weight: bold;}.qui .nicklist .menu {margin: 0 0 0 5px;}.qui .nicklist .menu a {border-bottom: 0;border-top: 0;}.hyperlink-whois, .hyperlink-channel {cursor: pointer;cursor: hand;}.hyperlink-whois:hover, .hyperlink-channel:hover {text-decoration: underline;}.qui .outertabbar .dropdown-tab {cursor: pointer; cursor: hand;display: inline-block;padding-left: 4px;width: 30px;}.qui .dropdownmenu {z-index: 100;border: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
-    + ";\r\nbackground: ";
+    + ";background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";\r\nlist-style: none;\r\npadding: 5px 10px;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .dropdownmenu a {\r\ncolor: black;\r\ncursor: pointer;\r\ncursor: hand;\r\npadding-top: 3px;\r\n}\r\n\r\n.qui .dropdownmenu a:hover {\r\nbackground: ";
+    + ";list-style: none;padding: 5px 10px;font-size: 0.7em;}.qui .dropdownmenu a {color: black;cursor: pointer;cursor: hand;padding-top: 3px;}.qui .dropdownmenu a:hover {background: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_hover_background", "FFFE", "c", options) : helperMissing.call(depth0, "$css", "menu_hover_background", "FFFE", "c", options)))
-    + ";\r\n}\r\n\r\n.qui .dropdownhint {\r\nposition: relative;\r\nleft: -500px;\r\nz-index: 10;\r\nwhite-space: nowrap;\r\nfont-size: 0.7em;\r\n}\r\n\r\n.qui .chanmenu {\r\nwidth: 150px;\r\n}\r\n\r\n.qui .chanmenu .hint {\r\nfloat: right;\r\nfont-size: 75%;\r\ncolor: grey;\r\n}\r\n\r\n.qui hr.lastpos {\r\nborder: none;\r\nborder-top: 1px solid ";
+    + ";}.qui .dropdownhint {position: relative;left: -500px;z-index: 10;white-space: nowrap;font-size: 0.7em;}.qui .chanmenu {width: 150px;}.qui .chanmenu .hint {float: right;font-size: 75%;color: grey;}.qui hr.lastpos {border: none;border-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lastpositionbar", "C8D2DC", "c", options) : helperMissing.call(depth0, "$css", "lastpositionbar", "C8D2DC", "c", options)))
-    + ";\r\nmargin: .5em 3em;\r\n}\r\n\r\n.qwebirc-init-channels {\r\nfont-size: 95%;\r\ncolor: #928D8D;\r\ntext-align: center;\r\n}";
+    + ";margin: .5em 3em;}.qwebirc-init-channels {font-size: 95%;color: #928D8D;text-align: center;}";
   return buffer;
   });
 
@@ -11552,22 +11512,22 @@ function program1(depth0,data) {
   return "hidden";
   }
 
-  buffer += "<div class=\"container center\">\r\n<form id=\"login\">\r\n<h2>Connect to ";
+  buffer += "<div class=\"container center\"><form id=\"login\"><h2>Connect to ";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " IRC</h2>\r\n<div class=\"nick right\">\r\n<label class=\"control-label\" for=\"nickname\">Nickname:\r\n<input type=\"text\" name=\"basic\" id=\"nickname\" value=\"";
+    + " IRC</h2><div class=\"nick right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" name=\"basic\" id=\"nickname\" value=\"";
   if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\" placeholder=\"Nickname\" />\r\n</label>\r\n</div>\r\n<div class=\"username right ";
+    + "\" placeholder=\"Nickname\" /></label></div><div class=\"username right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\">\r\n<label class=\"control-label\" for=\"username\">";
+  buffer += "\"><label class=\"control-label\" for=\"username\">";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " username:\r\n<input type=\"text\" name=\"full\" id=\"username\" value=\"";
+    + " username:<input type=\"text\" name=\"full\" id=\"username\" value=\"";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -11575,21 +11535,21 @@ function program1(depth0,data) {
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " username\">\r\n</label>\r\n</div>\r\n<div class=\"password right ";
+    + " username\"></label></div><div class=\"password right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\">\r\n<label class=\"control-label\" for=\"password\">Password:\r\n<input type=\"password\" name=\"full\" id=\"password\" value=\"";
+  buffer += "\"><label class=\"control-label\" for=\"password\">Password:<input type=\"password\" name=\"full\" id=\"password\" value=\"";
   if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\r\n</label>\r\n</div>\r\n<div class=\"authenticate\">\r\n<label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" ";
+    + "\"></label></div><div class=\"authenticate\"><label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for=\"authenticate\">\r\n</div>\r\n<div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div>\r\n</form>\r\n<div class=\"qwebirc-init-channels\"><span>";
+    + "></label for=\"authenticate\"></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div></form><div class=\"qwebirc-init-channels\"><span>";
   if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "</span></div>\r\n</div>";
+    + "</span></div></div>";
   return buffer;
   });
 
@@ -11606,10 +11566,10 @@ function program1(depth0,data) {
   else { return ''; }
   }
 
-  buffer += "<div class='chanmenu dropdownmenu'>\r\n";
+  buffer += "<div class='chanmenu dropdownmenu'>";
   stack1 = helpers.each.call(depth0, depth0.channels, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>";
+  buffer += "</div>";
   return buffer;
   });
 
@@ -11655,52 +11615,52 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + ">\r\n<label class=\"control-inline\">"
+    + "><label class=\"control-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USER_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"text\" data-id=\"nick\" placeholder=\""
+    + "<input type=\"text\" data-id=\"nick\" placeholder=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" value=\"";
   if (stack2 = helpers.nick) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.nick; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "\">\r\n</label>\r\n<label class=\"control-inline\">"
+    + "\"></label><label class=\"control-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"text\" data-id=\"msg\" placeholder=\""
+    + "<input type=\"text\" data-id=\"msg\" placeholder=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" value=\"";
   if (stack2 = helpers.msg) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
   else { stack2 = depth0.msg; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
   buffer += escapeExpression(stack2)
-    + "\">\r\n</label>\r\n<label class=\"checkbox-inline\" >"
+    + "\"></label><label class=\"checkbox-inline\" >"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" data-id=\"beep\" ";
+    + "<input type=\"checkbox\" data-id=\"beep\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.beep, options) : helperMissing.call(depth0, "check", depth0.beep, options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
+    + "></label><label class=\"checkbox-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" data-id=\"flash\" ";
+    + "<input type=\"checkbox\" data-id=\"flash\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
-    + ">\r\n</label>\r\n<!-- <label class=\"checkbox-inline\">"
+    + "></label><!-- <label class=\"checkbox-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.HIGHLIGHT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" data-id=\"highlight\" ";
+    + "<input type=\"checkbox\" data-id=\"highlight\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.highlight, options) : helperMissing.call(depth0, "check", depth0.highlight, options)))
-    + ">\r\n</label>\r\n<label class=\"checkbox-inline\">"
+    + "></label><label class=\"checkbox-inline\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MENTIONED)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" data-id=\"mentioned\" ";
+    + "<input type=\"checkbox\" data-id=\"mentioned\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.mentioned, options) : helperMissing.call(depth0, "check", depth0.mentioned, options)))
-    + ">\r\n</label> -->\r\n<label class=\"checkbox-inline\" title=\""
+    + "></label> --><label class=\"checkbox-inline\" title=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\r\n<input type=\"checkbox\" data-id=\"autoescape\" ";
+    + "<input type=\"checkbox\" data-id=\"autoescape\" ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.autoescape, options) : helperMissing.call(depth0, "check", depth0.autoescape, options)))
-    + ">\r\n</label>\r\n<input type=\"button\" value=\""
+    + "></label><input type=\"button\" value=\""
     + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DELETE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\" class=\"remove-notice btn btn-danger btn-smaller\">\r\n</div>";
+    + "\" class=\"remove-notice btn btn-danger btn-smaller\"></div>";
   return buffer;
   });
 
@@ -11717,17 +11677,16 @@ function program1(depth0,data) {
   else { return ''; }
   }
 
-  buffer += "<div class='detached-window'>\r\n<div class='header'>\r\n<span class='title'>";
+  buffer += "<div class='detached-window'><div class='header'><span class='title'>";
   if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\r\n";
+    + "</span>";
   stack1 = helpers.unless.call(depth0, depth0.base, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n";
   stack1 = self.invokePartial(partials.tabAttach, 'tabAttach', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n<div class=\"content\"></div>\r\n<div><span class=\"resize-handle ui-icon ui-icon-grip-diagonal-se\"></span></div>\r\n</div>";
+  buffer += "</div><div class=\"content\"></div><div><span class=\"resize-handle ui-icon ui-icon-grip-diagonal-se\"></span></div></div>";
   return buffer;
   });
 
@@ -11737,7 +11696,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='input'>\r\n<div class='tt-ahead input-group'>\r\n<span class='input-group-addon nickname'><span class='status ";
+  buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon nickname'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -11745,8 +11704,8 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\r\n"
-    + "\r\n<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled>\r\n<input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'>\r\n<span class='input-group-btn'>\r\n<button class='btn btn-default send' type='button'>&gt;</button>\r\n</span>\r\n</div>\r\n</div>";
+    + "</span>"
+    + "<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled><input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
   return buffer;
   });
 
@@ -11822,7 +11781,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<div class=\"hidden\">\r\n<ul class=\"main-menu dropdownmenu\">\r\n<a href=\"#options\"><li><span>Options</span></li></a>\r\n<a href=\"#embedded\"><li><span>Add webchat to your site</span></li></a>\r\n<a href=\"#privacy\"><li><span>Privacy policy</span></li></a>\r\n<a href=\"#faq\"><li><span>Frequently asked questions</span></li></a>\r\n<a href=\"#feedback\"><li><span>Submit feedback</span></li></a>\r\n<a href=\"#about\"><li><span>About qwebirc</span></li></a>\r\n</ul>\r\n</div>";
+  return "<div class=\"hidden\"><ul class=\"main-menu dropdownmenu\"><a href=\"#!options\"><li><span>Options</span></li></a><a href=\"#!embedded\"><li><span>Add webchat to your site</span></li></a><a href=\"#!privacy\"><li><span>Privacy policy</span></li></a><a href=\"#!faq\"><li><span>Frequently asked questions</span></li></a><a href=\"#!feedback\"><li><span>Submit feedback</span></li></a><a href=\"#!about\"><li><span>About qwebirc</span></li></a></ul></div>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -11831,11 +11790,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='dropdown-tab'>\r\n<img src='";
+  buffer += "<div class='dropdown-tab'><img src='";
   if (stack1 = helpers.icon) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.icon; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "' title='menu' alt='menu'>\r\n</div>";
+    + "' title='menu' alt='menu'></div>";
   return buffer;
   });
 
@@ -11869,14 +11828,14 @@ function program3(depth0,data) {
   buffer += "<a";
   stack1 = helpers['if'].call(depth0, depth0.value, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += ">\r\n<li>\r\n<span>";
+  buffer += "><li><span>";
   if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>\r\n";
+    + "</span>";
   stack1 = helpers['if'].call(depth0, depth0.hint, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</li>\r\n</a>";
+  buffer += "</li></a>";
   return buffer;
   });
 
@@ -11904,7 +11863,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<div class=\"main-menu dropdown-tab\">\r\n<img src=\"images/icon.png\" title=\"menu\" alt=\"menu\">\r\n</div>\r\n<div class=\"tabbar\"></div>\r\n<div class=\"buttons\">\r\n<span class=\"to-left ui-icon ui-icon-circle-triangle-w hidden\" name=\"tabscroll\"></span>\r\n<span class=\"to-right ui-icon ui-icon-circle-triangle-e hidden\" name=\"tabscroll\"></span>\r\n<span class=\"add-chan ui-icon ui-icon-circle-plus\" title=\"Join a channel\"></span>\r\n</div>";
+  return "<div class=\"main-menu dropdown-tab\"><img src=\"images/icon.png\" title=\"menu\" alt=\"menu\"></div><div class=\"tabbar\"></div><div class=\"buttons\"><span class=\"to-left ui-icon ui-icon-circle-triangle-w hidden\" name=\"tabscroll\"></span><span class=\"to-right ui-icon ui-icon-circle-triangle-e hidden\" name=\"tabscroll\"></span><span class=\"add-chan ui-icon ui-icon-circle-plus\" title=\"Join a channel\"></span></div>";
   });
 
 this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -11988,24 +11947,22 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
 
 function program1(depth0,data) {
   
-  var buffer = "", stack1;
-  buffer += "\r\n";
+  var stack1;
   stack1 = self.invokePartial(partials.topicText, 'topicText', depth0, helpers, partials, data);
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n";
-  return buffer;
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
   }
 
 function program3(depth0,data) {
   
   
-  return "&nbsp;\r\n";
+  return "&nbsp;";
   }
 
-  buffer += "<div class='topic qui colourline'>\r\n";
+  buffer += "<div class='topic qui colourline'>";
   stack1 = helpers['if'].call(depth0, depth0.topic, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>";
+  buffer += "</div>";
   return buffer;
   });
 
@@ -12038,18 +11995,18 @@ function program1(depth0,data) {
 this["qwebirc"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+  var buffer = "", stack1, functionType="function";
 
 
   buffer += "<span class='hyperlink-whois' data-user='";
   if (stack1 = helpers.userid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.userid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "'>";
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "'>";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "</span>";
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span>";
   return buffer;
   });
 
@@ -12069,10 +12026,9 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = "", stack1;
-  buffer += "\r\n";
   stack1 = self.invokePartial(partials.verticalDivider, 'verticalDivider', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n<div class=\"qui rightpanel\"></div>\r\n";
+  buffer += "<div class=\"qui rightpanel\"></div>";
   return buffer;
   }
 
@@ -12092,19 +12048,19 @@ function program5(depth0,data) {
   if (stack1 = helpers.name) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\r\n";
+    + "\">";
   stack1 = helpers['if'].call(depth0, depth0.isChannel, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n<div class=\"qui content\">\r\n<div class=\"qui leftpanel lines\"></div>\r\n";
+  buffer += "<div class=\"qui content\"><div class=\"qui leftpanel lines\"></div>";
   stack1 = helpers['if'].call(depth0, depth0.isChannel, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n<div class=\"qui properties\">\r\n";
+  buffer += "</div><div class=\"qui properties\">";
   stack1 = self.invokePartial(partials.channelName, 'channelName', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n<div class=\"qui bottompanel\">\r\n";
+  buffer += "</div><div class=\"qui bottompanel\">";
   stack1 = helpers['if'].call(depth0, depth0.needsInput, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\r\n</div>\r\n</div>";
+  buffer += "</div></div>";
   return buffer;
   });
 
@@ -12214,148 +12170,6 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
 ];
 
-irc.styles = [
-    {
-        name: 'normal',
-        style: '',
-        key: '\x00'
-    },
-    {
-        name: 'underline',
-        style: 'underline',
-        key: '\x1F',
-        keyregex: /\x1F(.*?)\x1F/,
-        bbcode: ['[u]', '[/u]']
-    },
-    {
-        name: 'bold',
-        style: 'bold',
-        key: '\x02',
-        keyregex: /\x02(.*?)\x02/,
-        bbcode: ['[b]', '[/b]']
-    },
-    {
-        name: 'italic',
-        style: 'italic',
-        key: '\x16',
-        keyregex: /\x16(.*?)\x16/,
-        bbcode: ['[i]', '[/i]']
-    },
-    {
-        name: 'colour',
-        style: '',//see below
-        key: '\x03',
-        fore_re: /^(\d{1,2})/,
-        back_re: /^((\d{1,2})+,+(\d{1,2}))/,
-        format: "\x03{f},{b}{t}\x03",
-        bbcode: ['[colour fore={f} back={b}]', '[/colour]']
-    }
-];
-
-//dirty but better than filtering every time?
-irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == 'normal' ||  sty.name == 'colour' } );
-irc.styles.colour = _.findWhere(irc.styles, {name: 'colour' } );
-irc.styles.normal = _.findWhere(irc.styles, {name: 'normal' } );
-
-irc.colours = [//http://www.mirc.com/colors.html
-    {
-        name: 'white',
-        fore: 'col0',
-        back: 'back0',
-        key: 0
-    },
-    {
-        name: 'black',
-        fore: 'col1',
-        back: 'back1',
-        key: 1
-    },
-    {
-        name: 'navy',
-        fore: 'col2',
-        back: 'back2',
-        key: 2
-    },
-    {
-        name: 'green',
-        fore: 'col3',
-        back: 'back3',
-        key: 3
-    },
-    {
-        name: 'red',
-        fore: 'col4',
-        back: 'back4',
-        key: 4
-    },
-    {
-        name: 'brown',
-        fore: 'col5',
-        back: 'back5',
-        key: 5
-    },
-    {
-        name: 'purple',
-        fore: 'col6',
-        back: 'back6',
-        key: 6
-    },
-    {
-        name: 'olive',
-        fore: 'col7',
-        back: 'back7',
-        key: 7
-    },
-    {
-        name: 'yellow',
-        fore: 'col8',
-        back: 'back8',
-        key: 8,
-
-    },
-    {
-        name: 'lightgreen',
-        fore: 'col9',
-        back: 'back9',
-        key: 9
-    },
-    {
-        name: 'teal',
-        fore: 'col10',
-        back: 'back10',
-        key: 10
-    },
-    {
-        name: 'cyan',
-        fore: 'col11',
-        back: 'back11',
-        key: 11
-    },
-    {
-        name: 'blue',
-        fore: 'col12',
-        back: 'back12',
-        key: 12
-    },
-    {
-        name: 'pink',
-        fore: 'col13',
-        back: 'back13',
-        key: 13
-    },
-    {
-        name: 'gray',
-        fore: 'col14',
-        back: 'back14',
-        key: 14
-    },
-    {
-        name: 'lightgrey',
-        fore: 'col15',
-        back: 'back15',
-        key: 15
-    }
-];
 irc.Numerics = {
     "001": "RPL_WELCOME",
     "004": "RPL_MYINFO",
@@ -12983,11 +12797,11 @@ var join = function(by, xs) {
 
     concatSpace = concatSep(" ");
 
-util.formatter = function(message, data) {
+util.format = util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
 };
 
-util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
+util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
     return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
         if (match.charAt(0) == '\\') return match.slice(1);
         return (object[name] != null) ? object[name] : match;
@@ -13173,7 +12987,7 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
 util.createNickRegex = _.memoize(function(nick) {
-    return new RegExp('(^|[\\s\\.,;:])' + String.escapeRegExp(nick) + '([\\s\\.,;:]|$)', "i");
+    return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
 })
 
 util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
@@ -13288,9 +13102,9 @@ util.getEnclosedWord = function(str, pos) {
 
 // NOT cryptographically secure! 
 util.randHexString = function(numBytes) {
-    var getByte = function() {
-            return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
-        };
+    function getByte() {
+        return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
+    };
 
     var l = [];
     for (var i = 0; i < numBytes; i++) {
@@ -13382,7 +13196,7 @@ util.generateID = (function() {
 
         alertNotice: "Alert!",
         activityNotice: message("Activity!", types.MISC),
-        partChan: message("Part", types.MESSAGE),
+        partChan: "Part",
         logOut: message("Logged out", types.MESSAGE),
         quit: "Page closed",
         disconnected: message("Client has been disconnected", types.INFO),
@@ -13413,7 +13227,7 @@ util.generateID = (function() {
         HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
-        // SHOW_NICKLIST: "Show nickname list in channels",
+        SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
 
@@ -13439,47 +13253,6 @@ util.generateID = (function() {
         ENABLE: 'Enable',
         DISABLE: 'Disable'
     });
-
-
-    // lang.IRC_COMMAND_HELPERS = {
-    //     "JOIN": "/JOIN <channel>",
-    //     "NICK": "/NICK <new nickname>",
-    //     "PART": "/PART <channel>",
-    //     "QUIT": "/QUIT <message>",
-    //     "TOPIC": "/TOPIC <channel> <topic>",
-    //     "AWAY": "/AWAY <message>",
-    //     "ME": "/ME <message>",
-    //     "NOTICE": "/NOTICE <message>",
-    //     "MODE": "/MODE <target(chan/user)> <mode>",
-    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
-    // };
-
-
-// ui.UI_COMMANDS = [
-//         {
-//             text: "Options",
-//             value: "optionsWindow"//ui method
-//         },
-//         {
-//             text: "Add webchat to your site",
-//             value: "embeddedWindow"
-//         },
-//         {
-//             text: "Privacy policy",
-//             value: "privacyWindow"
-//         },
-//         {
-//             text: "Frequently asked questions",
-//             value: "faqWindow"
-//         },
-//         {
-//             text: "Submit feedback",
-//             value: "feedbackWindow"
-//         },
-//         {
-//             text: "About qwebirc",
-//             value: "aboutWindow"
-//         }];
 
 })();
 
@@ -13527,7 +13300,6 @@ var Storer = (function(name, storer) {
     remove: 'dispose'
 }));*/
 
-
 ui.Behaviour = (function() {
     var behaviour = new Behavior();
     var delegator = new Delegator({
@@ -13540,7 +13312,7 @@ ui.Behaviour = (function() {
         }
     };
 })();
-
+  
 var getTemplate = util.getTemplate = function(name, cb, options) {
     /*
         Loads a template. If its already on page call callback immediately otherwise load asyncronously
@@ -13571,31 +13343,31 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
     }
     //return deferred
 };
-
+  
 util.loadTemplate = function(name) {//helper to preload a template
     var template;
     getTemplate(name, function(tmpl) {template = tmpl});
     return function() {return template.apply(this, arguments);};
 }
-
+  
 ui.setTitle = function(title, options) {
     document.title = title;
 };
-
+  
 util.setCaretPos = Element.setCaretPosition;
-
+  
 util.setAtEnd = function($el) {
     $el.setCaretPosition($el.value.length);
 };
-
+  
 util.getCaretPos = Element.getCaretPosition;
-
+  
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);
-
+  
     var start = Array.isArray(wrap) ? wrap[0] : wrap,
         end = Array.isArray(wrap) ? wrap[1] : wrap;
-
+  
     $eles.each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
@@ -13605,43 +13377,41 @@ util.wrapSelected = function($eles, wrap) {
         }
     });
 }
-
-util.percentToPixel= function(data, par) {
-    par = par || document.body;
-    var size = par.getSize();
-    return {
-        x: size.x * (data.x / 100),
-        y: size.y * (data.y / 100)
-    };
-};
-
+  
 ui.decorateDropdown = function($btn, $ddm, options) {
     options = options || {};
+    var evts = {
+        "click": hideMenu,
+        "keypress": hideMenu
+    }
     function hideMenu() {
         if(options.onHide)
             options.onHide.call(this, $ddm);
+        document.removeEvents(evts)
         return $ddm.hide();
     }
     function toggleMenu(state) {
         if(options.onShow)
             options.onShow.call(this, $ddm);
-
+  
         if (state===true || !$ddm.isDisplayed()) {
             $ddm.show();
-            document.addEvent("click:once", hideMenu);
+            document.addEvents(evts);
         } else {
            hideMenu();
         }
         return $ddm;
     }
-
+  
     $ddm.store("toggle", toggleMenu)
         .position.delay(50, $ddm, {
             relativeTo: $btn,
             position: {x: 'left', y: 'bottom'},
             edge: {x: 'left', y: 'top'}
         });
-
+  
+    if($ddm.isDisplayed()) document.addEvents(evts);
+  
     if(options.btnlistener) {
         $btn.addEvent("click", function(e) {
             e.stop();
@@ -13650,32 +13420,96 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     }
     return options.autohide ? hideMenu() : $ddm;
 };
-
+  
 //dirty function please help with css :(
 //dir can be 'width' 'height'
 util.fillContainer = function ($ele, options) {
     options = Object.append({style: ['width'], offset: 20}, options);
-
+  
     var filler = function() {
         var size = $ele.getSize();
-
+  
         Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
             var method = style.contains('width') ? 'x' : 'y',
                 offset = options.offset;
-
+  
             $ele.getSiblings()
                 .each(function(sib) {
                     offset += sib.getSize()[method];
                 });
-
-            $ele.setStyle(style, "calc(100% - " + offset + "px)");
+  
+            util.calc($ele, style, "100% - " + offset + "px");
         });
     }
-
+  
     _.delay(filler, 20);
     return $ele;
 };
 
+
+//http://caniuse.com/#feat=calc
+Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
+                            (Browser.firefox && Browser.version >= 4) ||
+                            (Browser.chrome && Browser.version >= 19) ||
+                            (Browser.opera && Browser.version >= 15) ||
+                            (Browser.safari && Browser.version > 6));
+
+util.percentToPixel= function(data, par) {
+    par = par || $(document.body);
+    var size = par.getSize();
+    return {
+        x: size.x * (data.x * .01),
+        y: size.y * (data.y * .01)
+    };
+};
+
+//https://gist.github.com/megawac/6525074
+util.calc = function($ele, style, val) {
+    // val = val.replace(/(\(|\))/g, "");
+	//simple css calc function polyfill
+	//polyfill expects surrounded by brackets <val><unit> <operator> <val><unit> => "33% - 20px + 1em"
+    //does not support things like "50%/3 - 5px"
+	if(Browser.Features.calc) {
+		val = "calc(" + val + ")";
+		$ele.setStyle(style, val)
+			.setStyle(style, "-moz-" + val)
+			.setStyle(style, "-webkit-" + val);
+	} else {
+        var old = $ele.retrieve("calc"); 
+        if(old) {window.removeEvent("resize", old);}
+		var split = val.split(" ");
+		var op = split.splice(1,1);
+        var resize = function() {
+            var expr = val.replace(/(\d+)(\S+)/g, function(match, size, unit) {
+                size = size.toFloat();
+                switch (unit) {//unit
+                case "%":
+                    var data = {};
+                    var dir = style.contains("width") ? "x" : "y";
+                    data[dir] = size;
+                    return util.percentToPixel(data, $ele.getParent())[dir].round(3);
+                case "em":
+                    var fsize = $ele.getStyle("font-size").toFloat();
+                    return fsize * size;
+                // case "px":
+                default:
+                    return size;
+                }
+            });
+            var size = eval(expr);
+            $ele.setStyle(style, size);
+            return resize;
+        };
+        window.addEvent("resize", resize);
+        // $ele.addEvents({
+        //     adopt: resize,
+        //     disown: resize
+        // });
+        $ele.store("calc", resize);
+        return resize();
+	}
+};
+  
 util.elementAtScrollPos = function($ele, pos, dir, offset) {
     dir = (dir || 'width').capitalize();
     offset = offset || 10;
@@ -13688,8 +13522,7 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
         }
     });
     return $res;
-};
-
+}; 
 
 (function() {
 
@@ -13699,7 +13532,7 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
-var channame_re = /(#|>)[\s\S]*(?=\/)/,
+var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
     chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
@@ -13860,6 +13693,65 @@ irc.NicknameValidator = new Class({
 });
 
 
+//commands are substituted by util.formatter. Please make sure they are the correct command for your server
+//eg : https://www.quakenet.org/help/q-commands
+config.IRC_COMMANDS = { //maybe make these templates?
+    "ACTION": {
+        command: "PRIVMSG {target} :\x01ACTION {text}\x01"
+    },
+    "CTCP": {
+        command: "PRIVMSG {target} :\x01{type} {text} \x01"
+    },
+    "PRIVMSG": {
+        command: "PRIVMSG {target} :{message}"
+    },
+    "JOIN": {
+        command: "JOIN {channel} {args}"
+    },
+    "NICK": {
+        command: "NICK {nick}"
+    },
+    "PART": {
+        command: "PART {channel} :{message}"
+    },
+    "QUIT": {
+        command: "QUIT :{message}"
+    },
+    "TOPIC": {
+        command: "TOPIC {channel} :{topic}"
+    },
+    "AWAY": {
+        command: "AWAY :{message}"
+    },
+    "NOTICE": {
+        command: "NOTICE {target} :{message}"
+    },
+    "MODE": {
+        command: "MODE {nick} {mode} {args}"
+    },
+    "AUTH": {
+        command: "AUTHSERV AUTH {username} {password}"
+    },
+    "KICK": {
+        command: "KICK {channel} {kickee} :{message}"
+    }
+};
+
+config.COMMAND_ALIAS = {
+    "J": "JOIN",
+    "P": "PART",
+    "MESSAGE": "PRIVMSG",
+    "M": "PRIVMSG",
+    "MSG": "PRIVMSG",
+    "PM": "PRIVMSG",
+    // "SAY": "PRIVMSG",
+    "Q": "QUERY",
+    "BACK": "AWAY",
+    "PRIVACY": "PRIVACYPOLICY",
+    "HOP": "CYCLE",
+    "SLAP": "ME"
+};
+
 config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
@@ -13872,7 +13764,7 @@ config.OptionModel = new Class({
             "nick_colours": false,
             "hide_joinparts": false,
             "query_on_nick_click": true,
-            // "show_nicklist": true,
+            "show_nicklist": !Browser.isMobile,
             "show_timestamps": true,
             "font_size": 12,
             "volume": 10, //0-10
@@ -13925,19 +13817,161 @@ config.OptionModel = new Class({
 });
 
 
-ui.themes.ThemeControlCodeMap2 = {
+irc.styles = [
+    {
+        name: 'normal',
+        style: '',
+        key: '\x00'
+    },
+    {
+        name: 'underline',
+        style: 'underline',
+        key: '\x1F',
+        keyregex: /\x1F(.*?)\x1F/,
+        bbcode: ['[u]', '[/u]']
+    },
+    {
+        name: 'bold',
+        style: 'bold',
+        key: '\x02',
+        keyregex: /\x02(.*?)\x02/,
+        bbcode: ['[b]', '[/b]']
+    },
+    {
+        name: 'italic',
+        style: 'italic',
+        key: '\x16',
+        keyregex: /\x16(.*?)\x16/,
+        bbcode: ['[i]', '[/i]']
+    },
+    {
+        name: 'colour',
+        style: '',//see below
+        key: '\x03',
+        fore_re: /^(\d{1,2})/,
+        back_re: /^((\d{1,2})+,+(\d{1,2}))/,
+        format: "\x03{f},{b}{t}\x03",
+        bbcode: ['[colour fore={f} back={b}]', '[/colour]']
+    }
+];
+
+//dirty but better than filtering every time?
+irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == 'normal' ||  sty.name == 'colour' } );
+irc.styles.colour = _.findWhere(irc.styles, {name: 'colour' } );
+irc.styles.normal = _.findWhere(irc.styles, {name: 'normal' } );
+
+irc.colours = [//http://www.mirc.com/colors.html
+    {
+        name: 'white',
+        fore: 'col0',
+        back: 'back0',
+        key: 0
+    },
+    {
+        name: 'black',
+        fore: 'col1',
+        back: 'back1',
+        key: 1
+    },
+    {
+        name: 'navy',
+        fore: 'col2',
+        back: 'back2',
+        key: 2
+    },
+    {
+        name: 'green',
+        fore: 'col3',
+        back: 'back3',
+        key: 3
+    },
+    {
+        name: 'red',
+        fore: 'col4',
+        back: 'back4',
+        key: 4
+    },
+    {
+        name: 'brown',
+        fore: 'col5',
+        back: 'back5',
+        key: 5
+    },
+    {
+        name: 'purple',
+        fore: 'col6',
+        back: 'back6',
+        key: 6
+    },
+    {
+        name: 'olive',
+        fore: 'col7',
+        back: 'back7',
+        key: 7
+    },
+    {
+        name: 'yellow',
+        fore: 'col8',
+        back: 'back8',
+        key: 8
+    },
+    {
+        name: 'lightgreen',
+        fore: 'col9',
+        back: 'back9',
+        key: 9
+    },
+    {
+        name: 'teal',
+        fore: 'col10',
+        back: 'back10',
+        key: 10
+    },
+    {
+        name: 'cyan',
+        fore: 'col11',
+        back: 'back11',
+        key: 11
+    },
+    {
+        name: 'blue',
+        fore: 'col12',
+        back: 'back12',
+        key: 12
+    },
+    {
+        name: 'pink',
+        fore: 'col13',
+        back: 'back13',
+        key: 13
+    },
+    {
+        name: 'gray',
+        fore: 'col14',
+        back: 'back14',
+        key: 14
+    },
+    {
+        name: 'lightgrey',
+        fore: 'col15',
+        back: 'back15',
+        key: 15
+    }
+];
+
+config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
     "B": util.getStyleByName('bold').key,
     "U": util.getStyleByName('underline').key,
     "O": irc.styles.colour.key,
-    "D": irc.styles.normal.key,
+    "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
     "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
     "CN": templates.userlink({'userid':'{newnick}', 'username': '{newnick}'}),// change nick
     "P": "{C}4=={O} "
 };
 
-ui.themes.Default2 = {
+config.ThemeIRCTemplates = {
     "SIGNON": "{P}Signed on!",
     "CONNECT": "{P}Connected to server - establishing IRC connection.",
 
@@ -13967,11 +14001,11 @@ ui.themes.Default2 = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}<{@}{(}{N}>{)}{D} {m}",
-    "PRIVMSG": "{(}<{N}>{)} {m}",
+    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
+    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
 
-    "OURCHANMSG": "<{@}{N}> {m}",
-    "OURPRIVMSG": "<{N}> {m}",
+    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
+    "OURPRIVMSG": "&lt;{N}&gt; {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",
@@ -14006,6 +14040,11 @@ ui.themes.Default2 = {
     "CHANNELCREATIONTIME": "{P}Channel {c} was created at: {m}",
     "CHANNELMODEIS": "{P}Channel modes on {c} are: {m}"
 };
+(function() {
+    var cmd = config.IRC_COMMANDS;
+    var format = function(command, data) {
+        return util.format(command.command, data);
+    };
 
 irc.CommandHistory = new Class({
     Extends: Epitome.Model.Storage,
@@ -14189,25 +14228,26 @@ ui.AuthLogin = function(e) {
 };
 
 
+(function() {
+    function genericError(prefix, params) {
+        var target = params[1],
+            message = params.getLast();
+
+        this.genericError(target, message);
+        return true;
+    }
+    function genericQueryError(prefix, params) {
+        var target = params[1],
+            message = params.getLast();
+
+        this.genericQueryError(target, message);
+        return true;
+    }
+
 //base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
 irc.BaseIRCClient = new Class({
     Implements: [Options, Events],
     Binds: ["lostConnection", "send", "connected", "retry", "ndispatch", "tdispatch"],
-
-    options: {
-        nickname: "qwebirc",
-        specialUserActions: []
-    },
-    __signedOn: false,
-    channels: {},
-    nextctcp: 0,
-    pmodes: {
-        b: irc.PMODE_LIST,
-        l: irc.PMODE_SET_ONLY,
-        k: irc.PMODE_SET_UNSET,
-        o: irc.PMODE_SET_UNSET,
-        v: irc.PMODE_SET_UNSET
-    },
 
     toIRCLower: irc.RFC1459toIRCLower,//default text codec
 
@@ -14241,25 +14281,12 @@ irc.BaseIRCClient = new Class({
             });
             self.connection.addEvent("recv", self.tdispatch);
         }
-
-        self.setupGenericErrors();
     },
 
     trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
+        if(!data) data = {};
         data["-"] = this.nickname;
         return this.fireEvent(type, [type, data]);
-    },
-
-    connected: function() {
-    },
-
-    connect: function() {
-        return this.connection.connect();
-    },
-
-    disconnect: function() {
-        this.send("QUIT :" + (message || lang.quit), true);
-        return this.connection.disconnect();
     },
 
     isConnected: function() {
@@ -14377,31 +14404,29 @@ irc.BaseIRCClient = new Class({
         return c;
     },
 
-    canJoinChannel: function(c) {
-        return true;
-    },
+    canJoinChannel: $lambda(true),
 
     irc_RPL_WELCOME: function(prefix, params) {
         var self = this;
         self.nickname = params[0];
         self.lowerNickname = self.toIRCLower(self.nickname);
         self.signedOn(self.nickname);
-        (function() {
+        _.delay(function() {
             self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
-        }).delay(2000);
+        }, 2000);
     },
 
-    irc_ERR_NICKNAMEINUSE: function(prefix, params) {
-        this.genericError(params[1], params.getLast().replace("in use.", "in use")); //................... fix the program not the 
+    irc_ERR_NICKNAMEINUSE: function(prefix, params) {//add some number to the nick and resend
+        this.genericError(params[1], params.getLast());
 
         if (this.__signedOn) {
             return true;
         }
 
         var nick = params[1],
-            newnick = nick + Number.random(1, 1000);
+            newnick = nick + Number.random(0, 9);
 
-        this.send("NICK " + newnick);
+        this.send(format(cmd.NICK, {nick: newnick}));
         this.lastnick = newnick;
         return true;
     },
@@ -14466,7 +14491,6 @@ irc.BaseIRCClient = new Class({
 
     irc_PING: function(prefix, params) {
         this.send("PONG :" + params.getLast());
-
         return true;
     },
 
@@ -14515,7 +14539,11 @@ irc.BaseIRCClient = new Class({
                 var t = Date.now() / 1000;
                 if (t > this.nextctcp) { //too quick? why not just a buffer?
                     var repctcp = replyfn(ctcp[1]);
-                    this.send("NOTICE " + util.hostToNick(user) + " :\x01" + type + " " + repctcp + "\x01");
+                    this.send(format(cmd.CTCP, {
+                        target: util.hostToNick(user),
+                        type: type,
+                        text: repctcp
+                    }));
                 }
                 this.nextctcp = t + 5;
             }
@@ -14538,15 +14566,15 @@ irc.BaseIRCClient = new Class({
     irc_NOTICE: function(host, params) {
         var user = util.hostToNick(host),
             target = params[0],
-            message = params.getLast();
+            message = params.getLast(),
+            options = this.options,
+            isNetworkService = options.networkServices.contains(host);
 
-        //call functions for particular users
-        //expects only one per user     
-        this.options.specialUserActions.some(function(fn) {
-            fn.call(this, user, message, target, this);
-        }, this);
+        if(isNetworkService && options.loginRegex.test(message)) {
+            this.authEvent();
+        }
 
-        if ((user === "") || user.contains("!") || this.options.networkServices.contains(host)) {
+        if (isNetworkService || user == "" || user.contains("!")) {
             this.serverNotice(host, message, target);
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
@@ -14667,9 +14695,7 @@ irc.BaseIRCClient = new Class({
         }
     },
 
-    irc_RPL_TOPICWHOTIME: $lambda(true),/*function(prefix, params) {
-        return true; //...
-    },*/
+    irc_RPL_TOPICWHOTIME: $lambda(true),
 
     irc_RPL_WHOISUSER: function(prefix, params) {
         var nick = params[1];
@@ -14780,27 +14806,13 @@ irc.BaseIRCClient = new Class({
         return this.whois(nick, "end", {});
     },
 
-    irc_genericError: function(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
+    irc_genericError: genericError,
+    irc_ERR_CHANOPPRIVSNEEDED: genericError,
+    irc_ERR_CANNOTSENDTOCHAN: genericError,
 
-        this.genericError(target, message);
-        return true;
-    },
+    irc_genericQueryError: genericQueryError,
 
-    irc_genericQueryError: function(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
-
-        this.genericQueryError(target, message);
-        return true;
-    },
-
-    setupGenericErrors: function() {
-        this.irc_ERR_CHANOPPRIVSNEEDED = this.irc_ERR_CANNOTSENDTOCHAN = this.irc_genericError;
-        this.irc_ERR_NOSUCHNICK = this.irc_genericQueryError;
-        return true;
-    },
+    irc_ERR_NOSUCHNICK: genericQueryError,
 
     irc_RPL_AWAY: function(prefix, params) {
         var nick = params[1],
@@ -14867,16 +14879,14 @@ irc.BaseIRCClient = new Class({
         this.trigger("listend", this.listedChans);
         return !this.hidelistout;
     }
+})
+})();
 
-});
-
-
-
-irc.BaseCommandParser = new Class({
+irc.Commands = new Class({
     Binds: ["dispatch"],
     initialize: function(parentObject) {
         this.parentObject = parentObject;
-        this.send = this.parentObject.send;
+        this.send = parentObject.send;
     },
 
     buildExtra: function(extra, target, message) {
@@ -14894,6 +14904,8 @@ irc.BaseCommandParser = new Class({
         return this.parentObject.trigger(type, data);
     },
 
+    format: format,
+
     // routes all outputs with the server
     // this method will call functions in: Commands based on the this scope
     dispatch: function(line, chan) {
@@ -14904,7 +14916,7 @@ irc.BaseCommandParser = new Class({
         //is it clearer to use a do-while? - anyway allargs var will change each loop
         for (var command, args, cmdopts, activewin, splitargs, minargs, fn, win; $defined(allargs); ) {
             command = allargs[0].toUpperCase();
-            command = irc.commandAliases[command] || command;
+            command = config.COMMAND_ALIAS[command] || command;
             args = allargs[1];
 
             cmdopts = self["cmd_" + command];//comand handler
@@ -14915,10 +14927,10 @@ irc.BaseCommandParser = new Class({
             }
 
             //props from on of the command arrays
-            activewin = cmdopts[0];
-            splitargs = cmdopts[1];
-            minargs = cmdopts[2];
-            fn = cmdopts[3];
+            // activewin = cmdopts[0];
+            // splitargs = cmdopts[1];
+            // minargs = cmdopts[2];
+            // fn = cmdopts[3];
 
            /* //errors in command
             win = chan ? par.windows[chan] : self.getActiveWindow();
@@ -14926,264 +14938,389 @@ irc.BaseCommandParser = new Class({
                 par.writeMessages(lang.invalidCommand);
                 break;
             }
-            else */if (minargs && ((args && (minargs > args.length)) || (!args && (minargs > 0)))) {
-                par.writeMessages(lang.insufficentArgs);
+            else */if (cmdopts.minargs && cmdopts.minargs > _.size(args)) {
+                par.writeMessages(lang.insufficentArgs, {}, {
+                    channel: chan
+                });
                 break;
             }
-            else if (splitargs && args) {
-                args = args.splitMax(" ", splitargs);
+            else if (cmdopts.splitargs && args) {
+                args = args.splitMax(" ", cmdopts.splitargs);
             }
 
-            allargs = fn.call(self, args, chan);
-            // allargs = fn.run(Array.from(args), this);
+            allargs = cmdopts.fn.call(self, args, chan);
         }
-    }
-});
+    },
 
-//can probably out source a lot of these to constants and helpers
-//placing arrays on the prototype looks really fucking weird
-// maybe just make this a single dictionary?
-irc.Commands = new Class({
-    Extends: irc.BaseCommandParser,
 
-    /* [require_active_window, splitintoXargs, minargs, function] */
-    cmd_ME: [true, undefined, undefined, function(args, target) {
-        args = args || "";
-
-        target = target || this.getActiveWindow().currentChannel;
-        if (!this.send("PRIVMSG " + target + " :\x01ACTION " + args + "\x01"))
-            return;
-
-        var nick = this.parentObject.nickname;
-        this.trigger("privAction", {
-            'nick': nick,
-            'message': args,
-            'target': target,
-            'channel': target,
-            "@": this.parentObject.getNickStatus(target, nick)
-        });
-    }],
-
-    cmd_CTCP: [false, 3, 2, function(args) {
-        var target = args[0],
-            type = args[1].toUpperCase(),
-            message = args[2] || "";
-
-        if (this.send("PRIVMSG " + target + " :\x01" + type + " " + util.padspace(message) + "\x01")) {
-            this.trigger("privCTCP", {
-                'nick': this.parentObject.nickname,
-                '_type': type,
-                'message': message,
-                'args': args,
-                'type': 'CTCPReply'
-            });
-        }
-    }],
-
-    cmd_PRIVMSG: [false, 2, 2, function(args) {
-        var target = args[0];
-        var message = args[1];
-        var parentObj = this.parentObject;
-        var nick = parentObj.nickname;
-
-        if (!util.isChannel(target)) {
-            parentObj.pushLastNick(target);
-
-            this.trigger("query", {
-                'nick': nick,
-                'channel': target,
-                'message': message,
-                'type': 'ourprivmsg'
-            });
-        }
-
-        if (this.send("PRIVMSG " + target + " :" + message)){
-            this.trigger("chanMessage", {
-                'nick': nick,
-                'channel': target,
-                'message': message,
-                'type': 'chanmsg',
-                "@": parentObj.getNickStatus(target, nick)
-            });
-        }
-    }],
-
-    cmd_NOTICE: [false, 2, 2, function(args) {
-        var target = args[0];
-        var message = args[1];
-
-        if (this.send("NOTICE " + target + " :" + message)) {
-            this.trigger("chanNotice", {
-                'nick': this.parentObject.nickname,
-                'channel': target,
-                'target': target,
-                'message': message
-            });
-        }
-    }],
-
-    cmd_QUERY: [false, 2, 1, function(args) {
-        var target = args[0],
-            message = args[1];
-        if (util.isChannel(target)) {
-            return this.writeMessages(lang.invalidChanTarget);
-        }
-
-        // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
-        if(this.send("PRIVMSG " + target + " :" + message)) {
-            this.trigger("query", {
-                'nick': this.parentObject.nickname,
-                'channel': target,
-                'message': message,
-                'type': 'privmsg'
-            });
-        }
-    }],
-
-    cmd_SAY: [true, undefined, undefined, function(msg, target) {
-        return ["PRIVMSG", (target || this.getActiveWindow().currentChannel) + " " + (msg || "")];
-    }],
-
-    cmd_LOGOUT: [false, undefined, undefined, function(args) {
-        this.parentObject.ui.logout();
-    }],
-
-    cmd_OPTIONS: [false, undefined, undefined, function(args) {
-        this.trigger("openWindow", {
-            'window': "optionsWindow",
-            'type': ui.WINDOW.custom
-        });
-    }],
-
-    cmd_EMBED: [false, undefined, undefined, function(args) {
-        this.trigger("openWindow", {
-            'window': "embeddedWindow",
-            'type': ui.WINDOW.custom
-        });
-    }],
-
-    cmd_PRIVACYPOLICY: [false, undefined, undefined, function(args) {
-        this.trigger("openWindow", {
-            'window': "privacyWindow",
-            'type': ui.WINDOW.custom
-        });
-    }],
-
-    cmd_ABOUT: [false, undefined, undefined, function(args) {
-        this.trigger("openWindow", {
-            'window': "aboutWindow",
-            'type': ui.WINDOW.custom
-        });
-    }],
-
-    cmd_QUOTE: [false, 1, 1, function(args) {
-        this.send(args[0]);
-    }],
-
-    cmd_KICK: [true, 2, 1, function(args, channel) {
-        channel = channel || this.getActiveWindow().currentChannel;
-
-        var target = args[0];
-        var message = args.length >= 2 ? args[1] : "";
-
-        this.send("KICK " + channel + " " + target + " :" + message);
-    }],
-
-    automode: function(direction, mode, args, channel) {
-        channel = channel || this.getActiveWindow().currentChannel;
-
-        var modes = direction;
-
+    automode: function(modes, mode, args, channel) {
         args.length.times(function() {
             modes += mode;
         });
-
-        this.send("MODE " + channel + " " + modes + " " + args.join(" "));
+        this.send(format(cmd.MODE, {
+            nick: channel,
+            mode: modes,
+            args: args.join(" ")
+        }));
     },
 
-    cmd_OP: [true, 6, 1, function(args) {
-        this.automode("+", "o", args);
-    }],
-    cmd_DEOP: [true, 6, 1, function(args) {
-        this.automode("-", "o", args);
-    }],
-    cmd_VOICE: [true, 6, 1, function(args) {
-        this.automode("+", "v", args);
-    }],
-    cmd_DEVOICE: [true, 6, 1, function(args) {
-        this.automode("-", "v", args);
-    }],
-    cmd_TOPIC: [true, 1, 1, function(args, channel) {
-        this.send("TOPIC " + (channel || this.getActiveWindow().currentChannel) + " :" + args[0]);
-    }],
-    cmd_AWAY: [false, 1, 0, function(args) {
-        this.send("AWAY :" + (args ? args[0] : ""));
-    }],
-    cmd_QUIT: [false, 1, 0, function(args) {
-        this.parentObject.quit(args ? args[0] : "");
-    }],
-    cmd_CYCLE: [true, 1, 0, function(args, channel) {
-        channel = channel || this.getActiveWindow().currentChannel;
+    /*****************commands ****************/
 
-        this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
-        this.send("JOIN " + channel);
-    }],
-    cmd_FJOIN: [false, 2, 1, function(args) {
-        if(args.length === 0)
-            return;
-        var channels = args.shift(),
-            formatted = util.formatChannelString(channels);
+    /* [require_active_window, splitintoXargs, minargs, function] */
+    cmd_ME: {
+        fn: function(args, target) {
+            args = args || "";
 
-        if (channels !== formatted) {
-            this.parentObject.writeMessages(lang.poorJoinFormat);
+            var msg = format(cmd.ACTION, {
+                target: target,
+                text: args
+            });
+
+            if (this.send(msg)) {
+                var nick = this.parentObject.nickname;
+                this.trigger("privAction", {
+                    'nick': nick,
+                    'message': args,
+                    'target': target,
+                    'channel': target,
+                    "@": this.parentObject.getNickStatus(target, nick)
+                });
+            }
+
         }
-        if(formatted)
-            this.send("JOIN " + formatted + " " + args.join(" "));
-    }],
-    cmd_JOIN: [false, 2, 1, function(args) {
-        var channels = args.shift(),
-            chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject);
-            // formatted = util.formatChannelString(chans);
+    },
 
-            // this.send("JOIN " + formatted + " " + args.join(" "));
-        this.cmd_FJOIN[3].call(this, Array.from(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
-    }],
-    cmd_UMODE: [false, 1, 0, function(args) {
-        this.send("MODE " + this.parentObject.nickname + (args ? (" " + args[0]) : ""));
-    }],
-    cmd_BEEP: [false, undefined, undefined, function(args) {
-        this.parentObject.ui.beep();
-    }],
-    cmd_AUTOJOIN: [false, undefined, undefined, function(args) {
-        if(!auth.signedIn) {
-            auth.signedIn = true;
-            return ["JOIN", this.parentObject.options.autojoin.join(",")];
+    cmd_CTCP: {
+        splitargs: 3,
+        minargs: 2,
+        fn: function(args, target) {
+            target = args[0] || target
+            var type = args[1].toUpperCase(),
+                message = args[2] || "";
+
+            var msg = format(cmd.CTCP, {
+                target: target,
+                type: type,
+                text: message
+            });
+
+            if (this.send(msg)) {
+                this.trigger("privCTCP", {
+                    'nick': this.parentObject.nickname,
+                    '_type': type,
+                    'message': message,
+                    'args': args,
+                    'type': 'CTCPReply'
+                });
+            }
         }
-    }],
-    cmd_PART: [false, 2, 0, function(args) {
-        args = Array.from(args);
+    },
 
-        var msg = args[1] || lang.partChan.message,
-            channel = args[0] || this.getActiveWindow().currentChannel;
+    cmd_SAY: {
+        splitargs: 1,
+        minargs: 1,
+        fn: function(args, target) { //direct
+            return ["PRIVMSG", target + " " + args.join(" ")];//purpose is different split args
+        }
+    },
 
-        this.send("PART " + channel + " :" + msg);
-    }]
+    cmd_PRIVMSG: {
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, target) {
+            var message;
+            if(args.length > 1) { //assume theyre meaning to target cur chan
+                target = args[0];
+                message = args[1];
+            } else {
+                message = args[0];
+            }
+            var parentObj = this.parentObject;
+            var nick = parentObj.nickname;
+            var msg = format(cmd.PRIVMSG, {
+                target: target,
+                message: message
+            });
+
+            if (this.send(msg)) {
+                if (util.isChannel(target)) {
+                    this.trigger("chanMessage", {
+                        'nick': nick,
+                        'channel': target,
+                        'message': message,
+                        'type': 'chanmsg',
+                        "@": parentObj.getNickStatus(target, nick)
+                    });
+                } else {
+                    return ["QUERY", target + " " + message];
+                }
+            }
+        }
+    },
+
+    cmd_NOTICE: {
+        splitargs: 2,
+        minargs: 2,
+        fn: function(args) {
+            var target = args[0];
+            var message = args[1];
+            var msg = format(cmd.NOTICE, {
+                target: target,
+                message: message
+            });
+
+            if (this.send(msg)) {
+                this.trigger("chanNotice", {
+                    'nick': this.parentObject.nickname,
+                    'channel': target,
+                    'target': target,
+                    'message': message
+                });
+            }
+        }
+    },
+
+    cmd_QUERY: {
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, target) {
+            var target = args[0],
+                message = args[1];
+            if (util.isChannel(target)) {
+                return this.writeMessages(lang.invalidChanTarget);
+            }
+            var msg = format(cmd.PRIVMSG, {
+                target: target,
+                message: message
+            });
+
+            // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
+            if(this.send(msg)) {
+                this.trigger("query", {
+                    'nick': this.parentObject.nickname,
+                    'channel': target,
+                    'message': message,
+                    'type': 'privmsg'
+                });
+            }
+        }
+    },
+
+    cmd_LOGOUT: {
+        fn: function(args) {
+            this.parentObject.ui.logout();
+        }
+    },
+
+    cmd_OPTIONS: {
+        fn: function(args) {
+            this.trigger("openWindow", {
+                'window': "optionsWindow",
+                'type': ui.WINDOW.custom
+            });
+        }
+    },
+
+    // cmd_EMBED: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "embeddedWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    // cmd_PRIVACYPOLICY: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "privacyWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    // cmd_ABOUT: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "aboutWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    cmd_QUOTE: {
+        splitargs: 1,
+        minargs: 1,
+        fn: function(args) {
+            this.send(args[0]);
+        }
+    },
+
+    cmd_KICK: {
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, channel) {
+            var target = args[0];
+            var message = args.length >= 2 ? args[1] : "";
+            var msg = format(cmd.KICK, {
+                channel: channel,
+                kickee: target,
+                message: message
+            })
+
+            this.send(msg);
+        }
+    },
+
+    cmd_OP: {
+        splitargs: 6,
+        minargs: 1, 
+        fn: function(args) {
+            this.automode("+", "o", args);
+        }
+    },
+    cmd_DEOP: {
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args) {
+            this.automode("-", "o", args);
+        }
+    },
+    cmd_AUTH: {//must be configured per server in config.irc_commands
+        splitargs: 2,
+        minargs: 2,
+        fn: function(args) {
+            var msg = format(irc.AUTH, {
+                username: args[0],
+                password: args[1]
+            });
+            this.send(msg);
+        }
+    },
+    cmd_VOICE: {
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args) {
+            this.automode("+", "v", args);
+        }
+    },
+    cmd_DEVOICE: {
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args) {
+            this.automode("-", "v", args);
+        }
+    },
+    cmd_TOPIC: {
+        splitargs: 1,
+        minargs: 1,
+        fn: function(args, channel) {
+            var topic;
+            if(args.length > 1) {
+                channel = args[0];
+                topic = args[1];
+            } else {
+                topic = args[0];
+            }
+            var msg = format(cmd.TOPIC, {
+                channel: channel,
+                topic: topic
+            });
+            this.send(msg);
+        }
+    },
+    cmd_AWAY: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            var msg = format(cmd.AWAY, {
+                message: args ? args[0] : ""
+            })
+            this.send(msg);
+        }
+    },
+    cmd_QUIT: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            this.parentObject.quit(args ? args[0] : "");
+        }
+    },
+    // cmd_CYCLE: {
+    //     splitargs: 1,
+    //     minargs: 0,
+    //     fn: function(args, channel) {
+    //         channel = channel;
+
+    //         this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
+    //         this.send("JOIN " + channel);
+    //     }
+    // },
+    cmd_FJOIN: {
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args) {
+            if(_.isEmpty(args)) return;
+            var channels = args.shift(),
+                formatted = util.formatChannelString(channels);
+
+            if (channels !== formatted) {
+                this.parentObject.writeMessages(lang.poorJoinFormat);
+            }
+            if(formatted) {
+                this.send(format(cmd.JOIN, {
+                    channel: formatted,
+                    args : args.join(" ")
+                }));
+            }
+        }
+    },
+    cmd_JOIN: {
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args) {
+            var channels = args.shift(),
+                chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject);
+            this.cmd_FJOIN.fn.call(this, Array.from(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
+        }
+    },
+    cmd_UMODE: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            var msg = format(cmd.MODE, {
+                nick: this.parentObject.nickname,
+                mode: args ? args[0] : ""
+            })
+            this.send(msg);
+        }
+    },
+    cmd_BEEP: {
+        fn: function() {
+            this.parentObject.ui.beep();
+        }
+    },
+    cmd_AUTOJOIN: {
+        fn: function(args) {
+            if(!auth.signedIn) {
+                auth.signedIn = true;
+                return ["JOIN", this.parentObject.options.autojoin.join(",")];
+            }
+        }
+    },
+    cmd_PART: {
+        splitargs: 2,
+        minargs: 0,
+        fn: function(args, channel) {
+            var msg = format(cmd.PART, {
+                channel: args[0] || channel,
+                message: args[1] || lang.partChan
+            });
+
+            this.send(msg);
+        }
+    }
 });
-
-irc.commandAliases = {
-    "J": "JOIN",
-    "P": "PART",
-    "MESSAGE": "PRIVMSG",
-    "M": "PRIVMSG",
-    "MSG": "PRIVMSG",
-    "PM": "PRIVMSG",
-    "Q": "QUERY",
-    "BACK": "AWAY",
-    "PRIVACY": "PRIVACYPOLICY",
-    "HOP": "CYCLE",
-    "SLAP": "ME"
-};
-
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Extends: irc.BaseIRCClient,
@@ -15192,13 +15329,25 @@ irc.IRCClient = new Class({
         nickname: "qwebirc",
         autojoin: "",
         prefixes: "@+", //heirarchy of prefixes - "@"(operator), "+"(voice)
-        minRejoinTime: [0]
+        minRejoinTime: [0],
+        networkServices: [],
+        loginRegex: /^$/ //always fail
     },
     lastNicks: [],
     inviteChanList: [],
     activeTimers: {},
     windows: {},
     modeprefixes: "ov",
+    __signedOn: false,
+    channels: {},
+    nextctcp: 0,
+    pmodes: {
+        b: irc.PMODE_LIST,
+        l: irc.PMODE_SET_ONLY,
+        k: irc.PMODE_SET_UNSET,
+        o: irc.PMODE_SET_UNSET,
+        v: irc.PMODE_SET_UNSET
+    },
 
     initialize: function(options, ui) {
         var self = this;
@@ -15217,22 +15366,27 @@ irc.IRCClient = new Class({
         self.writeMessages(lang.copyright);
     },
 
+
+    connect: function() {
+        return this.connection.connect();
+    },
+
     connected: function() {
         // this.newServerLine("CONNECT");
         this.trigger("connect", {});
-        this.parent();
     },
 
     quit: function(message) {
-        this.disconnect();
-    },
-
-    disconnect: function() {
-        _.each(this.activeTimers, $clear);
-        this.activeTimers = {};
-        this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
-        this.trigger("disconnect");
-        this.parent();
+        if(this.__signedOn) {    
+            this.send("QUIT :" + (message || lang.quit), true);
+            _.each(this.activeTimers, $clear);
+            this.activeTimers = {};
+            this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+            this.trigger("disconnect");
+            this.connection.disconnect();
+            this.__signedOn = false;
+        }
+        return this;
     },
 
     disconnected: function(message) {
@@ -15370,8 +15524,8 @@ irc.IRCClient = new Class({
     authEvent: function() {
         auth.authed = true;
         this.exec("/UMODE +x");
-        this.writeMessages(lang.joinChans);
         if (!auth.signedIn) {
+            this.writeMessages(lang.joinChans);
             this.exec("/AUTOJOIN");
         }
 
@@ -15712,13 +15866,14 @@ irc.IRCClient = new Class({
         });
     },
 
-    serverNotice: function(user, message, target) {
+    serverNotice: function(user, message/*, target*/) {
         var data = {
             'user': user,
             'nick': util.hostToNick(user),
-            'message': message
+            'message': message,
+            'channel': STATUS
         };
-        if(target) data.target = data.channel = target;
+        // if(target) data.target = data.channel = target;
         this.trigger("serverNotice", data);
     },
 
@@ -16417,16 +16572,15 @@ irc.IRCTracker = new Class({
 
         var nickchan = this.getNick(nick);
         var chan = this.getChannel(lchannel);
-        if (!nickchan || !chan)
-            return;
+        if (!nickchan || !chan) return;
 
         delete nickchan[lchannel];
         delete chan[nick];
 
-        if (_.size(nickchan) === 0) {
+        if (_.isEmpty(nickchan)) {
             delete this.nicknames[nick];
         }
-        if (_.size(chan) === 0) {
+        if (_.isEmpty(chan)) {
             delete this.channels[lchannel];
         }
     },
@@ -16462,24 +16616,16 @@ irc.IRCTracker = new Class({
             return chan[key2].lastSpoke - chan[key1].lastSpoke;
         };
 
-        // var names = [];
-        // Hash.each(chan, function(chan, name) {
-        //     names.push([name, chan]);
-        // });
-        // var names = util.mapA(chan, function(c, n) {
-        //     return [n, c];
-        // });
-        var sorted = Object.keys(chan).sort(sorter).map(function(key){
-            return chan[key];
-        });
-
-        // var newnames = names.sort(sorter)
-        //                     .map(prelude.first);
+        var sorted = _.keys(chan).sort(sorter)
+                                .map(function(key){
+                                    return chan[key];
+                                });
 
         return sorted;
     }
 });
 
+})();
 
 (function (engine) {
 
@@ -16781,7 +16927,7 @@ ui.IIRCClient = new Class({
         }
     },
 
-    nickChange: util.noop,
+    nickChange: util.noop
 });
 var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
 function formatChans(data) {
@@ -16871,6 +17017,13 @@ function addClientEvents(client, windows) { // mi gusta xD
         // "disconnect": lineParser,
         "error": lineParser,
         "info": lineParser,
+        "auth:once": function() {
+            ui_.beep();
+            ui_.showNotice({
+                title: "Successful auth",
+                body: "Successfully authed with server and set your hostmask"
+            });
+        },
 
         "chanAction": lineParser,
         "chanTopic": updateTopic,
@@ -16926,7 +17079,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         "awayStatus": lineParser,
         "mode": function(type, data) {
-            var win = ui_.getWindow(data.channel);
+            var win = ui_.getWindow(client, data.channel);
             if(win) {
                 win.updatePrefix(data);
             }
@@ -17112,15 +17265,18 @@ ui.IUIOptions = new Class({
             },
             "change:font_size": self.updateStylesheet,
             "change:custom_notices": setCustomNotice,
-            "change:notices": setStandardNotice
+            "change:notices": setStandardNotice,
+            "change:show_nicklist": function(state) {
+                _.each(this.windowArray, function(win){win.toggleNickList()});
+            }
         });
         setCustomNotice(uiOptions.get("custom_notices"));
         setStandardNotice(uiOptions.get("notices"));
 
         self.setModifiableStylesheet({
-            style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
-            style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
-            style_brightness: self.options.brightness || self.uiOptions2.get("style_brightness")
+            style_hue: self.options.hue || self.uiOptions.get("style_hue"),
+            style_saturation: self.options.saturation || self.uiOptions.get("style_saturation"),
+            style_brightness: self.options.brightness || self.uiOptions.get("style_brightness")
         });
         return self;
     },
@@ -17135,8 +17291,8 @@ ui.IUIOptions = new Class({
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
         var self = this;
         getTemplate("modifiablecss", function(template) {
-            var styles = _.extend({}, Browser, self.uiOptions2.toJSON(), values);
-            var stylesheet = template(styles);
+            var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
+            var stylesheet = template(styles);//.split("}").join("}\n")
             var node = self.__styleSheet;
 
             if (node.styleSheet) { /* ie */
@@ -17153,7 +17309,7 @@ ui.IUIOptions = new Class({
     var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {
-        var favIcon = document.head.getElement("link[rel^='shortcut'][rel$='icon']");
+        var favIcon = $(document.head).getElement("link[rel^='shortcut'][rel$='icon']");
         if (favIcon) {
             favIcons.normal = favIcon;
         }
@@ -17208,7 +17364,7 @@ ui.NotificationUI = new Class({
         if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.play(alias, {
-                volume: this.uiOptions2.get("volume")
+                volume: this.uiOptions.get("volume")
             });
         }
     },
@@ -17231,11 +17387,7 @@ ui.NotificationUI = new Class({
             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
 
-        if(self.uiOptions2.get("dn_state")) {
-            var opts = _.extend({/*timeout: self.uiOptions2.get("dn_duration")*/}, self.options.notificationOptions, options);
-            self.__notice = notify.createNotification(opts.title, opts);
-            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions2.get("dn_duration"));
-        }
+        self.showNotice();
 
         self.flashing = true;
         // flashA();
@@ -17246,6 +17398,16 @@ ui.NotificationUI = new Class({
             "focus:once": self.cancelFlash
         });
     },
+
+    showNotice: function(options) {
+        var self = this;
+        if(self.uiOptions.get("dn_state")) {
+            var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
+            self.__notice = notify.createNotification(opts.title, opts);
+            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions.get("dn_duration"));
+        }
+    },
+
     cancelFlash: function() {
         this.flashing = false;
 
@@ -17333,14 +17495,12 @@ ui.StandardUI = new Class({
             // routes definition will proxy the events
             routes: {
                 '': 'index',
-                '#options': 'options',
-                "#feedback": 'feedback',
-                "#about": "about",
-                "#faq": "faq",
-                "#embedded": 'embedded',
-                // '#add webchat to your site': 'embedded',
-                "#privacy": "privacy"//,
-                // "#privacy policy": "privacy"
+                '#!options': 'options',
+                "#!feedback": 'feedback',
+                "#!about": "about",
+                "#!faq": "faq",
+                "#!embedded": 'embedded',
+                "#!privacy": "privacy"//,
             },
             // no route event was found, though route was defined
             onError: function(error){
@@ -17457,6 +17617,118 @@ ui.StandardUI = new Class({
             chan = target.get('data-chan');
         if(util.isChannel(chan))
             client.exec("/JOIN " + chan);
+    }
+});
+
+
+ui.Interface = new Class({
+    Implements: [Options, Events],
+    options: {
+        node: false,//use the node implementation with socket.io
+        debug: false,
+
+        dynamicBaseURL: "/",
+        staticBaseURL: "/",
+        searchURL: true,
+
+        appTitle: "Freenode.net Web IRC",
+        networkName: "Freenode",
+        networkServices: [],
+
+        initialNickname: "",
+        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
+
+        hue: null,
+        saturation: null,
+        lightness: null,
+
+        theme: undefined,
+        uiOptionsArg: null,
+
+        sounds: {
+            minSoundRepeatInterval: 5000
+        },
+
+        icons: {
+            empty_favicon: "images/empty_favicon.ico",
+            menuicon: "images/icon.png"
+        },
+
+        loginRegex: /I recogni[sz]e you\./,
+        nickValidation: null
+    },
+    clients: [],
+
+
+    //Note removed option args to configure router. May support it later.
+    initialize: function(element, UI, options) {
+        this.setOptions(options);
+        var self = this,
+            opts = self.options;
+
+        qwebirc.global = {
+            baseURL: opts.dynamicBaseURL,
+            staticURL: opts.staticBaseURL,
+            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
+        };
+
+        window.addEvent("domready", function() {
+            var inick = opts.initialNickname,
+                ichans = storage.get(cookies.channels) || opts.initialChannels,
+                autoConnect = false;
+
+            self.element = document.id(element);
+
+            self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
+
+            var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
+            //if(usingAutoNick && autoConnect) {
+            inick = opts.initialNickname;
+            //}
+
+            var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
+            //cleans up old properties
+            if(storage.get(cookies.newb) !== false) {
+                self.welcome();
+                storage.set(cookies.newb, false);
+            }
+
+            self.ui.addEvent("login:once", function(loginopts) {
+                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
+                                        loginopts);
+
+                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
+                client.connect();
+
+
+                window.onbeforeunload = function(e) {
+                    if (client.isConnected()) {//ie has gotten passed the IRC gate
+                        var message = "This action will close all active IRC connections.";
+                        if ((e = e || window.event)) {
+                            e.returnValue = message;
+                        }
+                        return message;
+                    }
+                };
+                window.addEvent('unload', client.quit);
+                window.onunload = client.quit;
+
+                if(!auth.enabled) {
+                    self.ui.beep();
+                }
+
+                self.fireEvent("login", {
+                    'IRCClient': client,
+                    'parent': self
+                });
+            });
+        });
+    },
+    welcome: function() {
+        ui.WelcomePane.show(this.ui, {
+            element: this.element,
+            firstvisit: true
+        });
     }
 });
 
@@ -17594,7 +17866,7 @@ ui.QUI = new Class({
             //         }
             //     });
             // },
-            "addChan": self.__createChannelMenu
+            "addChannel": self.__createChannelMenu
         });
 
         //delay for style recalc
@@ -17908,132 +18180,6 @@ ui.QUI = new Class({
 });
 
 
-ui.Interface = new Class({
-    Implements: [Options, Events],
-    options: {
-        node: false,//use the node implementation with socket.io
-        debug: false,
-
-        dynamicBaseURL: "/",
-        staticBaseURL: "/",
-        searchURL: true,
-
-        appTitle: "Freenode.net Web IRC",
-        networkName: "Freenode",
-        networkServices: [],
-
-        initialNickname: "",
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
-
-        hue: null,
-        saturation: null,
-        lightness: null,
-
-        theme: undefined,
-        uiOptionsArg: null,
-
-        sounds: {
-            minSoundRepeatInterval: 5000
-        },
-
-        icons: {
-            empty_favicon: "images/empty_favicon.ico",
-            menuicon: "images/icon.png"
-        },
-
-        loginRegex: /I recogni[sz]e you\./,
-        nickValidation: null
-    },
-    clients: [],
-
-
-    //Note removed option args to configure router. May support it later.
-    initialize: function(element, UI, options) {
-        this.setOptions(options);
-        var self = this,
-            opts = self.options;
-
-        qwebirc.global = {
-            baseURL: opts.dynamicBaseURL,
-            staticURL: opts.staticBaseURL,
-            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
-        };
-
-        opts.specialUserActions = [ //special actions to take when particular users speak
-            function(user, msg, target, client) {
-                var interested = opts.networkServices.contains(user);
-                if(interested) {
-                    if(opts.loginRegex.test(msg)) {
-                        client.authEvent();
-                    }
-                    client.getActiveWindow().infoMessage(msg);
-                }
-                return interested;
-            }
-        ],
-
-        window.addEvent("domready", function() {
-            var inick = opts.initialNickname,
-                ichans = storage.get(cookies.channels) || opts.initialChannels,
-                autoConnect = false;
-
-            self.element = document.id(element);
-
-            self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
-
-            var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
-            //if(usingAutoNick && autoConnect) {
-            inick = opts.initialNickname;
-            //}
-
-            var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
-            //cleans up old properties
-            if(storage.get(cookies.newb) !== false) {
-                self.welcome();
-                storage.set(cookies.newb, false);
-            }
-
-            self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']),
-                                        loginopts);
-
-                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
-                client.connect();
-
-
-                window.onbeforeunload = function(e) {
-                    if (client.isConnected()) {//ie has gotten passed the IRC gate
-                        var message = "This action will close all active IRC connections.";
-                        if ((e = e || window.event)) {
-                            e.returnValue = message;
-                        }
-                        return message;
-                    }
-                };
-                window.addEvent('unload', client.quit);
-
-                if(!auth.enabled) {
-                    self.ui.beep();
-                }
-
-                client.addEvent("auth:once", self.ui.beep);
-
-                self.fireEvent("login", {
-                    'IRCClient': client,
-                    'parent': self
-                });
-            });
-        });
-    },
-    welcome: function() {
-        ui.WelcomePane.show(this.ui, {
-            element: this.element,
-            firstvisit: true
-        });
-    }
-});
-
-
 ui.NavBar = new Class({
     Extends: Epitome.View,
     Binds: ['adjust'],
@@ -18151,10 +18297,12 @@ ui.NavBar = new Class({
     addTab: function(tab) {
         if(_.isString(tab)) tab = Element.from(tab);
         this.tabs.adopt(tab);
+        return this;
     },
 
     removeTab: function(tab) {
         this.tabs.disown(tab);
+        return this;
     },
 
     scrollLeft: function(e, target) {
@@ -18186,16 +18334,261 @@ ui.NavBar = new Class({
 
 
 
+ui.MENU_ITEMS = (function() {
+    function isOpped(nick) {
+        var channel = this.name; /* window name */
+        var myNick = this.client.nickname;
+
+        return this.client.nickOnChanHasAtLeastPrefix(myNick, channel, "@");
+    }
+
+    function isVoiced(nick) {
+        var channel = this.name;
+        var myNick = this.client.nickname;
+
+        return this.client.nickOnChanHasPrefix(myNick, channel, "+");
+    }
+
+    function targetOpped(nick) {
+        var channel = this.name;
+        return this.client.nickOnChanHasPrefix(nick, channel, "@");
+    }
+
+    function targetVoiced(nick) {
+        var channel = this.name;
+        return this.client.nickOnChanHasPrefix(nick, channel, "+");
+    }
+
+    function command(cmd) {
+        return function(nick) {
+            this.client.exec("/" + cmd + " " + nick);
+        };
+    }
+
+    return [{
+        text: "whois",
+        fn: command("whois"),
+        predicate: true
+    }, {
+        text: "query",
+        fn: command("query"),
+        predicate: true
+    }, {
+        text: "slap",
+        fn: function(nick) {
+            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
+                'nick': nick
+            }));
+        },
+        predicate: true
+    }, {
+        text: "kick",
+        /* TODO: disappear when we're deopped */
+        fn: function(nick) {
+            this.client.exec("/KICK " + nick + " wibble");
+        },
+        predicate: isOpped
+    }, {
+        text: "op",
+        fn: command("op"),
+        predicate: _.and(isOpped, _.not(targetOpped))
+    }, {
+        text: "deop",
+        fn: command("deop"),
+        predicate: _.and(isOpped, targetOpped)
+    }, {
+        text: "voice",
+        fn: command("voice"),
+        predicate: _.and(isOpped, _.not(targetVoiced))
+    }, {
+        text: "devoice",
+        fn: command("devoice"),
+        predicate: _.and(isOpped, targetVoiced)
+    }];
+})();
+
+(function() {
+    function checkKeys(fn, keys, type) {//or just use pseudos.keys
+        keys = keys || [];
+        var ret = {};
+        ret[type || "keydown"] = function(e) {
+            if(keys.contains(e.key)) {
+                fn.apply(this, arguments);
+            }
+        };
+        return ret;
+    }
+
+//http://anutron.github.io/mootools-bootstrap/#modals - changed closeOnEsc to closeOnKeys using Element.psuedo.keys
+ui.Dialog = new Class({
+    Extends: Bootstrap.Popup,
+    options: {//mainly defaults
+        popup_template: "popup-dialog",
+        template: null,
+        persist: false,
+        closeOnEsc: 'esc',
+        closeOnClickOut: false,
+        focusOnShow: "input[type='text']",
+        inputType: "input[type='text'",
+        title: lang.alertNotice
+    },
+    initialize: function(options) {
+        var self = this,
+            $par = $(options.parent || document.body),
+            $caller = self.$caller;
+        options = self.setOptions(options).options;
+
+        getTemplate(options.popup_template, function(popuptmpl) {
+            if(options.template) {//expected to be loaded
+                options.content = options.template(options);
+            }
+            var $pop = Element.from(popuptmpl(options));
+            $par.adopt($pop);
+            self.$caller = $caller;
+            self.parent($pop, options);
+            self.bound.submit = function() {
+                var vals = self.$input.val();
+                self.fireEvent("submit", {
+                    value: vals[0],
+                    values: vals
+                });
+                self.hide();
+            };
+            self.$input = $pop.getElements(options.inputType);
+            $pop.addEvent("click:relay(.submit)", self.bound.submit);
+            var listen = self.$listeners = checkKeys(self.bound.submit, ['enter']);
+            document.addEvents(listen);
+            ui.Behaviour.apply($pop);
+        });
+    },
+    hide: function(evt, clicked) {
+        if(evt) evt.stopPropagation();
+        document.removeEvents(this.$listeners);
+        return this.parent(evt, clicked);
+    }
+});
+
+ui.Alert = new Class({
+    Extends: Bootstrap.Popup,
+    options: {
+        popup_template: "popup-alert",
+        persist: false,
+        closeOnKeys: 'esc,enter',
+        closeOnClickOut: true,
+        focusOnShow: '[data-dismiss="modal"]',
+        title: lang.alertNotice,
+        text: ''
+    },
+    initialize: function(options) {
+        var self = this,
+            $par = $(options.parent || document.body),
+            $caller = self.$caller;//dirty hack for async
+        options = self.setOptions(options).options;
+
+        if(!options.text) {
+            throw "needs text";
+        }
+
+        getTemplate(options.popup_template, function(popuptmpl) {
+            var $pop = Element.from(popuptmpl(options));
+            $par.adopt($pop);
+            self.$caller = $caller;
+            self.parent($pop, options);
+            var listen = self.$listeners = checkKeys(self.bound.hide, ['enter']);
+            document.addEvents(listen);
+            ui.Behaviour.apply($pop);
+        });
+    },
+    hide: function(evt, clicked) {
+        if(evt) evt.stopPropagation();
+        document.removeEvents(this.$listeners);
+        return this.parent(evt, clicked);
+    }
+});
+
+})();
+
+
+//http://indiegamr.com/the-state-of-audio-in-html5-games/
+
+sound.SoundPlayer = new Class({
+    Implements: [Options, Events],
+    options: {
+        soundManagersrc: "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
+        soundsurl: "/sound/",//directory of sounds for sm
+        swfurl: "/swf",
+        flashVersion: 8,
+        sounds: [],
+        preferFlash: false//use html5 if possible
+    },
+    loadingSM: false,
+
+    initialize: function(options) {
+        this.setOptions(options);
+        var self = this,
+            opts = this.options;
+
+        window.addEvent("domready", function() {//load soundmanager ->
+            if (self.loadingSM !== false)
+                return;
+            self.loadingSM = true;
+            if ($defined(self.sm)) {
+                self.fireEvent("ready");
+                return;
+            }
+
+            var soundinit = function() {
+                var sm = self.sm = window.soundManager;
+                //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
+                // var extension = self.extension = sm.hasHTML5 && (Browser.firefox || Browser.opera || Browser.chrome) ? ".ogg" : ".mp3";
+                sm.setup({
+                    url: opts.swfurl,
+                    preferFlash: opts.preferFlash,
+                    onready: function() {
+                        _.each(opts.sounds, function(sound) {//load all sounds here
+                            // self.register(sound.id, opts.soundsurl + sound.url + extension);
+                            sound = _.clone(sound);
+                            sound.url = _.map(sound.url, function(path) {
+                                return path.contains('/') ? path : opts.soundsurl + path;
+                            });
+                            self.sm.createSound(sound);
+                        })
+                        self.loadingSM = false;
+                        self.fireEvent("ready");
+                    }
+                }).beginDelayedInit();
+                self.play = sm.play;
+            };
+
+            //load sound manager
+            if(window.soundManager) {
+                soundinit();
+            }
+            else {
+                Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+            }
+        });
+    },
+    register: function(alias,src) {
+        this.sm.createSound(alias, src);
+    },
+
+    isReady: function() {
+        return this.sm && this.loadingSM === false;
+    }
+});
+
+
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
-            defaults = _.extend({}, ui.themes.Default2, themeDict);
+            defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
         
-        var thememap = _.map(ui.themes.ThemeControlCodeMap2, function(str) {
-            return util.formatterSafe(str, ui.themes.ThemeControlCodeMap2);
+        var thememap = _.map(config.ThemeControlCodeMap, function(str) {
+            return util.formatSafe(str, config.ThemeControlCodeMap);
         });
         self.__theme = _.map(defaults, function(str) {
-            return util.formatterSafe(str, thememap);
+            return util.formatSafe(str, thememap);
         });
 
         self.highlightClasses.channels = {};
@@ -18205,17 +18598,15 @@ ui.Theme = new Class({
     formatMessage: function($ele, type, _data, highlight) {
         var self = this,
             isobj = _.isObject(_data),
-            data = isobj ? _.clone(_data) : _data, //sometimes an internal reference
-            val;
+            data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
-
-            if (data["n"]){
+            if (data["n"]) {
                 data["N"] = "qwebirc://whois/" + data.n + "/";
             }
             //now all we have to do is format the data as desired and pass to theme
             _.each(["N", "m", "c"], function(key) {//urlerize message and nick
-                val = data[key];
+                var val = data[key];
                 if(val) {
                     if(_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
@@ -18240,7 +18631,6 @@ ui.Theme = new Class({
     },
 
     formatText: function(type, data, highlight) {
-        // if(highlight) data = _.extend({}, data, this.__ccmaph)
         return util.formatter(this.__theme[type], data);//most formatting done on init
     },
 
@@ -18372,7 +18762,7 @@ ui.Theme = new Class({
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
-                    (!parser.type || parser.type.test(type)) && 
+                    (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
@@ -18403,251 +18793,6 @@ ui.Theme = new Class({
 });
 
 
-ui.MENU_ITEMS = (function() {
-    function isOpped(nick) {
-        var channel = this.name; /* window name */
-        var myNick = this.client.nickname;
-
-        return this.client.nickOnChanHasAtLeastPrefix(myNick, channel, "@");
-    }
-
-    function isVoiced(nick) {
-        var channel = this.name;
-        var myNick = this.client.nickname;
-
-        return this.client.nickOnChanHasPrefix(myNick, channel, "+");
-    }
-
-    function targetOpped(nick) {
-        var channel = this.name;
-        return this.client.nickOnChanHasPrefix(nick, channel, "@");
-    }
-
-    function targetVoiced(nick) {
-        var channel = this.name;
-        return this.client.nickOnChanHasPrefix(nick, channel, "+");
-    }
-
-    function command(cmd) {
-        return function(nick) {
-            this.client.exec("/" + cmd + " " + nick);
-        };
-    }
-
-    return [{
-        text: "whois",
-        fn: command("whois"),
-        predicate: true
-    }, {
-        text: "query",
-        fn: command("query"),
-        predicate: true
-    }, {
-        text: "slap",
-        fn: function(nick) {
-            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
-                'nick': nick
-            }));
-        },
-        predicate: true
-    }, {
-        text: "kick",
-        /* TODO: disappear when we're deopped */
-        fn: function(nick) {
-            this.client.exec("/KICK " + nick + " wibble");
-        },
-        predicate: isOpped
-    }, {
-        text: "op",
-        fn: command("op"),
-        predicate: _.and(isOpped, _.not(targetOpped))
-    }, {
-        text: "deop",
-        fn: command("deop"),
-        predicate: _.and(isOpped, targetOpped)
-    }, {
-        text: "voice",
-        fn: command("voice"),
-        predicate: _.and(isOpped, _.not(targetVoiced))
-    }, {
-        text: "devoice",
-        fn: command("devoice"),
-        predicate: _.and(isOpped, targetVoiced)
-    }];
-})();
-
-(function() {
-    function checkKeys(fn, keys, type) {//or just use pseudos.keys
-        keys = keys || [];
-        var ret = {};
-        ret[type || "keydown"] = function(e) {
-            if(keys.contains(e.key)) {
-                fn.apply(this, arguments);
-            }
-        };
-        return ret;
-    }
-
-//http://anutron.github.io/mootools-bootstrap/#modals - changed closeOnEsc to closeOnKeys using Element.psuedo.keys
-ui.Dialog = new Class({
-    Extends: Bootstrap.Popup,
-    options: {//mainly defaults
-        popup_template: "popup-dialog",
-        template: null,
-        persist: false,
-        closeOnEsc: 'esc',
-        closeOnClickOut: false,
-        focusOnShow: "input[type='text']",
-        inputType: "input[type='text'",
-        title: lang.alertNotice
-    },
-    initialize: function(options) {
-        var self = this,
-            $par = options.parent || document.body,
-            $caller = self.$caller;
-        options = self.setOptions(options).options;
-
-        getTemplate(options.popup_template, function(popuptmpl) {
-            if(options.template) {//expected to be loaded
-                options.content = options.template(options);
-            }
-            var $pop = Element.from(popuptmpl(options));
-            $par.adopt($pop);
-            self.$caller = $caller;
-            self.parent($pop, options);
-            self.bound.submit = function() {
-                var vals = self.$input.val();
-                self.fireEvent("submit", {
-                    value: vals[0],
-                    values: vals
-                });
-                self.hide();
-            };
-            self.$input = $pop.getElements(options.inputType);
-            $pop.addEvent("click:relay(.submit)", self.bound.submit);
-            var listen = self.$listeners = checkKeys(self.bound.submit, ['enter']);
-            document.addEvents(listen);
-            ui.Behaviour.apply($pop);
-        });
-    },
-    hide: function(evt, clicked) {
-        if(evt) evt.stopPropagation();
-        document.removeEvents(this.$listeners);
-        return this.parent(evt, clicked);
-    }
-});
-
-ui.Alert = new Class({
-    Extends: Bootstrap.Popup,
-    options: {
-        popup_template: "popup-alert",
-        persist: false,
-        closeOnKeys: 'esc,enter',
-        closeOnClickOut: true,
-        focusOnShow: '[data-dismiss="modal"]',
-        title: lang.alertNotice,
-        text: ''
-    },
-    initialize: function(options) {
-        var self = this,
-            $par = options.parent || document.body,
-            $caller = self.$caller;//dirty hack for async
-        options = self.setOptions(options).options;
-
-        if(!options.text) {
-            throw "needs text";
-        }
-
-        getTemplate(options.popup_template, function(popuptmpl) {
-            var $pop = Element.from(popuptmpl(options));
-            $par.adopt($pop);
-            self.$caller = $caller;
-            self.parent($pop, options);
-            var listen = self.$listeners = checkKeys(self.bound.hide, ['enter']);
-            document.addEvents(listen);
-            ui.Behaviour.apply($pop);
-        });
-    },
-    hide: function(evt, clicked) {
-        if(evt) evt.stopPropagation();
-        document.removeEvents(this.$listeners);
-        return this.parent(evt, clicked);
-    }
-});
-
-})();
-
-
-//http://indiegamr.com/the-state-of-audio-in-html5-games/
-
-sound.SoundPlayer = new Class({
-    Implements: [Options, Events],
-    options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
-        soundsurl: "/sound/",//directory of sounds for sm
-        swfurl: "/swf",
-        flashVersion: 8,
-        sounds: [],
-        preferFlash: false//use html5 if possible
-    },
-    loadingSM: false,
-
-    initialize: function(options) {
-        this.setOptions(options);
-        var self = this,
-            opts = this.options;
-
-        window.addEvent("domready", function() {//load soundmanager ->
-            if (self.loadingSM !== false)
-                return;
-            self.loadingSM = true;
-            if ($defined(self.sm)) {
-                self.fireEvent("ready");
-                return;
-            }
-
-            var soundinit = function() {
-                var sm = self.sm = window.soundManager;
-                //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
-                // var extension = self.extension = sm.hasHTML5 && (Browser.firefox || Browser.opera || Browser.chrome) ? ".ogg" : ".mp3";
-                sm.setup({
-                    url: opts.swfurl,
-                    preferFlash: opts.preferFlash,
-                    onready: function() {
-                        _.each(opts.sounds, function(sound) {//load all sounds here
-                            // self.register(sound.id, opts.soundsurl + sound.url + extension);
-                            sound = _.clone(sound);
-                            sound.url = _.map(sound.url, function(path) {
-                                return path.contains('/') ? path : opts.soundsurl + path;
-                            });
-                            self.sm.createSound(sound);
-                        })
-                        self.loadingSM = false;
-                        self.fireEvent("ready");
-                    }
-                }).beginDelayedInit();
-                self.play = sm.play;
-            };
-
-            //load sound manager
-            if(window.soundManager) {
-                soundinit();
-            }
-            else {
-                Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
-            }
-        });
-    },
-    register: function(alias,src) {
-        this.sm.createSound(alias, src);
-    },
-
-    isReady: function() {
-        return this.sm && this.loadingSM === false;
-    }
-});
-
-
 ui.Window = new Class({
     Extends: Epitome.View,
     options: {
@@ -18660,7 +18805,7 @@ ui.Window = new Class({
         },
         maxLines: 1000
     },
-    template: templates.window,
+    template: util.loadTemplate('window'),
 
     active: false,
     lastSelected: null,
@@ -18730,7 +18875,7 @@ ui.Window = new Class({
         self.lines.adopt($ele)
                 .maxChildren(this.options.maxLines);
 
-        if(uiobj.uiOptions2.get("lastpos_line") && type.endsWith("CHANMSG")) {
+        if(uiobj.uiOptions.get("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
@@ -18746,54 +18891,6 @@ ui.Window = new Class({
         }
     },
 
-    //holy shit i got this to actually make sense
-    // takes nicks (sorted array)
-    updateNickList: function(nicks) {
-        var lnh = this.lastNickHash,
-            oldnames = Object.keys(lnh),
-
-            added = _.difference(nicks, oldnames),//users who joined
-            left = _.difference(oldnames, nicks); //users who left
-
-        _.each(left, function(nick) {
-            var element = lnh[nick];
-            this.nickListRemove(nick, element);
-            delete lnh[nick];
-        }, this)
-
-        _.each(added, function(nick) {
-            var index = nicks.indexOf(nick); //indx in sorted array
-            lnh[nick] = this.nickListAdd(nick, index) || 1;
-        }, this);
-    },
-
-    
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
-        var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
-
-
-        if (this.parentObject.uiOptions2.get("nick_colours")) {
-            var colour = util.toHSBColour(realNick, this.client);
-            if ($defined(colour))
-                span.setStyle("color", colour.rgbToHex());
-        }
-
-        this.nicklist.insertAt(nickele, position);
-
-        return nickele;
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            this.nicklist.removeChild(stored);
-        } catch (e) {
-        }
-    },
-
     sendInput: function(e/*, $tar*/) {
         if(e) e.stop();
         // if(!$tar || !$tar.hasClass('input-field')) {
@@ -18806,7 +18903,7 @@ ui.Window = new Class({
             this.client.exec(parsed, this.currentChannel);
             $tar.val("");
         }
-        $tar.focus();
+        $tar.blur();//in case a new channel is created
     }
 });
 
@@ -18845,7 +18942,6 @@ ui.QUI.Window = new Class({
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
     },
 
-
     render: function() {
         var self = this;
         var type = self.type;
@@ -18874,11 +18970,8 @@ ui.QUI.Window = new Class({
 
         if (type === ui.WINDOW.channel) {
             $win.addClass('channel');
-
+            self.toggleNickList();
             self.updateTopic("");
-
-            var $nicklist = self.nicklist = $win.getElement('.rightpanel');
-            $nicklist.addClass("nicklist");
         }
 
         if(hasInput) {
@@ -18921,7 +19014,6 @@ ui.QUI.Window = new Class({
         this.detached = false;
         this.element.removeClass('detached');
 
-        // wrapper.removeChild(win);
         win.replaces(wrapper);
         wrapper.destroy();
 
@@ -19026,7 +19118,6 @@ ui.QUI.Window = new Class({
         if(self.nicklist && !self.split) {
             _.delay(function() { //wait a sec for the styles to be calculated
                 self.split = new Drag.SplitPane(self.window.getElement('.content .handle'), {
-                    // store: new Storage('__panelwidth'),
                     limits: {
                         min: 0,
                         max: 0
@@ -19060,7 +19151,7 @@ ui.QUI.Window = new Class({
                 }
             }
 
-            self.updatePrefix();
+            _.delay(self.updatePrefix, 200, self);
         }
 
     },
@@ -19079,7 +19170,7 @@ ui.QUI.Window = new Class({
         } else {
             new ui.Dialog({
                 title: "Set Topic",
-                text: util.formatter(lang.changeTopicConfirm.message, {channel: self.name}),
+                text: util.format(lang.changeTopicConfirm.message, {channel: self.name}),
                 value: self.topic,
                 onSubmit: function(data) {
                     var topic = data.value;
@@ -19107,18 +19198,12 @@ ui.QUI.Window = new Class({
     },
 
     updatePrefix: function (data) {
-        var prefix;
-        if(data) {
-            if(!data.thisclient || data.channel !== this.name)
-                return;
-            else
-                prefix = data.prefix;
-        } else {
-            prefix = this.client.getNickStatus(this.name, this.client.nickname);
-        }
+        if(data && (!data.thisclient || data.channel !== this.name)) return;
+        var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
         this.window.getElement('.input .nickname .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
+        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
@@ -19194,6 +19279,71 @@ ui.QUI.Window = new Class({
             }
             this.parent(state);
         }
+    },
+
+    getNickList: function() {
+        if(!this.nicklist && this.parentObject.uiOptions.get('show_nicklist')) {
+            this.nicklist = this.window.getElement('.rightpanel')
+                                    .addClass("nicklist");
+        }
+        return this.nicklist;
+    },
+
+    toggleNickList: function(state) { //returns this
+        if(this.type === ui.WINDOW.channel) {
+            state = state != null ? !!state : this.parentObject.uiOptions.get('show_nicklist');
+            var nicklist = this.getNickList();
+            nicklist && nicklist.toggle(state) && this.window.toggleClass('show-nicklist', state);
+        }
+    },
+
+    //holy shit i got this to actually make sense
+    // takes nicks (sorted array)
+    updateNickList: function(nicks) {
+        var self = this;
+        if(!self.nicklist) return false;
+        var lnh = self.lastNickHash,
+            oldnames = _.keys(lnh),
+
+            added = _.difference(nicks, oldnames),//users who joined
+            left = _.difference(oldnames, nicks); //users who left
+
+        _.each(left, function(nick) {
+            var element = lnh[nick];
+            self.nickListRemove(nick, element);
+            delete lnh[nick];
+        });
+
+        _.each(added, function(nick) {
+            var index = nicks.indexOf(nick); //indx in sorted array
+            lnh[nick] = self.nickListAdd(nick, index) || 1;
+        });
+    },
+
+    nickListAdd: function(nick, position) {
+        var realNick = util.stripPrefix(this.client.prefixes, nick);
+
+        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+        var span = nickele.getElement('span');
+        nickele.store("nick", realNick);
+
+
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
+            var colour = util.toHSBColour(realNick, this.client);
+            if ($defined(colour))
+                span.setStyle("color", colour.rgbToHex());
+        }
+
+        this.nicklist.insertAt(nickele, position);
+
+        return nickele;
+    },
+
+    nickListRemove: function(nick, stored) {
+        try {
+            this.nicklist.removeChild(stored);
+        } catch (e) {
+        }
     }
 });
 
@@ -19247,7 +19397,7 @@ var PanelView = new Class({
     }
 });
 //this must refer to a model
-function toggleNotifications(model, state) {
+function toggleNotifications(model, state, save) {
     if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
         notify.requestPermission(function() {
             model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
@@ -19256,6 +19406,7 @@ function toggleNotifications(model, state) {
     else {
         model.set('dn_state', state || !model.get('dn_state'));
     }
+    if(save) model.save();
 }
 ui.PrivacyPolicyPane = new Class({
     Extends: PanelView,
@@ -19433,16 +19584,14 @@ ui.WelcomePane = new Class({
         pane: 'welcome-pane',
         events: {
             'click:relay(.enable-notifications)': 'enableNotifications',
-            'click:relay(.options)': 'openOptions'
-        },
-        onOpenOptions: function() {
-            this.ui.optionsWindow();
-            if(this.clicked) this._close();
+            'click:relay(.controls)': 'controlClick'
         },
         onEnableNotifications: function() {
-            toggleNotifications(this.ui.uiOptions2, true);
-            this.clicked = true;
-            if(!this.options.firstvisit) this._close();
+            toggleNotifications(this.ui.uiOptions2, true, true);
+        },
+        onControlClick: function(e, controls) {
+            controls.dispose();
+            if(!this.element.getElement('.controls')) this._close();
         }
     },
     initialize: function(ui, options) {
@@ -19450,10 +19599,10 @@ ui.WelcomePane = new Class({
         this.parent(options);
     },
     getData: function() {
-        return _.extend({
+        return {
             options: this.ui.options,
             Browser: window.Browser
-        }, this.options);
+        };
     }
 })
 .extend({

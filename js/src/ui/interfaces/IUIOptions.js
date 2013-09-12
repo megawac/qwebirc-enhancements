@@ -34,15 +34,18 @@ ui.IUIOptions = new Class({
             },
             "change:font_size": self.updateStylesheet,
             "change:custom_notices": setCustomNotice,
-            "change:notices": setStandardNotice
+            "change:notices": setStandardNotice,
+            "change:show_nicklist": function(state) {
+                _.each(this.windowArray, function(win){win.toggleNickList()});
+            }
         });
         setCustomNotice(uiOptions.get("custom_notices"));
         setStandardNotice(uiOptions.get("notices"));
 
         self.setModifiableStylesheet({
-            style_hue: self.options.hue || self.uiOptions2.get("style_hue"),
-            style_saturation: self.options.saturation || self.uiOptions2.get("style_saturation"),
-            style_brightness: self.options.brightness || self.uiOptions2.get("style_brightness")
+            style_hue: self.options.hue || self.uiOptions.get("style_hue"),
+            style_saturation: self.options.saturation || self.uiOptions.get("style_saturation"),
+            style_brightness: self.options.brightness || self.uiOptions.get("style_brightness")
         });
         return self;
     },
@@ -57,8 +60,8 @@ ui.IUIOptions = new Class({
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
         var self = this;
         getTemplate("modifiablecss", function(template) {
-            var styles = _.extend({}, Browser, self.uiOptions2.toJSON(), values);
-            var stylesheet = template(styles);
+            var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
+            var stylesheet = template(styles);//.split("}").join("}\n")
             var node = self.__styleSheet;
 
             if (node.styleSheet) { /* ie */

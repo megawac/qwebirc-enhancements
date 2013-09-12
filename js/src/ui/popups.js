@@ -25,7 +25,7 @@ ui.Dialog = new Class({
     },
     initialize: function(options) {
         var self = this,
-            $par = options.parent || document.body,
+            $par = $(options.parent || document.body),
             $caller = self.$caller;
         options = self.setOptions(options).options;
 
@@ -72,7 +72,7 @@ ui.Alert = new Class({
     },
     initialize: function(options) {
         var self = this,
-            $par = options.parent || document.body,
+            $par = $(options.parent || document.body),
             $caller = self.$caller;//dirty hack for async
         options = self.setOptions(options).options;
 

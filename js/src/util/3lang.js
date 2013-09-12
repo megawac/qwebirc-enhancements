@@ -54,7 +54,7 @@
 
         alertNotice: "Alert!",
         activityNotice: message("Activity!", types.MISC),
-        partChan: message("Part", types.MESSAGE),
+        partChan: "Part",
         logOut: message("Logged out", types.MESSAGE),
         quit: "Page closed",
         disconnected: message("Client has been disconnected", types.INFO),
@@ -85,7 +85,7 @@
         HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
         STYLE_HUE: "Adjust user interface hue",
         QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
-        // SHOW_NICKLIST: "Show nickname list in channels",
+        SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
 
@@ -111,46 +111,5 @@
         ENABLE: 'Enable',
         DISABLE: 'Disable'
     });
-
-
-    // lang.IRC_COMMAND_HELPERS = {
-    //     "JOIN": "/JOIN <channel>",
-    //     "NICK": "/NICK <new nickname>",
-    //     "PART": "/PART <channel>",
-    //     "QUIT": "/QUIT <message>",
-    //     "TOPIC": "/TOPIC <channel> <topic>",
-    //     "AWAY": "/AWAY <message>",
-    //     "ME": "/ME <message>",
-    //     "NOTICE": "/NOTICE <message>",
-    //     "MODE": "/MODE <target(chan/user)> <mode>",
-    //     "AUTHSERV": "/AUTHSERV AUTH <account> <password>"
-    // };
-
-
-// ui.UI_COMMANDS = [
-//         {
-//             text: "Options",
-//             value: "optionsWindow"//ui method
-//         },
-//         {
-//             text: "Add webchat to your site",
-//             value: "embeddedWindow"
-//         },
-//         {
-//             text: "Privacy policy",
-//             value: "privacyWindow"
-//         },
-//         {
-//             text: "Frequently asked questions",
-//             value: "faqWindow"
-//         },
-//         {
-//             text: "Submit feedback",
-//             value: "feedbackWindow"
-//         },
-//         {
-//             text: "About qwebirc",
-//             value: "aboutWindow"
-//         }];
 
 })();

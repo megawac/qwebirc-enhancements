@@ -7,7 +7,7 @@
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
-var channame_re = /(#|>)[\s\S]*(?=\/)/,
+var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
     chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);

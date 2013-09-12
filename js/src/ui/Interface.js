@@ -50,19 +50,6 @@ ui.Interface = new Class({
             nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
         };
 
-        opts.specialUserActions = [ //special actions to take when particular users speak
-            function(user, msg, target, client) {
-                var interested = opts.networkServices.contains(user);
-                if(interested) {
-                    if(opts.loginRegex.test(msg)) {
-                        client.authEvent();
-                    }
-                    client.getActiveWindow().infoMessage(msg);
-                }
-                return interested;
-            }
-        ],
-
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
                 ichans = storage.get(cookies.channels) || opts.initialChannels,
@@ -85,7 +72,7 @@ ui.Interface = new Class({
             }
 
             self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'node']),
+                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
                                         loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
@@ -102,12 +89,11 @@ ui.Interface = new Class({
                     }
                 };
                 window.addEvent('unload', client.quit);
+                window.onunload = client.quit;
 
                 if(!auth.enabled) {
                     self.ui.beep();
                 }
-
-                client.addEvent("auth:once", self.ui.beep);
 
                 self.fireEvent("login", {
                     'IRCClient': client,

@@ -11,7 +11,7 @@ ui.Window = new Class({
         },
         maxLines: 1000
     },
-    template: templates.window,
+    template: util.loadTemplate('window'),
 
     active: false,
     lastSelected: null,
@@ -81,7 +81,7 @@ ui.Window = new Class({
         self.lines.adopt($ele)
                 .maxChildren(this.options.maxLines);
 
-        if(uiobj.uiOptions2.get("lastpos_line") && type.endsWith("CHANMSG")) {
+        if(uiobj.uiOptions.get("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
@@ -97,54 +97,6 @@ ui.Window = new Class({
         }
     },
 
-    //holy shit i got this to actually make sense
-    // takes nicks (sorted array)
-    updateNickList: function(nicks) {
-        var lnh = this.lastNickHash,
-            oldnames = Object.keys(lnh),
-
-            added = _.difference(nicks, oldnames),//users who joined
-            left = _.difference(oldnames, nicks); //users who left
-
-        _.each(left, function(nick) {
-            var element = lnh[nick];
-            this.nickListRemove(nick, element);
-            delete lnh[nick];
-        }, this)
-
-        _.each(added, function(nick) {
-            var index = nicks.indexOf(nick); //indx in sorted array
-            lnh[nick] = this.nickListAdd(nick, index) || 1;
-        }, this);
-    },
-
-    
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
-        var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
-
-
-        if (this.parentObject.uiOptions2.get("nick_colours")) {
-            var colour = util.toHSBColour(realNick, this.client);
-            if ($defined(colour))
-                span.setStyle("color", colour.rgbToHex());
-        }
-
-        this.nicklist.insertAt(nickele, position);
-
-        return nickele;
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            this.nicklist.removeChild(stored);
-        } catch (e) {
-        }
-    },
-
     sendInput: function(e/*, $tar*/) {
         if(e) e.stop();
         // if(!$tar || !$tar.hasClass('input-field')) {
@@ -157,6 +109,6 @@ ui.Window = new Class({
             this.client.exec(parsed, this.currentChannel);
             $tar.val("");
         }
-        $tar.focus();
+        $tar.blur();//in case a new channel is created
     }
 });

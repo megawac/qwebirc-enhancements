@@ -26,7 +26,7 @@
 
     this.Completer = new Class({
         Implements: [Options],
-        Binds: ["process", "_update"],
+        Binds: ["process", "update"],
         index: -1,
         options: {
             stopPropogation: false,
@@ -56,8 +56,8 @@
             this.$hint = target.getElement(options.selectors.hint);
             if(options.autoPosition) {
                 this.$hint.setStyle("position", "absolute");
-                this._update.delay(50);
-                window.addEvent("resize", this._update);
+                this.update.delay(50);
+                window.addEvent("resize", this.update);
             }
         },
 
@@ -117,14 +117,14 @@
             this.index = -1;
         },
 
-        _update: function() {
+        update: function() {
             this.$hint.setStyles(this.$input.getCoordinates(this.$input.getParent()));
         },
 
         detach: function() {
             this.$input.removeEvents(this.$events);
             window.removeEvents({
-                "resize": this._update
+                "resize": this.update
             });
         }
     });

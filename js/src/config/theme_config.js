@@ -1,17 +1,17 @@
 
-ui.themes.ThemeControlCodeMap2 = {
+config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
     "B": util.getStyleByName('bold').key,
     "U": util.getStyleByName('underline').key,
     "O": irc.styles.colour.key,
-    "D": irc.styles.normal.key,
+    "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
     "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
     "CN": templates.userlink({'userid':'{newnick}', 'username': '{newnick}'}),// change nick
     "P": "{C}4=={O} "
 };
 
-ui.themes.Default2 = {
+config.ThemeIRCTemplates = {
     "SIGNON": "{P}Signed on!",
     "CONNECT": "{P}Connected to server - establishing IRC connection.",
 
@@ -41,11 +41,11 @@ ui.themes.Default2 = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}<{@}{(}{N}>{)}{D} {m}",
-    "PRIVMSG": "{(}<{N}>{)} {m}",
+    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
+    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
 
-    "OURCHANMSG": "<{@}{N}> {m}",
-    "OURPRIVMSG": "<{N}> {m}",
+    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
+    "OURPRIVMSG": "&lt;{N}&gt; {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",

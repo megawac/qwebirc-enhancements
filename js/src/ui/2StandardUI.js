@@ -54,14 +54,12 @@ ui.StandardUI = new Class({
             // routes definition will proxy the events
             routes: {
                 '': 'index',
-                '#options': 'options',
-                "#feedback": 'feedback',
-                "#about": "about",
-                "#faq": "faq",
-                "#embedded": 'embedded',
-                // '#add webchat to your site': 'embedded',
-                "#privacy": "privacy"//,
-                // "#privacy policy": "privacy"
+                '#!options': 'options',
+                "#!feedback": 'feedback',
+                "#!about": "about",
+                "#!faq": "faq",
+                "#!embedded": 'embedded',
+                "#!privacy": "privacy"//,
             },
             // no route event was found, though route was defined
             onError: function(error){

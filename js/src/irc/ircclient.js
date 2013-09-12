@@ -6,13 +6,25 @@ irc.IRCClient = new Class({
         nickname: "qwebirc",
         autojoin: "",
         prefixes: "@+", //heirarchy of prefixes - "@"(operator), "+"(voice)
-        minRejoinTime: [0]
+        minRejoinTime: [0],
+        networkServices: [],
+        loginRegex: /^$/ //always fail
     },
     lastNicks: [],
     inviteChanList: [],
     activeTimers: {},
     windows: {},
     modeprefixes: "ov",
+    __signedOn: false,
+    channels: {},
+    nextctcp: 0,
+    pmodes: {
+        b: irc.PMODE_LIST,
+        l: irc.PMODE_SET_ONLY,
+        k: irc.PMODE_SET_UNSET,
+        o: irc.PMODE_SET_UNSET,
+        v: irc.PMODE_SET_UNSET
+    },
 
     initialize: function(options, ui) {
         var self = this;
@@ -31,22 +43,27 @@ irc.IRCClient = new Class({
         self.writeMessages(lang.copyright);
     },
 
+
+    connect: function() {
+        return this.connection.connect();
+    },
+
     connected: function() {
         // this.newServerLine("CONNECT");
         this.trigger("connect", {});
-        this.parent();
     },
 
     quit: function(message) {
-        this.disconnect();
-    },
-
-    disconnect: function() {
-        _.each(this.activeTimers, $clear);
-        this.activeTimers = {};
-        this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
-        this.trigger("disconnect");
-        this.parent();
+        if(this.__signedOn) {    
+            this.send("QUIT :" + (message || lang.quit), true);
+            _.each(this.activeTimers, $clear);
+            this.activeTimers = {};
+            this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+            this.trigger("disconnect");
+            this.connection.disconnect();
+            this.__signedOn = false;
+        }
+        return this;
     },
 
     disconnected: function(message) {
@@ -184,8 +201,8 @@ irc.IRCClient = new Class({
     authEvent: function() {
         auth.authed = true;
         this.exec("/UMODE +x");
-        this.writeMessages(lang.joinChans);
         if (!auth.signedIn) {
+            this.writeMessages(lang.joinChans);
             this.exec("/AUTOJOIN");
         }
 
@@ -526,13 +543,14 @@ irc.IRCClient = new Class({
         });
     },
 
-    serverNotice: function(user, message, target) {
+    serverNotice: function(user, message/*, target*/) {
         var data = {
             'user': user,
             'nick': util.hostToNick(user),
-            'message': message
+            'message': message,
+            'channel': STATUS
         };
-        if(target) data.target = data.channel = target;
+        // if(target) data.target = data.channel = target;
         this.trigger("serverNotice", data);
     },
 

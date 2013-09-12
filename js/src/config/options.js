@@ -11,7 +11,7 @@ config.OptionModel = new Class({
             "nick_colours": false,
             "hide_joinparts": false,
             "query_on_nick_click": true,
-            // "show_nicklist": true,
+            "show_nicklist": !Browser.isMobile,
             "show_timestamps": true,
             "font_size": 12,
             "volume": 10, //0-10

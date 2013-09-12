@@ -33,7 +33,6 @@ ui.QUI.Window = new Class({
         self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
     },
 
-
     render: function() {
         var self = this;
         var type = self.type;
@@ -62,11 +61,8 @@ ui.QUI.Window = new Class({
 
         if (type === ui.WINDOW.channel) {
             $win.addClass('channel');
-
+            self.toggleNickList();
             self.updateTopic("");
-
-            var $nicklist = self.nicklist = $win.getElement('.rightpanel');
-            $nicklist.addClass("nicklist");
         }
 
         if(hasInput) {
@@ -109,7 +105,6 @@ ui.QUI.Window = new Class({
         this.detached = false;
         this.element.removeClass('detached');
 
-        // wrapper.removeChild(win);
         win.replaces(wrapper);
         wrapper.destroy();
 
@@ -214,7 +209,6 @@ ui.QUI.Window = new Class({
         if(self.nicklist && !self.split) {
             _.delay(function() { //wait a sec for the styles to be calculated
                 self.split = new Drag.SplitPane(self.window.getElement('.content .handle'), {
-                    // store: new Storage('__panelwidth'),
                     limits: {
                         min: 0,
                         max: 0
@@ -248,7 +242,7 @@ ui.QUI.Window = new Class({
                 }
             }
 
-            self.updatePrefix();
+            _.delay(self.updatePrefix, 200, self);
         }
 
     },
@@ -267,7 +261,7 @@ ui.QUI.Window = new Class({
         } else {
             new ui.Dialog({
                 title: "Set Topic",
-                text: util.formatter(lang.changeTopicConfirm.message, {channel: self.name}),
+                text: util.format(lang.changeTopicConfirm.message, {channel: self.name}),
                 value: self.topic,
                 onSubmit: function(data) {
                     var topic = data.value;
@@ -295,18 +289,12 @@ ui.QUI.Window = new Class({
     },
 
     updatePrefix: function (data) {
-        var prefix;
-        if(data) {
-            if(!data.thisclient || data.channel !== this.name)
-                return;
-            else
-                prefix = data.prefix;
-        } else {
-            prefix = this.client.getNickStatus(this.name, this.client.nickname);
-        }
+        if(data && (!data.thisclient || data.channel !== this.name)) return;
+        var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
         this.window.getElement('.input .nickname .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
+        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
@@ -381,6 +369,71 @@ ui.QUI.Window = new Class({
                 break;
             }
             this.parent(state);
+        }
+    },
+
+    getNickList: function() {
+        if(!this.nicklist && this.parentObject.uiOptions.get('show_nicklist')) {
+            this.nicklist = this.window.getElement('.rightpanel')
+                                    .addClass("nicklist");
+        }
+        return this.nicklist;
+    },
+
+    toggleNickList: function(state) { //returns this
+        if(this.type === ui.WINDOW.channel) {
+            state = state != null ? !!state : this.parentObject.uiOptions.get('show_nicklist');
+            var nicklist = this.getNickList();
+            nicklist && nicklist.toggle(state) && this.window.toggleClass('show-nicklist', state);
+        }
+    },
+
+    //holy shit i got this to actually make sense
+    // takes nicks (sorted array)
+    updateNickList: function(nicks) {
+        var self = this;
+        if(!self.nicklist) return false;
+        var lnh = self.lastNickHash,
+            oldnames = _.keys(lnh),
+
+            added = _.difference(nicks, oldnames),//users who joined
+            left = _.difference(oldnames, nicks); //users who left
+
+        _.each(left, function(nick) {
+            var element = lnh[nick];
+            self.nickListRemove(nick, element);
+            delete lnh[nick];
+        });
+
+        _.each(added, function(nick) {
+            var index = nicks.indexOf(nick); //indx in sorted array
+            lnh[nick] = self.nickListAdd(nick, index) || 1;
+        });
+    },
+
+    nickListAdd: function(nick, position) {
+        var realNick = util.stripPrefix(this.client.prefixes, nick);
+
+        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+        var span = nickele.getElement('span');
+        nickele.store("nick", realNick);
+
+
+        if (this.parentObject.uiOptions2.get("nick_colours")) {
+            var colour = util.toHSBColour(realNick, this.client);
+            if ($defined(colour))
+                span.setStyle("color", colour.rgbToHex());
+        }
+
+        this.nicklist.insertAt(nickele, position);
+
+        return nickele;
+    },
+
+    nickListRemove: function(nick, stored) {
+        try {
+            this.nicklist.removeChild(stored);
+        } catch (e) {
         }
     }
 });

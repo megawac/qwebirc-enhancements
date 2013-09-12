@@ -31,8 +31,9 @@ module.exports = function(grunt) {
                     node: false,
                     // amd: true,
                     processContent: function(content) {//remove whitespace
-                        content = content.replace(/^[\x20\t]+/mg, '').replace(/[\x20\t]+$/mg, '');
-                        content = content.replace(/^[\r\n]+/, '').replace(/[\r\n]*$/, '');
+                        content = content.replace(/^[\x20\t]+/mg, '')
+                                        .replace(/[\x20\t]+$/mg, '')
+                                        .replace(/\r\n/g, '');//remove line breaks (for min)
                         return content;
                     },
 

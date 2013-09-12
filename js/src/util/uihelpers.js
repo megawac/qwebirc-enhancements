@@ -1,4 +1,3 @@
-
 ui.Behaviour = (function() {
     var behaviour = new Behavior();
     var delegator = new Delegator({
@@ -11,7 +10,7 @@ ui.Behaviour = (function() {
         }
     };
 })();
-
+  
 var getTemplate = util.getTemplate = function(name, cb, options) {
     /*
         Loads a template. If its already on page call callback immediately otherwise load asyncronously
@@ -42,31 +41,31 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
     }
     //return deferred
 };
-
+  
 util.loadTemplate = function(name) {//helper to preload a template
     var template;
     getTemplate(name, function(tmpl) {template = tmpl});
     return function() {return template.apply(this, arguments);};
 }
-
+  
 ui.setTitle = function(title, options) {
     document.title = title;
 };
-
+  
 util.setCaretPos = Element.setCaretPosition;
-
+  
 util.setAtEnd = function($el) {
     $el.setCaretPosition($el.value.length);
 };
-
+  
 util.getCaretPos = Element.getCaretPosition;
-
+  
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);
-
+  
     var start = Array.isArray(wrap) ? wrap[0] : wrap,
         end = Array.isArray(wrap) ? wrap[1] : wrap;
-
+  
     $eles.each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
@@ -76,43 +75,41 @@ util.wrapSelected = function($eles, wrap) {
         }
     });
 }
-
-util.percentToPixel= function(data, par) {
-    par = par || document.body;
-    var size = par.getSize();
-    return {
-        x: size.x * (data.x / 100),
-        y: size.y * (data.y / 100)
-    };
-};
-
+  
 ui.decorateDropdown = function($btn, $ddm, options) {
     options = options || {};
+    var evts = {
+        "click": hideMenu,
+        "keypress": hideMenu
+    }
     function hideMenu() {
         if(options.onHide)
             options.onHide.call(this, $ddm);
+        document.removeEvents(evts)
         return $ddm.hide();
     }
     function toggleMenu(state) {
         if(options.onShow)
             options.onShow.call(this, $ddm);
-
+  
         if (state===true || !$ddm.isDisplayed()) {
             $ddm.show();
-            document.addEvent("click:once", hideMenu);
+            document.addEvents(evts);
         } else {
            hideMenu();
         }
         return $ddm;
     }
-
+  
     $ddm.store("toggle", toggleMenu)
         .position.delay(50, $ddm, {
             relativeTo: $btn,
             position: {x: 'left', y: 'bottom'},
             edge: {x: 'left', y: 'top'}
         });
-
+  
+    if($ddm.isDisplayed()) document.addEvents(evts);
+  
     if(options.btnlistener) {
         $btn.addEvent("click", function(e) {
             e.stop();
@@ -121,32 +118,96 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     }
     return options.autohide ? hideMenu() : $ddm;
 };
-
+  
 //dirty function please help with css :(
 //dir can be 'width' 'height'
 util.fillContainer = function ($ele, options) {
     options = Object.append({style: ['width'], offset: 20}, options);
-
+  
     var filler = function() {
         var size = $ele.getSize();
-
+  
         Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
             var method = style.contains('width') ? 'x' : 'y',
                 offset = options.offset;
-
+  
             $ele.getSiblings()
                 .each(function(sib) {
                     offset += sib.getSize()[method];
                 });
-
-            $ele.setStyle(style, "calc(100% - " + offset + "px)");
+  
+            util.calc($ele, style, "100% - " + offset + "px");
         });
     }
-
+  
     _.delay(filler, 20);
     return $ele;
 };
 
+
+//http://caniuse.com/#feat=calc
+Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
+                            (Browser.firefox && Browser.version >= 4) ||
+                            (Browser.chrome && Browser.version >= 19) ||
+                            (Browser.opera && Browser.version >= 15) ||
+                            (Browser.safari && Browser.version > 6));
+
+util.percentToPixel= function(data, par) {
+    par = par || $(document.body);
+    var size = par.getSize();
+    return {
+        x: size.x * (data.x * .01),
+        y: size.y * (data.y * .01)
+    };
+};
+
+//https://gist.github.com/megawac/6525074
+util.calc = function($ele, style, val) {
+    // val = val.replace(/(\(|\))/g, "");
+	//simple css calc function polyfill
+	//polyfill expects surrounded by brackets <val><unit> <operator> <val><unit> => "33% - 20px + 1em"
+    //does not support things like "50%/3 - 5px"
+	if(Browser.Features.calc) {
+		val = "calc(" + val + ")";
+		$ele.setStyle(style, val)
+			.setStyle(style, "-moz-" + val)
+			.setStyle(style, "-webkit-" + val);
+	} else {
+        var old = $ele.retrieve("calc"); 
+        if(old) {window.removeEvent("resize", old);}
+		var split = val.split(" ");
+		var op = split.splice(1,1);
+        var resize = function() {
+            var expr = val.replace(/(\d+)(\S+)/g, function(match, size, unit) {
+                size = size.toFloat();
+                switch (unit) {//unit
+                case "%":
+                    var data = {};
+                    var dir = style.contains("width") ? "x" : "y";
+                    data[dir] = size;
+                    return util.percentToPixel(data, $ele.getParent())[dir].round(3);
+                case "em":
+                    var fsize = $ele.getStyle("font-size").toFloat();
+                    return fsize * size;
+                // case "px":
+                default:
+                    return size;
+                }
+            });
+            var size = eval(expr);
+            $ele.setStyle(style, size);
+            return resize;
+        };
+        window.addEvent("resize", resize);
+        // $ele.addEvents({
+        //     adopt: resize,
+        //     disown: resize
+        // });
+        $ele.store("calc", resize);
+        return resize();
+	}
+};
+  
 util.elementAtScrollPos = function($ele, pos, dir, offset) {
     dir = (dir || 'width').capitalize();
     offset = offset || 10;
@@ -159,4 +220,4 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
         }
     });
     return $res;
-};
+}; 

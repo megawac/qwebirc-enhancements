@@ -95,16 +95,15 @@ irc.IRCTracker = new Class({
 
         var nickchan = this.getNick(nick);
         var chan = this.getChannel(lchannel);
-        if (!nickchan || !chan)
-            return;
+        if (!nickchan || !chan) return;
 
         delete nickchan[lchannel];
         delete chan[nick];
 
-        if (_.size(nickchan) === 0) {
+        if (_.isEmpty(nickchan)) {
             delete this.nicknames[nick];
         }
-        if (_.size(chan) === 0) {
+        if (_.isEmpty(chan)) {
             delete this.channels[lchannel];
         }
     },
@@ -140,19 +139,10 @@ irc.IRCTracker = new Class({
             return chan[key2].lastSpoke - chan[key1].lastSpoke;
         };
 
-        // var names = [];
-        // Hash.each(chan, function(chan, name) {
-        //     names.push([name, chan]);
-        // });
-        // var names = util.mapA(chan, function(c, n) {
-        //     return [n, c];
-        // });
-        var sorted = Object.keys(chan).sort(sorter).map(function(key){
-            return chan[key];
-        });
-
-        // var newnames = names.sort(sorter)
-        //                     .map(prelude.first);
+        var sorted = _.keys(chan).sort(sorter)
+                                .map(function(key){
+                                    return chan[key];
+                                });
 
         return sorted;
     }
