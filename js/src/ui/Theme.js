@@ -115,6 +115,7 @@ ui.Theme = new Class({
             classes: '',
             flash: true,
             beep: true,
+            pm: true,
             id: 'on_notice',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -122,6 +123,7 @@ ui.Theme = new Class({
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
+            pm: true,
             id: 'on_pm',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -150,9 +152,15 @@ ui.Theme = new Class({
             mentioned: true,
             classes: '',
             beep: true,
-            flash: true,
+            pm: true,
             notus: true,
             id: 'on_mention'//for filtering
+        },
+        {
+            nick: /(^tf2)|((serv|bot)$)/i,
+            msg: /authcookie/i,
+            beep: true,
+            pm: true
         },
         {
             nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
@@ -163,7 +171,8 @@ ui.Theme = new Class({
             id: 'highlighter',
             tabhl: ui.HIGHLIGHT.activity,
             types: [ui.WINDOW.channel]
-        }
+        },
+
     ],
 
     highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
@@ -189,12 +198,16 @@ ui.Theme = new Class({
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
-                            win.parentObject.flash({
-                                body: util.formatter("{nick}{channel}: {message}", data)
-                            });
+                            win.parentObject.flash();
                         }
                         if(parser.beep) {
                             win.parentObject.beep();
+                        }
+                        if(parser.pm) {
+                            win.parentObject.showNotice({
+                                title: 'IRC ' + type + '!',
+                                body: util.format("{nick}{channel}: {message}", data)
+                            });
                         }
                     }   
                     if(parser.highlight) {

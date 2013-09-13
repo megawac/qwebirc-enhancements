@@ -212,7 +212,7 @@ irc.Commands = new Class({
             });
 
             // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
-            if(this.send(msg)) {
+            if(_.size(msg) > 1 && this.send(msg)) {
                 this.trigger("query", {
                     'nick': this.parentObject.nickname,
                     'channel': target,

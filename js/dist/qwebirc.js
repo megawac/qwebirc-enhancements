@@ -302,65 +302,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["qwebirc"]["templates"]["customNotice"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
-
-
-  buffer += "<div class=\"controls custom-notice\" id=";
-  if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "><label class=\"control-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.USER_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"text\" data-id=\"nick\" placeholder=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.NICK_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\" value=\"";
-  if (stack2 = helpers.nick) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.nick; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
-  buffer += escapeExpression(stack2)
-    + "\"></label><label class=\"control-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"text\" data-id=\"msg\" placeholder=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MESSAGE_PLACEHOLDER)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\" value=\"";
-  if (stack2 = helpers.msg) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.msg; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
-  buffer += escapeExpression(stack2)
-    + "\"></label><label class=\"checkbox-inline\" >"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.BEEP)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"checkbox\" data-id=\"beep\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.beep, options) : helperMissing.call(depth0, "check", depth0.beep, options)))
-    + "></label><label class=\"checkbox-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.FLASH)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"checkbox\" data-id=\"flash\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.flash, options) : helperMissing.call(depth0, "check", depth0.flash, options)))
-    + "></label><!-- <label class=\"checkbox-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.HIGHLIGHT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"checkbox\" data-id=\"highlight\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.highlight, options) : helperMissing.call(depth0, "check", depth0.highlight, options)))
-    + "></label><label class=\"checkbox-inline\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.MENTIONED)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"checkbox\" data-id=\"mentioned\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.mentioned, options) : helperMissing.call(depth0, "check", depth0.mentioned, options)))
-    + "></label> --><label class=\"checkbox-inline\" title=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.ESCAPE_HINT)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\">"
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.AUTOESCAPE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "<input type=\"checkbox\" data-id=\"autoescape\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.autoescape, options) : helperMissing.call(depth0, "check", depth0.autoescape, options)))
-    + "></label><input type=\"button\" value=\""
-    + escapeExpression(((stack1 = ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.DELETE_NOTICE)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\" class=\"remove-notice btn btn-danger btn-smaller\"></div>";
-  return buffer;
-  });
-
 this["qwebirc"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
@@ -1687,9 +1628,9 @@ util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
 })
 
-util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
-    return test(util.createNickRegex(nick), text);
-};
+util.testForNick = _.autoCurry(function(nick, text) {
+    return util.createNickRegex(nick).test(text);
+});
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
@@ -3792,7 +3733,7 @@ irc.Commands = new Class({
             });
 
             // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
-            if(this.send(msg)) {
+            if(_.size(msg) > 1 && this.send(msg)) {
                 this.trigger("query", {
                     'nick': this.parentObject.nickname,
                     'channel': target,
@@ -6001,23 +5942,136 @@ ui.IUIOptions = new Class({
         });
     }
 });
-
 (function() {
-    var favIcons = {};
+var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {
         var favIcon = $(document.head).getElement("link[rel^='shortcut'][rel$='icon']");
         if (favIcon) {
             favIcons.normal = favIcon;
+            favIcons.empty = new Element("link", {
+                rel: 'shortcut icon',
+                type: 'image/x-icon',
+                href: "images/empty_favicon.ico"
+            });
         }
     });
-ui.NotificationUI = new Class({
-    Implements: [Options],
+// ui.NotificationUI = new Class({
+//     Binds: ["beep", "flash", "cancelFlash"],
 
-    Binds: ["beep", "flash", "cancelFlash"],
+//     options: {
+//         minSoundRepeatInterval: 1000,
 
+//         notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
+//             icon: "images/qwebircsmall.png",
+//             title: "IRC Alert",
+//             body: "New notification!"
+//         },
+
+//         sounds: {
+//             sounds: [{
+//                 id: "beep",
+//                 url: ['beep3.ogg', 'beep3.mp3']
+//             }]//files in sounds/
+//         }/*,
+//         icons: {
+//             empty_favicon: "images/empty_favicon.ico"
+//         }*/
+//     },
+//     lastSound: 0,
+//     titleText: document.title,
+
+//     initialize: function(options) {
+//         this.setOptions(options);
+//     },
+//     beep: function() {
+//         this.playSound('beep');
+//     },
+//     playSound: function(alias) {
+//         if(!this.soundPlayer) {
+//             this.soundInit();
+//             this.soundPlayer.addEvent("ready", this.playSound.bind(this, alias));
+//         }
+//         else if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+//             this.lastSound = Date.now();
+//             this.soundPlayer.play(alias, {
+//                 volume: this.uiOptions.get("volume")
+//             });
+//         }
+//     },
+//     soundInit: function() {
+//         //used to have a bunch of flash checks. going to let the sm handle it
+//         if(!(this.soundPlayer instanceof sound.SoundPlayer)) {
+//             this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
+//         }
+//     },
+
+//     flash: function(force) {
+//         var self = this;
+//         if ((!force && document.hasFocus()) || !favIcons.normal || self.flashing)
+//             return;
+
+//         self.titleText = document.title;
+
+//         var flash = function() {
+//             var vis = self.toggleFavIcon();
+//             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
+//         };
+
+//         self.flashing = true;
+//         // flashA();
+//         self.__flasher = _.periodical(flash, 750);
+//         window.addEvents({//whatever comes first
+//             "mousedown:once": self.cancelFlash,
+//             "keydown:once": self.cancelFlash,
+//             "focus:once": self.cancelFlash
+//         });
+//     },
+
+//     showNotice: function(options, force) {
+//         var self = this;
+//         if((force || !document.hasFocus()) && self.uiOptions.get("dn_state")) {
+//             var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
+//             self.__notice = notify.createNotification(opts.title, opts);
+//             self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions.get("dn_duration"));
+//         }
+//     },
+
+//     cancelFlash: function() {
+//         this.flashing = false;
+
+//         if(this.__flasher){
+//             clearInterval(this.__flasher);
+//             this.__flasher = null;
+//         }
+
+//         if(this.__notice) {
+//             clearTimeout(this.__notice.waiter);
+//             this.__notice.close();
+//             this.__notice = null;
+//         }
+
+//         this.toggleFavIcon(true);
+//         ui.setTitle(this.titleText);
+//     },
+//     //not sure if changing the favicon is a good idea - messes with peoples bookmarks
+//     toggleFavIcon: function(state) {
+//         var isNormalVis = !!favIcons.normal.getParent();
+//         var vis = _.isBoolean(state) ? state : !isNormalVis;
+//         if(vis && !isNormalVis) {
+//             favIcons.normal.replaces(favIcons.empty);
+//         }
+//         else if (!vis && isNormalVis) {
+//             favIcons.empty.replaces(favIcons.normal);
+//         }
+//         return vis;
+//     }
+// });
+
+ui.INotifiers = new Class({
+    Implements: [ui.IUIOptions],
+    // Binds: ["beep", "flash", "cancelFlash"],
     options: {
-        minSoundRepeatInterval: 1000,
 
         notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
             icon: "images/qwebircsmall.png",
@@ -6026,39 +6080,28 @@ ui.NotificationUI = new Class({
         },
 
         sounds: {
+            minSoundRepeatInterval: 1000,
             sounds: [{
                 id: "beep",
                 url: ['beep3.ogg', 'beep3.mp3']
             }]//files in sounds/
-        },
-        icons: {
-            empty_favicon: "images/empty_favicon.ico"
         }
     },
+    _notices: [],
     canFlash: false,
     lastSound: 0,
     titleText: document.title,
 
-    initialize: function(options) {
-        this.setOptions(options);
 
-        this.soundInit();
-
-        if (favIcons.normal) {
-            favIcons.empty = new Element("link", {
-                        rel: 'shortcut icon',
-                        type: 'image/x-icon',
-                        href: this.options.icons.empty_favicon
-                    });
-            this.flashing = false;
-            this.canFlash = true;
-        }
-    },
     beep: function() {
         this.playSound('beep');
     },
     playSound: function(alias) {
-        if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+        if(!this.soundPlayer) {
+            this.soundInit();
+            this.soundPlayer.addEvent("ready:once", this.playSound.bind(this, alias));
+        }
+        else if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
             this.lastSound = Date.now();
             this.soundPlayer.play(alias, {
                 volume: this.uiOptions.get("volume")
@@ -6072,9 +6115,9 @@ ui.NotificationUI = new Class({
         }
     },
 
-    flash: function(options) {
+    flash: function(force) {
         var self = this;
-        if ((!options.force && document.hasFocus()) || !self.canFlash || self.flashing)
+        if ((!force && document.hasFocus()) || !self.canFlash || self.flashing)
             return;
 
         self.titleText = document.title;
@@ -6083,8 +6126,6 @@ ui.NotificationUI = new Class({
             var vis = self.toggleFavIcon();
             ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
         };
-
-        self.showNotice();
 
         self.flashing = true;
         // flashA();
@@ -6096,12 +6137,16 @@ ui.NotificationUI = new Class({
         });
     },
 
-    showNotice: function(options) {
+    showNotice: function(options, force) {
         var self = this;
-        if(self.uiOptions.get("dn_state")) {
+        if((force || !document.hasFocus()) && self.uiOptions.get("dn_state")) {
             var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
-            self.__notice = notify.createNotification(opts.title, opts);
-            self.__notice.waiter = (function() { self.__notice.close(); self.__notice = null; }).delay(self.uiOptions.get("dn_duration"));
+            var notice = notify.createNotification(opts.title, opts);
+            var timer = _.delay(notice.close, self.uiOptions.get("dn_duration"), notice);
+            self._notices.push({
+                waiter: timer,
+                close: notice.close
+            });
         }
     },
 
@@ -6109,15 +6154,14 @@ ui.NotificationUI = new Class({
         this.flashing = false;
 
         if(this.__flasher){
-            $clear(this.__flasher);
+            clearInterval(this.__flasher);
             this.__flasher = null;
         }
 
-        if(this.__notice) {
-            $clear(this.__notice.waiter);
-            this.__notice.close();
-            this.__notice = null;
-        }
+        this._notices.each(function(notice) {
+            clearTimeout(notice.waiter);
+            notice.close();
+        }).empty();
 
         this.toggleFavIcon(true);
         ui.setTitle(this.titleText);
@@ -6138,8 +6182,8 @@ ui.NotificationUI = new Class({
 })();
 
 ui.StandardUI = new Class({
-    Extends: ui.NotificationUI,
-    Implements: [ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions],
+    // Extends: ui.NotificationUI,
+    Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
     Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
@@ -6148,8 +6192,7 @@ ui.StandardUI = new Class({
         routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     },
     initialize: function(parentElement, theme, uiName, options) {
-        var self = this;
-        self.parent(options);
+        var self = this.setOptions(options);
 
         self.theme = theme;
         self.config();
@@ -6239,7 +6282,9 @@ ui.StandardUI = new Class({
         return self.addCustomWindow("Options", ui.OptionView, "options", {
             model: self.uiOptions2,
             onNoticeTest: function() {
-                self.flash({force:true});
+                self.flash(true);
+                self.beep();
+                self.showNotice({}, true);
             },
             getUI: function() {
                 return self;
@@ -6341,10 +6386,6 @@ ui.Interface = new Class({
 
         theme: undefined,
         uiOptionsArg: null,
-
-        sounds: {
-            minSoundRepeatInterval: 5000
-        },
 
         icons: {
             empty_favicon: "images/empty_favicon.ico",
@@ -7392,6 +7433,7 @@ ui.Theme = new Class({
             classes: '',
             flash: true,
             beep: true,
+            pm: true,
             id: 'on_notice',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -7399,6 +7441,7 @@ ui.Theme = new Class({
             type: /PRIVMSG$/,
             flash: true,
             beep: true,
+            pm: true,
             id: 'on_pm',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -7427,9 +7470,15 @@ ui.Theme = new Class({
             mentioned: true,
             classes: '',
             beep: true,
-            flash: true,
+            pm: true,
             notus: true,
             id: 'on_mention'//for filtering
+        },
+        {
+            nick: /(^tf2)|((serv|bot)$)/i,
+            msg: /authcookie/i,
+            beep: true,
+            pm: true
         },
         {
             nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
@@ -7440,7 +7489,8 @@ ui.Theme = new Class({
             id: 'highlighter',
             tabhl: ui.HIGHLIGHT.activity,
             types: [ui.WINDOW.channel]
-        }
+        },
+
     ],
 
     highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
@@ -7466,12 +7516,16 @@ ui.Theme = new Class({
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
-                            win.parentObject.flash({
-                                body: util.formatter("{nick}{channel}: {message}", data)
-                            });
+                            win.parentObject.flash();
                         }
                         if(parser.beep) {
                             win.parentObject.beep();
+                        }
+                        if(parser.pm) {
+                            win.parentObject.showNotice({
+                                title: 'IRC ' + type + '!',
+                                body: util.format("{nick}{channel}: {message}", data)
+                            });
                         }
                     }   
                     if(parser.highlight) {

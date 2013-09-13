@@ -145,6 +145,15 @@ html, body {
     z-index: 10;
 }
 
+.show-nicklist .content .handle {
+    display: block;
+}
+
+.content .handle {
+    display: hidden;
+}
+
+
 /*Highlighting*/
 
 /*.qwebirc*/ .colourline .col0 {

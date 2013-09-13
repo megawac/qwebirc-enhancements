@@ -43,7 +43,7 @@ module.exports = function(grunt) {
                 },
                 files: {
                     "js/templates/qwebirc.js": ['css/modifiablecss.hbs', 'templates/**.hbs'],
-                    "js/templates/options.js": ["panes/options.hbs"],
+                    "js/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
                     "js/templates/wizard.js": ["panes/wizard.hbs"],
                     "js/templates/feedback.js": ["panes/feedback.hbs"],
                     "js/templates/about.js": ["panes/about.hbs"],
@@ -150,8 +150,8 @@ module.exports = function(grunt) {
     'handlebars',
 
     'concat:qweb',
-    'concat:full',
-    // 'uglify:strip',
+    // 'concat:full',
+    'uglify:strip',
     'copy:demo',
     //, 'uglify:min'
     ]);

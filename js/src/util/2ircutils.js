@@ -250,9 +250,9 @@ util.createNickRegex = _.memoize(function(nick) {
     return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
 })
 
-util.testForNick = function(nick, text) { //http://jsperf.com/new-regexp-vs-memoize/2
-    return test(util.createNickRegex(nick), text);
-};
+util.testForNick = _.autoCurry(function(nick, text) {
+    return util.createNickRegex(nick).test(text);
+});
 
 util.toHSBColour = function(nick, client) {
     var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));

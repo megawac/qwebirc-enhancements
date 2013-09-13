@@ -23,10 +23,6 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
-        sounds: {
-            minSoundRepeatInterval: 5000
-        },
-
         icons: {
             empty_favicon: "images/empty_favicon.ico",
             menuicon: "images/icon.png"

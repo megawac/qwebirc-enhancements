@@ -1,7 +1,7 @@
 
 ui.StandardUI = new Class({
-    Extends: ui.NotificationUI,
-    Implements: [ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions],
+    // Extends: ui.NotificationUI,
+    Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
     Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
@@ -10,8 +10,7 @@ ui.StandardUI = new Class({
         routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     },
     initialize: function(parentElement, theme, uiName, options) {
-        var self = this;
-        self.parent(options);
+        var self = this.setOptions(options);
 
         self.theme = theme;
         self.config();
@@ -101,7 +100,9 @@ ui.StandardUI = new Class({
         return self.addCustomWindow("Options", ui.OptionView, "options", {
             model: self.uiOptions2,
             onNoticeTest: function() {
-                self.flash({force:true});
+                self.flash(true);
+                self.beep();
+                self.showNotice({}, true);
             },
             getUI: function() {
                 return self;
