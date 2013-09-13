@@ -123,9 +123,7 @@
 
         detach: function() {
             this.$input.removeEvents(this.$events);
-            window.removeEvents({
-                "resize": this.update
-            });
+            window.removeEvent("resize", this.update);
         }
     });
 })();

@@ -1,5 +1,5 @@
 {
-    "name": "qwebirc WebIRC client",
+    "name": "qwebirc-WebIRC-client",
     "description": "webirc client - See qwebirc.org",
     "repository": "www.github.com/megawac/qwebirc-enhancements",
     "version": "0.93.11",
@@ -17,5 +17,16 @@
         "type": "GNU",
         "url": "http://www.gnu.org/licenses/gpl.html",
         "file": "licence.lic"
-    }
+    },
+    "engines": {
+        "node": ">= 0.6.0"
+    },
+    "dependencies": {
+        "grunt": "*",
+        "grunt-contrib-handlebars": "0.5.x",
+        "grunt-contrib-concat": "*",
+        "grunt-contrib-uglify": "*",
+        "grunt-contrib-copy": "*"
+    },
+    "main": "gruntfile.js"
 }

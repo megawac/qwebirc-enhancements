@@ -3479,9 +3479,7 @@ Element.Properties.mask = {
             this.$hint.setStyles(this.$input.getCoordinates(this.$input.getParent()));
         },
         detach: function() {
-            this.$input.removeEvents(this.$events), window.removeEvents({
-                resize: this.update
-            });
+            this.$input.removeEvents(this.$events), window.removeEvent("resize", this.update);
         }
     });
 }(), window.addEvent("domready", function() {
