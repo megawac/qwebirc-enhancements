@@ -181,7 +181,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             if(ui_.uiOptions2.get("auto_open_pm")) {
                 ui_.selectWindow(win);
             }
-            parser(type, data, win);
+            if($chk(data.message)) parser(type, data, win);
         },
 
         "awayStatus": lineParser,

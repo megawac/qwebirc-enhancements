@@ -38,8 +38,11 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
+        var $eles = Elements.from(result).filter(function($e) {
+            return !Type.isTextNode($e) || $e.nodeValue != "";
+        });
         $ele.addClass('colourline')
-            .adopt(Elements.from(result));//insertAdjacentHTML may render escaped chars incorrectly
+            .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
@@ -113,9 +116,7 @@ ui.Theme = new Class({
         {
             type: /NOTICE$/,
             classes: '',
-            flash: true,
             beep: true,
-            pm: true,
             id: 'on_notice',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -206,7 +207,7 @@ ui.Theme = new Class({
                         if(parser.pm) {
                             win.parentObject.showNotice({
                                 title: 'IRC ' + type + '!',
-                                body: util.format("{nick}{channel}: {message}", data)
+                                body: util.format("{nick}({channel}): {message}", data)
                             });
                         }
                     }   

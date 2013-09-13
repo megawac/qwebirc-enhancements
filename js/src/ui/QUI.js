@@ -314,6 +314,7 @@ ui.QUI = new Class({
     },
 
     setHotKeys: function () {
+        if(Browser.isMobile) return;
         var self = this,
             keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);

@@ -47,7 +47,7 @@ ui.QUI.Window = new Class({
                 topic: false,
                 needsInput: hasInput,
                 nick: self.client ? self.client.nickname : ""
-            }))
+            }));
         var $win = self.window = self.element.getElement('.window').store("window", self);
 
         var $content = self.content = $win.getElement('.content');
@@ -220,7 +220,7 @@ ui.QUI.Window = new Class({
         if(self.fxscroll) {//scroll to bottom
             self.fxscroll.autoScroll();
         }
-        if(!self.completer && util.windowNeedsInput(self.type)) {
+        if(Browser.isDecent && !self.completer && util.windowNeedsInput(self.type)) {
             self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name));
         }
 

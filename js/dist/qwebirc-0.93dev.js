@@ -1,6 +1,6 @@
 /*!
 qwebirc WebIRC client ::: Version 0.93.11 :::
-Built on 2013-09-12
+Built on 2013-09-13
 Description: webirc client - See qwebirc.org
 Authors: Graeme Yeates (www.github.com/megawac)
 Repository: www.github.com/megawac/qwebirc-enhancements
@@ -7862,7 +7862,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
             lastSpoke: l || 0
         };
     }, util.noop = function() {}, Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux), 
-    util.generateID = function() {
+    Browser.isDecent = !Browser.isMobile || !(!Browser.ie || Browser.version < 9), util.generateID = function() {
         var id = 0;
         return function() {
             return "qqa-" + id++;
@@ -9031,16 +9031,13 @@ var io = "undefined" == typeof module ? {} : module.exports;
                         target: target,
                         message: message
                     });
-                    if (this.send(msg)) {
-                        if (!util.isChannel(target)) return [ "QUERY", target + " " + message ];
-                        this.trigger("chanMessage", {
-                            nick: nick,
-                            channel: target,
-                            message: message,
-                            type: "chanmsg",
-                            "@": parentObj.getNickStatus(target, nick)
-                        });
-                    }
+                    return util.isChannel(target) ? (this.send(msg) && this.trigger("chanMessage", {
+                        nick: nick,
+                        channel: target,
+                        message: message,
+                        type: "chanmsg",
+                        "@": parentObj.getNickStatus(target, nick)
+                    }), void 0) : [ "QUERY", target + " " + message ];
                 }
             },
             cmd_NOTICE: {
@@ -9065,11 +9062,14 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 fn: function(args, target) {
                     var target = args[0], message = args[1];
                     if (util.isChannel(target)) return this.writeMessages(lang.invalidChanTarget);
-                    var msg = format(cmd.PRIVMSG, {
-                        target: target,
-                        message: message
-                    });
-                    _.size(msg) > 1 && this.send(msg) && this.trigger("query", {
+                    if (_.size(message) > 1) {
+                        var msg = format(cmd.PRIVMSG, {
+                            target: target,
+                            message: message
+                        });
+                        this.send(msg);
+                    }
+                    this.trigger("query", {
                         nick: this.parentObject.nickname,
                         channel: target,
                         message: message,
@@ -10188,7 +10188,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     query: function(type, data) {
                         data = formatData(type, data);
                         var win = ui_.newWindow(client, ui.WINDOW.query, data.channel);
-                        ui_.uiOptions2.get("auto_open_pm") && ui_.selectWindow(win), parser(type, data, win);
+                        ui_.uiOptions2.get("auto_open_pm") && ui_.selectWindow(win), $chk(data.message) && parser(type, data, win);
                     },
                     awayStatus: lineParser,
                     mode: function(type, data) {
@@ -10701,22 +10701,24 @@ var io = "undefined" == typeof module ? {} : module.exports;
             function isChar(code) {
                 return 32 === code || code > 46 && !(code >= 91 && 123 >= code) && 144 !== code && 145 !== code;
             }
-            var self = this, keyboard = this.keyboard = new Keyboard({
-                active: !0
-            }).addShortcuts(self.hotkeys.keyboard), inputKeyboard = new Keyboard({
-                active: !1
-            }).addShortcuts(self.hotkeys.input);
-            keyboard.scope = self, document.addEvents({
-                "blur:relay(input)": function() {
-                    keyboard.activate();
-                },
-                "focus:relay(input)": function() {
-                    inputKeyboard.activate();
-                },
-                keydown: function(e) {
-                    keyboard.isActive() && (e.alt && !isNaN(e.key) && e.key <= self.windowArray.length ? self.selectWindow(e.key - 1) : !self.active.$input || e.alt || e.control || e.meta || !isChar(e.code) || self.active.$input.focus());
-                }
-            });
+            if (!Browser.isMobile) {
+                var self = this, keyboard = this.keyboard = new Keyboard({
+                    active: !0
+                }).addShortcuts(self.hotkeys.keyboard), inputKeyboard = new Keyboard({
+                    active: !1
+                }).addShortcuts(self.hotkeys.input);
+                keyboard.scope = self, document.addEvents({
+                    "blur:relay(input)": function() {
+                        keyboard.activate();
+                    },
+                    "focus:relay(input)": function() {
+                        inputKeyboard.activate();
+                    },
+                    keydown: function(e) {
+                        keyboard.isActive() && (e.alt && !isNaN(e.key) && e.key <= self.windowArray.length ? self.selectWindow(e.key - 1) : !self.active.$input || e.alt || e.control || e.meta || !isChar(e.code) || self.active.$input.focus());
+                    }
+                });
+            }
         },
         __createChannelMenu: function(e) {
             e && e.stop();
@@ -11044,8 +11046,10 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 var val = data[key];
                 val && (_.isArray(val) && (val = val.join("")), data[key] = self.urlerize(val));
             }));
-            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed);
-            return $ele.addClass("colourline").adopt(Elements.from(result)), result;
+            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed), $eles = Elements.from(result).filter(function($e) {
+                return !Type.isTextNode($e) || "" != $e.nodeValue;
+            });
+            return $ele.addClass("colourline").adopt($eles), result;
         },
         formatElement: function(line, $ele) {
             var result = this.colourise(this.urlerize(line));
@@ -11082,9 +11086,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         messageParsers: [ {
             type: /NOTICE$/,
             classes: "",
-            flash: !0,
             beep: !0,
-            pm: !0,
             id: "on_notice",
             highlight: ui.HIGHLIGHT.speech
         }, {
@@ -11141,7 +11143,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 parser.notus && !notus || parser.types && !parser.types.contains(win.type) || parser.type && !parser.type.test(type) || parser.msg && !parser.msg.test(data.m) || parser.nick && !parser.nick.test(data.n) || parser.mentioned && !util.testForNick(win.client.nickname, data.m) || ((!win.active && win.name !== BROUHAHA || !document.hasFocus()) && (parser.flash && win.parentObject.flash(), 
                 parser.beep && win.parentObject.beep(), parser.pm && win.parentObject.showNotice({
                     title: "IRC " + type + "!",
-                    body: util.format("{nick}{channel}: {message}", data)
+                    body: util.format("{nick}({channel}): {message}", data)
                 })), parser.highlight && (highlights.channels[win.name] || (highlights.channels[win.name] = 0), 
                 $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++) : parser.highlight)), 
                 $chk(parser.classes) && $ele.addClass(parser.classes), tabHighlight = Math.max(tabHighlight, parser.tabhl));
@@ -11181,8 +11183,8 @@ var io = "undefined" == typeof module ? {} : module.exports;
             this.active = !1;
         },
         addLine: function(type, data, colour, $ele) {
-            var self = this, uiobj = self.parentObject, highlight = ui.HIGHLIGHT.none, hl_line = !1;
-            highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele), self.active || highlight === ui.HIGHLIGHT.none || self.highlightTab(highlight);
+            var self = this, uiobj = self.parentObject, highlight = this.name !== BROUHAHA ? uiobj.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none, hl_line = !1;
+            self.active || highlight === ui.HIGHLIGHT.none || self.highlightTab(highlight);
             var tsE = templates.timestamp({
                 time: util.IRCTimestamp(new Date())
             });
@@ -11309,7 +11311,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                         max: 0
                     }
                 });
-            }, 50), self.fxscroll && self.fxscroll.autoScroll(), !self.completer && util.windowNeedsInput(self.type) && (self.completer = new Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.name))), 
+            }, 50), self.fxscroll && self.fxscroll.autoScroll(), Browser.isDecent && !self.completer && util.windowNeedsInput(self.type) && (self.completer = new Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.name))), 
             util.isChannelType(self.type)) {
                 var colour = parentObject.uiOptions2.get("nick_colours");
                 if (self.nicksColoured !== colour) {

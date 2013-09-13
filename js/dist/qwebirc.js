@@ -1772,6 +1772,8 @@ util.noop = function() {};
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
+Browser.isDecent = !Browser.isMobile || !(!Browser.ie || Browser.version < 9);
+
 util.generateID = (function() {
     var id = 0;
     return function() {
@@ -3680,8 +3682,8 @@ irc.Commands = new Class({
                 message: message
             });
 
-            if (this.send(msg)) {
-                if (util.isChannel(target)) {
+            if (util.isChannel(target)) {
+                if (this.send(msg)) {
                     this.trigger("chanMessage", {
                         'nick': nick,
                         'channel': target,
@@ -3689,9 +3691,9 @@ irc.Commands = new Class({
                         'type': 'chanmsg',
                         "@": parentObj.getNickStatus(target, nick)
                     });
-                } else {
-                    return ["QUERY", target + " " + message];
                 }
+            } else {
+                return ["QUERY", target + " " + message];
             }
         }
     },
@@ -3727,20 +3729,20 @@ irc.Commands = new Class({
             if (util.isChannel(target)) {
                 return this.writeMessages(lang.invalidChanTarget);
             }
-            var msg = format(cmd.PRIVMSG, {
-                target: target,
-                message: message
-            });
-
-            // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
-            if(_.size(msg) > 1 && this.send(msg)) {
-                this.trigger("query", {
-                    'nick': this.parentObject.nickname,
-                    'channel': target,
-                    'message': message,
-                    'type': 'privmsg'
+            if(_.size(message) > 1) {
+                var msg = format(cmd.PRIVMSG, {
+                    target: target,
+                    message: message
                 });
+                this.send(msg)
             }
+
+            this.trigger("query", {
+                'nick': this.parentObject.nickname,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg'
+            });
         }
     },
 
@@ -5712,7 +5714,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             if(ui_.uiOptions2.get("auto_open_pm")) {
                 ui_.selectWindow(win);
             }
-            parser(type, data, win);
+            if($chk(data.message)) parser(type, data, win);
         },
 
         "awayStatus": lineParser,
@@ -6786,6 +6788,7 @@ ui.QUI = new Class({
     },
 
     setHotKeys: function () {
+        if(Browser.isMobile) return;
         var self = this,
             keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
@@ -7356,8 +7359,11 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
+        var $eles = Elements.from(result).filter(function($e) {
+            return !Type.isTextNode($e) || $e.nodeValue != "";
+        });
         $ele.addClass('colourline')
-            .adopt(Elements.from(result));//insertAdjacentHTML may render escaped chars incorrectly
+            .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
@@ -7431,9 +7437,7 @@ ui.Theme = new Class({
         {
             type: /NOTICE$/,
             classes: '',
-            flash: true,
             beep: true,
-            pm: true,
             id: 'on_notice',
             highlight: ui.HIGHLIGHT.speech
         },
@@ -7524,7 +7528,7 @@ ui.Theme = new Class({
                         if(parser.pm) {
                             win.parentObject.showNotice({
                                 title: 'IRC ' + type + '!',
-                                body: util.format("{nick}{channel}: {message}", data)
+                                body: util.format("{nick}({channel}): {message}", data)
                             });
                         }
                     }   
@@ -7611,13 +7615,12 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
-        var highlight = ui.HIGHLIGHT.none,
+        var highlight =  this.name !== BROUHAHA ? uiobj.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
             hl_line = false;
 
-        highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
-
-        if (!self.active && (highlight !== ui.HIGHLIGHT.none))
+        if (!self.active && (highlight !== ui.HIGHLIGHT.none)) {
             self.highlightTab(highlight);
+        }
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
@@ -7707,7 +7710,7 @@ ui.QUI.Window = new Class({
                 topic: false,
                 needsInput: hasInput,
                 nick: self.client ? self.client.nickname : ""
-            }))
+            }));
         var $win = self.window = self.element.getElement('.window').store("window", self);
 
         var $content = self.content = $win.getElement('.content');
@@ -7880,7 +7883,7 @@ ui.QUI.Window = new Class({
         if(self.fxscroll) {//scroll to bottom
             self.fxscroll.autoScroll();
         }
-        if(!self.completer && util.windowNeedsInput(self.type)) {
+        if(Browser.isDecent && !self.completer && util.windowNeedsInput(self.type)) {
             self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name));
         }
 

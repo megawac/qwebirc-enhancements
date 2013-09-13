@@ -150,7 +150,7 @@ html, body {
 }
 
 .content .handle {
-    display: hidden;
+    display: none;
 }
 
 

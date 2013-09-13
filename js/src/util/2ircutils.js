@@ -394,6 +394,8 @@ util.noop = function() {};
 
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
+Browser.isDecent = !Browser.isMobile || !(!Browser.ie || Browser.version < 9);
+
 util.generateID = (function() {
     var id = 0;
     return function() {

@@ -159,8 +159,8 @@ irc.Commands = new Class({
                 message: message
             });
 
-            if (this.send(msg)) {
-                if (util.isChannel(target)) {
+            if (util.isChannel(target)) {
+                if (this.send(msg)) {
                     this.trigger("chanMessage", {
                         'nick': nick,
                         'channel': target,
@@ -168,9 +168,9 @@ irc.Commands = new Class({
                         'type': 'chanmsg',
                         "@": parentObj.getNickStatus(target, nick)
                     });
-                } else {
-                    return ["QUERY", target + " " + message];
                 }
+            } else {
+                return ["QUERY", target + " " + message];
             }
         }
     },
@@ -206,20 +206,20 @@ irc.Commands = new Class({
             if (util.isChannel(target)) {
                 return this.writeMessages(lang.invalidChanTarget);
             }
-            var msg = format(cmd.PRIVMSG, {
-                target: target,
-                message: message
-            });
-
-            // this.parentObject.newWindow(target, ui.WINDOW_QUERY, true);
-            if(_.size(msg) > 1 && this.send(msg)) {
-                this.trigger("query", {
-                    'nick': this.parentObject.nickname,
-                    'channel': target,
-                    'message': message,
-                    'type': 'privmsg'
+            if(_.size(message) > 1) {
+                var msg = format(cmd.PRIVMSG, {
+                    target: target,
+                    message: message
                 });
+                this.send(msg)
             }
+
+            this.trigger("query", {
+                'nick': this.parentObject.nickname,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg'
+            });
         }
     },
 

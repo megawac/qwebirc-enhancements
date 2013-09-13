@@ -66,13 +66,12 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             uiobj = self.parentObject;
-        var highlight = ui.HIGHLIGHT.none,
+        var highlight =  this.name !== BROUHAHA ? uiobj.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
             hl_line = false;
 
-        highlight = uiobj.theme.highlightAndNotice(data, type, self, $ele);
-
-        if (!self.active && (highlight !== ui.HIGHLIGHT.none))
+        if (!self.active && (highlight !== ui.HIGHLIGHT.none)) {
             self.highlightTab(highlight);
+        }
 
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
