@@ -48,7 +48,11 @@ Note: heroku doesnt support websockets so its using xhr long polls :/
 
 ##End Goals (some day...):  
 -make client portable enough (maybe with mootools and jquery amd versions) to be enabled as an overlay  
--make client ui easily extensible by just simple MV* view configuration  
+-make client ui easily extensible by just simple MV* view configuration (90% done)  
+
+###Making Changes:  
+To make changes to the static files make them in the base directory and run ```grunt``` in the command line. Use ```npm install``` if this is your first change.  
+
 
 ##DEMO:  
 To run the demo:  
