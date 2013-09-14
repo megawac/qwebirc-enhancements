@@ -43,6 +43,10 @@ project name and URL in the about dialog, thanks!
         util: {
             crypto: {}
         },
+        global: {
+            dynamicBaseURL: "/",
+            staticBaseURL: "/"
+        },
         config: {},
         auth: {},
         sound: {},

@@ -43,6 +43,10 @@ project name and URL in the about dialog, thanks!
         util: {
             crypto: {}
         },
+        global: {
+            dynamicBaseURL: "/",
+            staticBaseURL: "/"
+        },
         config: {},
         auth: {},
         sound: {},
@@ -2914,9 +2918,7 @@ irc.BaseIRCClient = new Class({
             });
         } else {
             self.connection = new irc.TwistedConnection({
-                account: options.account,
                 initialNickname: self.nickname,
-                password: options.password,
                 serverPassword: options.serverPassword
             });
             self.connection.addEvent("recv", self.tdispatch);
@@ -4817,7 +4819,6 @@ irc.TwistedConnection = new Class({
         floodReset: 5000,
         errorAlert: true,
         maxRetries: 5,
-        password: '',
         serverPassword: null
     },
 
@@ -4839,10 +4840,9 @@ irc.TwistedConnection = new Class({
     },
 
     connect: function() {
-        var self = this,
-            request;
+        var self = this;
         self.cacheAvoidance = util.randHexString(16);
-        request = self.newRequest("n");
+        var request = self.newRequest("n");
 
         request.addEvent("complete", function(stream) {
             if (!stream) {
@@ -5080,24 +5080,24 @@ irc.TwistedConnection = new Class({
     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
     //header nullables are browser dependent
     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-    var killBit = null;
+    // var killBit = null;
 
-    var kill = {
-        "User-Agent": killBit,
-        "Accept": killBit,
-        "Accept-Language": killBit,
-        "Content-Type": "M",
-        "Connection": "keep-alive",
-        "Keep-Alive": killBit
-    };
+    // var kill = {
+    //     "User-Agent": killBit,
+    //     "Accept": killBit,
+    //     "Accept-Language": killBit,
+    //     "Content-Type": "M",
+    //     "Connection": "keep-alive",
+    //     "Keep-Alive": killBit
+    // };
 
-    //removes a header from an xhr object (this instanceof xhr)
+    // //removes a header from an xhr object (this instanceof xhr)
 
-    function removeHeaders(val, header) {
-        try {
-            this.setRequestHeader(header, val);
-        } catch (e) {console.log(header)}
-    }
+    // function removeHeaders(val, header) {
+    //     try {
+    //         this.setRequestHeader(header, val);
+    //     } catch (e) {console.log(header)}
+    // }
 
 
 
@@ -5612,6 +5612,19 @@ function addClientEvents(client, windows) { // mi gusta xD
         });
     }
 
+    function formatBChannelName(channel, nick) {
+        if(util.isChannel(channel)) {
+            return nick + channel;
+        } else {//pm
+            nick = client.nickname
+            if(channel === nick) {//so it always shows speaker>target
+                return channel + ">" + nick;
+            } else {
+                return nick + ">" + channel;
+            }
+        }
+    }
+
     function parser(type, data, win, channel) {
         type = data.type || data.t || type;
         channel = data.channel || STATUS;
@@ -5620,8 +5633,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
             var data2 = _.clone(data);
-            data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c ://chanmsg
-                                                            data.n + ">" + data.c;//pm
+            data2.nick = data2.n = formatBChannelName(data.channel, data.nick);
             ui_.windows.brouhaha.addLine(data.type, data2);
         }
     }
@@ -6371,16 +6383,12 @@ ui.Interface = new Class({
         node: false,//use the node implementation with socket.io
         debug: false,
 
-        dynamicBaseURL: "/",
-        staticBaseURL: "/",
-        searchURL: true,
-
-        appTitle: "Freenode.net Web IRC",
-        networkName: "Freenode",
-        networkServices: [],
+        appTitle: ""/*Quake Net Web IRC*/,
+        networkName: "" /* Quake Net */,
+        networkServices: [],//registered hosts to treat as a server admin
 
         initialNickname: "",
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
+        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
 
         hue: null,
         saturation: null,
@@ -6388,11 +6396,6 @@ ui.Interface = new Class({
 
         theme: undefined,
         uiOptionsArg: null,
-
-        icons: {
-            empty_favicon: "images/empty_favicon.ico",
-            menuicon: "images/icon.png"
-        },
 
         loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
@@ -6406,11 +6409,7 @@ ui.Interface = new Class({
         var self = this,
             opts = self.options;
 
-        qwebirc.global = {
-            baseURL: opts.dynamicBaseURL,
-            staticURL: opts.staticBaseURL,
-            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
-        };
+        qwebirc.global.nicknameValidator = opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator();
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,

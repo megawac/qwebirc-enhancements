@@ -15,7 +15,6 @@ irc.TwistedConnection = new Class({
         floodReset: 5000,
         errorAlert: true,
         maxRetries: 5,
-        password: '',
         serverPassword: null
     },
 
@@ -37,10 +36,9 @@ irc.TwistedConnection = new Class({
     },
 
     connect: function() {
-        var self = this,
-            request;
+        var self = this;
         self.cacheAvoidance = util.randHexString(16);
-        request = self.newRequest("n");
+        var request = self.newRequest("n");
 
         request.addEvent("complete", function(stream) {
             if (!stream) {
@@ -278,24 +276,24 @@ irc.TwistedConnection = new Class({
     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
     //header nullables are browser dependent
     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-    var killBit = null;
+    // var killBit = null;
 
-    var kill = {
-        "User-Agent": killBit,
-        "Accept": killBit,
-        "Accept-Language": killBit,
-        "Content-Type": "M",
-        "Connection": "keep-alive",
-        "Keep-Alive": killBit
-    };
+    // var kill = {
+    //     "User-Agent": killBit,
+    //     "Accept": killBit,
+    //     "Accept-Language": killBit,
+    //     "Content-Type": "M",
+    //     "Connection": "keep-alive",
+    //     "Keep-Alive": killBit
+    // };
 
-    //removes a header from an xhr object (this instanceof xhr)
+    // //removes a header from an xhr object (this instanceof xhr)
 
-    function removeHeaders(val, header) {
-        try {
-            this.setRequestHeader(header, val);
-        } catch (e) {console.log(header)}
-    }
+    // function removeHeaders(val, header) {
+    //     try {
+    //         this.setRequestHeader(header, val);
+    //     } catch (e) {console.log(header)}
+    // }
 
 
 

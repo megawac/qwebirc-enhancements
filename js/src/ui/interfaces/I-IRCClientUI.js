@@ -79,6 +79,19 @@ function addClientEvents(client, windows) { // mi gusta xD
         });
     }
 
+    function formatBChannelName(channel, nick) {
+        if(util.isChannel(channel)) {
+            return nick + channel;
+        } else {//pm
+            nick = client.nickname
+            if(channel === nick) {//so it always shows speaker>target
+                return channel + ">" + nick;
+            } else {
+                return nick + ">" + channel;
+            }
+        }
+    }
+
     function parser(type, data, win, channel) {
         type = data.type || data.t || type;
         channel = data.channel || STATUS;
@@ -87,8 +100,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
             var data2 = _.clone(data);
-            data2.nick = data2.n = util.isChannel(data.c) ? data.n + data.c ://chanmsg
-                                                            data.n + ">" + data.c;//pm
+            data2.nick = data2.n = formatBChannelName(data.channel, data.nick);
             ui_.windows.brouhaha.addLine(data.type, data2);
         }
     }

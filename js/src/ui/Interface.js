@@ -5,16 +5,12 @@ ui.Interface = new Class({
         node: false,//use the node implementation with socket.io
         debug: false,
 
-        dynamicBaseURL: "/",
-        staticBaseURL: "/",
-        searchURL: true,
-
-        appTitle: "Freenode.net Web IRC",
-        networkName: "Freenode",
-        networkServices: [],
+        appTitle: ""/*Quake Net Web IRC*/,
+        networkName: "" /* Quake Net */,
+        networkServices: [],//registered hosts to treat as a server admin
 
         initialNickname: "",
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins
+        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
 
         hue: null,
         saturation: null,
@@ -22,11 +18,6 @@ ui.Interface = new Class({
 
         theme: undefined,
         uiOptionsArg: null,
-
-        icons: {
-            empty_favicon: "images/empty_favicon.ico",
-            menuicon: "images/icon.png"
-        },
 
         loginRegex: /I recogni[sz]e you\./,
         nickValidation: null
@@ -40,11 +31,7 @@ ui.Interface = new Class({
         var self = this,
             opts = self.options;
 
-        qwebirc.global = {
-            baseURL: opts.dynamicBaseURL,
-            staticURL: opts.staticBaseURL,
-            nicknameValidator: opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator()
-        };
+        qwebirc.global.nicknameValidator = opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator();
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,

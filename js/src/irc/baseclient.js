@@ -44,9 +44,7 @@ irc.BaseIRCClient = new Class({
             });
         } else {
             self.connection = new irc.TwistedConnection({
-                account: options.account,
                 initialNickname: self.nickname,
-                password: options.password,
                 serverPassword: options.serverPassword
             });
             self.connection.addEvent("recv", self.tdispatch);
