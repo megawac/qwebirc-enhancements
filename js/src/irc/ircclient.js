@@ -59,11 +59,15 @@ irc.IRCClient = new Class({
             _.each(this.activeTimers, $clear);
             this.activeTimers = {};
             this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+            this.disconnect();
             this.trigger("disconnect");
-            this.connection.disconnect();
             this.__signedOn = false;
         }
         return this;
+    },
+
+    disconnect: function() {
+        this.connection.disconnect();
     },
 
     disconnected: function(message) {

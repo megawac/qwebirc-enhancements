@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # this entire thing is a hack and badly needs reimplementing
-import bin.compile
-bin.compile.vcheck()
+# import bin.compile
+# bin.compile.vcheck()
 
 DEFAULT_PORT = 9090
 
 from optparse import OptionParser
 import sys, os, config
+
+print "\n\n\t***\tNew QwebIRC Twisted instance started\t***"
+print"\t***\tAttempting to connect to %s:%d\t***" % (config.IRCSERVER, config.IRCPORT)
+print "\n\n"
 
 def run_twistd(args1=None, args2=None):
   from twisted.scripts.twistd import run

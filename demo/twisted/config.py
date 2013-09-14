@@ -18,7 +18,7 @@ from qwebirc.config_options import *
 #         Hostname (or IP address) of IRC server to connect to.
 # OPTION: IRCPORT
 #         Port of IRC server to connect to.
-IRCSERVER, IRCPORT = "webirc.gamesurge.net", 6007
+IRCSERVER, IRCPORT = "chat.freenode.net", 6667
 
 # OPTION: REALNAME
 #         The realname field of IRC clients will be set to this value.

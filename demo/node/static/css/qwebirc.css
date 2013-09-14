@@ -5,6 +5,45 @@ html, body {
     overflow: hidden;
 }
 
+
+.qui .tabbar .brouhaha.tab {
+    background-image: url('../images/b_background_unsel.gif');
+    width: 80px;
+    padding-left: 75px;
+}
+
+.qui .tabbar .brouhaha.selected.tab {
+    background-image: url('../images/b_background_sel.gif');
+}
+
+/* .qui .tabbar .brouhaha {
+    padding-left: 75px;
+    background-image: -moz-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -moz-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -moz-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #666), color-stop(.25, transparent)), 
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #666)), 
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #666));
+    background-image: -webkit-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -webkit-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -webkit-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: -o-linear-gradient(45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(-45deg, #666 25%, transparent 25%), 
+        -o-linear-gradient(45deg, transparent 75%, #666 75%), 
+        -o-linear-gradient(-45deg, transparent 75%, #666 75%);
+    background-image: linear-gradient(45deg, #666 25%, transparent 25%), 
+        linear-gradient(-45deg, #666 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #666 75%), 
+        linear-gradient(-45deg, transparent 75%, #666 75%);
+    -moz-background-size: 2px 2px;
+    background-size: 2px 2px;
+    -webkit-background-size: 2px 2.1px; override value for webkit
+    background-position: 0 0, 1px 0, 1px -1px, 0px 1px;
+} */
+
 .windows {
     width: 100%;
 }
@@ -90,7 +129,6 @@ html, body {
 .detached.active .detached-window {
     z-index: 10;
 }
-
 
 .header {
     padding: 4px 0;
