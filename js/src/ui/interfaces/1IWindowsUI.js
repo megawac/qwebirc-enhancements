@@ -28,7 +28,7 @@ ui.IWindows = new Class({
     },
 
     getClientId: function(client) {
-        return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
+        return client === ui.CUSTOM_CLIENT || !client ? ui.CUSTOM_CLIENT : client.id;
     },
 
     newWindow: function(client, type, name) {
@@ -48,10 +48,15 @@ ui.IWindows = new Class({
 
     getWindow: function(client, name) {
         if(_.isString(client)) name = client;
-        var wins = this.windows[this.getClientId(client)] || this.customWindows;
+        var wins = this.getWindows(client);
         if (_.isObject(wins)) 
             return wins[this.getWindowIdentifier(name)];
     },
+
+    getWindows: function(client) {
+        return this.windows[this.getClientId(client)] || this.customWindows;
+    },
+
     getActiveWindow: function() {
         return this.active;
     },

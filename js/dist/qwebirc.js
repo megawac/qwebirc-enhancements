@@ -338,15 +338,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon nickname'><span class='status ";
+  buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status ";
   if (stack1 = helpers.status) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.status; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "'></span>";
+    + "'></span><span class=\"nickname\">";
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>"
+    + "</span></span>"
     + "<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled><input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
   return buffer;
   });
@@ -5410,7 +5410,7 @@ ui.IWindows = new Class({
     },
 
     getClientId: function(client) {
-        return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
+        return client === ui.CUSTOM_CLIENT || !client ? ui.CUSTOM_CLIENT : client.id;
     },
 
     newWindow: function(client, type, name) {
@@ -5430,10 +5430,15 @@ ui.IWindows = new Class({
 
     getWindow: function(client, name) {
         if(_.isString(client)) name = client;
-        var wins = this.windows[this.getClientId(client)] || this.customWindows;
+        var wins = this.getWindows(client);
         if (_.isObject(wins)) 
             return wins[this.getWindowIdentifier(name)];
     },
+
+    getWindows: function(client) {
+        return this.windows[this.getClientId(client)] || this.customWindows;
+    },
+
     getActiveWindow: function() {
         return this.active;
     },
@@ -5719,7 +5724,7 @@ function addClientEvents(client, windows) { // mi gusta xD
         "ctcpReply": lineParser,
         "userMode": lineParser,
         "nickChange": function(type, data) {
-            ui_.nickChange(data);
+            ui_.nickChange(data, client);
             lineParser(type, data);
         },
         "privNotice": lineParser,
@@ -6913,11 +6918,10 @@ ui.QUI = new Class({
         win.element.show().addClass('active');
     },
 
-    //called in context of irc client
-    nickChange: function(data) {
+    nickChange: function(data, client) {
         if(data.thisclient) {
-            _.each(this.windows, function(win) {
-                win.$nicklabel.set("text", data.newnick);
+            _.each(this.getWindows(client), function(win) {
+                win.setNickname(data.newnick);
             });
         }
     }
@@ -7908,9 +7912,13 @@ ui.QUI.Window = new Class({
                 }
             }
 
-            _.delay(self.updatePrefix, 200, self);
+            _.delay(self.updatePrefix, 1000, self);//takes a little while to recieve on some servers
         }
 
+    },
+
+    __dirtyFixes: function() {
+        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
     },
 
     deselect: function() {
@@ -7939,28 +7947,36 @@ ui.QUI.Window = new Class({
         }
     },
 
-    setNickname: function() {
+    setNickname: function(nick) {
         var self = this;
-        new ui.Dialog({
-            title: "Set nickname",
-            text: "Enter a new nickname",
-            value: self.nickname,
-            onSubmit: function(data) {
-                var nick = qwebirc.global.nicknameValidator.validate(data.value);
-                if(nick) {
-                    self.client.exec("/nick " + nick);
-                }
+        if(_.isString(nick)) {
+            var $nick = self.window.getElement('.input .user .nickname');
+            if($nick) {
+                $nick.text(nick);
+                self.__dirtyFixes();
             }
-        });
+        } else {
+            new ui.Dialog({
+                title: "Set nickname",
+                text: "Enter a new nickname",
+                value: self.nickname,
+                onSubmit: function(data) {
+                    var nick = qwebirc.global.nicknameValidator.validate(data.value);
+                    if(nick) {
+                        self.client.exec("/nick " + nick);
+                    }
+                }
+            });
+        }
     },
 
     updatePrefix: function (data) {
         if(data && (!data.thisclient || data.channel !== this.name)) return;
         var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
-        this.window.getElement('.input .nickname .status')
+        this.window.getElements('.input .user .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
-        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
+        this.__dirtyFixes();
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items

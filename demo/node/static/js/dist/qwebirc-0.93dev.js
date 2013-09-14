@@ -6871,16 +6871,16 @@ var io = "undefined" == typeof module ? {} : module.exports;
         this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
         data = data || {};
         var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
-        return buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon nickname'><span class='status ", 
+        return buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status ", 
         (stack1 = helpers.status) ? stack1 = stack1.call(depth0, {
             hash: {},
             data: data
         }) : (stack1 = depth0.status, stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1), 
-        buffer += escapeExpression(stack1) + "'></span>", (stack1 = helpers.nick) ? stack1 = stack1.call(depth0, {
+        buffer += escapeExpression(stack1) + '\'></span><span class="nickname">', (stack1 = helpers.nick) ? stack1 = stack1.call(depth0, {
             hash: {},
             data: data
         }) : (stack1 = depth0.nick, stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1), 
-        buffer += escapeExpression(stack1) + "</span>" + "<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled><input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
+        buffer += escapeExpression(stack1) + "</span></span>" + "<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled><input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
     }), this.qwebirc.templates.ircMessage = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
         this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
         data = data || {};
@@ -10030,7 +10030,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
             return wid && wid.id || id;
         },
         getClientId: function(client) {
-            return client === ui.CUSTOM_CLIENT ? ui.CUSTOM_CLIENT : client.id;
+            return client !== ui.CUSTOM_CLIENT && client ? client.id : ui.CUSTOM_CLIENT;
         },
         newWindow: function(client, type, name) {
             var win = this.getWindow(client, name);
@@ -10044,8 +10044,11 @@ var io = "undefined" == typeof module ? {} : module.exports;
         },
         getWindow: function(client, name) {
             _.isString(client) && (name = client);
-            var wins = this.windows[this.getClientId(client)] || this.customWindows;
+            var wins = this.getWindows(client);
             return _.isObject(wins) ? wins[this.getWindowIdentifier(name)] : void 0;
+        },
+        getWindows: function(client) {
+            return this.windows[this.getClientId(client)] || this.customWindows;
         },
         getActiveWindow: function() {
             return this.active;
@@ -10182,7 +10185,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     ctcpReply: lineParser,
                     userMode: lineParser,
                     nickChange: function(type, data) {
-                        ui_.nickChange(data), lineParser(type, data);
+                        ui_.nickChange(data, client), lineParser(type, data);
                     },
                     privNotice: lineParser,
                     query: function(type, data) {
@@ -10750,9 +10753,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
             this.parent(win), win.element.getSiblings(".active:not(.detached)").hide().removeClass("active"), 
             win.element.show().addClass("active");
         },
-        nickChange: function(data) {
-            data.thisclient && _.each(this.windows, function(win) {
-                win.$nicklabel.set("text", data.newnick);
+        nickChange: function(data, client) {
+            data.thisclient && _.each(this.getWindows(client), function(win) {
+                win.setNickname(data.newnick);
             });
         }
     }), ui.NavBar = new Class({
@@ -11314,8 +11317,11 @@ var io = "undefined" == typeof module ? {} : module.exports;
                         node.firstChild.setStyle("color", null);
                     });
                 }
-                _.delay(self.updatePrefix, 200, self);
+                _.delay(self.updatePrefix, 1e3, self);
             }
+        },
+        __dirtyFixes: function() {
+            this.completer && this.completer.update();
         },
         deselect: function() {
             this.tab.removeClass("selected"), this.parent();
@@ -11336,9 +11342,12 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 text: lang.needOp.message
             });
         },
-        setNickname: function() {
+        setNickname: function(nick) {
             var self = this;
-            new ui.Dialog({
+            if (_.isString(nick)) {
+                var $nick = self.window.getElement(".input .user .nickname");
+                $nick && ($nick.text(nick), self.__dirtyFixes());
+            } else new ui.Dialog({
                 title: "Set nickname",
                 text: "Enter a new nickname",
                 value: self.nickname,
@@ -11351,8 +11360,8 @@ var io = "undefined" == typeof module ? {} : module.exports;
         updatePrefix: function(data) {
             if (!data || data.thisclient && data.channel === this.name) {
                 var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
-                this.window.getElement(".input .nickname .status").removeClasses("op", "voice").addClass(prefix === OPSTATUS ? "op" : prefix === VOICESTATUS ? "voice" : ""), 
-                this.completer && this.completer.update();
+                this.window.getElements(".input .user .status").removeClasses("op", "voice").addClass(prefix === OPSTATUS ? "op" : prefix === VOICESTATUS ? "voice" : ""), 
+                this.__dirtyFixes();
             }
         },
         nickClick: function(evt, $tar) {

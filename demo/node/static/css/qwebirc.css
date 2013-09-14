@@ -8,8 +8,7 @@ html, body {
 
 .qui .tabbar .brouhaha.tab {
     background-image: url('../images/b_background_unsel.gif');
-    width: 80px;
-    padding-left: 75px;
+    padding-left: 65px; /*width wont work here*/
 }
 
 .qui .tabbar .brouhaha.selected.tab {

@@ -182,7 +182,7 @@ function addClientEvents(client, windows) { // mi gusta xD
         "ctcpReply": lineParser,
         "userMode": lineParser,
         "nickChange": function(type, data) {
-            ui_.nickChange(data);
+            ui_.nickChange(data, client);
             lineParser(type, data);
         },
         "privNotice": lineParser,

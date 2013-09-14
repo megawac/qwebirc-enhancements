@@ -436,11 +436,10 @@ ui.QUI = new Class({
         win.element.show().addClass('active');
     },
 
-    //called in context of irc client
-    nickChange: function(data) {
+    nickChange: function(data, client) {
         if(data.thisclient) {
-            _.each(this.windows, function(win) {
-                win.$nicklabel.set("text", data.newnick);
+            _.each(this.getWindows(client), function(win) {
+                win.setNickname(data.newnick);
             });
         }
     }

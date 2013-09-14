@@ -242,9 +242,13 @@ ui.QUI.Window = new Class({
                 }
             }
 
-            _.delay(self.updatePrefix, 200, self);
+            _.delay(self.updatePrefix, 1000, self);//takes a little while to recieve on some servers
         }
 
+    },
+
+    __dirtyFixes: function() {
+        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
     },
 
     deselect: function() {
@@ -273,28 +277,36 @@ ui.QUI.Window = new Class({
         }
     },
 
-    setNickname: function() {
+    setNickname: function(nick) {
         var self = this;
-        new ui.Dialog({
-            title: "Set nickname",
-            text: "Enter a new nickname",
-            value: self.nickname,
-            onSubmit: function(data) {
-                var nick = qwebirc.global.nicknameValidator.validate(data.value);
-                if(nick) {
-                    self.client.exec("/nick " + nick);
-                }
+        if(_.isString(nick)) {
+            var $nick = self.window.getElement('.input .user .nickname');
+            if($nick) {
+                $nick.text(nick);
+                self.__dirtyFixes();
             }
-        });
+        } else {
+            new ui.Dialog({
+                title: "Set nickname",
+                text: "Enter a new nickname",
+                value: self.nickname,
+                onSubmit: function(data) {
+                    var nick = qwebirc.global.nicknameValidator.validate(data.value);
+                    if(nick) {
+                        self.client.exec("/nick " + nick);
+                    }
+                }
+            });
+        }
     },
 
     updatePrefix: function (data) {
         if(data && (!data.thisclient || data.channel !== this.name)) return;
         var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
-        this.window.getElement('.input .nickname .status')
+        this.window.getElements('.input .user .status')
                         .removeClasses('op', 'voice')
                         .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
-        if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
+        this.__dirtyFixes();
     },
 
     nickClick: function(evt, $tar) { //delegation to nick items
