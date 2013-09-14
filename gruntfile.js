@@ -151,8 +151,8 @@ module.exports = function(grunt) {
     'handlebars',
 
     'concat:qweb',
-    'concat:full',
-    // 'uglify:strip',
+    // 'concat:full',
+    'uglify:strip',
     'copy:demo',
     //, 'uglify:min'
     ]);
