@@ -122,7 +122,7 @@ module.exports = function(grunt) {
                     'Description: <%= pkg.description %>',
                     'Authors: <%= pkg.author.name %> (<%= pkg.author.url %>)',
                     'Repository: <%= pkg.repository %>',
-                    '\nThis project is a form of <%= pkg.fork.name %> (<%= pkg.fork.url %>) by <%= pkg.fork.author %>',
+                    '\nThis project is a fork of <%= pkg.fork.name %> (<%= pkg.fork.url %>) by <%= pkg.fork.author %>',
                     '\n\nLicence: <%= pkg.licence.type %> - <%= pkg.licence.url %>',
                     '<%= grunt.file.read(pkg.licence.file) %>',
                     '*/\n'

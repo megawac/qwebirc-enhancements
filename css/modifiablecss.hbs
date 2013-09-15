@@ -32,10 +32,6 @@
     width: 100%;
 }
 
-.qui .bottompanel {
-    color: red;
-}
-
 .qui .lines {
     color: black;
     overflow: auto;
@@ -172,7 +168,7 @@
 /* tab stuff */
 
 /*irc input stuff*/
-.qui form.input {
+.qui .input {
     background-color: {{$css 'menu_background' 'f2f0ff' 'c'}};
     margin: 0;
 }
@@ -204,11 +200,7 @@
     margin-right: 3px;
 }
 
-.qui .input .nickname:hover {
-    
-}
-
-.qui .input .nickname .status.voice {
+.qui .input .user .status.voice {
     width: 8px;
     height: 8px;
     background-color: rgb(223, 187, 47);
@@ -234,7 +226,7 @@
     -o-animation-timing-function: linear;
 }
 
-.qui .input .nickname .status.op {
+.qui .input .user .status.op {
     width: 8px;
     height: 8px;
     background-color: #7AE60E;

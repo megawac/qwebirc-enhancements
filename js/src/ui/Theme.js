@@ -22,7 +22,7 @@ ui.Theme = new Class({
 
         if(isobj) {
             if (data["n"]) {
-                data["N"] = "qwebirc://whois/" + data.n + "/";
+                data["N"] = "qwebirc://whois/" + data.n + "/";//cause extra unneccessary processing
             }
             //now all we have to do is format the data as desired and pass to theme
             _.each(["N", "m", "c"], function(key) {//urlerize message and nick

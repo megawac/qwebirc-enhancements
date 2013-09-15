@@ -1,11 +1,11 @@
 /*!
 qwebirc-WebIRC-client ::: Version 0.93.11 :::
-Built on 2013-09-14
+Built on 2013-09-15
 Description: webirc client - See qwebirc.org
 Authors: Graeme Yeates (www.github.com/megawac)
 Repository: www.github.com/megawac/qwebirc-enhancements
 
-This project is a form of qwebirc (www.qwebirc.org) by Chris Porter
+This project is a fork of qwebirc (www.qwebirc.org) by Chris Porter
 
 
 Licence: GNU - http://www.gnu.org/licenses/gpl.html
@@ -6614,7 +6614,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
         data = data || {};
         var stack1, options, buffer = "", helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
-        return buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .bottompanel {color: red;}.qui .lines {color: black;overflow: auto;font-size: ", 
+        return buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .lines {color: black;overflow: auto;font-size: ", 
         options = {
             hash: {},
             data: data
@@ -6694,7 +6694,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         options = {
             hash: {},
             data: data
-        }, buffer += escapeExpression((stack1 = helpers.$css || depth0.$css, stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options))) + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui form.input {background-color: ", 
+        }, buffer += escapeExpression((stack1 = helpers.$css || depth0.$css, stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options))) + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui .input {background-color: ", 
         options = {
             hash: {},
             data: data
@@ -6702,7 +6702,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
         options = {
             hash: {},
             data: data
-        }, buffer += escapeExpression((stack1 = helpers.$css || depth0.$css, stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options))) + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .nickname:hover {}.qui .input .nickname .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .nickname .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ", 
+        }, buffer += escapeExpression((stack1 = helpers.$css || depth0.$css, stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options))) + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .user .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .user .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ", 
         options = {
             hash: {},
             data: data
@@ -7752,7 +7752,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
     util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan), 
     util.addChannel = _.compose(_.uniq, appendChannel), util.prependChannel = _.compose(_.uniq, _.flip(appendChannel)), 
     util.removeChannel = Array.erase, function() {
-        var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/, hasprefix_re = /^:([^ ]+) +/, colonrem_re = /^:[^ ]+ +/, command_re = /^([^ ]+) */, data_re = /^[^ ]+ +/;
+        var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/, hasprefix_re = /^:([^ ]+) +/, colonrem_re = /^:[^ ]+ +/, command_re = /^([^ ]+) */, data_re = /^[^ ]+ +/, args_re = /^:|\s+:/, argsm_re = /(.*?)(?:^:|\s+:)(.*)/, args_split_re = / +/;
         util.parseIRCData = function(line) {
             var match, message = {
                 raw: line,
@@ -7765,10 +7765,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
             line = line.replace(data_re, ""), irc.Numerics2[message.rawCommand] && (message.command = irc.Numerics2[message.rawCommand].name.toUpperCase(), 
             message.commandType = irc.Numerics2[message.rawCommand].type), message.args = [];
             var middle, trailing;
-            return -1 != line.search(/^:|\s+:/) ? (match = line.match(/(.*?)(?:^:|\s+:)(.*)/), 
-            middle = match[1].trimRight(), trailing = match[2]) : middle = line, middle.length && (message.args = middle.split(/ +/)), 
-            "undefined" != typeof trailing && trailing.length && message.args.push(trailing), 
-            message;
+            return -1 != line.search(args_re) ? (match = line.match(argsm_re), middle = match[1].trimRight(), 
+            trailing = match[2]) : middle = line, middle.length && (message.args = middle.split(args_split_re)), 
+            !_.isUndefined(trailing) && trailing.length && message.args.push(trailing), message;
         };
     }(), util.formatCommand = function(cmdline) {
         return cmdline = cmdline.startsWith("/") ? cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1) : "SAY " + cmdline, 
@@ -7793,9 +7792,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
         var c = nick.charAt(0);
         return util.validPrefix(prefixes, c) ? [ c, nick.slice(1) ] : [ "", nick ];
     }), util.getPrefix = _.compose(_.first, util.prefixOnNick), util.stripPrefix = _.compose(_.lambda("x[1]"), util.prefixOnNick), 
-    util.createNickRegex = _.memoize(function(nick) {
-        return new RegExp("(^|[s.,;:'\"])" + String.escapeRegExp(nick) + "([s.,;:'\"]|$)", "i");
-    }), util.testForNick = _.autoCurry(function(nick, text) {
+    util.createNickRegex = function(nick) {
+        return new RegExp("(^|[\\s.,;:'\"])" + String.escapeRegExp(nick) + "([\\s.,;:'\"]|$)", "i");
+    }, util.testForNick = _.autoCurry(function(nick, text) {
         return util.createNickRegex(nick).test(text);
     }), util.toHSBColour = function(nick, client) {
         var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
@@ -7823,14 +7822,6 @@ var io = "undefined" == typeof module ? {} : module.exports;
         return _.findWhere(irc.colours, {
             key: _.toInt(key)
         });
-    }, util.parseURI = function(uri) {
-        var result = {}, start = uri.indexOf("?");
-        if (-1 === start) return result;
-        for (var querystring = uri.substring(start + 1), args = querystring.split("&"), i = 0; i < args.length; i++) {
-            var part = args[i].splitMax("=", 2);
-            part.length > 1 && (result[unescape(part[0])] = unescape(part[1]));
-        }
-        return result;
     }, util.longtoduration = function(l) {
         var seconds = l % 60, minutes = Math.floor(l % 3600 / 60), hours = Math.floor(l % 86400 / 3600), days = Math.floor(l / 86400);
         return days + " days " + hours + " hours " + minutes + " minutes " + seconds + " seconds";
@@ -9122,7 +9113,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 splitargs: 2,
                 minargs: 2,
                 fn: function(args) {
-                    var msg = format(irc.AUTH, {
+                    var msg = format(cmd.AUTH, {
                         username: args[0],
                         password: args[1]
                     });
@@ -9333,7 +9324,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                 });
             },
             attemptAuth: function() {
-                !auth.authed && auth.enabled && (this.send(util.formatter("AUTHSERV AUTH {account} {password}", this.options)), 
+                !auth.authed && auth.enabled && (this.exec(util.format("/AUTH {username} {password}", this.options)), 
                 this.writeMessages.delay(100, this, lang.joinAfterAuth), this.activeTimers.autojoin = function() {
                     auth.authed || this.writeMessages(lang.authFailed);
                 }.delay(5e3, this));

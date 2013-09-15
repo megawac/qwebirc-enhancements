@@ -307,7 +307,7 @@ irc.Commands = new Class({
         splitargs: 2,
         minargs: 2,
         fn: function(args) {
-            var msg = format(irc.AUTH, {
+            var msg = format(cmd.AUTH, {
                 username: args[0],
                 password: args[1]
             });

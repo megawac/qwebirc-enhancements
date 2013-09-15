@@ -138,7 +138,10 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     hasprefix_re = /^:([^ ]+) +/,
     colonrem_re = /^:[^ ]+ +/,
     command_re = /^([^ ]+) */,
-    data_re = /^[^ ]+ +/;
+    data_re = /^[^ ]+ +/,
+    args_re = /^:|\s+:/,
+    argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
+    args_split_re = / +/;
 util.parseIRCData = function(line/*, stripColors*/) { // {{{
     var message = {
         'raw': line,
@@ -179,17 +182,17 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
     var middle, trailing;
 
     // Parse parameters
-    if (line.search(/^:|\s+:/) != -1) {
-        match = line.match(/(.*?)(?:^:|\s+:)(.*)/);
+    if (line.search(args_re) != -1) {
+        match = line.match(argsm_re);
         middle = match[1].trimRight();
         trailing = match[2];
     } else {
         middle = line;
     }
 
-    if (middle.length) message.args = middle.split(/ +/);
+    if (middle.length) message.args = middle.split(args_split_re);
 
-    if (typeof(trailing) != 'undefined' && trailing.length) message.args.push(trailing);
+    if (!_.isUndefined(trailing) && trailing.length) message.args.push(trailing);
 
     return message;
 };
@@ -246,9 +249,9 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = _.memoize(function(nick) {
-    return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
-})
+util.createNickRegex = function(nick) {
+    return new RegExp('(^|[\\s.,;:\'"])' + String.escapeRegExp(nick) + '([\\s.,;:\'"]|$)', "i");
+};
 
 util.testForNick = _.autoCurry(function(nick, text) {
     return util.createNickRegex(nick).test(text);
@@ -303,27 +306,6 @@ util.getColourByKey = function(key) {
     return _.findWhere(irc.colours, {
         key: _.toInt(key)
     });
-};
-
-// returns the arguments 
-util.parseURI = function(uri) {
-    var result = {};
-
-    var start = uri.indexOf('?');
-    if (start === -1) {
-        return result;
-    }
-
-    var querystring = uri.substring(start + 1);
-
-    var args = querystring.split("&");
-
-    for (var i = 0; i < args.length; i++) {
-        var part = args[i].splitMax("=", 2);
-        if (part.length > 1) result[unescape(part[0])] = unescape(part[1]);
-    }
-
-    return result;
 };
 
 util.longtoduration = function(l) {

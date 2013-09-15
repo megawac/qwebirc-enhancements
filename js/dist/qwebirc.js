@@ -96,7 +96,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 
-  buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .bottompanel {color: red;}.qui .lines {color: black;overflow: auto;font-size: ";
+  buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .lines {color: black;overflow: auto;font-size: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
     + "px;background: ";
@@ -156,13 +156,13 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     + ";-moz-border-radius: 4px;-webkit-border-radius: 4px;color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
-    + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui form.input {background-color: ";
+    + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui .input {background-color: ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
     + ";margin: 0;}.qui .input div {border-top: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .nickname:hover {}.qui .input .nickname .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .nickname .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ";
+    + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .user .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .user .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ";
   options = {hash:{},data:data};
   buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
     + ";padding: 0;height: 26px;text-indent: 5px;}.qui .input .tt-hint {background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.54, rgb(235,235,232)),color-stop(0.66, rgb(247,250,240)));padding: 0;height: 26px;text-indent: 5px;}/*twitter typeahead inspired autocomplete using overlay input box*/.qui .tt-hint {position: absolute;top: 0px;left: 0px;border-color: transparent;box-shadow: none;color: #BDBDBD;}.qui .tt-query {position: relative;vertical-align: top;background-color: transparent;}/*typeahead*/.qui .input .btn.send {color: grey;padding: 2px 10px;}.qui .nicklist {border-left: 1px solid ";
@@ -1520,7 +1520,10 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     hasprefix_re = /^:([^ ]+) +/,
     colonrem_re = /^:[^ ]+ +/,
     command_re = /^([^ ]+) */,
-    data_re = /^[^ ]+ +/;
+    data_re = /^[^ ]+ +/,
+    args_re = /^:|\s+:/,
+    argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
+    args_split_re = / +/;
 util.parseIRCData = function(line/*, stripColors*/) { // {{{
     var message = {
         'raw': line,
@@ -1561,17 +1564,17 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
     var middle, trailing;
 
     // Parse parameters
-    if (line.search(/^:|\s+:/) != -1) {
-        match = line.match(/(.*?)(?:^:|\s+:)(.*)/);
+    if (line.search(args_re) != -1) {
+        match = line.match(argsm_re);
         middle = match[1].trimRight();
         trailing = match[2];
     } else {
         middle = line;
     }
 
-    if (middle.length) message.args = middle.split(/ +/);
+    if (middle.length) message.args = middle.split(args_split_re);
 
-    if (typeof(trailing) != 'undefined' && trailing.length) message.args.push(trailing);
+    if (!_.isUndefined(trailing) && trailing.length) message.args.push(trailing);
 
     return message;
 };
@@ -1628,9 +1631,9 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = _.memoize(function(nick) {
-    return new RegExp('(^|[\s.,;:\'"])' + String.escapeRegExp(nick) + '([\s.,;:\'"]|$)', "i");
-})
+util.createNickRegex = function(nick) {
+    return new RegExp('(^|[\\s.,;:\'"])' + String.escapeRegExp(nick) + '([\\s.,;:\'"]|$)', "i");
+};
 
 util.testForNick = _.autoCurry(function(nick, text) {
     return util.createNickRegex(nick).test(text);
@@ -1685,27 +1688,6 @@ util.getColourByKey = function(key) {
     return _.findWhere(irc.colours, {
         key: _.toInt(key)
     });
-};
-
-// returns the arguments 
-util.parseURI = function(uri) {
-    var result = {};
-
-    var start = uri.indexOf('?');
-    if (start === -1) {
-        return result;
-    }
-
-    var querystring = uri.substring(start + 1);
-
-    var args = querystring.split("&");
-
-    for (var i = 0; i < args.length; i++) {
-        var part = args[i].splitMax("=", 2);
-        if (part.length > 1) result[unescape(part[0])] = unescape(part[1]);
-    }
-
-    return result;
 };
 
 util.longtoduration = function(l) {
@@ -3832,10 +3814,7 @@ irc.Commands = new Class({
         splitargs: 2,
         minargs: 2,
         fn: function(args) {
-            var msg = format(irc.AUTH, {
-                username: args[0],
-                password: args[1]
-            });
+            var msg = format(cmd.AUTH, {username: args[0], password: args[1]})
             this.send(msg);
         }
     },
@@ -4151,7 +4130,7 @@ irc.IRCClient = new Class({
     attemptAuth: function() {
         //only try to auth if its necessary
         if (!auth.authed && auth.enabled) {
-            var test = this.send(util.formatter("AUTHSERV AUTH {account} {password}", this.options));
+            var test = this.exec(util.format("/AUTH {username} {password}", this.options));
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you
@@ -7350,7 +7329,7 @@ ui.Theme = new Class({
 
         if(isobj) {
             if (data["n"]) {
-                data["N"] = "qwebirc://whois/" + data.n + "/";
+                data["N"] = "qwebirc://whois/" + data.n + "/";//cause extra unneccessary processing
             }
             //now all we have to do is format the data as desired and pass to theme
             _.each(["N", "m", "c"], function(key) {//urlerize message and nick

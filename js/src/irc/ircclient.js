@@ -186,7 +186,7 @@ irc.IRCClient = new Class({
     attemptAuth: function() {
         //only try to auth if its necessary
         if (!auth.authed && auth.enabled) {
-            var test = this.send(util.formatter("AUTHSERV AUTH {account} {password}", this.options));
+            var test = this.exec(util.format("/AUTH {username} {password}", this.options));
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you
