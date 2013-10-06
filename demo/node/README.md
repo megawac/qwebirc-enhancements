@@ -35,8 +35,6 @@ Note: heroku doesnt support websockets so its using xhr long polls :/
         -write tab styles for options page and maybe rewrite the tabifier for all windows  
 -create hotkey handlers using keyboard interface and make configurable  
 -move the embedded wizard to a seperate module (to be imported like privacy pol etc)  
--finish decoupling client from ui (90% there)  
--write socket connection class for when available - needs server coded as well.   
 -Process lines for brouhaha and the proper window once  
   
   

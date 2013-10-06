@@ -2344,12 +2344,14 @@ util.fillContainer = function ($ele, options) {
 document.addEvent("domready", function() {//based off https://gist.github.com/Rob-ot/3399053
     Browser.Features.calc = false;//union bool str (-webkit-calc, -moz-calc, calc)
     ["","-webkit-","-moz-","-o-"].some(function(prefix) {
-        var $el = new Element('div', {
-            styles: {
-                width: prefix + "calc(5px)"
-            }
-        });
-        if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+        try {
+            var $el = new Element('div', {
+                styles: {
+                    width: prefix + "calc(5px)"
+                }
+            });
+            if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+        } catch(nope){}
     });
 });
 
@@ -3416,6 +3418,9 @@ irc.NodeConnection = new Class({
                         location.reload();
                     }
                 });
+            },
+            "terminated": function(message) {
+                alert(message);
             },
             // "connected": _.log,
             "error": self.error
@@ -5898,10 +5903,6 @@ ui.IUIOptions = new Class({
             });
         }
 
-        function toggleWindowOption() {
-
-        }
-
         uiOptions.on({
             "change:style_hue": function(style_hue) {
                 self.updateStylesheet();
@@ -6257,8 +6258,7 @@ ui.StandardUI = new Class({
                 "#!about": "about",
                 "#!faq": "faq",
                 "#!embedded": 'embedded',
-                "#!privacy": "privacy",
-                "#!whois": "whois"
+                "#!privacy": "privacy"
             },
             // no route event was found, though route was defined
             onError: function(error){

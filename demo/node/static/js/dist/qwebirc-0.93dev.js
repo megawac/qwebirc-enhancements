@@ -8262,12 +8262,14 @@ var io = "undefined" == typeof module ? {} : module.exports;
         return _.delay(filler, 20), $ele;
     }, document.addEvent("domready", function() {
         Browser.Features.calc = !1, [ "", "-webkit-", "-moz-", "-o-" ].some(function(prefix) {
-            var $el = new Element("div", {
-                styles: {
-                    width: prefix + "calc(5px)"
-                }
-            });
-            return $el.style.length > 0 ? Browser.Features.calc = prefix + "calc" : void 0;
+            try {
+                var $el = new Element("div", {
+                    styles: {
+                        width: prefix + "calc(5px)"
+                    }
+                });
+                if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+            } catch (nope) {}
         });
     }), util.percentToPixel = function(data, par) {
         par = par || $(document.body);
@@ -9006,6 +9008,9 @@ var io = "undefined" == typeof module ? {} : module.exports;
                                 location.reload();
                             }
                         });
+                    },
+                    terminated: function(message) {
+                        alert(message);
                     },
                     error: self.error
                 };
@@ -10495,8 +10500,7 @@ var io = "undefined" == typeof module ? {} : module.exports;
                     "#!about": "about",
                     "#!faq": "faq",
                     "#!embedded": "embedded",
-                    "#!privacy": "privacy",
-                    "#!whois": "whois"
+                    "#!privacy": "privacy"
                 },
                 onError: function(error) {
                     DEBUG && console.error(error), this.navigate("");

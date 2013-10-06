@@ -154,12 +154,14 @@ util.fillContainer = function ($ele, options) {
 document.addEvent("domready", function() {//based off https://gist.github.com/Rob-ot/3399053
     Browser.Features.calc = false;//union bool str (-webkit-calc, -moz-calc, calc)
     ["","-webkit-","-moz-","-o-"].some(function(prefix) {
-        var $el = new Element('div', {
-            styles: {
-                width: prefix + "calc(5px)"
-            }
-        });
-        if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+        try {
+            var $el = new Element('div', {
+                styles: {
+                    width: prefix + "calc(5px)"
+                }
+            });
+            if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+        } catch(nope){}
     });
 });
 
