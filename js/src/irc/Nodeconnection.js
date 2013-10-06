@@ -50,6 +50,18 @@ irc.NodeConnection = new Class({
             "echo": _.log,
             "connected": self._connected,
             "disconnect": self._disconnected,
+            "max_connections": function() {
+                new ui.Alert({
+                    title: 'Maximum connections reached',
+                    text: 'Maximum synchronous connections for this server have been reached. If we let you in we may crash/get g-lined. Try again later...',
+                    onHide: function() {
+                        location.reload();
+                    }
+                });
+            },
+            "terminated": function(message) {
+                alert(message);
+            },
             // "connected": _.log,
             "error": self.error
         };

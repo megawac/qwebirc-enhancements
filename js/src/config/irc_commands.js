@@ -33,7 +33,7 @@ config.IRC_COMMANDS = { //maybe make these templates?
         command: "NOTICE {target} :{message}"
     },
     "MODE": {
-        command: "MODE {nick} {mode} {args}"
+        command: "MODE {target} {mode} {args}"
     },
     "AUTH": {
         command: "AUTHSERV AUTH {username} {password}"
@@ -50,7 +50,6 @@ config.COMMAND_ALIAS = {
     "M": "PRIVMSG",
     "MSG": "PRIVMSG",
     "PM": "PRIVMSG",
-    // "SAY": "PRIVMSG",
     "Q": "QUERY",
     "BACK": "AWAY",
     "PRIVACY": "PRIVACYPOLICY",

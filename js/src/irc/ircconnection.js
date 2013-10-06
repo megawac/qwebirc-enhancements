@@ -87,7 +87,7 @@ irc.TwistedConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
+        // request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
         if (Browser.ie && Browser.version < 8) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -272,42 +272,42 @@ irc.TwistedConnection = new Class({
     }
 });
 
-(function() {//http://blog.mibbit.com/?p=143
-    //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
-    //header nullables are browser dependent
-    //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-    // var killBit = null;
+// (function() {//http://blog.mibbit.com/?p=143
+//     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
+//     //header nullables are browser dependent
+//     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
+//     // var killBit = null;
 
-    // var kill = {
-    //     "User-Agent": killBit,
-    //     "Accept": killBit,
-    //     "Accept-Language": killBit,
-    //     "Content-Type": "M",
-    //     "Connection": "keep-alive",
-    //     "Keep-Alive": killBit
-    // };
+//     // var kill = {
+//     //     "User-Agent": killBit,
+//     //     "Accept": killBit,
+//     //     "Accept-Language": killBit,
+//     //     "Content-Type": "M",
+//     //     "Connection": "keep-alive",
+//     //     "Keep-Alive": killBit
+//     // };
 
-    // //removes a header from an xhr object (this instanceof xhr)
+//     // //removes a header from an xhr object (this instanceof xhr)
 
-    // function removeHeaders(val, header) {
-    //     try {
-    //         this.setRequestHeader(header, val);
-    //     } catch (e) {console.log(header)}
-    // }
+//     // function removeHeaders(val, header) {
+//     //     try {
+//     //         this.setRequestHeader(header, val);
+//     //     } catch (e) {console.log(header)}
+//     // }
 
 
 
-    //iteratres the headers to be removed with the removeHeaders function
-    //expects a xhr object as the third param 
-    // conn.setXHRHeaders = function(xhr) {
-    //     kill.each(removeHeaders, xhr);
-    //     //remove cookies from xhr
-    //     // new CookieMonster(xhr);
-    // };
+//     //iteratres the headers to be removed with the removeHeaders function
+//     //expects a xhr object as the third param 
+//     // conn.setXHRHeaders = function(xhr) {
+//     //     kill.each(removeHeaders, xhr);
+//     //     //remove cookies from xhr
+//     //     // new CookieMonster(xhr);
+//     // };
 
-    irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
+//     irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
 
-    // conn.setXHRHeaders = function(xhr) {
-    //     kill.each(removeHeaders, xhr);
-    // };
-})();
+//     // conn.setXHRHeaders = function(xhr) {
+//     //     kill.each(removeHeaders, xhr);
+//     // };
+// })();

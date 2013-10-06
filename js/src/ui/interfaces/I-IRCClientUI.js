@@ -20,7 +20,7 @@ ui.IIRCClient = new Class({
 
         return win;
     },
-    logout: function() {
+    /*logout: function() {
         if (!auth.loggedin)
             return;
         if (confirm("Log out?")) {
@@ -32,8 +32,7 @@ ui.IIRCClient = new Class({
                 document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
             }).delay(500);
         }
-    },
-
+    },*/
     nickChange: util.noop
 });
 var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
@@ -51,7 +50,8 @@ function addClientEvents(client, windows) { // mi gusta xD
             m: _data.message,
             h: _data.host,
             t: type,
-            type: type
+            type: type,
+            "@": _data.prefix
         }, _data);
         data.channel = data.c;
         if (!(ui_.uiOptions2.get("nick_ov_status"))){
@@ -79,7 +79,7 @@ function addClientEvents(client, windows) { // mi gusta xD
         });
     }
 
-    function formatBChannelName(channel, nick) {
+    function formatBChannelName(data) {
         if(util.isChannel(channel)) {
             return nick + channel;
         } else {//pm
@@ -100,8 +100,18 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
             var data2 = _.clone(data);
-            data2.nick = data2.n = formatBChannelName(data.channel, data.nick);
-            ui_.windows.brouhaha.addLine(data.type, data2);
+            var nick = data2.nick;
+            if(!util.isChannel(channel)) {//pm
+                if(channel === nick) {//so it always shows speaker>target
+                    channel = ">" + client.nickname;
+                } else {
+                    channel = ">" + channel;
+                    data2.nick = nick;
+                }
+            }
+            data2.linkedchannel = channel;
+
+            ui_.windows.brouhaha.addLine(data2.type, data2);
         }
     }
 
@@ -160,7 +170,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             joinPart(data.thisclient ? "ourJoin" : "join", data);
         },
 
-        openWindow: function(type, data) {//create? and select window
+        "openWindow": function(type, data) {//create? and select window
             var win = ui_.getWindow(data.window);
             if(!win) {
                 if(data.type === ui.WINDOW.custom) {
@@ -170,6 +180,11 @@ function addClientEvents(client, windows) { // mi gusta xD
                 }
             }
             win.select();
+        },
+
+        "updateNicklist": function(type, data) {
+            var win = ui_.getWindow(client, data.channel);
+            if(win) win.updateNickList(data.nicks);
         },
 
         "away": lineParser,
@@ -190,10 +205,10 @@ function addClientEvents(client, windows) { // mi gusta xD
         "query": function(type, data) {//queries
             data = formatData(type, data);
             var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
-            if(ui_.uiOptions2.get("auto_open_pm")) {
+            if(data.open || ui_.uiOptions2.get("auto_open_pm")) {
                 ui_.selectWindow(win);
             }
-            if($chk(data.message)) parser(type, data, win);
+            if(data.message) parser(type, data, win);
         },
 
         "awayStatus": lineParser,
@@ -212,9 +227,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             });
         },
         "wallops": lineParser,
-        "raw": function(type, args) {
-            lineParser(type, args);
-        }
+        "raw": lineParser
     });
 }
 
