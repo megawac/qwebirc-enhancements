@@ -90,7 +90,7 @@ BASE_URL = "localhost"
 # OPTION: NETWORK_NAME
 #         The name of your IRC network, displayed throughout the
 #         application.
-NETWORK_NAME = "Gamesurge.net"
+NETWORK_NAME = "Freenode.net"
 
 # OPTION: APP_TITLE
 #         The title of the application in the web browser.
@@ -103,7 +103,7 @@ APP_TITLE = NETWORK_NAME + " Web IRC"
 #         If True then user nicknames will be validated according to
 #         the configuration below, otherwise they will be passed
 #         directly to the ircd.
-NICKNAME_VALIDATE = True
+NICKNAME_VALIDATE = False
 
 # OPTION: NICKNAME_VALID_FIRST_CHAR
 #         A string containing valid characters for the first letter of

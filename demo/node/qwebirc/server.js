@@ -16,13 +16,17 @@ var Qwebirc = function(options) {
         DEBUG: true,
         IRCPORT: 6667, //irc servers port
         USE_WEBSOCKETS: true, //whether to use websockets - some servers dont support the protocol. Fallbacks are done through socket.io
+        MAX_CONNETIONS: Infinity,
         APP_PORT: process.env.PORT || 8080,
-        root: process.cwd()
+        root: process.cwd(),
+
+        httpTimeout: 60000 //time in ms before we drop a clients socket
     }, options);
 
     if(!self.options.IRCSERVER) throw "init without irc server";
 
     self.clients = [];
+    self.connections = 0;
 
     /**
      *  terminator === the termination handler
@@ -30,10 +34,14 @@ var Qwebirc = function(options) {
      *  @param {string} sig  Signal to terminate on.
      */
     self.terminator = function(sig){
+        console.log("ending" + sig);
         if (typeof sig === "string") {
-           util.log('%s: Received %s - terminating sample app ...',
-                       Date(Date.now()), sig);
-           process.exit(1);
+            var message = Date(Date.now()) + ': Received %s - terminating app ... '+ sig;
+            util.log(message);
+
+            io.sockets.emit("terminated", message);
+
+            process.exit(1);
         }
 
         var client;
@@ -80,7 +88,11 @@ var Qwebirc = function(options) {
         });
         io.sockets.on('connection', function (socket) {
             var address = socket.handshake.address;
-            util.log('Connection from ' + address.address + ':' + address.port);
+            util.log('\n\nConnection from ' + address.address + ':' + address.port + "\n\n ---- Open connections: " + self.connections + "\n\n");
+            if(self.connections + 1 >= self.options.MAX_CONNETIONS) {
+                socket.emit('max_connections');
+                socket.disconnect();
+            }
             socket.once('irc', function(ircopts) {//connect to the server
                 var timers = {};
                 var irc  = require('./irc.js');
@@ -90,6 +102,7 @@ var Qwebirc = function(options) {
                     ircopts
                 );
                 self.clients.push(client);
+                self.connections += 1;
 
                 client.addListener('raw', function(message) {
                     socket.emit("raw", {
@@ -106,19 +119,22 @@ var Qwebirc = function(options) {
                 });
 
                 socket.on("disconnect", function() {//wait a bit for a reconnect
-                    timers.quitting = setTimeout(function() {
+                    // timers.quitting = setTimeout(function() {
                         client.disconnect();
                         delete timers.quitting;
-                    }, 120 * 1000);
+                        self.clients.splice(self.clients.indexOf(client), 1);
+                        self.connections -= 1;
+                    //}, 120 * 1000);
                 });
 
                 socket.on("retry", function() {
                     if(timers.quitting) {
                         socket.emit("connected");
-                        clearTimeout(timers.quitting);
                     }
                     else {
                         client.connect();
+                        self.clients.push(client);
+                        self.connections += 1;
                     }
                 });
 

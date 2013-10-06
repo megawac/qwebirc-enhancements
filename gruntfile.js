@@ -27,7 +27,16 @@ module.exports = function(grunt) {
             dist: {
                 options: {
                     namespace: "qwebirc.templates",
-                    knownHelpers: ['if', 'each', 'unless', 'check', '$css', 'enableDisable'],
+                    compilerOptions: {
+                        knownHelpers: {
+                            'check': true,
+                            '$css': true,
+                            'enableDisable': true,
+                            '$link': true,
+                            'format': true
+                        }//,
+                        // knownHelpersOnly: true,
+                    },
                     wrapped: true,
                     node: false,
                     // amd: true,

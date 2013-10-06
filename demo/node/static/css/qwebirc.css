@@ -5,6 +5,10 @@ html, body {
     overflow: hidden;
 }
 
+#noscript {
+    text-align: center;
+    font-weight: bold;
+}
 
 .qui .tabbar .brouhaha.tab {
     background-image: url('../images/b_background_unsel.gif');
@@ -88,7 +92,7 @@ html, body {
 .show-nicklist .leftpanel {
     position: absolute;
     left: 0;
-    right: 141px;
+    right: 140px;
 }
 
 
@@ -123,6 +127,12 @@ html, body {
     -webkit-border-radius: 5px; 
     border: 5px solid #800000;
     z-index: 2;
+
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .detached.active .detached-window {
@@ -185,11 +195,6 @@ html, body {
 .show-nicklist .content .handle {
     display: block;
 }
-
-.content .handle {
-    display: none;
-}
-
 
 /*Highlighting*/
 
@@ -376,6 +381,14 @@ html, body {
 
 #login input {
     margin-left: 5px;
+}
+
+#login .form-control {
+    display: inline;
+    height: auto;
+    padding: 4px 8px;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 /**************** ABOUT PANE *******************/

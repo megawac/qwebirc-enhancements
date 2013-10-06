@@ -22,6 +22,7 @@ project name and URL in the about dialog, thanks!
 
 ; (function(undefined) {
     "use strict";
+    var DEBUG = true;
 
     //common globals
     var window = this,
@@ -93,111 +94,77 @@ this["qwebirc"]["templates"] = this["qwebirc"]["templates"] || {};
 this["qwebirc"]["templates"]["modifiablecss"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+  var buffer = "", escapeExpression=this.escapeExpression;
 
 
-  buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .lines {color: black;overflow: auto;font-size: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "font_size", 12, options) : helperMissing.call(depth0, "$css", "font_size", 12, options)))
-    + "px;background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "lines_background", "f2f0ff", "c", options)))
-    + ";}.qui .lines .timestamp {display: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "show_timestamps", "inline", "comp", "none", options) : helperMissing.call(depth0, "$css", "show_timestamps", "inline", "comp", "none", options)))
-    + ";}.qui .ircwindow .lines {font-family: Consolas, \"Lucida Console\", monospace;text-indent: 10px;padding-left: 1em;word-wrap: break-word;}.qui .lines .highlight1 {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight1", "f6ff94", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight1", "f6ff94", "c", options)))
-    + ";}.qui .lines .highlight2 {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight2", "A4FCCA", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight2", "A4FCCA", "c", options)))
-    + ";}.qui .lines .highlight3 {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lines_highlight3", "FAC3D5", "c", options) : helperMissing.call(depth0, "$css", "lines_highlight3", "FAC3D5", "c", options)))
-    + ";}.qui .lines .mentioned {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "mentioned_colour", "E63772", "c", options) : helperMissing.call(depth0, "$css", "mentioned_colour", "E63772", "c", options)))
-    + " !important;}.qui .properties {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";border-top: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
-    + ";height: 25px;}.qui .topic .emptytopic {color: gray;}.qui .topic {color: gray;padding-left: 5px;font-size: 0.7em;cursor: default;background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "topic_background", "f2f0ff", "c", options)))
-    + ";border-bottom: 1px dashed ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "topic_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "topic_border", "c8d2dc", "c", options)))
-    + ";}/*tab stuff*/.qui .outertabbar {border-bottom: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "tabbar_border", "c3cee0", "c", options)))
-    + ";background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_background", "e2ecf9", "c", options) : helperMissing.call(depth0, "$css", "tabbar_background", "e2ecf9", "c", options)))
-    + ";height: 26px;line-height: 20px;padding: 2px 0;}.qui .outertabbar > * {vertical-align: top;}.qui .tabbar {color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tabbar_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tabbar_text", "000000", "c", options)))
-    + ";display: inline-block;overflow-x: hidden;margin-left: 10px;font-size: 13px;height: 22px;}.qui .tabbar .tab {padding: 2px;cursor: default;margin-right: 3px;white-space: nowrap;font-weight: bold;color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "tab_text", "000000", "c", options)))
-    + ";border: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_border", "c8d2dc", "c", options)))
-    + ";border-radius: 4px;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .tab:hover {background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_hover", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_hover", "ffffff", "c", options)))
-    + ";border: 1px solid #c8d2dc;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .hilight-activity.tab {color: #009900;}.qui .tabbar .hilight-speech.tab {color: #0000ff;}.qui .tabbar .hilight-us.tab {color: #ff0000;background: rgb(216, 216, 138);}.qui .tabbar .selected.tab {background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected", "ffffff", "c", options) : helperMissing.call(depth0, "$css", "tab_selected", "ffffff", "c", options)))
-    + ";border: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_border", "c8d2dc", "c", options)))
-    + ";-moz-border-radius: 4px;-webkit-border-radius: 4px;color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "tab_selected_text", "333333", "c", options) : helperMissing.call(depth0, "$css", "tab_selected_text", "333333", "c", options)))
-    + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui .input {background-color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";margin: 0;}.qui .input div {border-top: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .input .nickname .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .input .user .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .user .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .input-field {border: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "input_border", "c3cee0", "c", options) : helperMissing.call(depth0, "$css", "input_border", "c3cee0", "c", options)))
-    + ";padding: 0;height: 26px;text-indent: 5px;}.qui .input .tt-hint {background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.54, rgb(235,235,232)),color-stop(0.66, rgb(247,250,240)));padding: 0;height: 26px;text-indent: 5px;}/*twitter typeahead inspired autocomplete using overlay input box*/.qui .tt-hint {position: absolute;top: 0px;left: 0px;border-color: transparent;box-shadow: none;color: #BDBDBD;}.qui .tt-query {position: relative;vertical-align: top;background-color: transparent;}/*typeahead*/.qui .input .btn.send {color: grey;padding: 2px 10px;}.qui .nicklist {border-left: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_border", "c8d2dc", "c", options)))
-    + ";width: 140px;overflow: auto;background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";color: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_text", "000000", "c", options) : helperMissing.call(depth0, "$css", "nicklist_text", "000000", "c", options)))
-    + ";font-size: 0.7em;}.qui .nicklist .user, .qui .nicklist .menu span {display: block;color: black;text-decoration: none;cursor: default;border-top: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";border-bottom: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "nicklist_background", "f2f0ff", "c", options)))
-    + ";padding-left: 1px;}.qui .nicklist .selected {display: block;color: black;background: white;text-decoration: none;border-bottom: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
-    + " 1px solid;cursor: default;}.qui .nicklist .selected-middle {border-top: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "nicklist_selected_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "nicklist_selected_border", "c8d2dc", "c", options)))
-    + " 1px solid;}#noscript {text-align: center;font-weight: bold;}.qui .nicklist .menu {margin: 0 0 0 5px;}.qui .nicklist .menu a {border-bottom: 0;border-top: 0;}.hyperlink-whois, .hyperlink-channel {cursor: pointer;cursor: hand;}.hyperlink-whois:hover, .hyperlink-channel:hover {text-decoration: underline;}.qui .outertabbar .dropdown-tab {cursor: pointer; cursor: hand;display: inline-block;padding-left: 4px;width: 30px;}.qui .dropdownmenu {z-index: 100;border: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_border", "c8d2dc", "c", options) : helperMissing.call(depth0, "$css", "menu_border", "c8d2dc", "c", options)))
-    + ";background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_background", "f2f0ff", "c", options) : helperMissing.call(depth0, "$css", "menu_background", "f2f0ff", "c", options)))
-    + ";list-style: none;padding: 5px 10px;font-size: 0.7em;}.qui .dropdownmenu a {color: black;cursor: pointer;cursor: hand;padding-top: 3px;}.qui .dropdownmenu a:hover {background: ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "menu_hover_background", "FFFE", "c", options) : helperMissing.call(depth0, "$css", "menu_hover_background", "FFFE", "c", options)))
-    + ";}.qui .dropdownhint {position: relative;left: -500px;z-index: 10;white-space: nowrap;font-size: 0.7em;}.qui .chanmenu {width: 150px;}.qui .chanmenu .hint {float: right;font-size: 75%;color: grey;}.qui hr.lastpos {border: none;border-top: 1px solid ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.$css || depth0.$css),stack1 ? stack1.call(depth0, "lastpositionbar", "C8D2DC", "c", options) : helperMissing.call(depth0, "$css", "lastpositionbar", "C8D2DC", "c", options)))
+  buffer += "#ircui {height: 100%;width: 100%;overflow: hidden;font-family: Verdana, sans-serif;}.qui .hidden, .qui .invisible {display: none;}.channel-name {background-color: rgb(255, 255, 191);border: 1px solid #C8D1DB;border-radius: 4px 4px 4px 4px;color: #000000;cursor: default;font-size: 0.8em;padding: 2px;text-decoration: none;white-space: nowrap;float: left;margin: 1px 0px 0px 1px;font-weight: bold;}.qui .widepanel {width: 100%;}.qui .lines {color: black;overflow: auto;font-size: "
+    + escapeExpression(helpers.$css.call(depth0, "font_size", 12, {hash:{},data:data}))
+    + "px;background: "
+    + escapeExpression(helpers.$css.call(depth0, "lines_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";}.qui .lines .timestamp {display: "
+    + escapeExpression(helpers.$css.call(depth0, "show_timestamps", "inline", "comp", "none", {hash:{},data:data}))
+    + ";}.qui .lines .nick {margin-right: 4px;}.qui .lines .nick .channel {color: rgb(109, 89, 89);}.qui .ircwindow .lines {font-family: Consolas, \"Lucida Console\", monospace;text-indent: 10px;padding-left: 1em;word-wrap: break-word;}.qui .lines .highlight1 {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "lines_highlight1", "f6ff94", "c", {hash:{},data:data}))
+    + ";}.qui .lines .highlight2 {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "lines_highlight2", "A4FCCA", "c", {hash:{},data:data}))
+    + ";}.qui .lines .highlight3 {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "lines_highlight3", "FAC3D5", "c", {hash:{},data:data}))
+    + ";}.qui .lines .mentioned {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "mentioned_colour", "E63772", "c", {hash:{},data:data}))
+    + " !important;}.qui .properties {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "menu_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";border-top: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "menu_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";height: 25px;}.qui .topic .emptytopic {color: gray;}.qui .topic {color: gray;padding-left: 5px;font-size: 0.7em;cursor: default;background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "topic_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";border-bottom: 1px dashed "
+    + escapeExpression(helpers.$css.call(depth0, "topic_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";}/*tab stuff*/.qui .outertabbar {border-bottom: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "tabbar_border", "c3cee0", "c", {hash:{},data:data}))
+    + ";background: "
+    + escapeExpression(helpers.$css.call(depth0, "tabbar_background", "e2ecf9", "c", {hash:{},data:data}))
+    + ";height: 26px;line-height: 20px;padding: 2px 0;}.qui .outertabbar > * {vertical-align: top;}.qui .tabbar {color: "
+    + escapeExpression(helpers.$css.call(depth0, "tabbar_text", "000000", "c", {hash:{},data:data}))
+    + ";display: inline-block;overflow-x: hidden;margin-left: 10px;font-size: 13px;height: 22px;}.qui .tabbar .tab {padding: 2px;cursor: default;margin-right: 3px;white-space: nowrap;font-weight: bold;color: "
+    + escapeExpression(helpers.$css.call(depth0, "tab_text", "000000", "c", {hash:{},data:data}))
+    + ";border: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "tab_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";border-radius: 4px;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .tab:hover {background: "
+    + escapeExpression(helpers.$css.call(depth0, "tab_hover", "ffffff", "c", {hash:{},data:data}))
+    + ";border: 1px solid #c8d2dc;-moz-border-radius: 4px;-webkit-border-radius: 4px;}.qui .tabbar .hilight-activity.tab {color: #009900;}.qui .tabbar .hilight-speech.tab {color: #0000ff;}.qui .tabbar .hilight-us.tab {color: #ff0000;background: rgb(216, 216, 138);}.qui .tabbar .selected.tab {background: "
+    + escapeExpression(helpers.$css.call(depth0, "tab_selected", "ffffff", "c", {hash:{},data:data}))
+    + ";border: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "tab_selected_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";-moz-border-radius: 4px;-webkit-border-radius: 4px;color: "
+    + escapeExpression(helpers.$css.call(depth0, "tab_selected_text", "333333", "c", {hash:{},data:data}))
+    + ";}.qui .buttons {display: none;}.qui.signed-in .buttons {display: inline-block;cursor: pointer;}.buttons span {vertical-align: middle;display: inline-block;}/* tab stuff *//*irc input stuff*/.qui .input {background-color: "
+    + escapeExpression(helpers.$css.call(depth0, "menu_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";margin: 0;}.qui .input div {border-top: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "input_border", "c3cee0", "c", {hash:{},data:data}))
+    + ";padding: 0 5px 1px;margin: 0;width: 100%;}.qui .input div > .input-group-addon {cursor:pointer;cursor:hand;padding: 2px 5px;}.qui .input div > * {height: 24px;}.qui .input .nickname {color: #524F50;font-size: 14px;}.qui .user .status {border-radius: 50%;display: inline-block;margin-right: 3px;}.qui .user .status.voice {width: 8px;height: 8px;background-color: rgb(223, 187, 47);background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -o-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);background-image: -webkit-radial-gradient(45px 45px, circle, yellow, orange);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .user .status.op {width: 8px;height: 8px;background-color: #7AE60E;background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);animation-name: spin;animation-duration: 3s;animation-iteration-count: infinite;animation-timing-function: linear;-webkit-animation-name: spin;-webkit-animation-duration: 3s;-webkit-animation-iteration-count: infinite;-webkit-animation-timing-function: linear;-moz-animation-name: spin;-moz-animation-duration: 3s;-moz-animation-iteration-count: infinite;-moz-animation-timing-function: linear;-o-animation-name: spin;-o-animation-duration: 3s;-o-animation-iteration-count: infinite;-o-animation-timing-function: linear;}.qui .input .tt-query {border: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "input_border", "c3cee0", "c", {hash:{},data:data}))
+    + ";padding: 0;height: 26px;text-indent: 5px;}.qui .input .decorated {background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -ms-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.54, rgb(235,235,232)),color-stop(0.66, rgb(247,250,240)));}/*twitter typeahead inspired autocomplete using overlay input box*/.qui .tt-hint {position: absolute;top: 0px;left: 0px;padding: 0;text-indent: 5px;border-color: transparent;box-shadow: none;color: #BDBDBD;}.qui .tt-query {position: relative;vertical-align: top;background-color: transparent;}/*end typeahead*/.qui .input .btn.send {color: grey;padding: 2px 10px;}.qui .nicklist {border-left: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";width: 140px;overflow: auto;background: "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";color: "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_text", "000000", "c", {hash:{},data:data}))
+    + ";font-size: 0.7em;}.qui .nicklist .user, .qui .nick-menu {display: block;color: black;text-decoration: none;cursor: default;border-top: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";border-bottom: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";padding-left: 1px;}.qui .nick-menu {width: initial;}.qui .nick-menu ul {margin: 0;padding-left: 20px;list-style-type: circle;}.qui .nick-menu li {cursor:pointer;cursor:hand;}.qui .nicklist .selected {display: block;color: black;background: white;text-decoration: none;border-bottom: "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_selected_border", "c8d2dc", "c", {hash:{},data:data}))
+    + " 1px solid;cursor: default;}.qui .nicklist .selected-middle {border-top: "
+    + escapeExpression(helpers.$css.call(depth0, "nicklist_selected_border", "c8d2dc", "c", {hash:{},data:data}))
+    + " 1px solid;}.qui .nicklist .menu {margin: 0 0 0 5px;}.qui .nicklist .menu a {border-bottom: 0;border-top: 0;}.hyperlink-whois, .hyperlink-channel {cursor: pointer;cursor: hand;}.hyperlink-whois:hover, .hyperlink-channel:hover {text-decoration: underline;}.qui .outertabbar .dropdown-tab {cursor: pointer; cursor: hand;display: inline-block;padding-left: 4px;width: 30px;}.qui .dropdownmenu {position: absolute;z-index: 100;border: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "menu_border", "c8d2dc", "c", {hash:{},data:data}))
+    + ";background: "
+    + escapeExpression(helpers.$css.call(depth0, "menu_background", "f2f0ff", "c", {hash:{},data:data}))
+    + ";list-style: none;padding: 5px 10px;font-size: 0.7em;}.qui .dropdownmenu a {color: black;cursor: pointer;cursor: hand;padding-top: 3px;}.qui .dropdownmenu a:hover {background: "
+    + escapeExpression(helpers.$css.call(depth0, "menu_hover_background", "FFFE", "c", {hash:{},data:data}))
+    + ";}.qui .dropdownhint {position: relative;left: -500px;z-index: 10;white-space: nowrap;font-size: 0.7em;}.qui .chanmenu {width: 150px;}.qui .chanmenu .hint {float: right;font-size: 75%;color: grey;}.qui hr.lastpos {border: none;border-top: 1px solid "
+    + escapeExpression(helpers.$css.call(depth0, "lastpositionbar", "C8D2DC", "c", {hash:{},data:data}))
     + ";margin: .5em 3em;}.qwebirc-init-channels {font-size: 95%;color: #928D8D;text-align: center;}";
   return buffer;
   });
@@ -205,7 +172,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 this["qwebirc"]["templates"]["authpage"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, stack2, options, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
   
@@ -217,18 +184,18 @@ function program1(depth0,data) {
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " IRC</h2><div class=\"nick right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" name=\"basic\" id=\"nickname\" value=\"";
+    + " IRC</h2><!-- <div class=\"controls\"> --><div class=\"control-group right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" class=\"form-control\" data-validate=\"nick\" name=\"basic\" id=\"nickname\" value=\"";
   if (stack1 = helpers.nickname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nickname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\" placeholder=\"Nickname\" /></label></div><div class=\"username right ";
+    + "\" placeholder=\"Nickname\" required /></label></div><div class=\"control-group right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\"><label class=\"control-label\" for=\"username\">";
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " username:<input type=\"text\" name=\"full\" id=\"username\" value=\"";
+    + " username:<input type=\"text\" class=\"form-control\" data-validate=\"username\" name=\"full\" id=\"username\" value=\"";
   if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -236,20 +203,19 @@ function program1(depth0,data) {
   if (stack1 = helpers.network) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.network; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + " username\"></label></div><div class=\"password right ";
+    + " username\"></label></div><div class=\"control-group right ";
   stack1 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\"><label class=\"control-label\" for=\"password\">Password:<input type=\"password\" name=\"full\" id=\"password\" value=\"";
+  buffer += "\"><label class=\"control-label\" for=\"password\">Password:<input type=\"password\" class=\"form-control\" data-validate=\"password\" name=\"full\" id=\"password\" value=\"";
   if (stack1 = helpers.password) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.password; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\"></label></div><div class=\"authenticate\"><label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" ";
-  options = {hash:{},data:data};
-  buffer += escapeExpression(((stack1 = helpers.check || depth0.check),stack1 ? stack1.call(depth0, depth0.full, options) : helperMissing.call(depth0, "check", depth0.full, options)))
-    + "></label for=\"authenticate\"></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div></form><div class=\"qwebirc-init-channels\"><span>";
-  if (stack2 = helpers.channels) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.channels; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
-  buffer += escapeExpression(stack2)
+    + "\"></label></div><div class=\"authenticate\"><label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" "
+    + escapeExpression(helpers.check.call(depth0, depth0.full, {hash:{},data:data}))
+    + "></label for=\"authenticate\"></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div><!-- </div> --></form><div class=\"qwebirc-init-channels\"><span>";
+  if (stack1 = helpers.channels) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channels; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
     + "</span></div></div>";
   return buffer;
   });
@@ -306,6 +272,22 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
+this["qwebirc"]["templates"]["customlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, escapeExpression=this.escapeExpression, functionType="function";
+
+
+  buffer += "<a href=\"#"
+    + escapeExpression(helpers.$link.call(depth0, depth0.val, {hash:{},data:data}))
+    + "\">";
+  if (stack1 = helpers.val) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.val; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</a>";
+  return buffer;
+  });
+
 this["qwebirc"]["templates"]["detachedWindow"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
@@ -332,6 +314,20 @@ function program1(depth0,data) {
   return buffer;
   });
 
+this["qwebirc"]["templates"]["failed-validator"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<p class=\"help-block\">";
+  if (stack1 = helpers.description) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.description; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</p>";
+  return buffer;
+  });
+
 this["qwebirc"]["templates"]["ircInput"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -347,7 +343,8 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</span></span>"
-    + "<input class='tt-hint' type='text' autocomplete='off' spellcheck='off' disabled><input class='tt-query input-field form-control' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
+    + "<input class='tt-hint hidden' type='text' autocomplete='off' spellcheck='off' disabled>"
+    + "<input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
   return buffer;
   });
 
@@ -391,6 +388,57 @@ function program1(depth0,data) {
   return buffer;
   });
 
+this["qwebirc"]["templates"]["ircnick"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var stack1;
+  if (stack1 = helpers.userid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.userid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
+function program3(depth0,data) {
+  
+  var stack1;
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  return escapeExpression(stack1);
+  }
+
+function program5(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<span class=\"channel\">";
+  if (stack1 = helpers.linkedchannel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.linkedchannel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>";
+  return buffer;
+  }
+
+  buffer += "<span class=\"nick hyperlink-whois\" data-user='";
+  stack1 = helpers['if'].call(depth0, depth0.userid, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "'>&lt;";
+  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "<span>";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>";
+  stack1 = helpers['if'].call(depth0, depth0.linkedchannel, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "&gt;</span>";
+  return buffer;
+  });
+
 this["qwebirc"]["templates"]["ircstyle"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -423,7 +471,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<div class=\"hidden\"><ul class=\"main-menu dropdownmenu\"><a href=\"#!options\"><li><span>Options</span></li></a><a href=\"#!embedded\"><li><span>Add webchat to your site</span></li></a><a href=\"#!privacy\"><li><span>Privacy policy</span></li></a><a href=\"#!faq\"><li><span>Frequently asked questions</span></li></a><a href=\"#!feedback\"><li><span>Submit feedback</span></li></a><a href=\"#!about\"><li><span>About qwebirc</span></li></a></ul></div>";
+  return "<ul class=\"main-menu dropdownmenu hidden\"><a href=\"#!options\"><li><span>Options</span></li></a><a href=\"#!embedded\"><li><span>Add webchat to your site</span></li></a><a href=\"#!privacy\"><li><span>Privacy policy</span></li></a><a href=\"#!faq\"><li><span>Frequently asked questions</span></li></a><a href=\"#!feedback\"><li><span>Submit feedback</span></li></a><a href=\"#!about\"><li><span>About qwebirc</span></li></a></ul>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -508,13 +556,183 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return "<div class=\"main-menu dropdown-tab\"><img src=\"images/icon.png\" title=\"menu\" alt=\"menu\"></div><div class=\"tabbar\"></div><div class=\"buttons\"><span class=\"to-left ui-icon ui-icon-circle-triangle-w hidden\" name=\"tabscroll\"></span><span class=\"to-right ui-icon ui-icon-circle-triangle-e hidden\" name=\"tabscroll\"></span><span class=\"add-chan ui-icon ui-icon-circle-plus\" title=\"Join a channel\"></span></div>";
   });
 
+this["qwebirc"]["templates"]["nickMenu"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, stack2, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<h5>";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</h5>";
+  return buffer;
+  }
+
+function program3(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/QUERY ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">query</li>";
+  return buffer;
+  }
+
+function program5(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers.unless.call(depth0, depth0.theyOped, {hash:{},inverse:self.noop,fn:self.program(6, program6, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program6(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/KICK ";
+  if (stack1 = helpers.channel) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.channel; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">kick</li>";
+  return buffer;
+  }
+
+function program8(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers['if'].call(depth0, depth0.weOped, {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program9(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers.unless.call(depth0, depth0.theyOped, {hash:{},inverse:self.noop,fn:self.program(10, program10, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program10(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/OP ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">op</li>";
+  return buffer;
+  }
+
+function program12(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers['if'].call(depth0, depth0.weOped, {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program13(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/DEOP ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">deop</li>";
+  return buffer;
+  }
+
+function program15(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers['if'].call(depth0, depth0.weOped, {hash:{},inverse:self.noop,fn:self.program(16, program16, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program16(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers.unless.call(depth0, depth0.theyVoiced, {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program17(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/VOICE ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">voice</li>";
+  return buffer;
+  }
+
+function program19(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers['if'].call(depth0, depth0.weOped, {hash:{},inverse:self.noop,fn:self.program(20, program20, data),data:data});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+function program20(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<li data-exec=\"/DEVOICE ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">devoice</li>";
+  return buffer;
+  }
+
+  buffer += "<div class='nick-menu'>";
+  stack1 = helpers['if'].call(depth0, depth0.showNick, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "<ul><li data-exec=\"/WHOIS ";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">whois</li>";
+  stack1 = helpers['if'].call(depth0, depth0.notus, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "<li data-exec=\"/ME "
+    + escapeExpression(helpers.format.call(depth0, ((stack1 = depth0.lang),stack1 == null || stack1 === false ? stack1 : stack1.fishSlap), {hash:{},data:data}))
+    + "\">slap</li>";
+  stack2 = helpers['if'].call(depth0, depth0.weOped, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  stack2 = helpers['if'].call(depth0, depth0.notus, {hash:{},inverse:self.noop,fn:self.program(8, program8, data),data:data});
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  stack2 = helpers['if'].call(depth0, depth0.notus, {hash:{},inverse:self.noop,fn:self.program(12, program12, data),data:data});
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  stack2 = helpers['if'].call(depth0, depth0.notus, {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data});
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  stack2 = helpers['if'].call(depth0, depth0.notus, {hash:{},inverse:self.noop,fn:self.program(19, program19, data),data:data});
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  buffer += "</ul></div>";
+  return buffer;
+  });
+
 this["qwebirc"]["templates"]["nickbtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='user'><span class='nick'>";
+  buffer += "<div class='user' data-user=\"";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\"><span class=\"prefix\">";
+  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span><span class='nick'>";
   if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -528,11 +746,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<span>- ";
+  buffer += "<li>";
   if (stack1 = helpers.text) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.text; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</span>";
+    + "</li>";
   return buffer;
   });
 
@@ -637,18 +855,33 @@ function program1(depth0,data) {
 this["qwebirc"]["templates"]["userlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function";
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
-
-  buffer += "<span class='hyperlink-whois' data-user='";
+function program1(depth0,data) {
+  
+  var stack1;
   if (stack1 = helpers.userid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.userid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
+
+function program3(depth0,data) {
+  
+  var stack1;
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  return escapeExpression(stack1);
+  }
+
+  buffer += "<span class='hyperlink-whois' data-user='";
+  stack1 = helpers['if'].call(depth0, depth0.userid, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "'>";
-  if (stack1 = helpers.username) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.username; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</span>";
+  if (stack1 = helpers.nick) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.nick; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</span>";
   return buffer;
   });
 
@@ -668,13 +901,20 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = "", stack1;
-  stack1 = self.invokePartial(partials.verticalDivider, 'verticalDivider', depth0, helpers, partials, data);
+  stack1 = helpers['if'].call(depth0, depth0.splitPane, {hash:{},inverse:self.noop,fn:self.program(4, program4, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "<div class=\"qui rightpanel\"></div>";
   return buffer;
   }
+function program4(depth0,data) {
+  
+  var stack1;
+  stack1 = self.invokePartial(partials.verticalDivider, 'verticalDivider', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  }
 
-function program5(depth0,data) {
+function program6(depth0,data) {
   
   var stack1;
   stack1 = self.invokePartial(partials.ircInput, 'ircInput', depth0, helpers, partials, data);
@@ -700,7 +940,7 @@ function program5(depth0,data) {
   stack1 = self.invokePartial(partials.channelName, 'channelName', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</div><div class=\"qui bottompanel\">";
-  stack1 = helpers['if'].call(depth0, depth0.needsInput, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+  stack1 = helpers['if'].call(depth0, depth0.needsInput, {hash:{},inverse:self.noop,fn:self.program(6, program6, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</div></div>";
   return buffer;
@@ -812,47 +1052,48 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
 ];
 
-irc.Numerics = {
-    "001": "RPL_WELCOME",
-    "004": "RPL_MYINFO",
-    "005": "RPL_ISUPPORT",
-    "353": "RPL_NAMREPLY",
-    "366": "RPL_ENDOFNAMES",
+// irc.Numerics = {
+//     "001": "RPL_WELCOME",
+//     "004": "RPL_MYINFO",
+//     "005": "RPL_ISUPPORT",
+//     "353": "RPL_NAMREPLY",
+//     "366": "RPL_ENDOFNAMES",
 
-    "331": "RPL_NOTOPIC",
-    "332": "RPL_TOPIC",
-    "333": "RPL_TOPICWHOTIME",
+//     "331": "RPL_NOTOPIC",
+//     "332": "RPL_TOPIC",
+//     "333": "RPL_TOPICWHOTIME",
 
-    "311": "RPL_WHOISUSER",
-    "312": "RPL_WHOISSERVER",
-    "313": "RPL_WHOISOPERATOR",
-    "317": "RPL_WHOISIDLE",
-    "671": "RPL_WHOISSECURE",
-    "318": "RPL_ENDOFWHOIS",
-    "319": "RPL_WHOISCHANNELS",
-    "330": "RPL_WHOISACCOUNT",
-    "338": "RPL_WHOISACTUALLY",
-    "343": "RPL_WHOISOPERNAME",
-    "320": "RPL_WHOISGENERICTEXT",
-    "325": "RPL_WHOISWEBIRC",
+//     "311": "RPL_WHOISUSER",
+//     "312": "RPL_WHOISSERVER",
+//     "313": "RPL_WHOISOPERATOR",
+//     "317": "RPL_WHOISIDLE",
+//     "671": "RPL_WHOISSECURE",
+//     "318": "RPL_ENDOFWHOIS",
+//     "319": "RPL_WHOISCHANNELS",
+//     "330": "RPL_WHOISACCOUNT",
+//     "338": "RPL_WHOISACTUALLY",
+//     "343": "RPL_WHOISOPERNAME",
+//     "320": "RPL_WHOISGENERICTEXT",
+//     "325": "RPL_WHOISWEBIRC",
 
-    "301": "RPL_AWAY",
-    "305": "RPL_UNAWAY",
-    "306": "RPL_NOWAWAY",
+//     "301": "RPL_AWAY",
+//     "305": "RPL_UNAWAY",
+//     "306": "RPL_NOWAWAY",
 
-    "324": "RPL_CHANNELMODEIS",
-    "329": "RPL_CREATIONTIME",
+//     "324": "RPL_CHANNELMODEIS",
+//     "329": "RPL_CREATIONTIME",
 
-    "433": "ERR_NICKNAMEINUSE",
-    "401": "ERR_NOSUCHNICK",
-    "404": "ERR_CANNOTSENDTOCHAN",
-    "482": "ERR_CHANOPPRIVSNEEDED",
+//     "433": "ERR_NICKNAMEINUSE",
+//     "401": "ERR_NOSUCHNICK",
+//     "404": "ERR_CANNOTSENDTOCHAN",
+//     "482": "ERR_CHANOPPRIVSNEEDED",
 
-    "321": "RPL_LISTSTART",
-    "322": "RPL_LIST",
-    "323": "RPL_LISTEND"
-};
+//     "321": "RPL_LISTSTART",
+//     "322": "RPL_LIST",
+//     "323": "RPL_LISTEND"
+// };
 
+//https://www.alien.net.au/irc/irc2numerics.html
 irc.Numerics2 = { // from node-irc
     "001": {
         "name": "RPL_WELCOME",
@@ -1411,9 +1652,9 @@ var join = function(by, xs) {
 
     $identity = _.identity,
 
-    splitBang = _.partial(split, "!"),
+    // splitBang = _.partial(split, "!"),
 
-    joinBang = _.partial(join, "!"),
+    // joinBang = _.partial(join, "!"),
 
     joinEmpty = _.partial(join, ""),
 
@@ -1452,9 +1693,9 @@ util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if prop
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = _.compose(joinBang, restRight, splitBang);
+// util.hostToNick = _.compose(joinBang, restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = _.compose(Array.getLast, splitBang);
+// util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
 var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
@@ -1495,16 +1736,24 @@ util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
 util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
 
+util.formatURL = function(link) {
+    link = util.isChannel(link) ? link.replace("#", "@") : link;
+    return link.startsWith("!") ? link : "!" + link;
+}
+
+util.unformatURL = function(link) {
+    if(link.startsWith("!")) {
+        return link.slice(1).replace(/^@/, "#");
+    }
+    return link;
+}
+
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
 util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
 util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
-
-
-//calls splits string by comma then calls array.erase on value
-util.removeChannel = Array.erase;
 
 (function() {
 /*
@@ -1523,11 +1772,13 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     data_re = /^[^ ]+ +/,
     args_re = /^:|\s+:/,
     argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
-    args_split_re = / +/;
-util.parseIRCData = function(line/*, stripColors*/) { // {{{
+    args_split_re = / +/,
+    NUMERICS = irc.Numerics2;
+util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
         'raw': line,
-        'prefix': ''
+        'prefix': '',
+        'commandType': 'normal'
     };
     var match;
 
@@ -1552,12 +1803,11 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
     match = line.match(command_re);
     message.command = match[1].toUpperCase();
     message.rawCommand = match[1];
-    message.commandType = 'normal';
     line = line.replace(data_re, '');
 
-    if (irc.Numerics2[message.rawCommand]) {
-        message.command = irc.Numerics2[message.rawCommand].name.toUpperCase();
-        message.commandType = irc.Numerics2[message.rawCommand].type;
+    if (NUMERICS[message.rawCommand]) {
+        message.command = NUMERICS[message.rawCommand].name;
+        message.commandType = NUMERICS[message.rawCommand].type;
     }
 
     message.args = [];
@@ -1578,6 +1828,28 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
 
     return message;
 };
+util.processTwistedData = function(data) {
+    var message = {
+        commandType: 'normal',
+        rawCommand: data[1],
+        command: data[1],
+        args: data[3],
+        prefix: data[2]
+    },
+    match;
+    if(NUMERICS[data[1]]) {
+        message.command = NUMERICS[data[1]].name;
+        message.commandType = NUMERICS[data[1]].type
+    }
+    if (match = message.prefix.match(prefix_re)) {
+        message.nick = match[1];
+        message.user = match[3];
+        message.host = match[4];
+    } else {
+        message.server = message.prefix;
+    }
+    return message;
+}
 })();
 
 util.formatCommand = function(cmdline) {
@@ -1603,12 +1875,6 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) { //_.lambda('a -> b -> a[b].prefixes + b')
-    return function(nick) {
-        return nickHash[nick].prefixes + nick;
-    };
-};
-
 util.validPrefix = _.contains;
 
 util.addPrefix = function(nc, pref, prefs) {
@@ -1631,12 +1897,12 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = function(nick) {
-    return new RegExp('(^|[\\s.,;:\'"])' + String.escapeRegExp(nick) + '([\\s.,;:\'"]|$)', "i");
+util.createWordRegex = function(word) {
+    return new RegExp('\\b' + String.escapeRegExp(word) + '\\b', "i");//=> /\bmegawac\b/i
 };
 
 util.testForNick = _.autoCurry(function(nick, text) {
-    return util.createNickRegex(nick).test(text);
+    return util.createWordRegex(nick).test(text);
 });
 
 util.toHSBColour = function(nick, client) {
@@ -1708,9 +1974,6 @@ var pad = util.pad = _.autoCurry(function(cond, padding, str) {
 util.padzero = pad(_.lambda('.length<=1'), "0");
 util.padspace = pad(_.lambda('.length!==0'), " ");
 
-
-util.browserVersion = $lambda(navigator.userAgent);
-
 util.getEnclosedWord = function(str, pos) {
     pos = pos >>> 0; //type safety coerce int
     // Search for the word's beginning and end.
@@ -1774,9 +2037,7 @@ util.generateID = (function() {
         INFO: 1,
         SERVER: 2,
         CHAN: 3,
-        MISC: 4,
-
-        MESSAGE: 5
+        MESSAGE: 4
     };
 
     var message = function(msg, type) {
@@ -1796,14 +2057,14 @@ util.generateID = (function() {
                         message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],
         joinAfterAuth: message("Waiting for login before joining channels...", types.INFO),
         authFailed: [message("Could not auth with IRC network - waited 5 seconds.", types.ERROR),
-                    message("Otherwise reattempt authing by typing: \"/authserv AUTH <your username> <your password>\"", types.ERROR),
+                    message("Otherwise reattempt authing by sending: \"/AUTH <your username> <your password>\"", types.ERROR),
                     message("To ignore the error and join channels, unauthed, type: \"/autojoin\".", types.ERROR)],
         signOn: message("SIGNON", types.SERVER),
         joinChans: message("Joining channels...", types.INFO),
-        noTopic: message("(No topic set.)", types.INFO),
+        noTopic: "(No topic set.)",
 
-        needOp: message("Sorry, you need to be a channel operator to change the topic!", types.ERROR),
-        changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
+        changeTopicNeedsOp: "Sorry, you need to be a channel operator to change the topic!",
+        changeTopicConfirm: "Change topic of {channel} to:",
 
         poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
         waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
@@ -1821,7 +2082,7 @@ util.generateID = (function() {
                     message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
 
         alertNotice: "Alert!",
-        activityNotice: message("Activity!", types.MISC),
+        activityNotice: "Activity!",
         partChan: "Part",
         logOut: message("Logged out", types.MESSAGE),
         quit: "Page closed",
@@ -1852,7 +2113,6 @@ util.generateID = (function() {
         NICK_COLOURS: "Automatically colour nicknames",
         HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
         STYLE_HUE: "Adjust user interface hue",
-        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
@@ -1864,6 +2124,7 @@ util.generateID = (function() {
         AUTO_OPEN_PM: "Automatically select window on private message:",
         FLASH: "flash",
         BEEP: "beep",
+        PM: "pm",
         MESSAGE_PLACEHOLDER: ' something ... ',
         NICK_PLACEHOLDER: ' someone ... ',
         DELETE_NOTICE: 'remove',
@@ -1894,32 +2155,33 @@ Epitome.View.implement({
 var storage = util.storage = new Storage({
     duration: 365,
     domain: '/',
-    debug: true
+    debug: DEBUG
 }),
 
 session = util.sessionStorage = new Storage({
     storageType: 'sessionStorage',
     duration: 1,
-    debug: true,
+    debug: DEBUG,
     fallback: false
 });
 
 //simple wrapper class
 //object.append breaks prototypes :/
-var Storer = (function(name, storer) {
-    this.name = name;
-    // this.storage = storer || storage;
-}.implement({
+var Storer = util.Storer = new Class({
+    initialize: function(name, storer) {
+        this.name = name;
+        this.storage = storer || storage;
+    },
     get: function() {
-        return /*this.*/storage.get(this.name);
+        return this.storage.get(this.name);
     },
     set: function(val) {
-        return /*this.*/storage.set(this.name, val);
+        return this.storage.set(this.name, val);
     },
     dispose: function() {
-        return /*this.*/storage.remove(this.name);
+        return this.storage.remove(this.name);
     }
-}));
+});
 /*.alias({
     get: 'read',
     write: 'set',
@@ -2009,11 +2271,11 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     var evts = {
         "click": hideMenu,
         "keypress": hideMenu
-    }
+    };
     function hideMenu() {
         if(options.onHide)
             options.onHide.call(this, $ddm);
-        document.removeEvents(evts)
+        document.removeEvents(evts);
         return $ddm.hide();
     }
     function toggleMenu(state) {
@@ -2073,35 +2335,44 @@ util.fillContainer = function ($ele, options) {
 };
 
 
-//http://caniuse.com/#feat=calc
-Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
-                            (Browser.firefox && Browser.version >= 4) ||
-                            (Browser.chrome && Browser.version >= 19) ||
-                            (Browser.opera && Browser.version >= 15) ||
-                            (Browser.safari && Browser.version > 6));
+// //http://caniuse.com/calc
+// Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
+//                             (Browser.firefox && Browser.version >= 4) ||
+//                             (Browser.chrome && Browser.version >= 19) ||
+//                             (Browser.opera && Browser.version >= 15) ||
+//                             (Browser.safari && Browser.version > 6));
+document.addEvent("domready", function() {//based off https://gist.github.com/Rob-ot/3399053
+    Browser.Features.calc = false;//union bool str (-webkit-calc, -moz-calc, calc)
+    ["","-webkit-","-moz-","-o-"].some(function(prefix) {
+        var $el = new Element('div', {
+            styles: {
+                width: prefix + "calc(5px)"
+            }
+        });
+        if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+    });
+});
 
 util.percentToPixel= function(data, par) {
     par = par || $(document.body);
     var size = par.getSize();
     return {
-        x: size.x * (data.x * .01),
-        y: size.y * (data.y * .01)
+        x: size.x * (data.x * 0.01),
+        y: size.y * (data.y * 0.01)
     };
 };
 
 //https://gist.github.com/megawac/6525074
+//http://www.w3schools.com/cssref/css_units.asp
 util.calc = function($ele, style, val) {
     // val = val.replace(/(\(|\))/g, "");
 	//simple css calc function polyfill
 	//polyfill expects surrounded by brackets <val><unit> <operator> <val><unit> => "33% - 20px + 1em"
     //does not support things like "50%/3 - 5px"
 	if(Browser.Features.calc) {
-		val = "calc(" + val + ")";
-		$ele.setStyle(style, val)
-			.setStyle(style, "-moz-" + val)
-			.setStyle(style, "-webkit-" + val);
+		$ele.setStyle(style, Browser.Features.calc + "(" + val + ")");
 	} else {
-        var old = $ele.retrieve("calc"); 
+        var old = $ele.retrieve("calc");
         if(old) {window.removeEvent("resize", old);}
 		var split = val.split(" ");
 		var op = split.splice(1,1);
@@ -2122,15 +2393,11 @@ util.calc = function($ele, style, val) {
                     return size;
                 }
             });
-            var size = eval(expr);
+            var size = eval(expr);//safe usage - evals '500-20+12' for example
             $ele.setStyle(style, size);
             return resize;
         };
         window.addEvent("resize", resize);
-        // $ele.addEvents({
-        //     adopt: resize,
-        //     disown: resize
-        // });
         $ele.store("calc", resize);
         return resize();
 	}
@@ -2158,8 +2425,8 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
-var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
-    chan_re = /#|\/|\\/;
+// var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
+//     chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
 urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
@@ -2172,16 +2439,17 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
 
                 if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
                     var cmd = mid.slice(10);//remove qwebirc://
-                    if(cmd.startsWith("whois/")) {
+                    /*if(cmd.startsWith("whois/")) {
                         var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
                         var user = cmd.slice(6, chanlen);//whois to channel
                         cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(cmd.startsWith("options") || cmd.startsWith("embedded")) {
-                        cmd = cmd.match(/.*\//)[0];
-                        cmd = cmd.slice(0, cmd.length);
+                    else */if(["options", "embedded", "privacy"].some(cmd.startsWith.bind(cmd))) {
+                        cmd = templates.customlink({
+                            val: cmd.match(/\w+\w/)
+                        });
                     }
                     word = parsed.lead + cmd + parsed.end;
                 }
@@ -2194,8 +2462,10 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
             var parsed = this.parsePunctuation(word),
                 res = parsed.mid;
 
-            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test()) {
-                res = templates.channellink({channel:util.formatChannel(res)});
+            if(util.isChannel(res)) {
+                res = templates.customlink({
+                    val: res
+                });
             }
 
             return parsed.lead + res + parsed.end;
@@ -2278,9 +2548,8 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
 })()
 
 
-
 irc.RegisteredCTCPs = {
-    "VERSION": $lambda("qwebirc v" + qwebirc.VERSION + ", copyright (C) 2008-2011 Chris Porter and the qwebirc project -- " + qwebirc.util.browserVersion()),
+    "VERSION": $lambda("qwebirc v" + qwebirc.VERSION + ", copyright (C) 2008-2011 Chris Porter and the qwebirc project -- " + navigator.userAgent),
     "USERINFO": $lambda("qwebirc"),
     "TIME": function(x) {
         return util.IRCDate(new Date());
@@ -2289,34 +2558,6 @@ irc.RegisteredCTCPs = {
     "CLIENTINFO": $lambda("PING VERSION TIME USERINFO CLIENTINFO WEBSITE"),
     "WEBSITE": $lambda(((window == window.top) ? "direct" : document.referrer))
 };
-
-irc.DummyNicknameValidator = new Class({
-    validate: function(name) {
-        return _.isString(name) && name.length > 1 && name;
-    }
-});
-
-irc.NicknameValidator = new Class({
-    initialize: function(options) {
-        this.options = options;
-    },
-    validate: function(nick, permitDot) {
-        if(!_.isString(nick)) return false;
-        var self = this,
-            generated = "",
-            max = Math.min(self.options.maxLen, nick.length);
-
-        max.times(function(indx) {
-            var _char = nick[indx];
-
-            var valid = (indx === 0) ? self.options.validFirstChar : self.options.validSubChars;
-
-            generated += (valid.contains(_char) || permitDot && _char === ".") ? _char : "_";
-        });
-
-        return String.pad(generated, this.options.minLen, "_");
-    }
-});
 
 
 //commands are substituted by util.formatter. Please make sure they are the correct command for your server
@@ -2353,7 +2594,7 @@ config.IRC_COMMANDS = { //maybe make these templates?
         command: "NOTICE {target} :{message}"
     },
     "MODE": {
-        command: "MODE {nick} {mode} {args}"
+        command: "MODE {target} {mode} {args}"
     },
     "AUTH": {
         command: "AUTHSERV AUTH {username} {password}"
@@ -2370,7 +2611,6 @@ config.COMMAND_ALIAS = {
     "M": "PRIVMSG",
     "MSG": "PRIVMSG",
     "PM": "PRIVMSG",
-    // "SAY": "PRIVMSG",
     "Q": "QUERY",
     "BACK": "AWAY",
     "PRIVACY": "PRIVACYPOLICY",
@@ -2382,18 +2622,22 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "auto_open_pm": true,
+            "auto_open_pm": false,
             "nick_ov_status": true,
             "accept_service_invites": true,
             "use_hiddenhost": true,
             "lastpos_line": true,
             "nick_colours": false,
             "hide_joinparts": false,
-            "query_on_nick_click": true,
             "show_nicklist": !Browser.isMobile,
             "show_timestamps": true,
             "font_size": 12,
-            "volume": 10, //0-10
+            "volume": 100, //0-10
+
+            "completer": {
+                "intrusive": Browser.isDecent,
+                "store": !Browser.isMobile
+            },
 
             "dn_state": false,
             "dn_duration": 4000,
@@ -2406,9 +2650,9 @@ config.OptionModel = new Class({
             "style_brightness": 0,
 
             "notices": {
-                "on_mention": {flash:true, beep:true},
-                "on_pm": {flash:true, beep:true},
-                "on_notice": {flash:false, beep:true}
+                "on_mention": {flash:true, beep:true, pm: false},
+                "on_pm": {flash:true, beep:true, pm: true},
+                "on_notice": {flash:false, beep:true, pm: true}
             },
             "custom_notices": [],
             "default_notice": function() {
@@ -2417,6 +2661,7 @@ config.OptionModel = new Class({
                         msg: '',
                         flash: false,
                         beep: false,
+                        pm: false,
                         id: String.uniqueID(),
                         autoescape: true
                     };
@@ -2592,8 +2837,8 @@ config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is
     "O": irc.styles.colour.key,
     "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
-    "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
-    "CN": templates.userlink({'userid':'{newnick}', 'username': '{newnick}'}),// change nick
+    "NN": templates.userlink({'nick':'{N}'}),//nick name
+    "CN": templates.userlink({'nick':'{newnick}'}),// change nick
     "P": "{C}4=={O} "
 };
 
@@ -2627,11 +2872,11 @@ config.ThemeIRCTemplates = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
-    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
+    "CHANMSG": "{D}{nicktmpl}{)}{D} {m}",
+    "PRIVMSG": "{(}{nicktmpl}{)} {m}",
 
-    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
-    "OURPRIVMSG": "&lt;{N}&gt; {m}",
+    "OURCHANMSG": "{nicktmpl} {m}",
+    "OURPRIVMSG": "{nicktmpl} {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",
@@ -2657,7 +2902,7 @@ config.ThemeIRCTemplates = {
     "WHOISOPERNAME": "{P} operedas : {m}",
     "WHOISACTUALLY": "{P} realhost : {m} [ip: {x}]",
     "WHOISGENERICTEXT": "{P} note  : {m}",
-    "WHOISEND": "{P}End of WHOIS",
+    "WHOISEND": "{P}End of whois {N}",
 
     "AWAY": "{P}{N} is away: {m}",
     "GENERICERROR": "{P}{m}: {t}",
@@ -2672,6 +2917,406 @@ config.ThemeIRCTemplates = {
         return util.format(command.command, data);
     };
 
+irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClient so not really
+    // Binds: ["exec"],
+
+    __autojoined: false,
+
+    // routes all outputs with the server
+    // this method will call functions in: Commands based on the this scope
+    exec: function(line, chan) {
+        var self = this,
+            allargs = util.formatCommand(line);
+
+        //is it clearer to use a do-while? - anyway allargs var will change each loop
+        for (var command, args, cmdopts, activewin, splitargs, minargs, fn, win, target; $defined(allargs); ) {
+            command = allargs[0].toUpperCase();
+            command = config.COMMAND_ALIAS[command] || command;
+            args = allargs[1];
+            target = chan;
+
+            cmdopts = self["cmd_" + command];//comand handler
+
+            if (!cmdopts) {
+                self.send(command + util.padspace(args));
+                break;
+            }
+
+            //props from on of the command arrays
+            // activewin = cmdopts[0];
+            // splitargs = cmdopts[1];
+            // minargs = cmdopts[2];
+            // fn = cmdopts[3];
+
+           /* //errors in command
+            win = chan ? self.windows[chan] : self.getActiveWindow();
+            if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
+                self.writeMessages(lang.invalidCommand);
+                break;
+            }
+            else */if (cmdopts.minargs && cmdopts.minargs > _.size(args)) {
+                self.writeMessages(lang.insufficentArgs, {}, {
+                    channel: chan
+                });
+                break;
+            }
+            if (_.isNumber(cmdopts.splitargs) && _.isString(args)) {
+                args = args.splitMax(" ", cmdopts.splitargs);
+                if(cmdopts.target/* && util.isChannel(args[0])*/) {
+                    target = args.shift();//so you can avoid checks for correct syntax
+                }
+            }
+
+            allargs = cmdopts.fn.call(self, args, target);
+        }
+    },
+
+
+    automode: function(modes, mode, args, channel) {
+        args.length.times(function() {
+            modes += mode;
+        });
+        this.send(format(cmd.MODE, {
+            target: channel,
+            mode: modes,
+            args: args.join(" ")
+        }));
+    },
+
+    /*****************commands ****************/
+
+    /* [require_active_window, splitintoXargs, minargs, function] */
+    cmd_ME: {
+        fn: function(args, target) {
+            args = args || "";
+
+            var msg = format(cmd.ACTION, {
+                target: target,
+                text: args
+            });
+
+            if (this.send(msg)) {
+                var nick = this.nickname;
+                this.trigger("privAction", {
+                    'nick': nick,
+                    'message': args,
+                    'target': target,
+                    'channel': target,
+                    "prefix": this.getNickStatus(target, nick)
+                });
+            }
+
+        }
+    },
+
+    cmd_CTCP: {
+        target: true,
+        splitargs: 3,
+        minargs: 2,
+        fn: function(args, target) {
+            var type = args[0].toUpperCase(),
+                message = args[1] || "";
+
+            var msg = format(cmd.CTCP, {
+                target: target,
+                type: type,
+                text: message
+            });
+
+            if (this.send(msg)) {
+                this.trigger("privCTCP", {
+                    'nick': this.nickname,
+                    '_type': type,
+                    'message': message,
+                    'args': args,
+                    'type': 'CTCPReply'
+                });
+            }
+        }
+    },
+
+    cmd_SAY: {
+        minargs: 1,
+        fn: function(args, target) { //direct
+            return ["PRIVMSG", target + " " + args || ""];//purpose is different split args
+        }
+    },
+
+    cmd_PRIVMSG: {
+        target: true,
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, target) {
+            var message = args[0];
+            var nick = this.nickname;
+            var msg = format(cmd.PRIVMSG, {
+                target: target,
+                message: message
+            });
+
+            if (util.isChannel(target)) {
+                if (this.send(msg)) {
+                    this.trigger("chanMessage", {
+                        'nick': nick,
+                        'channel': target,
+                        'message': message,
+                        'type': 'chanmsg',
+                        "prefix": this.getNickStatus(target, nick)
+                    });
+                }
+            } else {
+                return ["QUERY", target + " " + message];
+            }
+        }
+    },
+
+    cmd_NOTICE: {
+        target: true,
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, target) {
+            var message = args[0];
+            var msg = format(cmd.NOTICE, {
+                target: target,
+                message: message
+            });
+
+            if (this.send(msg)) {
+                this.trigger("chanNotice", {
+                    'nick': this.nickname,
+                    'channel': target,
+                    'target': target,
+                    'message': message
+                });
+            }
+        }
+    },
+
+    cmd_QUERY: {
+        target: true,
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, target) {
+            var message = args[0];
+            if (util.isChannel(target)) {
+                return this.writeMessages(lang.invalidChanTarget);
+            }
+            if(_.size(message) > 1) {
+                var msg = format(cmd.PRIVMSG, {
+                    target: target,
+                    message: message
+                });
+                this.send(msg);
+            }
+
+            this.trigger("query", {
+                'nick': this.nickname,
+                'channel': target,
+                'message': message,
+                'type': 'privmsg',
+                'open': true
+            });
+        }
+    },
+
+    // cmd_OPTIONS: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "optionsWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    // cmd_EMBED: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "embeddedWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    // cmd_PRIVACYPOLICY: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "privacyWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    // cmd_ABOUT: {
+    //     fn: function(args) {
+    //         this.trigger("openWindow", {
+    //             'window': "aboutWindow",
+    //             'type': ui.WINDOW.custom
+    //         });
+    //     }
+    // },
+
+    cmd_QUOTE: {
+        minargs: 1,
+        fn: function(args) {
+            this.send(args);
+        }
+    },
+
+    cmd_KICK: {
+        target: true,
+        splitargs: 3,
+        minargs: 1,
+        fn: function(args, target) {
+            this.send(format(cmd.KICK, {
+                channel: channel,
+                kickee: target,
+                message: args[0] || ""
+            }));
+        }
+    },
+
+    cmd_OP: {
+        target: true,
+        splitargs: 6,
+        minargs: 1, 
+        fn: function(args, target) {
+            this.automode("+", "o", args, target);
+        }
+    },
+    cmd_DEOP: {
+        target: true,
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args, target) {
+            this.automode("-", "o", args, target);
+        }
+    },
+    cmd_AUTH: {//must be configured per server in config.irc_commands
+        splitargs: 2,
+        minargs: 2,
+        fn: function(args) {
+            var msg = format(cmd.AUTH, {
+                username: args[0],
+                password: args[1]
+            });
+            this.send(msg);
+        }
+    },
+    cmd_VOICE: {
+        target: true,
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args, target) {
+            this.automode("+", "v", args, target);
+        }
+    },
+    cmd_DEVOICE: {
+        target: true,
+        splitargs: 6,
+        minargs: 1,
+        fn: function(args, target) {
+            this.automode("-", "v", args, target);
+        }
+    },
+    cmd_TOPIC: {
+        target: true,
+        splitargs: 2,
+        minargs: 1,
+        fn: function(args, channel) {
+            var msg = format(cmd.TOPIC, {
+                channel: channel,
+                topic: args[0]
+            });
+            this.send(msg);
+        }
+    },
+    cmd_AWAY: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            var msg = format(cmd.AWAY, {
+                message: args[0] || ""
+            })
+            this.send(msg);
+        }
+    },
+    cmd_QUIT: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            this.quit(args[0] || "");
+        }
+    },
+    // cmd_CYCLE: {
+    //     splitargs: 1,
+    //     minargs: 0,
+    //     fn: function(args, channel) {
+    //         channel = channel;
+
+    //         this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
+    //         this.send("JOIN " + channel);
+    //     }
+    // },
+    cmd_FJOIN: {
+        splitargs: 1,
+        minargs: 1,
+        fn: function(args) {
+            if(_.isEmpty(args)) return;
+            var channels = Array.from(args).flatten(),
+                formatted = util.formatChannelString(channels);
+
+            if (!_.isEqual(channels, util.splitChans(formatted) )) {
+                this.writeMessages(lang.poorJoinFormat);
+            }
+            if(formatted) {
+                this.send(format(cmd.JOIN, {
+                    channel: formatted/*,
+                    args : args.join(" ")*/
+                }));
+            }
+        }
+    },
+    cmd_JOIN: {
+        splitargs: 1,
+        minargs: 1,
+        fn: function(args) {//accepts string or array
+            var channels = Array.from(args).map(util.splitChans).flatten().filter(this.canJoinChannel, this);
+            this.cmd_FJOIN.fn.call(this, channels);//join channels into a single comma sep string then join
+        }
+    },
+    cmd_PART: {
+        target: true,
+        splitargs: 2,
+        minargs: 0,
+        fn: function(args, channel) {
+            var chans = this.channels.erase(channel);
+            this.storeChannels(chans);
+            this.send(format(cmd.PART, {
+                channel: args[0] || channel,
+                message: args[1] || lang.partChan
+            }));
+        }
+    },
+    cmd_UMODE: {
+        splitargs: 1,
+        minargs: 0,
+        fn: function(args) {
+            this.send(format(cmd.MODE, {
+                target: this.nickname,
+                mode: args[0] || ""
+            }));
+        }
+    },
+    cmd_AUTOJOIN: {
+        fn: function(args) {
+            if(!this.__autojoined) {
+                this.__autojoined = true;
+                return ["JOIN", this.options.autojoin];
+            }
+        }
+    }
+});
+
 irc.CommandHistory = new Class({
     Extends: Epitome.Model.Storage,
     Implements: [Options],
@@ -2681,12 +3326,13 @@ irc.CommandHistory = new Class({
         storage: {
             fallback: false//dont save on shit browsers
         },
+        store: !Browser.isMobile,
         key: cookies.history
     },
 
     addLine: function(name, line) {
-        var data = this.get(name);
-        if(line.length > this.options.minlen && !data.contains(line)) {
+        var data = this.get(name).erase(line)
+        if(line.length > this.options.minlen) {
             data.unshift(line);
             if (data.length > this.options.lines) {
                 data.pop();
@@ -2702,7 +3348,7 @@ irc.CommandHistory = new Class({
 
     removeChannel: function(name) {
         this.unset(name);
-        this.save();
+        if(this.options.store) this.save();
     },
 
     _filter: function(val) {
@@ -2762,6 +3408,15 @@ irc.NodeConnection = new Class({
             "echo": _.log,
             "connected": self._connected,
             "disconnect": self._disconnected,
+            "max_connections": function() {
+                new ui.Alert({
+                    title: 'Maximum connections reached',
+                    text: 'Maximum synchronous connections for this server have been reached. If we let you in we may crash/get g-lined. Try again later...',
+                    onHide: function() {
+                        location.reload();
+                    }
+                });
+            },
             // "connected": _.log,
             "error": self.error
         };
@@ -2834,49 +3489,40 @@ irc.NodeConnection = new Class({
 
 
 auth.loggedin = false;
-
 auth.enabled = false;
 
-auth.authed = false;
-
-auth.signedIn = false; //when the channels are joined
-
-auth.quakeNetAuth = $lambda(false);
-
 auth.passAuth = $lambda(true);
-
 auth.bouncerAuth = $lambda(false);
 
-ui.AuthLogin = function(e) {
-    var cookie = Cookie.write("redirect", document.location);
-    document.location = qwebirc.global.dynamicBaseURL + "auth/";
-    new Event(e).stop();
-};
-
-
-(function() {
-    function genericError(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
-
-        this.genericError(target, message);
-        return true;
-    }
-    function genericQueryError(prefix, params) {
-        var target = params[1],
-            message = params.getLast();
-
-        this.genericQueryError(target, message);
-        return true;
-    }
-
-//base client should know absolutely nothing about the outside world- client will dictate ui interactions via events
-irc.BaseIRCClient = new Class({
-    Implements: [Options, Events],
-    Binds: ["lostConnection", "send", "connected", "retry", "ndispatch", "tdispatch"],
-
+// //ircclient with added event support
+irc.IRCClient = new Class({
+    Implements: [Options, Events, irc.Commands],
+    Binds: ["lostConnection", "send", "quit", "connected","retry", "_ndispatch", "_tdispatch"],
+    options: {
+        nickname: "",
+        autojoin: "",
+        minRejoinTime: [0],
+        networkServices: [],
+        loginRegex: /^$/ //always fail
+    },
+    lastNicks: [],
+    inviteChanList: [],
+    activeTimers: {},
+    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice)
+    modeprefixes: "ov",
+    __signedOn: false,
+    authed: false,
+    channels: [],
+    nextctcp: 0,
+    pmodes: {
+        b: irc.PMODE_LIST,
+        l: irc.PMODE_SET_ONLY,
+        k: irc.PMODE_SET_UNSET,
+        o: irc.PMODE_SET_UNSET,
+        v: irc.PMODE_SET_UNSET
+    },
     toIRCLower: irc.RFC1459toIRCLower,//default text codec
-
+    
     initialize: function(options) {
         var self = this;
         options = self.setOptions(options).options;
@@ -2892,7 +3538,7 @@ irc.BaseIRCClient = new Class({
                 serverPassword: options.serverPassword
             });
             conn.addEvents({
-                "recv": self.ndispatch,
+                "recv": self._ndispatch,
                 "quit": self.quit,
                 "retry": self.retry,
                 "connected": self.connected,
@@ -2903,1102 +3549,41 @@ irc.BaseIRCClient = new Class({
                 initialNickname: self.nickname,
                 serverPassword: options.serverPassword
             });
-            self.connection.addEvent("recv", self.tdispatch);
+            self.connection.addEvent("recv", self._tdispatch);
         }
+
+        // self.commandparser = new irc.Commands(self);
+        // self.exec = self.commandparser.exec;
+        self.tracker = new irc.IRCTracker(self);
     },
 
-    trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
-        if(!data) data = {};
-        data["-"] = this.nickname;
-        return this.fireEvent(type, [type, data]);
+    //connection methods
+    connect: function() {
+        return this.connection.connect();
     },
 
-    isConnected: function() {
-        return this.__signedOn && this.connection.connected;
-    },
-
-    retry: util.noop,
-
-    lostConnection: function() {
+    connected: function() {
+        this.trigger("connect", {});
     },
 
     send: function(data) {
         return this.connection.send(data);
     },
 
-    ndispatch: function(data) {
-        var fn = this["irc_" + data.command];
-
-        if (!(fn && fn.call(this, data.prefix, data.args))) {//fn dne or does not return true
-            this.rawNumeric(data.command, data.prefix, data.args);
-        }
+    disconnect: function() {
+        this.connection.disconnect();
+        return this;
     },
 
-    tdispatch: function(data) {
-        var message = data[0];
-        switch(message) {
-            case "connect":
-                this.connected();
-            break;
-            case "disconnect":
-                if (data.length === 0) {
-                    this.disconnected("No error!");
-                } else {
-                    this.disconnected(data[1]);
-                }
-                this.disconnect();
-            break;
-            case "c":
-                var command = data[1].toUpperCase(),
-                    prefix = data[2],
-                    sl = data[3],
-
-                    fn = this["irc_" + (irc.Numerics[command] || command)];
-
-                if (fn) {
-                    var result = fn.call(this, prefix, sl);
-                    if (result) {
-                        return;
-                    }
-                }
-                this.rawNumeric(command, prefix, sl);
-            break;
-        }
-    },
-
-
-    supported: function(key, value) {
-        var self = this;
-        switch(key) {
-            case "CASEMAPPING":
-                if (value === "ascii") {
-                    self.toIRCLower = irc.ASCIItoIRCLower;
-                } else if (value === "rfc1459") {
-                    //default
-                } else {
-                    // TODO: warn 
-                    console.log('unsupported codec');
-                }
-                self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
-            break;
-            case "CHANMODES":
-                value.split(",").each(function(mode, inx) {
-                    _.each(mode, function(letter) {
-                        self.pmodes[letter] = inx;
-                    });
-                });
-            break;
-            case "PREFIX":
-                var len = (value.length - 2) / 2,
-                    modeprefixes = value.substr(1, len);
-                _.each(modeprefixes, function(modeprefix) {
-                    self.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
-                });
-            break;
-        }
-    },
-
-    __inChannel: function(name) {
-        return this.channels.contains(name);
-    },
-
-    __killChannel: function(name) {
-        return this.channels.erase(name);
-    },
-
-    processCTCP: function(message) {
-        if (message.charAt(0) !== "\x01")
-            return;
-
-        if (Array.getLast(message) === "\x01") {
-            message = message.substr(1, message.length - 2);
-        } else {
-            message = message.substr(1);
-        }
-        return message.splitMax(" ", 2);
-    },
-
-    //expected to be overriden
-    getChannels: function() {
-        return this.channels;
-    },
-
-    storeChannels: function(c) {
-        this.channels = c;
-        return c;
-    },
-
-    canJoinChannel: $lambda(true),
-
-    irc_RPL_WELCOME: function(prefix, params) {
-        var self = this;
-        self.nickname = params[0];
-        self.lowerNickname = self.toIRCLower(self.nickname);
-        self.signedOn(self.nickname);
-        _.delay(function() {
-            self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
-        }, 2000);
-    },
-
-    irc_ERR_NICKNAMEINUSE: function(prefix, params) {//add some number to the nick and resend
-        this.genericError(params[1], params.getLast());
-
-        if (this.__signedOn) {
-            return true;
-        }
-
-        var nick = params[1],
-            newnick = nick + Number.random(0, 9);
-
-        this.send(format(cmd.NICK, {nick: newnick}));
-        this.lastnick = newnick;
-        return true;
-    },
-
-    irc_NICK: function(prefix, params) {
-        var user = prefix,
-            oldnick = util.hostToNick(user),
-            newnick = params[0],
-            wasus = this.nickname === oldnick;
-
-        if (wasus) { //shouldnt this always be true?
-            this.nickname = newnick;
-            this.lowerNickname = this.toIRCLower(this.nickname);
-        }
-
-        this.nickChanged(user, newnick, wasus);
-
-        return true;
-    },
-
-    irc_QUIT: function(prefix, params) {
-        var user = prefix,
-            message = params.getLast();
-
-        this.userQuit(user, message);
-
-        return true;
-    },
-
-    irc_PART: function(prefix, params) {
-        var user = prefix,
-            channel = params[0],
-            message = params[1],
-
-            nick = util.hostToNick(user);
-
-        this.partHandler(nick, channel);
-        this.userPart(user, channel, message);
-
-        return true;
-    },
-
-    irc_KICK: function(prefix, params) {
-        var kicker = prefix,
-            channel = params[0],
-            kickee = params[1],
-            message = params[2];
-
-        this.partHandler(kickee, channel);
-        this.userKicked(kicker, channel, kickee, message);
-
-        return true;
-    },
-
-    partHandler: function(nick, chan) {
-        var wasus = nick === this.nickname;
-        if(wasus && this.__inChannel(chan)) {
-            this.__killChannel(chan);
-        }
-        return wasus;
-    },
-
-    irc_PING: function(prefix, params) {
-        this.send("PONG :" + params.getLast());
-        return true;
-    },
-
-    irc_JOIN: function(user, params) {
-        var newchan = params[0],
-            nick = util.hostToNick(user),
-            wasus = (nick === this.nickname);
-
-        if(wasus) {
-            if(!isBaseWindow(newchan)) {
-                this.storeChannels(util.addChannel(this.getChannels(), newchan));
-            }
-            if(this.__signedOn) {
-                this.currentChannel = newchan;
-            }
-        }
-
-        this.userJoined(user, newchan);
-
-        return true;
-    },
-
-
-    irc_TOPIC: function(prefix, params) {
-        var user = prefix,
-            channel = params[0],
-            topic = params.getLast();
-
-        this.channelTopic(user, channel, topic);
-
-        return true;
-    },
-
-    //todo buffer messages
-    irc_PRIVMSG: function(prefix, params) {
-        var user = prefix,
-            target = params[0],
-            message = params.getLast();
-
-        var ctcp = this.processCTCP(message);
-        if (ctcp) {
-            var type = ctcp[0].toUpperCase();
-
-            var replyfn = irc.RegisteredCTCPs[type];
-            if (replyfn) {
-                var t = Date.now() / 1000;
-                if (t > this.nextctcp) { //too quick? why not just a buffer?
-                    var repctcp = replyfn(ctcp[1]);
-                    this.send(format(cmd.CTCP, {
-                        target: util.hostToNick(user),
-                        type: type,
-                        text: repctcp
-                    }));
-                }
-                this.nextctcp = t + 5;
-            }
-
-            if (target === this.nickname) {
-                this.userCTCP(user, type, ctcp[1]);
-            } else {
-                this.channelCTCP(user, target, type, ctcp[1]);
-            }
-        } else {
-            if (target === this.nickname) {
-                this.userPrivmsg(user, message);
-            } else {
-                this.channelPrivmsg(user, target, message);
-            }
-        }
-        return true;
-    },
-
-    irc_NOTICE: function(host, params) {
-        var user = util.hostToNick(host),
-            target = params[0],
-            message = params.getLast(),
-            options = this.options,
-            isNetworkService = options.networkServices.contains(host);
-
-        if(isNetworkService && options.loginRegex.test(message)) {
-            this.authEvent();
-        }
-
-        if (isNetworkService || user == "" || user.contains("!")) {
-            this.serverNotice(host, message, target);
-        } else if (target === this.nickname) {
-            var ctcp = this.processCTCP(message);
-            if (ctcp) {
-                this.userCTCPReply(host, ctcp[0], ctcp[1]);
-            } else {
-                this.userNotice(host, message);
-            }
-        } else {
-            this.channelNotice(host, target, message);
-        }
-
-        return true;
-    },
-
-    irc_INVITE: function(prefix, params) {
-        var user = prefix,
-            channel = params.getLast();
-
-        this.userInvite(user, channel);
-
-        return true;
-    },
-
-    irc_ERROR: function(prefix, params) {
-        var message = params.getLast();
-
-        this.serverError(message);
-
-        return true;
-    },
-
-    irc_MODE: function(prefix, params) {
-        var user = prefix,
-            target = params[0],
-            args = params.slice(1);
-
-        if (target == this.nickname) {
-            this.userMode(args);
-
-        } else {
-            var modes = args[0].split(""),//dont really need to split here
-                xargs = args.slice(1),
-
-                argindx = 0, //go to hell
-                cmode = OPED;
-
-            var data = modes.filter(function(mode) { //alternatively just do the if in map and then clean()
-                var dir = (mode === OPED) || (mode === DEOPED);
-                if (dir) {
-                    cmode = mode;
-                }
-                return !dir;
-            }).map(function(mode) {
-                var pmode = this.pmodes[mode],
-                    m = (pmode === irc.PMODE_LIST || pmode === irc.PMODE_SET_UNSET/* || (cmode === OPED && pmode === irc.PMODE_SET_ONLY)*/) ?
-                            [cmode, mode, xargs[argindx++]] :
-                            [cmode, mode];
-                return m;
-            }, this);
-
-            this.channelMode(user, target, data, args);
-        }
-
-        return true;
-    },
-
-    // irc_RPL_MOTD: function(prefix, params) {
-    //     console.warn(arguments);
-    // },
-
-    irc_RPL_ISUPPORT: function(prefix, params) {
-        var supported = params.slice(1, -1); //everything but nick and server msg
-        var ms;
-
-        if(supported.contains("CHANMODES") && supported.contains("PREFIX")) { //nasty hack - don't understand purpose 
-            this.pmodes = {}; //evil might break things
-        }
-
-        supported.each(function(mode) {
-            ms = mode.splitMax("=", 2);
-            this.supported(ms[0], ms[1]);
-        }, this);
-    },
-
-    irc_RPL_NAMREPLY: function(prefix, params) {
-        var channel = params[2],
-            names = params[3];
-
-        this.channelNames(channel, names.split(" "));
-
-        return true;
-    },
-
-    irc_RPL_ENDOFNAMES: function(prefix, params) {
-        var channel = params[1];
-
-        this.channelNames(channel, []);
-        return true;
-    },
-
-    irc_RPL_NOTOPIC: function(prefix, params) {
-        var channel = params[1];
-
-        if (this.__inChannel(channel)) {
-            this.initialTopic(channel, "");
-            return true;
-        }
-    },
-
-    irc_RPL_TOPIC: function(prefix, params) {
-        var channel = params[1],
-            topic = params.getLast();
-
-        if (this.__inChannel(channel)) {
-            this.initialTopic(channel, topic);
-            return true;
-        }
-    },
-
-    irc_RPL_TOPICWHOTIME: $lambda(true),
-
-    irc_RPL_WHOISUSER: function(prefix, params) {
-        var nick = params[1];
-        this.whoisNick = nick;
-
-        return this.whois(nick, "user", {
-            ident: params[2],
-            hostname: params[3],
-            realname: params.getLast()
+    disconnected: function(message) {
+        delete this.tracker;
+        this.trigger("disconnect", {
+            message: message
         });
-    },
-
-    irc_RPL_WHOISSERVER: function(prefix, params) {
-        var nick = params[1],
-            server = params[2],
-            serverdesc = params.getLast();
-
-        return this.whois(nick, "server", {
-            server: params[2],
-            serverdesc: params.getLast()
-        });
-    },
-
-    irc_RPL_WHOISOPERATOR: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-
-        return this.whois(nick, "oper", {
-            opertext: params.getLast()
-        });
-    },
-
-    irc_RPL_WHOISIDLE: function(prefix, params) {
-        var nick = params[1];
-
-        return this.whois(nick, "idle", {
-            idle: params[2],
-            connected: params[3]
-        });
-    },
-
-    irc_RPL_WHOISCHANNELS: function(prefix, params) {
-        var nick = params[1];
-
-        return this.whois(nick, "channels", {
-            channels: params.getLast()
-        });
-    },
-
-    irc_RPL_WHOISACCOUNT: function(prefix, params) {
-        var nick = params[1];
-
-        return this.whois(nick, "account", {
-            account: params[2]
-        });
-    },
-
-    irc_RPL_WHOISACTUALLY: function(prefix, params) {
-        var nick = params[1];
-
-        return this.whois(nick, "actually", {
-            hostmask: params[2],
-            ip: params[3]
-        });
-    },
-
-    irc_RPL_WHOISOPERNAME: function(prefix, params) {
-        var nick = params[1],
-            opername = params[2];
-
-        return this.whois(nick, "opername", {
-            opername: params[2]
-        });
-    },
-
-    irc_RPL_WHOISGENERICTEXT: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-
-        return this.whois(nick, "generictext", {
-            text: text
-        });
-    },
-
-    irc_RPL_WHOISWEBIRC: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-
-        return this.whois(nick, "generictext", {
-            text: text
-        });
-    },
-
-    irc_RPL_WHOISSECURE: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-
-        return this.whois(nick, "generictext", {
-            text: text
-        });
-    },
-
-    irc_RPL_ENDOFWHOIS: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-        this.whoisNick = null;
-
-        return this.whois(nick, "end", {});
-    },
-
-    irc_genericError: genericError,
-    irc_ERR_CHANOPPRIVSNEEDED: genericError,
-    irc_ERR_CANNOTSENDTOCHAN: genericError,
-
-    irc_genericQueryError: genericQueryError,
-
-    irc_ERR_NOSUCHNICK: genericQueryError,
-
-    irc_RPL_AWAY: function(prefix, params) {
-        var nick = params[1],
-            text = params.getLast();
-
-        if (this.whoisNick && (this.whoisNick == nick)) return this.whois(nick, "away", {
-            "away": text
-        });
-
-        this.awayMessage(nick, text);
-        return true;
-    },
-
-    irc_RPL_NOWAWAY: function(prefix, params) {
-        this.awayStatus(true, params.getLast());
-        return true;
-    },
-
-    irc_RPL_UNAWAY: function(prefix, params) {
-        this.awayStatus(false, params.getLast());
-        return true;
-    },
-
-    irc_WALLOPS: function(prefix, params) {
-        var user = prefix,
-            text = params.getLast();
-
-        this.wallops(user, text);
-        return true;
-    },
-
-    irc_RPL_CREATIONTIME: function(prefix, params) {
-        var channel = params[1],
-            time = params[2];
-
-        this.channelCreationTime(channel, time);
-        return true;
-    },
-
-    irc_RPL_CHANNELMODEIS: function(prefix, params) {
-        var channel = params[1],
-            modes = params.slice(2);
-
-        this.channelModeIs(channel, modes);
-        return true;
-    },
-
-
-    irc_RPL_LISTSTART: function() {
-        this.listedChans = [];
-        return !this.hidelistout;
-    },
-
-    irc_RPL_LIST: function(bot, args) {
-        this.listedChans.push({
-            channel: args[1],
-            users: _.toInt(args[2]),
-            topic: args[3]
-        });
-        return !this.hidelistout;
-    },
-
-    irc_RPL_LISTEND: function() {
-        this.trigger("listend", this.listedChans);
-        return !this.hidelistout;
-    }
-})
-})();
-
-irc.Commands = new Class({
-    Binds: ["dispatch"],
-    initialize: function(parentObject) {
-        this.parentObject = parentObject;
-        this.send = parentObject.send;
-    },
-
-    buildExtra: function(extra, target, message) {
-        if (!extra) {
-            extra = {};
-        }
-
-        extra["n"] = this.parentObject.nickname;
-        extra["m"] = message;
-        extra["t"] = target;
-        return extra;
-    },
-
-    trigger: function(type, data) {
-        return this.parentObject.trigger(type, data);
-    },
-
-    format: format,
-
-    // routes all outputs with the server
-    // this method will call functions in: Commands based on the this scope
-    dispatch: function(line, chan) {
-        var self = this,
-            allargs = util.formatCommand(line),
-            par = self.parentObject;
-
-        //is it clearer to use a do-while? - anyway allargs var will change each loop
-        for (var command, args, cmdopts, activewin, splitargs, minargs, fn, win; $defined(allargs); ) {
-            command = allargs[0].toUpperCase();
-            command = config.COMMAND_ALIAS[command] || command;
-            args = allargs[1];
-
-            cmdopts = self["cmd_" + command];//comand handler
-
-            if (!cmdopts) {
-                self.send(command + util.padspace(args));
-                break;
-            }
-
-            //props from on of the command arrays
-            // activewin = cmdopts[0];
-            // splitargs = cmdopts[1];
-            // minargs = cmdopts[2];
-            // fn = cmdopts[3];
-
-           /* //errors in command
-            win = chan ? par.windows[chan] : self.getActiveWindow();
-            if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
-                par.writeMessages(lang.invalidCommand);
-                break;
-            }
-            else */if (cmdopts.minargs && cmdopts.minargs > _.size(args)) {
-                par.writeMessages(lang.insufficentArgs, {}, {
-                    channel: chan
-                });
-                break;
-            }
-            else if (cmdopts.splitargs && args) {
-                args = args.splitMax(" ", cmdopts.splitargs);
-            }
-
-            allargs = cmdopts.fn.call(self, args, chan);
-        }
-    },
-
-
-    automode: function(modes, mode, args, channel) {
-        args.length.times(function() {
-            modes += mode;
-        });
-        this.send(format(cmd.MODE, {
-            nick: channel,
-            mode: modes,
-            args: args.join(" ")
-        }));
-    },
-
-    /*****************commands ****************/
-
-    /* [require_active_window, splitintoXargs, minargs, function] */
-    cmd_ME: {
-        fn: function(args, target) {
-            args = args || "";
-
-            var msg = format(cmd.ACTION, {
-                target: target,
-                text: args
-            });
-
-            if (this.send(msg)) {
-                var nick = this.parentObject.nickname;
-                this.trigger("privAction", {
-                    'nick': nick,
-                    'message': args,
-                    'target': target,
-                    'channel': target,
-                    "@": this.parentObject.getNickStatus(target, nick)
-                });
-            }
-
-        }
-    },
-
-    cmd_CTCP: {
-        splitargs: 3,
-        minargs: 2,
-        fn: function(args, target) {
-            target = args[0] || target
-            var type = args[1].toUpperCase(),
-                message = args[2] || "";
-
-            var msg = format(cmd.CTCP, {
-                target: target,
-                type: type,
-                text: message
-            });
-
-            if (this.send(msg)) {
-                this.trigger("privCTCP", {
-                    'nick': this.parentObject.nickname,
-                    '_type': type,
-                    'message': message,
-                    'args': args,
-                    'type': 'CTCPReply'
-                });
-            }
-        }
-    },
-
-    cmd_SAY: {
-        splitargs: 1,
-        minargs: 1,
-        fn: function(args, target) { //direct
-            return ["PRIVMSG", target + " " + args.join(" ")];//purpose is different split args
-        }
-    },
-
-    cmd_PRIVMSG: {
-        splitargs: 2,
-        minargs: 1,
-        fn: function(args, target) {
-            var message;
-            if(args.length > 1) { //assume theyre meaning to target cur chan
-                target = args[0];
-                message = args[1];
-            } else {
-                message = args[0];
-            }
-            var parentObj = this.parentObject;
-            var nick = parentObj.nickname;
-            var msg = format(cmd.PRIVMSG, {
-                target: target,
-                message: message
-            });
-
-            if (util.isChannel(target)) {
-                if (this.send(msg)) {
-                    this.trigger("chanMessage", {
-                        'nick': nick,
-                        'channel': target,
-                        'message': message,
-                        'type': 'chanmsg',
-                        "@": parentObj.getNickStatus(target, nick)
-                    });
-                }
-            } else {
-                return ["QUERY", target + " " + message];
-            }
-        }
-    },
-
-    cmd_NOTICE: {
-        splitargs: 2,
-        minargs: 2,
-        fn: function(args) {
-            var target = args[0];
-            var message = args[1];
-            var msg = format(cmd.NOTICE, {
-                target: target,
-                message: message
-            });
-
-            if (this.send(msg)) {
-                this.trigger("chanNotice", {
-                    'nick': this.parentObject.nickname,
-                    'channel': target,
-                    'target': target,
-                    'message': message
-                });
-            }
-        }
-    },
-
-    cmd_QUERY: {
-        splitargs: 2,
-        minargs: 1,
-        fn: function(args, target) {
-            var target = args[0],
-                message = args[1];
-            if (util.isChannel(target)) {
-                return this.writeMessages(lang.invalidChanTarget);
-            }
-            if(_.size(message) > 1) {
-                var msg = format(cmd.PRIVMSG, {
-                    target: target,
-                    message: message
-                });
-                this.send(msg)
-            }
-
-            this.trigger("query", {
-                'nick': this.parentObject.nickname,
-                'channel': target,
-                'message': message,
-                'type': 'privmsg'
-            });
-        }
-    },
-
-    cmd_LOGOUT: {
-        fn: function(args) {
-            this.parentObject.ui.logout();
-        }
-    },
-
-    cmd_OPTIONS: {
-        fn: function(args) {
-            this.trigger("openWindow", {
-                'window': "optionsWindow",
-                'type': ui.WINDOW.custom
-            });
-        }
-    },
-
-    // cmd_EMBED: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             'window': "embeddedWindow",
-    //             'type': ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    // cmd_PRIVACYPOLICY: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             'window': "privacyWindow",
-    //             'type': ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    // cmd_ABOUT: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             'window': "aboutWindow",
-    //             'type': ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    cmd_QUOTE: {
-        splitargs: 1,
-        minargs: 1,
-        fn: function(args) {
-            this.send(args[0]);
-        }
-    },
-
-    cmd_KICK: {
-        splitargs: 2,
-        minargs: 1,
-        fn: function(args, channel) {
-            var target = args[0];
-            var message = args.length >= 2 ? args[1] : "";
-            var msg = format(cmd.KICK, {
-                channel: channel,
-                kickee: target,
-                message: message
-            })
-
-            this.send(msg);
-        }
-    },
-
-    cmd_OP: {
-        splitargs: 6,
-        minargs: 1, 
-        fn: function(args) {
-            this.automode("+", "o", args);
-        }
-    },
-    cmd_DEOP: {
-        splitargs: 6,
-        minargs: 1,
-        fn: function(args) {
-            this.automode("-", "o", args);
-        }
-    },
-    cmd_AUTH: {//must be configured per server in config.irc_commands
-        splitargs: 2,
-        minargs: 2,
-        fn: function(args) {
-            var msg = format(cmd.AUTH, {username: args[0], password: args[1]})
-            this.send(msg);
-        }
-    },
-    cmd_VOICE: {
-        splitargs: 6,
-        minargs: 1,
-        fn: function(args) {
-            this.automode("+", "v", args);
-        }
-    },
-    cmd_DEVOICE: {
-        splitargs: 6,
-        minargs: 1,
-        fn: function(args) {
-            this.automode("-", "v", args);
-        }
-    },
-    cmd_TOPIC: {
-        splitargs: 1,
-        minargs: 1,
-        fn: function(args, channel) {
-            var topic;
-            if(args.length > 1) {
-                channel = args[0];
-                topic = args[1];
-            } else {
-                topic = args[0];
-            }
-            var msg = format(cmd.TOPIC, {
-                channel: channel,
-                topic: topic
-            });
-            this.send(msg);
-        }
-    },
-    cmd_AWAY: {
-        splitargs: 1,
-        minargs: 0,
-        fn: function(args) {
-            var msg = format(cmd.AWAY, {
-                message: args ? args[0] : ""
-            })
-            this.send(msg);
-        }
-    },
-    cmd_QUIT: {
-        splitargs: 1,
-        minargs: 0,
-        fn: function(args) {
-            this.parentObject.quit(args ? args[0] : "");
-        }
-    },
-    // cmd_CYCLE: {
-    //     splitargs: 1,
-    //     minargs: 0,
-    //     fn: function(args, channel) {
-    //         channel = channel;
-
-    //         this.send("PART " + channel + " :" + (args ? args[0] : "rejoining. . ."));
-    //         this.send("JOIN " + channel);
-    //     }
-    // },
-    cmd_FJOIN: {
-        splitargs: 2,
-        minargs: 1,
-        fn: function(args) {
-            if(_.isEmpty(args)) return;
-            var channels = args.shift(),
-                formatted = util.formatChannelString(channels);
-
-            if (channels !== formatted) {
-                this.parentObject.writeMessages(lang.poorJoinFormat);
-            }
-            if(formatted) {
-                this.send(format(cmd.JOIN, {
-                    channel: formatted,
-                    args : args.join(" ")
-                }));
-            }
-        }
-    },
-    cmd_JOIN: {
-        splitargs: 2,
-        minargs: 1,
-        fn: function(args) {
-            var channels = args.shift(),
-                chans = util.splitChans(channels).filter(this.parentObject.canJoinChannel, this.parentObject);
-            this.cmd_FJOIN.fn.call(this, Array.from(util.joinChans(chans)).concat(args));//join channels into a single comma sep string then join
-        }
-    },
-    cmd_UMODE: {
-        splitargs: 1,
-        minargs: 0,
-        fn: function(args) {
-            var msg = format(cmd.MODE, {
-                nick: this.parentObject.nickname,
-                mode: args ? args[0] : ""
-            })
-            this.send(msg);
-        }
-    },
-    cmd_BEEP: {
-        fn: function() {
-            this.parentObject.ui.beep();
-        }
-    },
-    cmd_AUTOJOIN: {
-        fn: function(args) {
-            if(!auth.signedIn) {
-                auth.signedIn = true;
-                return ["JOIN", this.parentObject.options.autojoin.join(",")];
-            }
-        }
-    },
-    cmd_PART: {
-        splitargs: 2,
-        minargs: 0,
-        fn: function(args, channel) {
-            var msg = format(cmd.PART, {
-                channel: args[0] || channel,
-                message: args[1] || lang.partChan
-            });
-
-            this.send(msg);
-        }
-    }
-});
-// //ircclient with added event support
-irc.IRCClient = new Class({
-    Extends: irc.BaseIRCClient,
-    Binds: ["quit", "writeMessages", "newTargetOrActiveLine"],
-    options: {
-        nickname: "qwebirc",
-        autojoin: "",
-        prefixes: "@+", //heirarchy of prefixes - "@"(operator), "+"(voice)
-        minRejoinTime: [0],
-        networkServices: [],
-        loginRegex: /^$/ //always fail
-    },
-    lastNicks: [],
-    inviteChanList: [],
-    activeTimers: {},
-    windows: {},
-    modeprefixes: "ov",
-    __signedOn: false,
-    channels: {},
-    nextctcp: 0,
-    pmodes: {
-        b: irc.PMODE_LIST,
-        l: irc.PMODE_SET_ONLY,
-        k: irc.PMODE_SET_UNSET,
-        o: irc.PMODE_SET_UNSET,
-        v: irc.PMODE_SET_UNSET
-    },
-
-    initialize: function(options, ui) {
-        var self = this;
-        self.parent(options);
-
-        self.ui = ui;
-
-        self.prefixes = self.options.prefixes;
-        self.commandparser = new irc.Commands(self);
-        self.exec = self.commandparser.dispatch;
-
-        /*self.statusWindow = */self.ui.newClient(self);
-
-        self.tracker = new irc.IRCTracker(self);
-
-        self.writeMessages(lang.copyright);
-    },
-
-
-    connect: function() {
-        return this.connection.connect();
-    },
-
-    connected: function() {
-        // this.newServerLine("CONNECT");
-        this.trigger("connect", {});
     },
 
     quit: function(message) {
-        if(this.__signedOn) {    
+        if(this.isConnected()) {    
             this.send("QUIT :" + (message || lang.quit), true);
             _.each(this.activeTimers, $clear);
             this.activeTimers = {};
@@ -4010,19 +3595,9 @@ irc.IRCClient = new Class({
         return this;
     },
 
-    disconnect: function() {
-        this.connection.disconnect();
-    },
-
-    disconnected: function(message) {
-        _.each(this.windows, function(win) {
-            if (util.isChannelType(win.type))
-                win.close();
-        });
-        delete this.tracker;
-        this.trigger("disconnect", {
-            message: message
-        });
+    lostConnection: function() {
+        console.log("todo");
+        console.log(arguments);
     },
 
     retry: function(data) {
@@ -4033,482 +3608,25 @@ irc.IRCClient = new Class({
             channels: "ALL"
         });
     },
-
-    //you dont even want to know
-    updateNickList: function(channel) {
-        var nickHash = this.tracker.getChannel(channel); //of nickChanEntry
-
-        var names2 = $defined(nickHash) ? _.keys(nickHash) : []; //just return?
-        var comparitor = util.nickChanComparitor(this, nickHash),
-            prefixer = util.nickPrefixer(nickHash);
-
-        //sorts nicks by status > lexigraphy
-        //then add the prefix in front of the name
-        var sorted = names2.sort(comparitor).map(prefixer);
-
-        var win = this.ui.getWindow(this, channel);
-        if (win) {
-            win.updateNickList(sorted);
-        }
+    /***********************************************
+    *           General helpers                    *
+    ************************************************/
+    trigger: function(type, data) { //just a kind helper so i can get the type easily on the ui
+        if(!data) data = {};
+        data["-"] = this.nickname;
+        return this.fireEvent(type, [type, data]);
     },
 
-    //writes messages from an array of lang.message items
-    writeMessages: function(messages, args, data) {
-        data = _.extend({
-            type: "info",
-            colourClass: "",
-            channel: STATUS,
-            message: []
-        }, data);
-        data.channels = data.channels === "ALL" ? [STATUS, BROUHAHA].concat(this.channels) : data.channels;
-        var client = this,
-            types = lang.TYPES;
-
-        function write(message) {
-            var msg = args ? util.formatter(message.message, args) :
-                            message.message; //replaces values like {replaceme} if args has a key like that
-            data.message.push(msg);
-
-            switch (message.type) {
-            case types.ERROR:
-                data.colourClass = "warn";
-                break;
-            case types.INFO:
-                data.colourClass = "info";
-                break;
-            }
-        }
-
-        if(_.isArray(messages))
-            messages.each(write);
-        else
-            write(messages);
-        this.trigger("info", data);
+    isConnected: function() {
+        return this.__signedOn && this.connection.connected;
     },
 
-    rawNumeric: function(numeric, prefix, params) {
-        this.trigger("raw", {
-            "numeric": numeric,
-            "message": params.slice(1).join(" ")
-        });
+    isNetworkService: function(host) {//is host registered network service
+        return this.options.networkServices.contains(host);
     },
 
-    signedOn: function(nickname) {
-        var options = this.options,
-            channels;
-
-        this.nickname = nickname;
-        // this.newServerLine("SIGNON");
-        this.writeMessages(lang.signOn);
-
-        channels = this.getChannels();
-        if (channels.length > 0) {
-            options.autojoin = channels;
-        } else { //if no stored channels join intial channels from interface options
-            options.autojoin = channels = options.initialChannels;
-            this.storeChannels(channels);
-        }
-        // Sort the autojoin channels.
-        channels = options.autojoin = util.prependChannel(channels, BROUHAHA);
-        this.currentChannel = BROUHAHA;
-
-        this.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
-
-        if (!auth.authed && auth.enabled) {
-            this.attemptAuth();
-        } else {
-            this.exec("/AUTOJOIN");
-        }
-
-        this.trigger("logon", {
-            'nickname': nickname,
-            'channels': channels
-        });
-    },
-
-    //probably a better way
-    attemptAuth: function() {
-        //only try to auth if its necessary
-        if (!auth.authed && auth.enabled) {
-            var test = this.exec(util.format("/AUTH {username} {password}", this.options));
-
-            // if the user is authed they will be set to +x... however as most users arent authed...
-            //wait a hundreth of a second to see if the auth server authed you
-
-            //this.writeMessages(lang.joinAfterAuth);
-            this.writeMessages.delay(100, this, lang.joinAfterAuth);
-
-            this.activeTimers.autojoin = (function() {
-                if (!auth.authed) {
-                    this.writeMessages(lang.authFailed);
-                }
-            }).delay(5000, this);
-        }
-    },
-
-    authEvent: function() {
-        auth.authed = true;
-        this.exec("/UMODE +x");
-        if (!auth.signedIn) {
-            this.writeMessages(lang.joinChans);
-            this.exec("/AUTOJOIN");
-        }
-
-        this.trigger("auth");
-    },
-
-    userJoined: function(user, channel) { //todo determine way to get brouhaha selected at start
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user),
-            wasus = (nick === this.nickname),
-            type = wasus ? "OURJOIN" : "JOIN",
-            windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
-
-        // if (wasus) {//create or select
-        //     this.newWindow(channel, qwebirc.ui.WINDOW_CHANNEL, windowSelected);
-        // }
-
-
-        this.tracker.addNickToChannel(nick, BROUHAHA);
-        this.tracker.addNickToChannel(nick, channel);
-        this.updateNickList(BROUHAHA);
-        this.updateNickList(channel);
-
-        this.trigger("userJoined", {
-            'user': user,
-            'nick': nick,
-            'host': host,
-            'channel': channel,
-            'thisclient': wasus,
-            'select': windowSelected
-        });
-    },
-
-
-    userPart: function(user, channel, message) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user),
-            wasus = (nick === this.nickname);
-
-        if (wasus) {
-            this.tracker.removeChannel(channel);
-        } else {
-            this.tracker.removeNickFromChannel(nick, BROUHAHA);
-            this.tracker.removeNickFromChannel(nick, channel);
-            this.updateNickList(BROUHAHA);
-            this.updateNickList(channel);
-        }
-
-        this.trigger("part", {
-            'user': user,
-            'nick': nick,
-            'host': host,
-            'channel': channel,
-            'message': message,
-            'thisclient': wasus
-        });
-    },
-
-
-    userKicked: function(kicker, channel, kickee, message) {
-        var wasus = kickee === this.nickname;
-        if (wasus) {
-            this.tracker.removeChannel(channel);
-        } else {
-            this.tracker.removeNickFromChannel(kickee, channel);
-            this.updateNickList(channel);
-        }
-
-        this.trigger("kick", {
-            'kicker': kicker,
-            'channel': channel,
-            'kickee': kickee,
-            'message': message,
-            'thisclient': wasus
-        });
-    },
-
-    userPrivmsg: function(user, message) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user);
-        this.pushLastNick(nick);
-
-        this.trigger("query", {
-            'user': user,
-            'nick': nick,
-            'host': host,
-            'channel': nick,
-            'message': message,
-            'type': 'privmsg'
-        });
-    },
-
-    userInvite: function(user, channel) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user),
-            accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(user);
-
-        if (accept) {
-            if (this.activeTimers.serviceInvite) {
-                $clear(this.activeTimers.serviceInvite);
-            }
-
-            // we do this so we can batch the joins, i.e. instead of sending 5 JOIN comands we send 1 with 5 channels.
-            this.activeTimers.serviceInvite = this.__joinInvited.delay(100, this);
-            this.inviteChanList.push(channel);
-        }
-
-        this.trigger("invite", {
-            'user': user,
-            'channel': channel,
-            'accept': accept,
-            'nick': nick,
-            'host': host
-        });
-    },
-
-    userNotice: function(user, message) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user);
-
-        this.trigger("privNotice", {
-            'user': user,
-            'message': message,
-            'host': host,
-            'nick': nick
-        });
-    },
-
-    userQuit: function(user, message) {
-        var self = this,
-            nick = util.hostToNick(user),
-            channels = self.tracker.getNick(nick);
-
-        self.tracker.removeNick(nick);
-
-        _.keys(channels).each(function(chan) {
-            self.updateNickList(chan);
-        });
-
-        self.trigger("quit", {
-            'user': user,
-            'host': util.hostToHost(user),
-            'nick': nick,
-            'channels': channels,
-            'message': message
-        });
-    },
-
-    userMode: function(modes) {
-        this.trigger("userMode", {
-            'modes': modes,
-            'message': modes.join(""),
-            'type': "UMODE",
-            'n': this.nickname
-        });
-    },
-
-    nickChanged: function(user, newnick, wasus) {
-        var self = this,
-            oldnick = util.hostToNick(user);
-
-        if (wasus) {
-            self.nickname = newnick;
-            storage.set(cookies.nickname, newnick);
-        }
-
-        self.tracker.renameNick(oldnick, newnick);
-
-        var channels = self.tracker.getNick(newnick);
-        var found = _.size(channels) > 0;
-
-        _.each(channels, function(obj, chan) {
-            self.updateNickList(chan);
-        });
-
-        self.trigger("nickChange", {
-            'user': user,
-            'nick': util.hostToNick(user),
-            'newnick': newnick,
-            'channels': channels,
-            'thisclient': wasus,
-            'type': 'nick'
-        });
-    },
-
-    initialTopic: function(channel, topic) {
-        this.trigger("chanTopic", {
-            'channel': channel,
-            'topic': topic,
-            'initial': true
-        });
-    },
-
-    channelTopic: function(user, channel, topic) {
-        this.trigger("chanTopic", {
-            'user': user,
-            'nick': util.hostToNick(user),
-            'channel': channel,
-            'topic': topic
-        });
-    },
-
-    channelPrivmsg: function(user, channel, message) {
-        var self = this,
-            nick = util.hostToNick(user);
-
-        self.tracker.updateLastSpoke(nick, channel, Date.now());
-
-        self.trigger("chanMessage", {
-            'user': user,
-            'nick': nick,
-            'channel': channel,
-            'message': message,
-            'type': 'chanmsg',
-            "@": self.getNickStatus(channel, nick)
-        });
-    },
-
-    channelNotice: function(user, channel, message) {
-        var nick = util.hostToNick(user);
-        this.trigger("chanNotice", {
-            'user': user,
-            'nick': nick,
-            'channel': channel,
-            'message': message,
-            "@": this.getNickStatus(channel, nick)
-        });
-    },
-
-    channelMode: function(user, channel, modes, raw) {
-        var self = this;
-        _.each(modes, function(mo) {
-            var direction = mo[0],
-                mode = mo[1];
-
-            var prefixindex = self.modeprefixes.indexOf(mode);
-            if (prefixindex === -1) return;
-
-            var nick = mo[2],
-                prefixchar = self.prefixes.charAt(prefixindex),
-
-                nc = self.tracker.getOrCreateNickOnChannel(nick, channel),
-                oped = direction === OPED;
-
-            prefixchar = oped ? util.addPrefix(nc, prefixchar, self.prefixes) :
-                                util.removePrefix(nc, prefixchar);
-
-            self.trigger("mode", {
-                "added": oped,
-                "prefix": prefixchar,
-                "message": prefixchar,
-                "nick": nick,
-                "channel": channel,
-                "thisclient": nick === self.nickname,
-                "nickchan": nc
-            });
-        });
-
-        // self.newChanLine(channel, "MODE", user, {
-        //     "m": raw.join(" ")
-        // });
-
-        self.updateNickList(channel);
-    },
-
-    channelCTCP: function(user, channel, type, args) {
-        if (!args) {
-            args = "";
-        }
-
-        var nick = util.hostToNick(user);
-        if (type == "ACTION") {
-            this.tracker.updateLastSpoke(nick, channel, Date.now());
-            this.trigger("chanAction", {
-                'user': user,
-                'nick': nick,
-                'channel': channel,
-                'message': args,
-                "@": this.getNickStatus(channel, nick)
-            });
-        }
-        else {
-            this.trigger("chanCTCP", {
-                'user': user,
-                'message': args,
-                'channel': channel,
-                'data': type,
-                'args': args,
-                "@": this.getNickStatus(channel, nick)
-            });
-        }
-
-    },
-
-    userCTCP: function(user, type, args) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user);
-
-        args = args || "";
-
-        if (type == "ACTION") {
-            this.newQueryWindow(nick, true);
-            this.trigger("privAction", {
-                'nick': nick,
-                'host': host,
-                'message': args,
-                'data': type,
-                'user': user
-            });
-        }
-        else {
-            this.trigger("privCTCP", {
-                'user': user,
-                'nick': nick,
-                'type': type,
-                'message': args,
-                'data': type,
-                'host': host
-            });
-        }
-
-    },
-
-    userCTCPReply: function(user, type, args) {
-        var nick = util.hostToNick(user),
-            host = util.hostToHost(user);
-
-        if (!args) {
-            args = "";
-        }
-
-        this.trigger("ctcpReply", {
-            'user': user,
-            'nick': nick,
-            'host': host,
-            '_type': type,
-            'args': args
-        });
-    },
-
-    serverNotice: function(user, message/*, target*/) {
-        var data = {
-            'user': user,
-            'nick': util.hostToNick(user),
-            'message': message,
-            'channel': STATUS
-        };
-        // if(target) data.target = data.channel = target;
-        this.trigger("serverNotice", data);
-    },
-
-
-    getNickStatus: function(channel, nick) {
-        var nickchan = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(nickchan) || nickchan.prefixes.length === 0)
-            return "";
-
-        return nickchan.prefixes.charAt(0);
+    inChannel: function(name) {
+        return this.channels.contains(name);
     },
 
     storeChannels: function(channels) {
@@ -4520,6 +3638,52 @@ irc.IRCClient = new Class({
     getChannels: function() {
         var chans = this.channels = storage.get(cookies.channels) || [];
         return chans;
+    },
+
+    nickOnChanHasPrefix: function(nick, channel, prefix) {
+        var entry = this.tracker.getNickOnChannel(nick, channel);
+        if (!$defined(entry)) return false; /* shouldn't happen */
+
+        return (entry.prefixes).contains(prefix);
+    },
+
+    getNickStatus: function(channel, nick) {
+        var nickchan = this.tracker.getNickOnChannel(nick, channel);
+        if (!$defined(nickchan) || nickchan.prefixes.length === 0)
+            return "";
+
+        return nickchan.prefixes.charAt(0);
+    },
+
+    nickOnChanHasAtLeastPrefix: function(nick, channel, prefix) {
+        var entry = this.tracker.getNickOnChannel(nick, channel);
+        if (!$defined(entry))
+            return false; /* shouldn't happen */
+
+        /* this array is sorted */
+        var pos = this.prefixes.indexOf(prefix);
+        if (pos === -1) return false; /* shouldn't happen */
+
+        var prefixes = this.prefixes.slice(0, pos + 1);
+
+        //true if any of entry.prefix is part of prefixes string
+        return _.some(entry.prefixes, function(prefix) {
+            return util.validPrefix(prefixes, prefix);
+        });
+    },
+
+    //needs a rewrite with a proper list implementation
+    getPopularChannels: function(cb, minUsers) {
+        this.hidelistout = true;
+        this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
+        this.addEvent("listend:once", function() {
+            var chans = _.chain(this.listedChans)
+                        .clone()
+                        .sortBy(function(chan) {return -chan.users})//neg to sort max -> min
+                        .value();
+            cb(chans);
+            this.hidelistout = false;
+        });
     },
 
     canJoinChannel: function(chan) {
@@ -4551,17 +3715,224 @@ irc.IRCClient = new Class({
         return broken.length === 0;
     },
 
-    isNetworkService: function(x) {
-        return this.options.networkServices.contains(x);
+    /*************************************************
+    *   Process server/network data & call method    *
+    **************************************************/
+    _ndispatch: function(data) {
+        var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
+
+        if (!(fn && fn.call(this, data))) {//fn dne or does not return true
+            this.rawNumeric(data);
+        }
     },
 
-    __joinInvited: function() {
+    _tdispatch: function(data) {
+        var message = data[0];
+        switch(message) {
+            case "connect":
+                this.connected();
+            break;
+            case "disconnect":
+                if (data.length === 0) {
+                    this.disconnected("No error!");
+                } else {
+                    this.disconnected(data[1]);
+                }
+                this.disconnect();
+            break;
+            case "c":
+                var _data = util.processTwistedData(data);
+                this._ndispatch(_data);
+            break;
+        }
+    },
+
+    /*************************************************
+    *               message helpers                  *
+    **************************************************/
+    writeMessages: function(messages, args, data) {
+        data = _.extend({
+            type: "info",
+            colourClass: "",
+            channel: STATUS,
+            message: []
+        }, data);
+        data.channels = data.channels === "ALL" ? [STATUS, BROUHAHA].concat(this.channels) : data.channels;
+        var client = this,
+            types = lang.TYPES;
+
+        function write(message) {
+            var msg = args ? util.formatter(message.message, args) :
+                            message.message; //replaces values like {replaceme} if args has a key like that
+            data.message.push(msg);
+
+            switch (message.type) {
+            case types.ERROR:
+                data.colourClass = "warn";
+                break;
+            case types.INFO:
+                data.colourClass = "info";
+                break;
+            }
+        }
+
+        if(_.isArray(messages)){
+            messages.each(write);
+        }else {
+            write(messages);
+        }
+        return this.trigger("info", data);
+    },
+
+    genericError: function(data) {
+        var target = data.args[1],
+            message = _.last(data.args);
+        this.trigger("error", {
+            target: target,
+            channel: target,
+            message: message,
+            type: "genericError"
+        });
+        return true;
+    },
+    genericQueryError: function(data) {
+        var target = data.args[1],
+            message = _.last(data.args);
+
+        this.trigger("error", {
+            target: target,
+            channel: target,
+            message: message,
+            type: "genericError"
+        });
+        return true;
+    },
+
+    /*************************************************
+    *       private server event handlers             *
+    **************************************************/
+    _signOn: function(/*data*/) {
+        var options = this.options,
+            channels;
+
+        this.writeMessages(lang.signOn);
+
+        channels = this.getChannels();
+        if (channels.length > 0) {
+            options.autojoin = channels;
+        } else { //if no stored channels join intial channels from interface options
+            options.autojoin = channels = options.initialChannels;
+            this.storeChannels(channels);
+        }
+        // Sort the autojoin channels.
+        channels = options.autojoin = util.prependChannel(channels, BROUHAHA);
+        this.currentChannel = BROUHAHA;
+
+        this.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
+
+        if (!this.authed && auth.enabled) {
+            this.exec(util.format("/AUTH {username} {password}", this.options));
+
+            // if the user is authed they will be set to +x... however as most users arent authed...
+            //wait a hundreth of a second to see if the auth server authed you
+            this.writeMessages.delay(100, this, lang.joinAfterAuth);
+
+            this.activeTimers.autojoin = (function() {
+                if (!this.authed) {
+                    this.writeMessages(lang.authFailed);
+                }
+            }).delay(5000, this);
+        } else {
+            this.exec("/AUTOJOIN");
+        }
+
+        this.trigger("logon", {
+            'nickname': this.nickname,
+            'channels': channels
+        });
+    },
+
+    _supported: function(key, value) {
+        var self = this;
+        switch(key) {
+            case "CASEMAPPING":
+                if (value === "ascii") {
+                    self.toIRCLower = irc.ASCIItoIRCLower;
+                } else if (value === "rfc1459") {
+                    //default
+                } else if(DEBUG) {
+                    // TODO: warn 
+                    console.log('unsupported codec');
+                }
+                self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
+            break;
+            case "CHANMODES":
+                _.each(value.split(","), function(mode, inx) {
+                    _.each(mode, function(letter) {
+                        self.pmodes[letter] = inx;
+                    });
+                });
+            break;
+            case "PREFIX":
+                var len = (value.length - 2) / 2,
+                    modeprefixes = self.modeprefixes = value.substr(1, len);
+                self.prefixes = value.substr(len + 2, len);
+                _.each(modeprefixes, function(modeprefix) {
+                    self.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
+                });
+            break;
+        }
+    },
+
+    _joinInvited: _.debounce(function() {
         this.exec("/JOIN " + this.inviteChanList.join(","));
-        this.inviteChanList = [];
-        delete this.activeTimers["serviceInvite"];
+        this.inviteChanList.empty();
+    }, 100),
+
+    processCTCP: function(message) {
+        if (message.charAt(0) !== "\x01") return;
+
+        if (_.last(message) === "\x01") {
+            message = message.slice(1, message.length - 2);
+        } else {
+            message = message.slice(1);
+        }
+        return message.splitMax(" ", 2);
     },
 
-    channelNames: function(channel, names) {
+    rawNumeric: function(data) {
+        this.trigger("raw", {
+            "numeric": data.command,
+            "message": data.args.slice(1).join(" ")
+        });
+    },
+
+    updateNickList: function(channel) {
+        this.trigger("updateNicklist", {
+            nicks: this.tracker.getSortedNicksForChannel(channel),
+            channel: channel
+        });
+    },
+
+    _pushLastNick: function(nick) {
+        var i = this.lastNicks.indexOf(nick);
+        if (i != -1) {
+            this.lastNicks.splice(i, 1);
+        } /*else if (this.lastNicks.length == this.options.maxnicks) {
+            this.lastNicks.pop();
+        }*/
+        this.lastNicks.unshift(nick);
+    },
+
+    _initChanTopic: function(channel, topic) {
+        this.trigger("chanTopic", {
+            'channel': channel,
+            'topic': topic,
+            'initial': true
+        });
+    },
+
+    _initChanUsers: function(channel, names) {
         if (names.length === 0) { //occurs on channel join
             this.updateNickList(channel);
             return;
@@ -4583,52 +3954,23 @@ irc.IRCClient = new Class({
         }, this);
     },
 
+    onAuthenticated: function(data) {
+        this.authed = true;
+        this.exec("/UMODE +x");
+        if (!this.__autojoined) {
+            this.writeMessages(lang.joinChans);
+            this.exec("/AUTOJOIN");
+        }
 
-    nickOnChanHasPrefix: function(nick, channel, prefix) {
-        var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(entry)) return false; /* shouldn't happen */
-
-        return (entry.prefixes).contains(prefix);
-    },
-
-    nickOnChanHasAtLeastPrefix: function(nick, channel, prefix) {
-        var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(entry))
-            return false; /* shouldn't happen */
-
-        /* this array is sorted */
-        var pos = this.prefixes.indexOf(prefix);
-        if (pos === -1) return false; /* shouldn't happen */
-
-        var prefixes = this.prefixes.slice(0, pos + 1);
-
-        //true if any of entry.prefix is part of prefixes string
-        return _.some(entry.prefixes, function(prefix) {
-            return util.validPrefix(prefixes, prefix);
+        this.fireEvent("auth", {
+            nick: data.nick,
+            message: _.last(data.args),
+            host: data.host,
+            username: _.first(data.args)
         });
     },
 
-    //needs an update
-    supported: function(key, value) {
-        if (key == "PREFIX") {
-            var len = (value.length - 2) / 2;
-
-            //get rid of these they are confusing
-            this.modeprefixes = value.substr(1, len);
-            this.prefixes = value.substr(len + 2, len);
-        }
-
-        this.parent(key, value);
-    },
-
-    awayMessage: function(nick, message) {
-        this.trigger("away", {
-            "nick": nick,
-            "message": message
-        })
-    },
-
-    whois: function(nick, type, data) {
+    _whois: function(nick, type, data) {
         var ndata = {
             "n": nick,
             channel: ACTIVE,
@@ -4640,151 +3982,776 @@ irc.IRCClient = new Class({
         switch(type.toLowerCase()) {
             case "user":
                 msgs.push({
-                    type: "WHOISUSER",
+                    type: "whoisUser",
                     h: data.ident + "@" + data.hostname
-                })
+                });
 
                 msgs.push({
-                    type: "WHOISREALNAME",
+                    type: "whoisRealname",
                     m: data.realname
-                })
+                });
             break;
             case "server":
                 msgs.push({
                     x: data.server,
                     message: data.serverdesc,
-                    type: "WHOISSERVER"
-                })
+                    type: "whoisServer"
+                });
             break;
             case "channels":
                 msgs.push({
                     message: data.channels,
-                    type: "WHOISCHANNELS"
-                })
+                    type: "whoisChannels"
+                });
             break;
             case "account":
                 msgs.push({
                     message: data.account,
-                    type: "WHOISACCOUNT"
-                })
+                    type: "whoisAccount"
+                });
             break;
             case "away":
                 msgs.push({
                     message: data.away,
-                    type: "WHOISAWAY"
-                })
+                    type: "whoisAway"
+                });
             break;
             case "opername":
                 msgs.push({
                     message: data.opername,
-                    type: "WHOISOPERNAME"
-                })
+                    type: "whoisOpername"
+                });
             break;
             case "actually":
                 msgs.push({
                     message: data.hostname,
                     x: data.ip,
-                    type: "WHOISACTUALLY"
-                })
+                    type: "whoisActually"
+                });
             break;
             case "generictext":
                 msgs.push({
                     message: data.text,
-                    type: "WHOISGENERICTEXT"
-                })
+                    type: "whoisGenericText"
+                });
             break;
             default:
-                return false;
+                msgs.push({
+                    type: "whois" + type.toLowerCase().capitalize()
+                });
         }
 
         this.trigger("whois", ndata);
         return true;
     },
 
-    serverError: function(message) {
+    /*********************************************************************
+    *                                                                    *
+    *                BEGIN STANDARD IRC HANDLERS                         *
+    *                                                                    *
+    **********************************************************************/
+    IRC_COMMAND_MAP: {// function router see _ndispatch
+        // "ERROR": "",
+        // "INVITE": "",
+        // "JOIN": "",
+        // "KICK": "",
+        // "MODE": "",
+        // "NICK": "",
+        // "NOTICE": "",
+        // "PART": "",
+        // "PING": "",
+        // "TOPIC": "",
+        // "PRIVMSG": "",
+        // "QUIT": "",
+        // "WALLOPS": "",
+
+        "ERR_CANNOTSENDTOCHAN": "genericError",
+        "ERR_CHANOPPRIVSNEEDED": "genericError",
+        // "ERR_NICKNAMEINUSE": "",
+        "ERR_NOSUCHNICK": "genericQueryError"//,
+
+        // "RPL_AWAY": "",
+        // "RPL_CHANNELMODEIS": "",
+        // "RPL_CREATIONTIME": "",
+        // "RPL_ENDOFNAMES": "",
+        // "RPL_ISUPPORT": "",
+        // "RPL_LIST": "",
+        // "RPL_LISTSTART": "",
+        // "RPL_LISTEND": "",
+        // "RPL_NAMREPLY": "",
+        // "RPL_NOTOPIC": "",
+        // "RPL_NOWAWAY": "",
+        // "RPL_TOPIC": "",
+        // "RPL_TOPICWHOTIME": "",
+        // "RPL_UNAWAY": "",
+        // "RPL_WELCOME": "",
+
+        // "RPL_WHOISACCOUNT": "",
+        // "RPL_WHOISACTUALLY": "",
+        // "RPL_WHOISCHANNELS": "",
+        // "RPL_WHOISGENERICTEXT": "",
+        // "RPL_WHOISIDLE": "",
+        // "RPL_WHOISOPERATOR": "",
+        // "RPL_WHOISOPERNAME": "",
+        // "RPL_WHOISSECURE": "",
+        // "RPL_WHOISSERVER": "",
+        // "RPL_WHOISUSER": "",
+        // "RPL_WHOISWEBIRC": "",
+        // "RPL_ENDOFWHOIS": "",
+    },
+
+    irc_PING: function(data) {
+        this.send("PONG :" + _.last(data.args));
+        return true;
+    },
+
+    irc_RPL_WELCOME: function(data) {
+        var self = this;
+        self.nickname = data.args[0];
+        data.message = data.args[1];
+        self.lowerNickname = self.toIRCLower(self.nickname);
+        self._signOn(data);
+        _.delay(function() {
+            self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
+        }, 2000);
+    },
+
+    irc_NICK: function(data) {
+        var self = this,
+            newnick = data.args[0],
+            oldnick = data.nick,
+            wasus = this.nickname === oldnick;
+
+        if (wasus) { //shouldnt this always be true?
+            this.nickname = newnick;
+            this.lowerNickname = this.toIRCLower(this.nickname);
+        }
+
+        if (wasus) {
+            self.nickname = newnick;
+            storage.set(cookies.nickname, newnick);
+        }
+
+        self.tracker.renameNick(oldnick, newnick);
+
+        var channels = self.tracker.getNick(newnick);
+
+        _.each(channels, function(obj, chan) {
+            self.updateNickList(chan);
+        });
+
+        self.trigger("nickChange", {
+            'nick': oldnick,
+            'newnick': newnick,
+            'channels': channels,
+            'thisclient': wasus,
+            'type': 'nick'
+        });
+
+        return true;
+    },
+
+    irc_JOIN: function(data) {
+        var channel = data.args[0],
+            nick = data.nick,
+            wasus = (nick === this.nickname);
+
+        if(wasus) {
+            if(!isBaseWindow(channel)) {
+                this.storeChannels(util.addChannel(this.getChannels(), channel));
+            }
+            if(this.__signedOn) {
+                this.currentChannel = channel;
+            }
+        }
+
+        var nick = data.nick,
+            host = data.host,
+            wasus = (nick === this.nickname),
+            type = wasus ? "OURJOIN" : "JOIN",
+            windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
+
+        this.tracker.addNickToChannel(nick, BROUHAHA);
+        this.tracker.addNickToChannel(nick, channel);
+        this.updateNickList(BROUHAHA);
+        this.updateNickList(channel);
+
+        this.trigger("userJoined", {
+            'nick': nick,
+            'host': host,
+            'channel': channel,
+            'thisclient': wasus,
+            'select': windowSelected
+        });
+
+        return true;
+    },
+
+    irc_QUIT: function(data) {
+        var self = this,
+            message = _.last(data.args),
+            nick = data.nick,
+            channels = self.tracker.getNick(nick);
+
+        self.tracker.removeNick(nick);
+
+        _.keys(channels).each(function(chan) {
+            self.updateNickList(chan);
+        });
+
+        self.trigger("quit", {
+            'host': data.host,
+            'nick': nick,
+            'channels': channels,
+            'message': message
+        });
+
+        return true;
+    },
+
+    irc_PART: function(data) {
+        var channel = data.args[0],
+            message = data.args[1],
+            nick = data.nick,
+            wasus = (nick === this.nickname);
+
+        this.partHandler(nick, channel);
+
+        if (wasus) {
+            this.tracker.removeChannel(channel);
+        } else {
+            this.tracker.removeNickFromChannel(nick, BROUHAHA);
+            this.tracker.removeNickFromChannel(nick, channel);
+            this.updateNickList(BROUHAHA);
+            this.updateNickList(channel);
+        }
+
+        this.trigger("part", {
+            'nick': nick,
+            'host': data.host,
+            'channel': channel,
+            'message': message,
+            'thisclient': wasus
+        });
+
+        return true;
+    },
+
+    irc_KICK: function(data) {
+        var kicker = data.prefix,
+            channel = data.args[0],
+            kickee = data.args[1],
+            message = data.args[2],
+            wasus = kickee === this.nickname;
+
+        this.partHandler(kickee, channel);
+        if (wasus) {
+            this.tracker.removeChannel(channel);
+        } else {
+            this.tracker.removeNickFromChannel(kickee, channel);
+            this.updateNickList(channel);
+        }
+
+        this.trigger("kick", {
+            'kicker': kicker,
+            'channel': channel,
+            'kickee': kickee,
+            'message': message,
+            'thisclient': wasus
+        });
+
+        return true;
+    },
+
+    partHandler: function(nick, chan) {
+        var wasus = nick === this.nickname;
+        if(wasus && this.inChannel(chan)) {
+            this.channels.erase(chan);
+        }
+        return wasus;
+    },
+
+    irc_TOPIC: function(data) {
+        var channel = data.args[0],
+            topic = _.last(data.args);
+
+        this.trigger("chanTopic", {
+            'nick': data.nick,
+            'channel': channel,
+            'topic': topic
+        });
+
+        return true;
+    },
+
+    //todo buffer messages
+    irc_PRIVMSG: function(data) {
+        var nick = data.nick,
+            target = data.args[0],
+            message = _.last(data.args);
+
+        var ctcp = this.processCTCP(message);
+        if (ctcp) {
+            var type = ctcp[0].toUpperCase();
+            var replyfn = irc.RegisteredCTCPs[type];
+            if (replyfn) {
+                var t = Date.now() / 1000;//prevent flood
+                if (t > this.nextctcp) {
+                    this.send(format(cmd.CTCP, {
+                        target: data.user,
+                        type: type,
+                        text: replyfn(ctcp[1])
+                    }));
+                }
+                this.nextctcp = t + 5;
+            }
+
+            if (target === this.nickname) {
+                var ctcptype = type == "ACTION" ? "privAction" : "privCTCP";
+                this.trigger(ctcptype, {
+                    'nick': nick,
+                    'host': data.host,
+                    'message': ctcp[1] || "",
+                    'data': type
+                });
+            } else {
+                var data = {
+                        'nick': nick,
+                        'channel': target,
+                        'message': ctcp[1] || "",
+                        "prefix": this.getNickStatus(target, nick)
+                    };
+                if (type == "ACTION") {
+                    this.tracker.updateLastSpoke(nick, target, Date.now());
+                    this.trigger("chanAction", data);
+                }
+                else {
+                    this.trigger("chanCTCP", data);
+                }
+            }
+        } else {
+            if (target === this.nickname) {
+                this._pushLastNick(nick);
+                this.trigger("query", {
+                    'nick': nick,
+                    'host': data.host,
+                    'channel': nick,
+                    'message': message,
+                    'type': 'privmsg'
+                });
+            } else {
+                this.tracker.updateLastSpoke(nick, target, Date.now());
+                this.trigger("chanMessage", {
+                    'nick': nick,
+                    'channel': target,
+                    'message': message,
+                    'type': 'chanmsg',
+                    "prefix": this.getNickStatus(target, nick)
+                });
+            }
+        }
+        return true;
+    },
+
+    irc_NOTICE: function(data) {
+        var target = data.args[0],
+            message = _.last(data.args),
+            options = this.options;
+
+
+        if (this.isNetworkService(data.host) || !$chk(data.nick)) {
+            if(options.loginRegex.test(message)){
+                this.onAuthenticated(data);
+            }
+            this.trigger("serverNotice", {
+                'nick': data.nick,
+                'message': message,
+                'channel': STATUS
+            });
+        } else if (target === this.nickname) {
+            var ctcp = this.processCTCP(message);
+            if (ctcp) {
+                this.trigger("ctcpReply", {
+                    'nick': data.nick,
+                    'host': data.host,
+                    'ctcptype': ctcp[0],
+                    'args': ctcp[1] || ""
+                });
+            } else {
+                this.trigger("privNotice", {
+                    'message': message,
+                    'host': data.host,
+                    'nick': data.nick
+                });
+            }
+        } else {
+            this.trigger("chanNotice", {
+                'nick': data.nick,
+                'channel': target,
+                'message': message,
+                "prefix": this.getNickStatus(target, data.nick)
+            });
+        }
+
+        return true;
+    },
+
+    irc_INVITE: function(data) {
+        var channel = _.last(data.args);
+        var accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(host);
+
+        if (accept) {
+            if (this.activeTimers.serviceInvite) {
+                $clear(this.activeTimers.serviceInvite);
+            }
+            // we do this so we can batch the joins
+            this.activeTimers.serviceInvite = this._joinInvited();
+            this.inviteChanList.push(channel);
+        }
+
+        this.trigger("invite", {
+            'channel': channel,
+            'accept': accept,
+            'nick': data.nick,
+            'host': data.host
+        });
+
+        return true;
+    },
+
+
+    irc_ERR_NICKNAMEINUSE: function(data) {//add some number to the nick and resend
+        this.genericError(data);
+
+        if (this.__signedOn) {
+            return true;
+        }
+
+        var nick = data.args[1],
+            newnick = nick + Number.random(0, 9);
+
+        this.send(format(cmd.NICK, {nick: newnick}));
+        this.lastnick = newnick;
+        return true;
+    },
+
+    irc_ERROR: function(data) {
+        var message = _.last(data.args);
+
         this.trigger("error", {
             message: message,
-            type: "GENERICERROR"
+            type: "genericError"
+        });
+
+        return true;
+    },
+
+    irc_MODE: function(data) {//http://tools.ietf.org/html/rfc1459.html#section-4.2.3
+        var self = this,
+            target = data.args[0],
+            args = data.args.slice(1);
+
+        if (target == this.nickname) {
+            this.trigger("userMode", {
+                'modes': args,
+                'message': args.join(""),
+                'type': "UMODE",
+                'n': this.nickname
+            });
+        } else {//target is channel
+            var modes = args[0].split(""),
+                nick = _.last(args),//note: not bothering for ban mask case 
+
+                cmode = OPED;
+
+            var modes = modes.filter(function(mode) {
+                var dir = (mode === OPED) || (mode === DEOPED);
+                if (dir) {
+                    cmode = mode;
+                }
+                return !dir;
+            }).each(function(mode) {
+                var pmode = self.pmodes[mode],
+                    _nick = pmode === irc.PMODE_LIST || pmode === irc.PMODE_SET_UNSET ? nick : null;
+
+                var prefixindex = self.modeprefixes.indexOf(mode);
+                if (prefixindex === -1) return;
+
+                var nc = self.tracker.getOrCreateNickOnChannel(nick, target),
+                    added = cmode === OPED;
+
+                var prefix = self.prefixes.charAt(self.modeprefixes.indexOf(mode));
+
+                var prefixchar = added ? util.addPrefix(nc, prefix, self.prefixes) :
+                                        util.removePrefix(nc, prefix);
+
+                self.trigger("mode", {
+                    "added": added,
+                    "prefix": prefixchar,
+                    "message": prefixchar,
+                    "nick": _nick,
+                    "channel": target,
+                    "thisclient": _nick === self.nickname,
+                    "nickchan": nc
+                });
+            });
+
+            self.updateNickList(target);
+        }
+
+        return true;
+    },
+
+    irc_RPL_ISUPPORT: function(data) {
+        var supported = data.args.slice(1, -1); //everything but nick and server msg
+        var ms;
+
+        if(supported.contains("CHANMODES") && supported.contains("PREFIX")) { //nasty hack - don't understand purpose 
+            this.pmodes = {}; //might invalidate things
+        }
+
+        supported.each(function(mode) {
+            ms = mode.splitMax("=", 2);
+            this._supported(ms[0], ms[1]);
+        }, this);
+    },
+
+    irc_RPL_NAMREPLY: function(data) {
+        var channel = data.args[2],
+            names = data.args[3];
+
+        this._initChanUsers(channel, names.split(" "));
+
+        return true;
+    },
+
+    irc_RPL_ENDOFNAMES: function(data) {
+        var channel = data.args[1];
+
+        this._initChanUsers(channel, []);
+        return true;
+    },
+
+    irc_RPL_NOTOPIC: function(data) {
+        var channel = data.args[1];
+
+        if (this.inChannel(channel)) {
+            this._initChanTopic(channel, "");
+            return true;
+        }
+    },
+
+    irc_RPL_TOPIC: function(data) {
+        var channel = data.args[1],
+            topic = _.last(data.args);
+
+        if (this.inChannel(channel)) {
+            this._initChanTopic(channel, topic);
+            return true;
+        }
+    },
+
+    irc_RPL_TOPICWHOTIME: $lambda(true),
+
+    irc_RPL_WHOISUSER: function(data) {
+        var nick = data.args[1];
+        this._whoisNick = nick;
+
+        return this._whois(nick, "user", {
+            ident: data.args[2],
+            hostname: data.args[3],
+            realname: _.last(data.args)
         });
     },
 
-    genericError: function(target, message) {
+    irc_RPL_WHOISSERVER: function(data) {
+        var nick = data.args[1],
+            server = data.args[2],
+            serverdesc = _.last(data.args);
+
+        return this._whois(nick, "server", {
+            server: data.args[2],
+            serverdesc: _.last(data.args)
+        });
+    },
+
+    irc_RPL_WHOISOPERATOR: function(data) {
+        var nick = data.args[1],
+            text = _.last(data.args);
+
+        return this._whois(nick, "oper", {
+            opertext: _.last(data.args)
+        });
+    },
+
+    irc_RPL_WHOISIDLE: function(data) {
+        var nick = data.args[1];
+
+        return this._whois(nick, "idle", {
+            idle: data.args[2],
+            connected: data.args[3]
+        });
+    },
+
+    irc_RPL_WHOISCHANNELS: function(data) {
+        var nick = data.args[1];
+
+        return this._whois(nick, "channels", {
+            channels: _.last(data.args)
+        });
+    },
+
+    irc_RPL_WHOISACCOUNT: function(data) {
+        var nick = data.args[1];
+
+        return this._whois(nick, "account", {
+            account: data.args[2]
+        });
+    },
+
+    irc_RPL_WHOISACTUALLY: function(data) {
+        var nick = data.args[1];
+
+        return this._whois(nick, "actually", {
+            hostmask: data.args[2],
+            ip: data.args[3]
+        });
+    },
+
+    irc_RPL_WHOISOPERNAME: function(data) {
+        var nick = data.args[1],
+            opername = data.args[2];
+
+        return this._whois(nick, "opername", {
+            opername: data.args[2]
+        });
+    },
+
+    irc_RPL_WHOISGENERICTEXT: function(data) {
+        var nick = data.args[1],
+            text = _.last(data.args);
+
+        return this._whois(nick, "generictext", {
+            text: text
+        });
+    },
+
+    irc_RPL_WHOISWEBIRC: function(data) {
+        var nick = data.args[1],
+            text = _.last(data.args);
+
+        return this._whois(nick, "generictext", {
+            text: text
+        });
+    },
+
+    irc_RPL_WHOISSECURE: function(data) {
+        var nick = data.args[1],
+            text = _.last(data.args);
+
+        return this._whois(nick, "generictext", {
+            text: text
+        });
+    },
+
+    irc_RPL_ENDOFWHOIS: function(data) {
+        var nick = data.args[1],
+            text = _.last(data.args);
+        delete this._whoisNick;
+
+        return this._whois(nick, "end", {});
+    },
+
+    irc_RPL_AWAY: function(data) {
+        var nick = data.args[1],
+            message = _.last(data.args);
+
+        if (this._whoisNick == nick) {
+            return this._whois(nick, "away", {
+                "away": message
+            });
+        }
+        this.trigger("away", {
+            "nick": nick,
+            "message": message
+        });
+        return true;
+    },
+
+    irc_RPL_NOWAWAY: function(data) {
         this.trigger("error", {
-            target: target,
-            channel: target,
-            message: message,
-            type: "GENERICERROR"
-        })
+            state: true,
+            message: _.last(data.args),
+            type: "genericError"
+        });
+        return true;
     },
 
-    genericQueryError: function(target, message) {
+    irc_RPL_UNAWAY: function(data) {
         this.trigger("error", {
-            target: target,
-            channel: target,
-            message: message,
-            type: "GENERICERROR"
+            state: false,
+            message: _.last(data.args),
+            type: "genericError"
         })
+        return true;
     },
 
-    awayStatus: function(state, message) {
-        this.trigger("error", {
-            state: state,
-            message: message,
-            type: "GENERICERROR"
-        })
-    },
-
-    pushLastNick: function(nick) {
-        var i = this.lastNicks.indexOf(nick);
-        if (i != -1) {
-            this.lastNicks.splice(i, 1);
-        } /*else if (this.lastNicks.length == this.options.maxnicks) {
-            this.lastNicks.pop();
-        }*/
-        this.lastNicks.unshift(nick);
-    },
-
-    wallops: function(user, text) {
-        var nick = util.hostToNick(user);
-        var host = util.hostToHost(user);
-
+    irc_WALLOPS: function(data) {
         this.trigger("wallops", {
-            message: text,
-            nick: nick,
-            host: host
+            message: message,
+            nick: data.nick,
+            host: data.host
         });
+        return true;
     },
 
-    channelModeIs: function(channel, modes) {
-        this.trigger("serverMessage", {
-            channel: channel || ACTIVE,
-            message: modes.join(" "),
-            type: "CHANNELMODEIS"
-        });
-    },
+    irc_RPL_CREATIONTIME: function(data) {
+        var channel = data.args[1],
+            time = data.args[2];
 
-    channelCreationTime: function(channel, time) {
         this.trigger("serverMessage", {
             channel: channel || ACTIVE,
             message: util.IRCDate(new Date(time * 1000)),
-            type: "CHANNELCREATIONTIME"
+            type: "channelCreationTime"
         });
+        return true;
     },
 
-    getPopularChannels: function(cb, minUsers) {
-        this.hidelistout = true;
-        this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
-        this.addEvent("listend:once", function() {
-            var chans = _.chain(this.listedChans)
-                        .clone()
-                        .sortBy(function(chan) {return -chan.users})//neg to sort max -> min
-                        .value();
-            cb(chans);
-            this.hidelistout = false;
-        })
+    irc_RPL_CHANNELMODEIS: function(data) {
+        var channel = data.args[1],
+            modes = data.args.slice(2);
+
+        this.trigger("serverMessage", {
+            channel: channel || ACTIVE,
+            message: modes.join(" "),
+            type: "channelModeIs"
+        });
+        return true;
+    },
+
+
+    irc_RPL_LISTSTART: function() {
+        this.listedChans = [];//should have a make list command in command utils
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LIST: function(data) {
+        this.listedChans.push({
+            channel: data.args[1],
+            users: _.toInt(data.args[2]),
+            topic: data.args[3]
+        });
+        return !this.hidelistout;
+    },
+
+    irc_RPL_LISTEND: function() {
+        this.trigger("listend", this.listedChans);
+        return !this.hidelistout;
     }
 });
-
+/*************************
+   Whewh.. end irc client
+***************************/
 // /* This could do with a rewrite from scratch. */
 //going to rewrite using socket.io commet.
 // //COMMANDS = dict(p=push, n=newConnection, s=subscribe)
@@ -4874,7 +4841,7 @@ irc.TwistedConnection = new Class({
 
         //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
         //calls setXHRHeaders in the context of the request.xhr object
-        request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
+        // request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
         if (Browser.ie && Browser.version < 8) {
             request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
         }
@@ -5059,45 +5026,45 @@ irc.TwistedConnection = new Class({
     }
 });
 
-(function() {//http://blog.mibbit.com/?p=143
-    //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
-    //header nullables are browser dependent
-    //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-    // var killBit = null;
+// (function() {//http://blog.mibbit.com/?p=143
+//     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
+//     //header nullables are browser dependent
+//     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
+//     // var killBit = null;
 
-    // var kill = {
-    //     "User-Agent": killBit,
-    //     "Accept": killBit,
-    //     "Accept-Language": killBit,
-    //     "Content-Type": "M",
-    //     "Connection": "keep-alive",
-    //     "Keep-Alive": killBit
-    // };
+//     // var kill = {
+//     //     "User-Agent": killBit,
+//     //     "Accept": killBit,
+//     //     "Accept-Language": killBit,
+//     //     "Content-Type": "M",
+//     //     "Connection": "keep-alive",
+//     //     "Keep-Alive": killBit
+//     // };
 
-    // //removes a header from an xhr object (this instanceof xhr)
+//     // //removes a header from an xhr object (this instanceof xhr)
 
-    // function removeHeaders(val, header) {
-    //     try {
-    //         this.setRequestHeader(header, val);
-    //     } catch (e) {console.log(header)}
-    // }
+//     // function removeHeaders(val, header) {
+//     //     try {
+//     //         this.setRequestHeader(header, val);
+//     //     } catch (e) {console.log(header)}
+//     // }
 
 
 
-    //iteratres the headers to be removed with the removeHeaders function
-    //expects a xhr object as the third param 
-    // conn.setXHRHeaders = function(xhr) {
-    //     kill.each(removeHeaders, xhr);
-    //     //remove cookies from xhr
-    //     // new CookieMonster(xhr);
-    // };
+//     //iteratres the headers to be removed with the removeHeaders function
+//     //expects a xhr object as the third param 
+//     // conn.setXHRHeaders = function(xhr) {
+//     //     kill.each(removeHeaders, xhr);
+//     //     //remove cookies from xhr
+//     //     // new CookieMonster(xhr);
+//     // };
 
-    irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
+//     irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
 
-    // conn.setXHRHeaders = function(xhr) {
-    //     kill.each(removeHeaders, xhr);
-    // };
-})();
+//     // conn.setXHRHeaders = function(xhr) {
+//     //     kill.each(removeHeaders, xhr);
+//     // };
+// })();
 
 irc.IRCTracker = new Class({
     channels: {},
@@ -5231,20 +5198,32 @@ irc.IRCTracker = new Class({
     },
 
     getSortedByLastSpoke: function(channel) {
-        var chan = this.getChannel(channel);
-        if (!chan)
-            return;
+        var nickHash = this.getChannel(channel);
+        if (!nickHash) return;
 
-        var sorter = function(key1, key2) {
-            return chan[key2].lastSpoke - chan[key1].lastSpoke;
-        };
+        return _.chain(nickHash)
+                .values()
+                .sortBy(function(nick) {
+                    return -nick.lastSpoke;//reverse
+                })
+                .value();
+    },
 
-        var sorted = _.keys(chan).sort(sorter)
-                                .map(function(key){
-                                    return chan[key];
-                                });
-
-        return sorted;
+    getSortedNicksForChannel: function(channel, sorter) {
+        var nickHash = this.getChannel(channel);
+        if(_.size(nickHash) === 0) return [];
+        if(!sorter) {
+            //sorts nicks by status > lexigraphy
+            //then add the prefix in front of the name
+            sorter = util.nickChanComparitor(this.owner, nickHash);
+        }
+        return _.keys(nickHash).sort(sorter).map(function(nick, index) {
+            return {
+                prefix: nickHash[nick].prefixes,
+                nick: nick,
+                index: index//in array
+            };
+        });
     }
 });
 
@@ -5283,7 +5262,7 @@ irc.IRCTracker = new Class({
 
     // source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
 
-    source.nickMenu = "<div class='menu'></div>";
+    // source.nickMenu = "<div class='menu'></div>";
     // source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
     // source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     // source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
@@ -5302,7 +5281,7 @@ irc.IRCTracker = new Class({
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
-	source.loadingPage = "<div class='loading'>" + lang.loadingPage + "</div>";
+	source.loadingPage = "<div class='loading'>" + lang.loadingPage + "<img src='images/loading.gif' alt='url'></div>";
 
 
     source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -5319,6 +5298,8 @@ irc.IRCTracker = new Class({
         return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
     });
 
+    engine.registerHelper('$link', util.formatURL);
+
     //f(property name, type of prop, default val)
     engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
         if(type === "c") {//colour
@@ -5334,6 +5315,10 @@ irc.IRCTracker = new Class({
         else {
             return this[prop] || def;
         }
+    });
+
+    engine.registerHelper("format", function(prop) {
+        return util.format(prop, this);
     });
 
     /******************
@@ -5472,7 +5457,7 @@ ui.IWindows = new Class({
         }
     },
     nextWindow: function(direction, fromWin) {
-        var windows = this.windowArray,
+        var windows = _.where(this.windowArray, {detached:false}),
             win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
         if(win) win.select();
 
@@ -5541,7 +5526,7 @@ ui.IIRCClient = new Class({
 
         return win;
     },
-    logout: function() {
+    /*logout: function() {
         if (!auth.loggedin)
             return;
         if (confirm("Log out?")) {
@@ -5553,8 +5538,7 @@ ui.IIRCClient = new Class({
                 document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
             }).delay(500);
         }
-    },
-
+    },*/
     nickChange: util.noop
 });
 var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
@@ -5572,7 +5556,8 @@ function addClientEvents(client, windows) { // mi gusta xD
             m: _data.message,
             h: _data.host,
             t: type,
-            type: type
+            type: type,
+            "@": _data.prefix
         }, _data);
         data.channel = data.c;
         if (!(ui_.uiOptions2.get("nick_ov_status"))){
@@ -5600,7 +5585,7 @@ function addClientEvents(client, windows) { // mi gusta xD
         });
     }
 
-    function formatBChannelName(channel, nick) {
+    function formatBChannelName(data) {
         if(util.isChannel(channel)) {
             return nick + channel;
         } else {//pm
@@ -5621,8 +5606,18 @@ function addClientEvents(client, windows) { // mi gusta xD
 
         if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
             var data2 = _.clone(data);
-            data2.nick = data2.n = formatBChannelName(data.channel, data.nick);
-            ui_.windows.brouhaha.addLine(data.type, data2);
+            var nick = data2.nick;
+            if(!util.isChannel(channel)) {//pm
+                if(channel === nick) {//so it always shows speaker>target
+                    channel = ">" + client.nickname;
+                } else {
+                    channel = ">" + channel;
+                    data2.nick = nick;
+                }
+            }
+            data2.linkedchannel = channel;
+
+            ui_.windows.brouhaha.addLine(data2.type, data2);
         }
     }
 
@@ -5681,7 +5676,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             joinPart(data.thisclient ? "ourJoin" : "join", data);
         },
 
-        openWindow: function(type, data) {//create? and select window
+        "openWindow": function(type, data) {//create? and select window
             var win = ui_.getWindow(data.window);
             if(!win) {
                 if(data.type === ui.WINDOW.custom) {
@@ -5691,6 +5686,11 @@ function addClientEvents(client, windows) { // mi gusta xD
                 }
             }
             win.select();
+        },
+
+        "updateNicklist": function(type, data) {
+            var win = ui_.getWindow(client, data.channel);
+            if(win) win.updateNickList(data.nicks);
         },
 
         "away": lineParser,
@@ -5711,10 +5711,10 @@ function addClientEvents(client, windows) { // mi gusta xD
         "query": function(type, data) {//queries
             data = formatData(type, data);
             var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
-            if(ui_.uiOptions2.get("auto_open_pm")) {
+            if(data.open || ui_.uiOptions2.get("auto_open_pm")) {
                 ui_.selectWindow(win);
             }
-            if($chk(data.message)) parser(type, data, win);
+            if(data.message) parser(type, data, win);
         },
 
         "awayStatus": lineParser,
@@ -5733,15 +5733,34 @@ function addClientEvents(client, windows) { // mi gusta xD
             });
         },
         "wallops": lineParser,
-        "raw": function(type, args) {
-            lineParser(type, args);
-        }
+        "raw": lineParser
     });
 }
 
 })();
 (function() {
-var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
+    function validate($ele, validators) {
+        if(_.isEmpty(validators)) return;
+        var text = $ele.val();
+        var failed = _.find(validators, function(validator) {
+            return !validator.test(text, $ele);
+        });
+        var failbool = !!failed;
+        var controlpar = $ele.getParent('.control-group')
+                            .toggleClass('has-error', failbool);
+        if (failbool) {
+            getTemplate("failed-validator", function(template) {
+                Elements.from(template(failed)).inject(controlpar);
+                // $ele.focus();
+            });
+        } else {
+            controlpar.getElements('.help-block').dispose();
+        }
+        return !failed;
+    }
+
+
+var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, validators) {
     var Base64 = window.Base64;
     var _nick = new Storer(cookies.nickname),//initial nick
         _user = new Storer(cookies.username),//auth username
@@ -5768,6 +5787,12 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
             $passwordBox = page.getElement('#password'),
             $chkAddAuth = page.getElement('#authenticate');
 
+        $form.addEvents({
+            "blur:relay([data-validate])": function(e, target) {
+                validate(target, validators[target.get("data-validate")]);
+            }
+        });
+
         $chkAddAuth.addEvent('click', function () {
             $form.getElements('[name="full"]').getParent('div').toggle();
         });
@@ -5775,25 +5800,17 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
         $form.addEvent("submit", function(e) {
             e.stop();
 
+            if(!validate($nickBox, validators.nick) ||
+                    !validate($usernameBox, validators.username) ||
+                    !validate($passwordBox, validators.password)) {
+                return;
+            }
+
             var nickname = $nickBox.val();
 
-            //validate nick
-            if (!nickname) {
-                new ui.Alert({
-                    text: lang.missingNick,
-                    onClose: $nickBox.focus.bind($nickBox)
-                });
-                return;
-            }
-            var stripped = qwebirc.global.nicknameValidator.validate(nickname);
-            if (stripped !== nickname) {
-                $nickBox.val(stripped);
-                new ui.Alert({
-                    text: lang.invalidNick,
-                    onClose: $nickBox.focus.bind($nickBox)
-                });
-                return;
-            }
+            /****
+            * Valid*
+            ****/
 
             var data = {
                 "nickname": nickname
@@ -5805,29 +5822,11 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                 data.username = username = $usernameBox.val();
                 data.realname = username || "";
                 data.password = password = $passwordBox.val();
+
                 if (auth.bouncerAuth()) {
-                    if (!$chk(password)) {
-                        new ui.Alert({
-                            text: lang.missingPass,
-                            onClose: $passwordBox.focus.bind($passwordBox)
-                        });
-                        return;
-                    }
                     data.serverPassword = password;
                 }
-                if (!username || !password) {
-                    new ui.Alert({
-                        text: lang.missingAuthInfo,
-                        onClose: function() {
-                            if (!$chk(username)) {
-                                $usernameBox.focus();
-                            } else {
-                                $passwordBox.focus();
-                            }
-                        }
-                    });                    
-                    return;
-                } else if(auth.passAuth()){
+                else if(auth.passAuth()){
                     data.serverPassword = username + " " + password;
                 }
 
@@ -5863,7 +5862,7 @@ ui.ILogin = new Class({
                 win.close();
                 self.fireEvent("login", data);
             };
-        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName);
+        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName, this.options.validators);
         return win;
     }
 });
@@ -5899,6 +5898,10 @@ ui.IUIOptions = new Class({
             });
         }
 
+        function toggleWindowOption() {
+
+        }
+
         uiOptions.on({
             "change:style_hue": function(style_hue) {
                 self.updateStylesheet();
@@ -5907,7 +5910,14 @@ ui.IUIOptions = new Class({
             "change:custom_notices": setCustomNotice,
             "change:notices": setStandardNotice,
             "change:show_nicklist": function(state) {
-                _.each(this.windowArray, function(win){win.toggleNickList()});
+                _.each(self.windowArray, function(win){win.toggleNickList()});
+            },
+            "change:completer": function(completer) {
+                self.commandhistory.options.store = completer.store;
+                if(!completer.store) self.commandhistory.clear();
+                _.each(self.windowArray, function(win) {
+                    win.toggleAutocomplete(completer.intrusive);
+                });
             }
         });
         setCustomNotice(uiOptions.get("custom_notices"));
@@ -5922,7 +5932,7 @@ ui.IUIOptions = new Class({
     },
 
     setModifiableStylesheet: function(vals) {
-        this.__styleSheet = new Element("style", {
+        this._styleSheet = new Element("style", {
                                 type: "text/css",
                                 media: "all"
                             }).inject(document.head);
@@ -5933,7 +5943,7 @@ ui.IUIOptions = new Class({
         getTemplate("modifiablecss", function(template) {
             var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
             var stylesheet = template(styles);//.split("}").join("}\n")
-            var node = self.__styleSheet;
+            var node = self._styleSheet;
 
             if (node.styleSheet) { /* ie */
                 node.styleSheet.cssText = stylesheet;
@@ -6096,7 +6106,7 @@ ui.INotifiers = new Class({
 
 
     beep: function() {
-        this.playSound('beep');
+        return this.playSound('beep');
     },
     playSound: function(alias) {
         if(!this.soundPlayer) {
@@ -6109,6 +6119,7 @@ ui.INotifiers = new Class({
                 volume: this.uiOptions.get("volume")
             });
         }
+        return this;
     },
     soundInit: function() {
         //used to have a bunch of flash checks. going to let the sm handle it
@@ -6126,7 +6137,7 @@ ui.INotifiers = new Class({
 
         var flash = function() {
             var vis = self.toggleFavIcon();
-            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
+            ui.setTitle(vis ? self.titleText : lang.activityNotice);
         };
 
         self.flashing = true;
@@ -6137,6 +6148,7 @@ ui.INotifiers = new Class({
             "keydown:once": self.cancelFlash,
             "focus:once": self.cancelFlash
         });
+        return self;
     },
 
     showNotice: function(options, force) {
@@ -6150,6 +6162,7 @@ ui.INotifiers = new Class({
                 close: notice.close
             });
         }
+        return self;
     },
 
     cancelFlash: function() {
@@ -6186,7 +6199,7 @@ ui.INotifiers = new Class({
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
-    Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
+    Binds: ["whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
             "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
@@ -6199,8 +6212,10 @@ ui.StandardUI = new Class({
         self.theme = theme;
         self.config();
 
-        self.element = self.parentElement = parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
-        self.commandhistory = new irc.CommandHistory();
+        self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
+        self.commandhistory = new irc.CommandHistory({
+            store: self.uiOptions.get("completer").store
+        });
         self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
 
         getTemplate("topPane", function(template) {
@@ -6242,21 +6257,26 @@ ui.StandardUI = new Class({
                 "#!about": "about",
                 "#!faq": "faq",
                 "#!embedded": 'embedded',
-                "#!privacy": "privacy"//,
+                "#!privacy": "privacy",
+                "#!whois": "whois"
             },
             // no route event was found, though route was defined
             onError: function(error){
-                console.error(error);
+                if(DEBUG) console.error(error);
                 // recover by going default route
                 this.navigate('');
             },
             //try to select the window if it exists
             onUndefined: function(data) {
-                var request = data.request.startsWith(rprefix) && data.request.slice(rprefix.length);
+                var request = util.unformatURL(data.request);
                 if(request) {
-                    var win = _.findWhere(self.windowArray, {identifier:request}) || _.findWhere(self.windowArray, {identifier:util.formatChannel(request)});
+                    var win = _.findWhere(self.windowArray, {identifier:request});
                     if(win) {
                         win.select();
+                    } else if(util.isChannel(request)) {
+                        _.each(self.clients, function(client) {
+                            client.exec("/JOIN " + request);
+                        });
                     }
                 }
             },
@@ -6273,16 +6293,27 @@ ui.StandardUI = new Class({
         
         return this;
     },
-    updateURI: function() {
+
+    updateURI: function() {//format channels specially like #@tf2mix
         if(this.router instanceof Epitome.Router && this.active) {
-            this.router.navigate(this.options.routerPrefix + util.unformatChannel(this.active.identifier));
+            this.router.navigate(util.formatURL(this.active.identifier));
         }
+    },
+
+    whoisURL: function(e, target) {
+        var client = target.getParent('.window').retrieve('window').client,
+            nick = target.get('data-user');
+        /*if (this.uiOptions.get("query_on_nick_click")) {
+            client.exec("/QUERY " + nick);
+        } else {*/
+        client.exec("/WHOIS " + nick);
+        //}
     },
 
     optionsWindow: function() {
         var self = this;
         return self.addCustomWindow("Options", ui.OptionView, "options", {
-            model: self.uiOptions2,
+            model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
                 self.beep();
@@ -6307,60 +6338,6 @@ ui.StandardUI = new Class({
     },
     faqWindow: function() {
         return this.addCustomWindow("FAQ", ui.FAQPane, "faq");
-    },
-    urlDispatcher: function(name, window) {
-        if (name == "embedded") {
-            return ["a", this.embeddedWindow];
-        }
-        else if (name == "options"){
-            return ["a", this.optionsWindow];
-        }
-        /* doesn't really belong here */
-        else if (name === "whois") {
-            var uiOptions2 = this.uiOptions2;
-            ///this method is dumb
-            return ["span", function(nick) {
-                if (uiOptions2.QUERY_ON_NICK_CLICK) {
-                    window.client.exec("/QUERY " + nick);
-                } else {
-                    if (isChannel(nick)) {
-                        nick = util.unformatChannel(nick);
-                    } else {
-                        if (nick.search(window.client.nickname + '>') >= 0) {
-                            nick = nick.substr(nick.search('>') + 1, nick.length);
-                        } else {
-                            nick = nick.substr(0, nick.search('>'));
-                        }
-                    }
-                    // window.properties.text(nick);
-                    window.client.exec("/WHOIS " + nick);
-                }
-            }];
-        }
-        else
-            return null;
-    },
-
-    whoisURL: function(e, target) {
-        var client = target.getParent('.window').retrieve('window').client,
-            nick = target.get('data-user');
-        if (this.uiOptions2.QUERY_ON_NICK_CLICK) {
-            client.exec("/QUERY " + nick);
-        } else {
-            if (isChannel(nick)) {
-                nick = util.unformatChannel(nick);
-            } else if (nick.search(client.nickname + '>') >= 0) {
-                nick = nick.substr(nick.search('>') + 1, nick.length);
-            } 
-            client.exec("/WHOIS " + nick);
-        }
-    },
-
-    chanURL: function(e, target) {
-        var client = target.getParent('.lines').retrieve('client'),
-            chan = target.get('data-chan');
-        if(util.isChannel(chan))
-            client.exec("/JOIN " + chan);
     }
 });
 
@@ -6378,6 +6355,25 @@ ui.Interface = new Class({
         initialNickname: "",
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
 
+        validators: {//test is a helper from ircutils
+            nick: [{
+                test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
+                description: "Nick must be between 1 and 9 characters"
+            }],
+            password: [{
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing password"
+            }],
+            username: [{
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing username"
+            }]
+        },
+
         hue: null,
         saturation: null,
         lightness: null,
@@ -6385,8 +6381,7 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
-        loginRegex: /I recogni[sz]e you\./,
-        nickValidation: null
+        loginRegex: /I recogni[sz]e you\./
     },
     clients: [],
 
@@ -6396,8 +6391,6 @@ ui.Interface = new Class({
         this.setOptions(options);
         var self = this,
             opts = self.options;
-
-        qwebirc.global.nicknameValidator = opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator();
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
@@ -6410,7 +6403,7 @@ ui.Interface = new Class({
 
             var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
             //if(usingAutoNick && autoConnect) {
-            inick = opts.initialNickname;
+            // inick = opts.initialNickname;
             //}
 
             var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
@@ -6424,9 +6417,16 @@ ui.Interface = new Class({
                 var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
                                         loginopts);
 
-                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
+                var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
+                self.ui.newClient(client);
+                client.writeMessages(lang.copyright);
                 client.connect();
-
+                client.addEvent("auth", function(data) {
+                    self.ui.showNotice({
+                        title: 'Authenticated with network!',
+                        body: util.format("{nick}: {message}", data)
+                    }, true);
+                });
 
                 window.onbeforeunload = function(e) {
                     if (client.isConnected()) {//ie has gotten passed the IRC gate
@@ -6467,111 +6467,12 @@ ui.QUI = new Class({
         this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
 
-        parentElement.addClasses('qui', 'signed-out');
+        parentElement.addClasses('qui', 'signed-out')
+                    .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
         this.setHotKeys();
-
-        this.parentElement.addEvents({
-           "click:relay(.lines .hyperlink-whois)": this.whoisURL,
-            "click:relay(.lines .hyperlink-channel)": this.chanURL
-        });
     },
     postInitialize: function() {
         var self = this.parent();
-
-        // var tabs = self.tabs = Element.from(templates.tabbar()),
-        //     joinChan =  function(){
-        //         new ui.Dialog({
-        //             element: self.element,
-        //             text: "Enter channel name",
-        //             onSubmit: function(data) {
-        //                 if(data.val && data.val.trim() !== ""){
-        //                     _.each(self.clients, function(client) {
-        //                         client.exec("/JOIN " + data.val);
-        //                     });
-        //                 }
-        //             }
-        //         });
-        //     },
-        //     tabbtns = Element.from(templates.tabbarbtns()),
-        //     addTab = tabbtns.getElement('.add-chan'),
-        //     scrollers = tabbtns.getElements('[name="tabscroll"]'),
-        //     scroller = new Fx.Scroll(tabs),
-        //     resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
-        //     tabsResize = function() {
-        //         var wid = tabs.getWidth(),
-        //             swid = tabs.getScrollWidth();
-
-        //         if(swid > wid) {
-        //             scrollers.show();
-        //         }
-        //         else {
-        //             scrollers.hide();
-        //         }
-
-        //         resizeTabs();
-        //     };
-
-        // window.addEvent('resize', tabsResize);
-        // tabs.addEvents({
-        //     'adopt': tabsResize,
-        //     'disown': tabsResize
-        // });
-
-        // scrollers.filter('.to-left')
-        //     .addEvent('click', function(e) {
-        //         e.stop();
-        //         var pos = tabs.getScrollLeft(),
-        //             $ele = util.elementAtScrollPos(tabs, pos);
-
-        //         scroller.toElement($ele, 'x');
-        //     });
-        // scrollers.filter('.to-right')
-        //     .addEvent('click', function(e) {
-        //         e.stop();
-        //         var pos = tabs.getScrollLeft() + tabs.getWidth(),
-        //             $ele = util.elementAtScrollPos(tabs, pos);
-
-        //         scroller.toElementEdge($ele, 'x');
-        //         console.log($ele);
-        //     });
-
-        // resizeTabs();
-        // addTab.addEvents({
-        //     'dblclick': joinChan,
-        //     'click': self.__createChannelMenu
-        // });
-
-        // //for scrolling tabs with mousewhee
-        // tabs.addEvent("mousewheel", function(evt) {
-        //     evt.stop();
-        //     if (evt.wheel > 0) {//mwup
-        //         self.nextWindow();
-        //     } else if (evt.wheel < 0) {
-        //         self.prevWindow();
-        //     }
-        // });
-
-
-        // //append menu and tabbar
-        // self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
-        //     .addEvents({
-        //         "click:relay(.tab .tab-close)": function(e, target) {
-        //             e.stop();
-        //             target.getParent('.tab').retrieve('window').close();
-        //         },
-        //         "click:relay(.tab .detach)": function(e, target) {
-        //             e.stop();
-        //             target.getParent('.tab').retrieve('window').detach();
-        //         },
-        //         "focus:relay(.tab)": Element.prototype.blur,
-        //         "click:relay(.tab)": function(e, target) {//can be called when tab is closed
-        //             self.selectTab(target);
-        //         },
-        //         "dblclick:relay(.tab)": function(e, target) {
-        //             e.stop();
-        //             target.retrieve('window').select();
-        //         }
-        //     });
         self.nav.on({
             "selectTab": function(e,tab) {
                 self.selectTab(tab);
@@ -6580,24 +6481,8 @@ ui.QUI = new Class({
                 e.stop();
                 target.getParent('.tab').retrieve('window').detach();
             },
-            // promptChan: function(){
-            //     new ui.Dialog({
-            //         element: self.element,
-            //         text: "Enter channel name",
-            //         onSubmit: function(data) {
-            //             if(data.val && data.val.trim() !== ""){
-            //                 _.each(self.clients, function(client) {
-            //                     client.exec("/JOIN " + data.val);
-            //                 });
-            //             }
-            //         }
-            //     });
-            // },
             "addChannel": self.__createChannelMenu
         });
-
-        //delay for style recalc
-        // self.__createDropdownHint.delay(500, self);
 
         return self;
     },
@@ -6651,77 +6536,6 @@ ui.QUI = new Class({
         return $tab;
     },
 
-    // __createDropdownMenu: function() {
-    //     var self = this,
-    //         dropdownMenu = Element.from(templates.mainmenu({
-    //                 menu: self.UICommands,
-    //                 menuclass: "main-menu"
-    //             })).inject(self.parentElement);
-
-    //     dropdownMenu.addEvents({
-    //         "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
-    //             var method = target.get("data-value");
-    //             self[method]();
-    //         }
-    //     });
-    //     var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
-
-
-    //     var dropdownEffect = new Fx.Tween(dropdownbtn, {
-    //         duration: "long",
-    //         property: "opacity",
-    //         link: "chain"
-    //     });
-    //     var dropdownhint = Element.from(templates.dropdownhint())
-    //                 .inject(this.parentElement)
-    //                 .position({
-    //                     relativeTo: this.outerTabs,
-    //                     position: {'y': 'bottom'},
-    //                     offset: {y:10}
-    //                 });
-
-    //     dropdownEffect.start(0.25)
-    //                 .start(1)
-    //                 .start(0.33)
-    //                 .start(1);
-
-    //     ui.decorateDropdown(dropdownbtn, dropdownMenu, {
-    //         onShow: function() {
-    //             if(self.hideHint)
-    //                 self.hideHint();
-    //             delete self.hideHint;
-    //         },
-    //         btnlistener: true,
-    //         autohide: true
-    //     });
-
-    //     new Fx.Morph(dropdownhint, {
-    //         duration: "normal",
-    //         transition: Fx.Transitions.Sine.easeOut
-    //     }).start({
-    //         left: [900, 5]
-    //     });
-
-    //     var hider = function() {
-    //             new Fx.Morph(dropdownhint, {
-    //                 duration: "long"
-    //             }).start({
-    //                 left: [5, -900]
-    //             });
-    //         }.delay(4000);
-
-    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
-
-    //     _.delay(hider2, 4000);
-
-    //     document.addEvents({
-    //         "mousedown:once": hider2,
-    //         "keydown:once": hider2
-    //     });
-    //     return dropdownbtn;
-    //     // return dropdownMenu;
-    // },
-
     hotkeys: {
         keyboard: {
             nextWindow: {
@@ -6744,29 +6558,29 @@ ui.QUI = new Class({
             bold: {
                 keys: 'ctrl+b',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('bold').bbcode)
             },
             italic: {
                 keys: 'ctrl+i',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('italic').bbcode)
             },
             underline: {
                 keys: 'ctrl+u',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('underline').bbcode)
             },
             colour: {
                 keys: 'ctrl+c',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('colour').bbcode)
             },
             submitInput: {
                 keys: 'enter',
                 description: '',
                 handler: function(e) {
                     var $tar = e.target;
-                    if($tar.hasClass('input-field'))  {
+                    if($tar.hasClass('irc-input'))  {
                         $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
                     }
                 }
@@ -6803,41 +6617,6 @@ ui.QUI = new Class({
             }
         });
     },
-
-    //the effect on page load
-    // __createDropdownHint: function() {
-    //     var dropdownhint = Element.from(templates.dropdownhint())
-    //                 .inject(this.parentElement)
-    //                 .position({
-    //                     relativeTo: this.outerTabs,
-    //                     position: {'y': 'bottom'},
-    //                     offset: {y:10}
-    //                 });
-
-    //     new Fx.Morph(dropdownhint, {
-    //         duration: "normal",
-    //         transition: Fx.Transitions.Sine.easeOut
-    //     }).start({
-    //         left: [900, 5]
-    //     });
-
-    //     var hider = function() {
-    //             new Fx.Morph(dropdownhint, {
-    //                 duration: "long"
-    //             }).start({
-    //                 left: [5, -900]
-    //             });
-    //         }.delay(4000);
-
-    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
-
-    //     _.delay(hider2, 4000);
-
-    //     document.addEvents({
-    //         "mousedown:once": hider2,
-    //         "keydown:once": hider2
-    //     });
-    // },
 
     //todo use other dropdown menu code
     __createChannelMenu: function(e) {
@@ -6893,8 +6672,9 @@ ui.QUI = new Class({
 
     setWindow: function(win) {
         this.parent(win);
-        win.element.getSiblings('.active:not(.detached)').hide().removeClass('active');
-        win.element.show().addClass('active');
+        win.element.show().addClass('active')
+                    .getSiblings('.active:not(.detached)')
+                    .hide().removeClass('active');
     },
 
     nickChange: function(data, client) {
@@ -6929,6 +6709,7 @@ ui.NavBar = new Class({
         onReady: function() {
             this.render();
             window.addEvent('resize', this.adjust);
+            this.tabs.addEvent('adopt', this.adjust);
         },
         onScrollTabs: function(evt) {
             evt.stop();
@@ -7032,6 +6813,11 @@ ui.NavBar = new Class({
         return this;
     },
 
+    toggleTab: function(tab, state) {
+        this.tabs.getElement(tab).toggle(state);
+        return this;
+    },
+
     scrollLeft: function(e, target) {
         e.stop();
         var pos = this.tabs.getScrollLeft(),
@@ -7059,80 +6845,6 @@ ui.NavBar = new Class({
 
 });
 
-
-
-ui.MENU_ITEMS = (function() {
-    function isOpped(nick) {
-        var channel = this.name; /* window name */
-        var myNick = this.client.nickname;
-
-        return this.client.nickOnChanHasAtLeastPrefix(myNick, channel, "@");
-    }
-
-    function isVoiced(nick) {
-        var channel = this.name;
-        var myNick = this.client.nickname;
-
-        return this.client.nickOnChanHasPrefix(myNick, channel, "+");
-    }
-
-    function targetOpped(nick) {
-        var channel = this.name;
-        return this.client.nickOnChanHasPrefix(nick, channel, "@");
-    }
-
-    function targetVoiced(nick) {
-        var channel = this.name;
-        return this.client.nickOnChanHasPrefix(nick, channel, "+");
-    }
-
-    function command(cmd) {
-        return function(nick) {
-            this.client.exec("/" + cmd + " " + nick);
-        };
-    }
-
-    return [{
-        text: "whois",
-        fn: command("whois"),
-        predicate: true
-    }, {
-        text: "query",
-        fn: command("query"),
-        predicate: true
-    }, {
-        text: "slap",
-        fn: function(nick) {
-            this.client.exec("/ME " + util.formatter(lang.fishSlap, {
-                'nick': nick
-            }));
-        },
-        predicate: true
-    }, {
-        text: "kick",
-        /* TODO: disappear when we're deopped */
-        fn: function(nick) {
-            this.client.exec("/KICK " + nick + " wibble");
-        },
-        predicate: isOpped
-    }, {
-        text: "op",
-        fn: command("op"),
-        predicate: _.and(isOpped, _.not(targetOpped))
-    }, {
-        text: "deop",
-        fn: command("deop"),
-        predicate: _.and(isOpped, targetOpped)
-    }, {
-        text: "voice",
-        fn: command("voice"),
-        predicate: _.and(isOpped, _.not(targetVoiced))
-    }, {
-        text: "devoice",
-        fn: command("devoice"),
-        predicate: _.and(isOpped, targetVoiced)
-    }];
-})();
 
 (function() {
     function checkKeys(fn, keys, type) {//or just use pseudos.keys
@@ -7229,6 +6941,7 @@ ui.Alert = new Class({
     hide: function(evt, clicked) {
         if(evt) evt.stopPropagation();
         document.removeEvents(this.$listeners);
+        this.fireEvent("hide");
         return this.parent(evt, clicked);
     }
 });
@@ -7328,11 +7041,13 @@ ui.Theme = new Class({
             data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
-            if (data["n"]) {
-                data["N"] = "qwebirc://whois/" + data.n + "/";//cause extra unneccessary processing
+            if (_.has(data, "n")) {
+                //works slightly harder than it has too :/
+                data.N = templates.userlink(data);
+                data.nicktmpl = templates.ircnick(data);
             }
             //now all we have to do is format the data as desired and pass to theme
-            _.each(["N", "m", "c"], function(key) {//urlerize message and nick
+            _.each(["m", "c"], function(key) {//urlerize message and nick
                 var val = data[key];
                 if(val) {
                     if(_.isArray(val)) { //modes are given as an array so we need to fold
@@ -7345,9 +7060,7 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var $eles = Elements.from(result).filter(function($e) {
-            return !Type.isTextNode($e) || $e.nodeValue != "";
-        });
+        var $eles = Elements.from(result);
         $ele.addClass('colourline')
             .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
@@ -7421,11 +7134,11 @@ ui.Theme = new Class({
 
     messageParsers: [
         {
-            type: /NOTICE$/,
+            type: /^(?!SERVER)+NOTICE+$/,//notice not server notice
             classes: '',
             beep: true,
             id: 'on_notice',
-            highlight: ui.HIGHLIGHT.speech
+            tabhl: ui.HIGHLIGHT.speech
         },
         {
             type: /PRIVMSG$/,
@@ -7433,7 +7146,7 @@ ui.Theme = new Class({
             beep: true,
             pm: true,
             id: 'on_pm',
-            highlight: ui.HIGHLIGHT.speech
+            tabhl: ui.HIGHLIGHT.speech
         },
         {
             type: /^OUR/,
@@ -7465,12 +7178,6 @@ ui.Theme = new Class({
             id: 'on_mention'//for filtering
         },
         {
-            nick: /(^tf2)|((serv|bot)$)/i,
-            msg: /authcookie/i,
-            beep: true,
-            pm: true
-        },
-        {
             nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
@@ -7489,7 +7196,8 @@ ui.Theme = new Class({
         var self = this,
             tabHighlight = ui.HIGHLIGHT.none,
             highlights = self.highlightClasses,
-            notus = !(/^OUR/.test(type)),
+            nick = win.client.nickname,
+            notus = data.n !== nick,
             parsers = _.clone(self.messageParsers).concat(self.customNotices);
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
@@ -7502,7 +7210,7 @@ ui.Theme = new Class({
                     (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
-                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
+                    (!parser.mentioned || util.testForNick(nick, data.m)) )
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
@@ -7520,7 +7228,7 @@ ui.Theme = new Class({
                     }   
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++) : parser.highlight);
+                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);
@@ -7549,7 +7257,6 @@ ui.Window = new Class({
     template: util.loadTemplate('window'),
 
     active: false,
-    lastSelected: null,
     closed: false,
     highlight: ui.HIGHLIGHT.none,
     lastNickHash: {},
@@ -7564,6 +7271,10 @@ ui.Window = new Class({
         this.parent({
             element: $par
         });
+    },
+
+    getOption: function(option) {
+        return this.parentObject.uiOptions.get(option);
     },
 
     close: function() {
@@ -7581,7 +7292,6 @@ ui.Window = new Class({
             this.highlightTab(ui.HIGHLIGHT.none);
 
         this.fireEvent("selected");
-        this.lastSelected = new Date();
     },
 
     deselect: function() {
@@ -7600,8 +7310,8 @@ ui.Window = new Class({
     */
     addLine: function(type, data, colour, $ele) {
         var self = this,
-            uiobj = self.parentObject;
-        var highlight =  this.name !== BROUHAHA ? uiobj.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
+            parent = self.parentObject;
+        var highlight =  this.name !== BROUHAHA ? parent.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
             hl_line = false;
 
         if (!self.active && (highlight !== ui.HIGHLIGHT.none)) {
@@ -7611,11 +7321,11 @@ ui.Window = new Class({
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
 
-        var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
+        var formatted = parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
                 .maxChildren(this.options.maxLines);
 
-        if(uiobj.uiOptions.get("lastpos_line") && type.endsWith("CHANMSG")) {
+        if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },
@@ -7658,17 +7368,16 @@ ui.QUI.Window = new Class({
             'dblclick:relay(.input .nickname)': 'setNickname',
             'dblclick:relay(.topic)': 'editTopic',
 
-            'click:relay(.nicklist .user .nick)': 'nickClick',
-            'click:relay(.nicklist .menu span)': 'menuClick',
+            'contextmenu:relay(.lines .nick)': 'nickLinesMenu',
+            'click:relay(.nick-menu li)': 'menuClick',
+
+            'click:relay(.nicklist .user .nick)': 'nickListMenu',
 
             'click:relay(.detached-window .attach)': 'attach',
-            'click:relay(.detached-window .close)': 'close',
-            'click:relay(.detached-window)': 'setActive'
-        }
-    },
+            'click:relay(.detached-window .tab-close)': 'close',
 
-    events: {
-        client: {}
+            'click': 'setActive'
+        }
     },
 
     detached: false,
@@ -7679,7 +7388,7 @@ ui.QUI.Window = new Class({
 
         self.tab = parentObject.newTab(self, name);
 
-        self.nicksColoured = self.parentObject.uiOptions2.get("nick_colours");
+        self.nicksColoured = self.getOption("nick_colours");
     },
 
     render: function() {
@@ -7695,18 +7404,14 @@ ui.QUI.Window = new Class({
                 id: self.name.clean().replace(" ", "-"),
                 topic: false,
                 needsInput: hasInput,
-                nick: self.client ? self.client.nickname : ""
+                nick: self.client ? self.client.nickname : "",
+                splitPane: false//feature in development having issue with resizes {{link to repo}}
             }));
         var $win = self.window = self.element.getElement('.window').store("window", self);
 
         var $content = self.content = $win.getElement('.content');
         var lines = self.lines = $content.getElement('.lines');
         lines.store("window", self);
-
-        if (type !== ui.WINDOW.custom && type !== ui.WINDOW.connect) {
-            $win.addClass('ircwindow');
-            self.fxscroll = new Fx.AutoScroll(lines);
-        }
 
         if (type === ui.WINDOW.channel) {
             $win.addClass('channel');
@@ -7715,7 +7420,11 @@ ui.QUI.Window = new Class({
         }
 
         if(hasInput) {
-            self.$input = $win.getElement('.input .input-field');
+            $win.addClass('ircwindow');
+            self.fxscroll = new Fx.AutoScroll(lines, {
+                start: false
+            });
+            self.$input = $win.getElement('.input .irc-input');
         }
         return self;
     },
@@ -7724,15 +7433,9 @@ ui.QUI.Window = new Class({
         if(e) e.stop();
         if (this.closed) return;
 
-        if (isChannelType(this.type) && (!util.isBaseWindow(this.name))) {
-            var client = this.client,
-                channels = util.removeChannel(client.channels, this.name);
-
-            client.exec("/PART " + this.name);
-            client.storeChannels(channels);
+        if (util.isChannelType(this.type) && !util.isBaseWindow(this.name)) {
+            this.client.exec("/PART " + this.name);
         }
-        if(this.client instanceof irc.IRCClient) 
-            this.client.removeEvents(this.events.client);
 
         if(this.fxscroll)
             this.fxscroll.stop();
@@ -7747,22 +7450,17 @@ ui.QUI.Window = new Class({
     },
 
     attach: function(e) {
-        var win = this.window,
-            wrapper = this.wrapper,
-            po = this.parentObject;
-
         this.detached = false;
         this.element.removeClass('detached');
 
-        win.replaces(wrapper);
-        wrapper.destroy();
+        this.window.replaces(this.wrapper);
+        this.wrapper.destroy();
 
         this.drag.detach().stop();
         this.resizable.detach().stop();
         this.wrapper = this.resizable = this.drag = null;
 
-        this.tab.show()
-                .removeClass("detached");
+        this.parentObject.nav.toggleTab(this.tab.removeClass('detached'), true);
         this.select();
 
         this.fireEvent('attached');
@@ -7784,11 +7482,6 @@ ui.QUI.Window = new Class({
             resizeHandle = wrapper.getElement('.resize-handle');
         self.element.addClass('detached');
 
-
-        //change window if we're active
-        if(self.active)
-            po.nextWindow(1, self);
-
         var size = util.percentToPixel({x:40, y:60}, win.getParent('qwebirc'));
         wrapper.setStyles({
                 "width": size.x,
@@ -7802,7 +7495,6 @@ ui.QUI.Window = new Class({
                     e.stopPropagation();
             })
             .replaces(wrapper.getElement('.content'));
-        self.setActive();
 
         self.resizable = wrapper.makeResizable({
                                 limit: {//min/max
@@ -7817,29 +7509,27 @@ ui.QUI.Window = new Class({
                                 includeMargins: true
                             });
 
-
-        self._selectUpdates();
-
-        wrapper.position();
-
+        /*** update windows and center detached window ****/
+        if(self.active) po.nextWindow();//change window if we're active
         self.detached = true;
         self.active = false;
+        _.defer(function() {
+            self.setActive();
+            self._selectUpdates();
+            wrapper.position();
+        });
 
         //keeps order
-        self.tab.hide()
-                .addClass("detached");
-
+        po.nav.toggleTab(self.tab.addClass('detached'), false);
         self.fireEvent('detached');
     },
 
-    setActive: function(e) {
-        if(this.detached) {
-            this.element.addClass('active')
-                        .getSiblings('.detached').removeClass('active');
-        } else {
-            this.select();
-        }
-    },
+    setActive: _.throttle(function(e) {//sets this window as the most active
+        // if(!this.element.hasClass('active')) {
+        this.element.addClass('active')
+                .getSiblings('.active').removeClass('active');
+        // }
+    }, 1000, true),
 
     select: function() {//change window elements
         if(this.active || this.closed) return;
@@ -7847,7 +7537,17 @@ ui.QUI.Window = new Class({
 
         this.tab.addClass("selected");
         this._selectUpdates();
+        this.setActive();
         this.fireEvent("selected");
+    },
+
+
+    deselect: function() {
+        if(this.active) {
+            this.tab.removeClass("selected");
+            if(this.fxscroll) this.fxscroll.stop();//save a couple resources
+            this.parent();
+        }
     },
 
     //styles and ui things to update
@@ -7855,32 +7555,25 @@ ui.QUI.Window = new Class({
         var self = this,
             parentObject = self.parentObject;
 
-        if(self.nicklist && !self.split) {
-            _.delay(function() { //wait a sec for the styles to be calculated
-                self.split = new Drag.SplitPane(self.window.getElement('.content .handle'), {
-                    limits: {
-                        min: 0,
-                        max: 0
-                    }
-                });
-            }, 50);
-        }
-
         if(self.fxscroll) {//scroll to bottom
-            self.fxscroll.autoScroll();
+            self.fxscroll.start();
         }
-        if(Browser.isDecent && !self.completer && util.windowNeedsInput(self.type)) {
-            self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name));
+        if(!self.completer && self.type === ui.WINDOW.channel) {
+            self.completer = new Completer(self.window.getElement('.input .tt-ahead'), self.history.get(self.name), {
+                autocomplete: self.getOption("completer").intrusive
+            });
+            self.completer.$hint.addClass('decorated');
+            self.$input.removeClass('decorated');
         }
 
         if(util.isChannelType(self.type)) {
-            var colour = parentObject.uiOptions2.get("nick_colours");
+            var colour = self.getOption("nick_colours");
             if (self.nicksColoured !== colour) {
                 self.nicksColoured = colour;
                 var nodes = self.nicklist.childNodes;
                 if (colour) {
                     _.each(nodes, function(node) {
-                        var colour = util.toHSBColour(node.retrieve("nick"), self.client);
+                        var colour = util.toHSBColour(node.get("data-nick"), self.client);
                         if ($defined(colour))
                             node.firstChild.setStyle("color", colour.rgbToHex());
                     });
@@ -7890,7 +7583,6 @@ ui.QUI.Window = new Class({
                     });
                 }
             }
-
             _.delay(self.updatePrefix, 1000, self);//takes a little while to recieve on some servers
         }
 
@@ -7900,26 +7592,21 @@ ui.QUI.Window = new Class({
         if(this.completer) this.completer.update(); //ugly but necessary to resize the completer hover box
     },
 
-    deselect: function() {
-        this.tab.removeClass("selected");
-        this.parent();
-    },
-
     editTopic: function() {
         var self = this;
-        if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, "@")) {
+        if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, OPSTATUS)) {
             new ui.Alert({
-                text: lang.needOp.message
+                text: lang.changeTopicNeedsOp
             });
         } else {
             new ui.Dialog({
                 title: "Set Topic",
-                text: util.format(lang.changeTopicConfirm.message, {channel: self.name}),
+                text: util.format(lang.changeTopicConfirm, {channel: self.name}),
                 value: self.topic,
                 onSubmit: function(data) {
-                    var topic = data.value;
+                    var topic = data.val();
                     if (_.isString(topic)) {
-                        self.client.exec("/TOPIC " + topic);
+                        self.client.exec("/TOPIC " + self.name + " " + topic, self.name);
                     }
                 }
             });
@@ -7958,39 +7645,51 @@ ui.QUI.Window = new Class({
         this.__dirtyFixes();
     },
 
-    nickClick: function(evt, $tar) { //delegation to nick items
-        var $par = $tar.getParent('.user').toggleClass("selected");
-        var $menu = $par.getElement('.menu'),
+    createNickMenu: function(nick, $par, options) {
+        var $menu = $par.getElement('.nick-menu'),
             self = this;
-
-        this.removePrevMenu($par);
 
         if($menu) {
             $menu.toggle();
         } else {
-            $menu = Element.from(templates.nickMenu()).inject($par);
-            _.each(ui.MENU_ITEMS, function(item) {
-                if(_.isFunction(item.predicate) ? item.predicate.call(self, $par.retrieve('nick')) : !!item.predicate) {
-                    Element.from(templates.nickmenubtn(item))
-                            .store("action", item.fn)//could also just do _.find to get the action but still need to store the name somewhere
-                            .inject($menu);
-                }
+            var _nick = self.client.nickname,
+                _chan = self.name
+            $menu = Element.from(templates.nickMenu(_.extend({
+                nick: nick,
+                channel: _chan,
+                weOped: self.client.nickOnChanHasAtLeastPrefix(_nick, _chan, OPSTATUS),
+                // weVoiced: self.client.nickOnChanHasPrefix(_nick, _chan, VOICESTATUS),
+                notus: _nick !== nick,
+                theyOped: self.client.nickOnChanHasPrefix(nick, _chan, OPSTATUS),
+                theyVoiced: self.client.nickOnChanHasPrefix(nick, _chan, VOICESTATUS),
+
+                lang: lang
+            }, options))).inject($par);
+            _.defer(function() {
+                document.addEvent("click:once", function() {
+                    $menu.dispose();
+                    if(options.close) options.close();
+                });
             });
         }
+        return $menu;
     },
 
-    menuClick: function(e, target) {
-        e.stop();
-        var fn = target.retrieve("action");
-        var selected = target.getParent('.user');
-        fn.call(this, selected.retrieve("nick"));
-        this.removePrevMenu();
+    nickLinesMenu: function(evt, $tar) {
+        evt.stop();
+        var $menu = this.createNickMenu($tar.get("data-user"), this.window, {showNick: true});
+        $menu.addClass("dropdownmenu")
+            .setPosition(evt.client);
     },
 
-    removePrevMenu: function($tar) {
-        var $sel = $tar ? $tar.getSiblings('.selected') : this.nicklist.getElements('.selected');
-        $sel.removeClass("selected")
-            .getElement('.menu').each(Element.dispose);
+    nickListMenu: function(evt, $tar) { //delegation to nick items
+        var $par = $tar.getParent('.user').toggleClass("selected");
+        var $menu = this.createNickMenu($par.get('data-user'), $par, {close: function() {$par.removeClass("selected")}});
+    },
+
+    menuClick: function(e, $tar) {
+        var action = $tar.get("data-exec");
+        this.client.exec(action, this.name);
     },
 
     updateTopic: function(topic) {
@@ -8000,12 +7699,12 @@ ui.QUI.Window = new Class({
             var $top = Element.from(templates.topicText({empty:false})).inject($topic);
             this.parentObject.theme.formatElement(topic, $top.getElement('span'));
         } else {
-            $topic.html(templates.topicText({topic:lang.noTopic.message, empty:true}));
+            $topic.html(templates.topicText({topic: lang.noTopic, empty:true}));
         }
     },
 
     addLine: function(type, data, colourClass) {
-        var $msg = Element.from(templates.ircMessage({ type: type.hyphenate() }));
+        var $msg = Element.from(templates.ircMessage({ type: type.hyphenate().replace(" ", "-") }));
 
         if(colourClass)
             $msg.addClass(colourClass);
@@ -8034,16 +7733,26 @@ ui.QUI.Window = new Class({
     },
 
     getNickList: function() {
-        if(!this.nicklist && this.parentObject.uiOptions.get('show_nicklist')) {
+        if(!this.nicklist && this.getOption('show_nicklist')) {
             this.nicklist = this.window.getElement('.rightpanel')
                                     .addClass("nicklist");
         }
         return this.nicklist;
     },
 
+    toggleAutocomplete: function(state) {
+        if(this.completer) {
+            state = !!state;
+            this.completer.toggleAutocomplete(state);
+
+            this.completer.$hint.toggleClass('decorated', state);
+            this.$input.toggleClass('decorated', !state);
+        }
+    },
+
     toggleNickList: function(state) { //returns this
         if(this.type === ui.WINDOW.channel) {
-            state = state != null ? !!state : this.parentObject.uiOptions.get('show_nicklist');
+            state = state != null ? !!state : this.getOption('show_nicklist');
             var nicklist = this.getNickList();
             nicklist && nicklist.toggle(state) && this.window.toggleClass('show-nicklist', state);
         }
@@ -8051,49 +7760,50 @@ ui.QUI.Window = new Class({
 
     //holy shit i got this to actually make sense
     // takes nicks (sorted array)
-    updateNickList: function(nicks) {
+    updateNickList: function(nicklist) {
         var self = this;
         if(!self.nicklist) return false;
         var lnh = self.lastNickHash,
-            oldnames = _.keys(lnh),
+            nicks = []; //users who left
 
-            added = _.difference(nicks, oldnames),//users who joined
-            left = _.difference(oldnames, nicks); //users who left
+        //used to just take the difference and then do an each on that but changes to the array made it nec to do it like this for efficency
+        nicklist.each(function(nickobj, index) {
+            var nick = nickobj.nick;
+            var old = lnh[nick];
+            nicks.push(nick);
 
-        _.each(left, function(nick) {
+            if(!old || old.prefix !== nickobj.prefix) {
+                lnh[nick] = self.nickListAdd(nickobj, index);
+            }
+        });
+
+        _.each(_.difference(_.keys(lnh), nicks), function(nick) {
             var element = lnh[nick];
             self.nickListRemove(nick, element);
             delete lnh[nick];
         });
-
-        _.each(added, function(nick) {
-            var index = nicks.indexOf(nick); //indx in sorted array
-            lnh[nick] = self.nickListAdd(nick, index) || 1;
-        });
     },
 
-    nickListAdd: function(nick, position) {
-        var realNick = util.stripPrefix(this.client.prefixes, nick);
-
-        var nickele = Element.from(templates.nickbtn({'nick': nick}));
+    nickListAdd: function(nickobj, position) {
+        var nickele = Element.from(templates.nickbtn(nickobj));
         var span = nickele.getElement('span');
-        nickele.store("nick", realNick);
 
-
-        if (this.parentObject.uiOptions2.get("nick_colours")) {
-            var colour = util.toHSBColour(realNick, this.client);
+        if (this.getOption("nick_colours")) {
+            var colour = util.toHSBColour(nickobj.nick, this.client);
             if ($defined(colour))
                 span.setStyle("color", colour.rgbToHex());
         }
 
         this.nicklist.insertAt(nickele, position);
 
-        return nickele;
+        return _.extend({
+            element: nickele
+        }, nickobj);
     },
 
     nickListRemove: function(nick, stored) {
         try {
-            this.nicklist.removeChild(stored);
+            stored.dispose();
         } catch (e) {
         }
     }
@@ -8239,7 +7949,7 @@ ui.OptionView = new Class({
     },
 
     addNotifier: function(data) {
-        if(!data) {
+        if(!data || Type.isDOMEvent(data)) {
             data = this.model.get("default_notice")();
             var n = _.clone(this.model.get("custom_notices"));
             n.push(data);
@@ -8351,10 +8061,9 @@ ui.WelcomePane = new Class({
         this.parent(options);
     },
     getData: function() {
-        return {
-            options: this.ui.options,
+        return _.extend({}, this.options, {
             Browser: window.Browser
-        };
+        });
     }
 })
 .extend({

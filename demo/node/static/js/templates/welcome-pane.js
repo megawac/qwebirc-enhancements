@@ -15,7 +15,7 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = "", stack1, stack2;
-  buffer += "Your browser does not support desktop notifications. Consider installing";
+  buffer += "<strong>Your browser does not support desktop notifications.</strong> Consider installing";
   stack2 = helpers['if'].call(depth0, ((stack1 = depth0.Browser),stack1 == null || stack1 === false ? stack1 : stack1.ie), {hash:{},inverse:self.program(6, program6, data),fn:self.program(4, program4, data),data:data});
   if(stack2 || stack2 === 0) { buffer += stack2; }
   return buffer;
@@ -23,7 +23,7 @@ function program3(depth0,data) {
 function program4(depth0,data) {
   
   
-  return " <a href=\"http://www.google.com/chromeframe/?prefersystemlevel=true\">Chrome frame for Internet Explorer</a>";
+  return " <a href=\"http://www.google.com/chromeframe/?prefersystemlevel=true\" target=\"_blank\">Chrome frame for Internet Explorer</a><br />Next add <a href=\"http://gwt-workshop.googlecode.com/files/chframe.reg\">this to your registery</a><br />Now navigate to <a href=\"gcf:chrome://settings/content\" target=\"_blank\">gcf:chrome://settings/content</a> and enable notifications<br /><strong>Or just follow <a href=\"http://manolocarrasco.blogspot.ca/2011/06/enabling-desktop-notifications-in-ie.html\" target=\"_blank\">this tutorial</a> to set up chrome frame.</strong>";
   }
 
 function program6(depth0,data) {
@@ -36,13 +36,13 @@ function program6(depth0,data) {
 function program7(depth0,data) {
   
   
-  return " <a href=\"https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/\">the Firefox Tab-notifier extension</a>";
+  return " <a href=\"https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/\" target=\"_blank\">the Firefox Tab-notifier extension</a>";
   }
 
 function program9(depth0,data) {
   
   var buffer = "";
-  buffer += "an extension to add <a href=\"http://caniuse.com/notifications\">Desktop notifications</a>";
+  buffer += "an extension to add <a href=\"http://caniuse.com/notifications\" target=\"_blank\">Desktop notifications</a>";
   return buffer;
   }
 
