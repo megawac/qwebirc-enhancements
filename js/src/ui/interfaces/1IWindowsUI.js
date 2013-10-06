@@ -111,7 +111,7 @@ ui.IWindows = new Class({
         }
     },
     nextWindow: function(direction, fromWin) {
-        var windows = this.windowArray,
+        var windows = _.where(this.windowArray, {detached:false}),
             win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
         if(win) win.select();
 

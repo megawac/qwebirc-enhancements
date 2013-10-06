@@ -43,6 +43,14 @@
     display: {{$css 'show_timestamps' 'inline' 'comp' 'none'}};
 }
 
+.qui .lines .nick {
+    margin-right: 4px;
+}
+
+.qui .lines .nick .channel {
+    color: rgb(109, 89, 89);
+}
+
 .qui .ircwindow .lines {
     font-family: Consolas, "Lucida Console", monospace;
     text-indent: 10px;
@@ -194,15 +202,16 @@
     font-size: 14px;
 }
 
-.qui .input .nickname .status {
+.qui .user .status {
     border-radius: 50%;
     display: inline-block;
     margin-right: 3px;
 }
 
-.qui .input .user .status.voice {
+.qui .user .status.voice {
     width: 8px;
     height: 8px;
+
     background-color: rgb(223, 187, 47);
     background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
     background-image: -moz-radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
@@ -226,9 +235,10 @@
     -o-animation-timing-function: linear;
 }
 
-.qui .input .user .status.op {
+.qui .user .status.op {
     width: 8px;
     height: 8px;
+
     background-color: #7AE60E;
     background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
     background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
@@ -252,14 +262,14 @@
     -o-animation-timing-function: linear;
 }
 
-.qui .input .input-field {
+.qui .input .tt-query {
     border: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
     padding: 0;
     height: 26px;
     text-indent: 5px;
 }
 
-.qui .input .tt-hint {
+.qui .input .decorated {
     background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -o-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
     background-image: -moz-linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
@@ -272,9 +282,6 @@
         color-stop(0.54, rgb(235,235,232)),
         color-stop(0.66, rgb(247,250,240))
     );
-    padding: 0;
-    height: 26px;
-    text-indent: 5px;
 }
 
 /*twitter typeahead inspired autocomplete using overlay input box*/
@@ -282,6 +289,8 @@
     position: absolute;
     top: 0px;
     left: 0px;
+    padding: 0;
+    text-indent: 5px;
     border-color: transparent;
     box-shadow: none;
     color: #BDBDBD;
@@ -292,7 +301,7 @@
     vertical-align: top;
     background-color: transparent;
 }
-/*typeahead*/
+/*end typeahead*/
 
 .qui .input .btn.send {
     color: grey;
@@ -308,7 +317,8 @@
     font-size: 0.7em;
 }
 
-.qui .nicklist .user, .qui .nicklist .menu span {
+
+.qui .nicklist .user, .qui .nick-menu {
     display: block;
     color: black;
     text-decoration: none;
@@ -316,6 +326,20 @@
     border-top: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
     border-bottom: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
     padding-left: 1px;
+}
+
+.qui .nick-menu {
+    width: initial;
+}
+
+.qui .nick-menu ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: circle;
+}
+
+.qui .nick-menu li {
+    cursor:pointer;cursor:hand;
 }
 
 .qui .nicklist .selected {
@@ -329,11 +353,6 @@
 
 .qui .nicklist .selected-middle {
     border-top: {{$css 'nicklist_selected_border' 'c8d2dc' 'c'}} 1px solid;
-}
-
-#noscript {
-    text-align: center;
-    font-weight: bold;
 }
 
 .qui .nicklist .menu {
@@ -362,6 +381,7 @@
 }
 
 .qui .dropdownmenu {
+    position: absolute;
     z-index: 100;
     border: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
     background: {{$css 'menu_background' 'f2f0ff' 'c'}};

@@ -93,6 +93,7 @@ ui.Alert = new Class({
     hide: function(evt, clicked) {
         if(evt) evt.stopPropagation();
         document.removeEvents(this.$listeners);
+        this.fireEvent("hide");
         return this.parent(evt, clicked);
     }
 });

@@ -81,11 +81,11 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     var evts = {
         "click": hideMenu,
         "keypress": hideMenu
-    }
+    };
     function hideMenu() {
         if(options.onHide)
             options.onHide.call(this, $ddm);
-        document.removeEvents(evts)
+        document.removeEvents(evts);
         return $ddm.hide();
     }
     function toggleMenu(state) {
@@ -145,35 +145,44 @@ util.fillContainer = function ($ele, options) {
 };
 
 
-//http://caniuse.com/#feat=calc
-Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
-                            (Browser.firefox && Browser.version >= 4) ||
-                            (Browser.chrome && Browser.version >= 19) ||
-                            (Browser.opera && Browser.version >= 15) ||
-                            (Browser.safari && Browser.version > 6));
+// //http://caniuse.com/calc
+// Browser.Features.calc = !!((Browser.ie && Browser.version >= 9) ||
+//                             (Browser.firefox && Browser.version >= 4) ||
+//                             (Browser.chrome && Browser.version >= 19) ||
+//                             (Browser.opera && Browser.version >= 15) ||
+//                             (Browser.safari && Browser.version > 6));
+document.addEvent("domready", function() {//based off https://gist.github.com/Rob-ot/3399053
+    Browser.Features.calc = false;//union bool str (-webkit-calc, -moz-calc, calc)
+    ["","-webkit-","-moz-","-o-"].some(function(prefix) {
+        var $el = new Element('div', {
+            styles: {
+                width: prefix + "calc(5px)"
+            }
+        });
+        if ($el.style.length > 0) return Browser.Features.calc = prefix + "calc";
+    });
+});
 
 util.percentToPixel= function(data, par) {
     par = par || $(document.body);
     var size = par.getSize();
     return {
-        x: size.x * (data.x * .01),
-        y: size.y * (data.y * .01)
+        x: size.x * (data.x * 0.01),
+        y: size.y * (data.y * 0.01)
     };
 };
 
 //https://gist.github.com/megawac/6525074
+//http://www.w3schools.com/cssref/css_units.asp
 util.calc = function($ele, style, val) {
     // val = val.replace(/(\(|\))/g, "");
 	//simple css calc function polyfill
 	//polyfill expects surrounded by brackets <val><unit> <operator> <val><unit> => "33% - 20px + 1em"
     //does not support things like "50%/3 - 5px"
 	if(Browser.Features.calc) {
-		val = "calc(" + val + ")";
-		$ele.setStyle(style, val)
-			.setStyle(style, "-moz-" + val)
-			.setStyle(style, "-webkit-" + val);
+		$ele.setStyle(style, Browser.Features.calc + "(" + val + ")");
 	} else {
-        var old = $ele.retrieve("calc"); 
+        var old = $ele.retrieve("calc");
         if(old) {window.removeEvent("resize", old);}
 		var split = val.split(" ");
 		var op = split.splice(1,1);
@@ -194,15 +203,11 @@ util.calc = function($ele, style, val) {
                     return size;
                 }
             });
-            var size = eval(expr);
+            var size = eval(expr);//safe usage - evals '500-20+12' for example
             $ele.setStyle(style, size);
             return resize;
         };
         window.addEvent("resize", resize);
-        // $ele.addEvents({
-        //     adopt: resize,
-        //     disown: resize
-        // });
         $ele.store("calc", resize);
         return resize();
 	}

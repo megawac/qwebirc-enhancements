@@ -21,6 +21,7 @@ ui.NavBar = new Class({
         onReady: function() {
             this.render();
             window.addEvent('resize', this.adjust);
+            this.tabs.addEvent('adopt', this.adjust);
         },
         onScrollTabs: function(evt) {
             evt.stop();
@@ -121,6 +122,11 @@ ui.NavBar = new Class({
 
     removeTab: function(tab) {
         this.tabs.disown(tab);
+        return this;
+    },
+
+    toggleTab: function(tab, state) {
+        this.tabs.getElement(tab).toggle(state);
         return this;
     },
 

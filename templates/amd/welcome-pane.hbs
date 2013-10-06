@@ -6,12 +6,15 @@
         {{#if Browser.Features.notifications}}
             Before you login please enable desktop notifications <a class="enable-notifications btn btn-danger btn-small" href="#">Enable notifications</a>
         {{else}}
-            Your browser does not support desktop notifications. Consider installing
-            {{#if Browser.ie}} <a href="http://www.google.com/chromeframe/?prefersystemlevel=true">Chrome frame for Internet Explorer</a>
+            <strong>Your browser does not support desktop notifications.</strong> Consider installing
+            {{#if Browser.ie}} <a href="http://www.google.com/chromeframe/?prefersystemlevel=true" target="_blank">Chrome frame for Internet Explorer</a>
+            <br />Next add <a href="http://gwt-workshop.googlecode.com/files/chframe.reg">this to your registery</a>
+            <br />Now navigate to <a href="gcf:chrome://settings/content" target="_blank">gcf:chrome://settings/content</a> and enable notifications
+            <br /><strong>Or just follow <a href="http://manolocarrasco.blogspot.ca/2011/06/enabling-desktop-notifications-in-ie.html" target="_blank">this tutorial</a> to set up chrome frame.</strong>
             {{else}}
-            {{#if Browser.firefox}} <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/">the Firefox Tab-notifier extension</a>
+            {{#if Browser.firefox}} <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-notifier/" target="_blank">the Firefox Tab-notifier extension</a>
             {{else}}{{! http://caniuse.com/notifications }}
-            an extension to add <a href="http://caniuse.com/notifications">Desktop notifications</a>
+            an extension to add <a href="http://caniuse.com/notifications" target="_blank">Desktop notifications</a>
             {{/if}}
             {{/if}}
         {{/if}}

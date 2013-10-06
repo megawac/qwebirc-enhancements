@@ -21,11 +21,13 @@ ui.Theme = new Class({
             data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
-            if (data["n"]) {
-                data["N"] = "qwebirc://whois/" + data.n + "/";//cause extra unneccessary processing
+            if (_.has(data, "n")) {
+                //works slightly harder than it has too :/
+                data.N = templates.userlink(data);
+                data.nicktmpl = templates.ircnick(data);
             }
             //now all we have to do is format the data as desired and pass to theme
-            _.each(["N", "m", "c"], function(key) {//urlerize message and nick
+            _.each(["m", "c"], function(key) {//urlerize message and nick
                 var val = data[key];
                 if(val) {
                     if(_.isArray(val)) { //modes are given as an array so we need to fold
@@ -38,9 +40,7 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var $eles = Elements.from(result).filter(function($e) {
-            return !Type.isTextNode($e) || $e.nodeValue != "";
-        });
+        var $eles = Elements.from(result);
         $ele.addClass('colourline')
             .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
@@ -114,11 +114,11 @@ ui.Theme = new Class({
 
     messageParsers: [
         {
-            type: /NOTICE$/,
+            type: /^(?!SERVER)+NOTICE+$/,//notice not server notice
             classes: '',
             beep: true,
             id: 'on_notice',
-            highlight: ui.HIGHLIGHT.speech
+            tabhl: ui.HIGHLIGHT.speech
         },
         {
             type: /PRIVMSG$/,
@@ -126,7 +126,7 @@ ui.Theme = new Class({
             beep: true,
             pm: true,
             id: 'on_pm',
-            highlight: ui.HIGHLIGHT.speech
+            tabhl: ui.HIGHLIGHT.speech
         },
         {
             type: /^OUR/,
@@ -158,12 +158,6 @@ ui.Theme = new Class({
             id: 'on_mention'//for filtering
         },
         {
-            nick: /(^tf2)|((serv|bot)$)/i,
-            msg: /authcookie/i,
-            beep: true,
-            pm: true
-        },
-        {
             nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
             msg: /^((?!(^\!)).)*$/, //dont hl commands
             classes: '',
@@ -182,7 +176,8 @@ ui.Theme = new Class({
         var self = this,
             tabHighlight = ui.HIGHLIGHT.none,
             highlights = self.highlightClasses,
-            notus = !(/^OUR/.test(type)),
+            nick = win.client.nickname,
+            notus = data.n !== nick,
             parsers = _.clone(self.messageParsers).concat(self.customNotices);
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
@@ -195,7 +190,7 @@ ui.Theme = new Class({
                     (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
-                    (!parser.mentioned || util.testForNick(win.client.nickname, data.m)) )
+                    (!parser.mentioned || util.testForNick(nick, data.m)) )
                 {
                     if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
                         if(parser.flash) {
@@ -213,7 +208,7 @@ ui.Theme = new Class({
                     }   
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++) : parser.highlight);
+                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
                     }
                     if($chk(parser.classes)) {
                         $ele.addClass(parser.classes);

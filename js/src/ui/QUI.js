@@ -6,111 +6,12 @@ ui.QUI = new Class({
         this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
 
-        parentElement.addClasses('qui', 'signed-out');
+        parentElement.addClasses('qui', 'signed-out')
+                    .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
         this.setHotKeys();
-
-        this.parentElement.addEvents({
-           "click:relay(.lines .hyperlink-whois)": this.whoisURL,
-            "click:relay(.lines .hyperlink-channel)": this.chanURL
-        });
     },
     postInitialize: function() {
         var self = this.parent();
-
-        // var tabs = self.tabs = Element.from(templates.tabbar()),
-        //     joinChan =  function(){
-        //         new ui.Dialog({
-        //             element: self.element,
-        //             text: "Enter channel name",
-        //             onSubmit: function(data) {
-        //                 if(data.val && data.val.trim() !== ""){
-        //                     _.each(self.clients, function(client) {
-        //                         client.exec("/JOIN " + data.val);
-        //                     });
-        //                 }
-        //             }
-        //         });
-        //     },
-        //     tabbtns = Element.from(templates.tabbarbtns()),
-        //     addTab = tabbtns.getElement('.add-chan'),
-        //     scrollers = tabbtns.getElements('[name="tabscroll"]'),
-        //     scroller = new Fx.Scroll(tabs),
-        //     resizeTabs = _.partial(util.fillContainer, tabs, {style: 'max-width'}),
-        //     tabsResize = function() {
-        //         var wid = tabs.getWidth(),
-        //             swid = tabs.getScrollWidth();
-
-        //         if(swid > wid) {
-        //             scrollers.show();
-        //         }
-        //         else {
-        //             scrollers.hide();
-        //         }
-
-        //         resizeTabs();
-        //     };
-
-        // window.addEvent('resize', tabsResize);
-        // tabs.addEvents({
-        //     'adopt': tabsResize,
-        //     'disown': tabsResize
-        // });
-
-        // scrollers.filter('.to-left')
-        //     .addEvent('click', function(e) {
-        //         e.stop();
-        //         var pos = tabs.getScrollLeft(),
-        //             $ele = util.elementAtScrollPos(tabs, pos);
-
-        //         scroller.toElement($ele, 'x');
-        //     });
-        // scrollers.filter('.to-right')
-        //     .addEvent('click', function(e) {
-        //         e.stop();
-        //         var pos = tabs.getScrollLeft() + tabs.getWidth(),
-        //             $ele = util.elementAtScrollPos(tabs, pos);
-
-        //         scroller.toElementEdge($ele, 'x');
-        //         console.log($ele);
-        //     });
-
-        // resizeTabs();
-        // addTab.addEvents({
-        //     'dblclick': joinChan,
-        //     'click': self.__createChannelMenu
-        // });
-
-        // //for scrolling tabs with mousewhee
-        // tabs.addEvent("mousewheel", function(evt) {
-        //     evt.stop();
-        //     if (evt.wheel > 0) {//mwup
-        //         self.nextWindow();
-        //     } else if (evt.wheel < 0) {
-        //         self.prevWindow();
-        //     }
-        // });
-
-
-        // //append menu and tabbar
-        // self.outerTabs.adopt(self.__createDropdownMenu(), tabs, tabbtns)
-        //     .addEvents({
-        //         "click:relay(.tab .tab-close)": function(e, target) {
-        //             e.stop();
-        //             target.getParent('.tab').retrieve('window').close();
-        //         },
-        //         "click:relay(.tab .detach)": function(e, target) {
-        //             e.stop();
-        //             target.getParent('.tab').retrieve('window').detach();
-        //         },
-        //         "focus:relay(.tab)": Element.prototype.blur,
-        //         "click:relay(.tab)": function(e, target) {//can be called when tab is closed
-        //             self.selectTab(target);
-        //         },
-        //         "dblclick:relay(.tab)": function(e, target) {
-        //             e.stop();
-        //             target.retrieve('window').select();
-        //         }
-        //     });
         self.nav.on({
             "selectTab": function(e,tab) {
                 self.selectTab(tab);
@@ -119,24 +20,8 @@ ui.QUI = new Class({
                 e.stop();
                 target.getParent('.tab').retrieve('window').detach();
             },
-            // promptChan: function(){
-            //     new ui.Dialog({
-            //         element: self.element,
-            //         text: "Enter channel name",
-            //         onSubmit: function(data) {
-            //             if(data.val && data.val.trim() !== ""){
-            //                 _.each(self.clients, function(client) {
-            //                     client.exec("/JOIN " + data.val);
-            //                 });
-            //             }
-            //         }
-            //     });
-            // },
             "addChannel": self.__createChannelMenu
         });
-
-        //delay for style recalc
-        // self.__createDropdownHint.delay(500, self);
 
         return self;
     },
@@ -190,77 +75,6 @@ ui.QUI = new Class({
         return $tab;
     },
 
-    // __createDropdownMenu: function() {
-    //     var self = this,
-    //         dropdownMenu = Element.from(templates.mainmenu({
-    //                 menu: self.UICommands,
-    //                 menuclass: "main-menu"
-    //             })).inject(self.parentElement);
-
-    //     dropdownMenu.addEvents({
-    //         "click:relay(.main-menu a)": function(e, target) {//dont stop event so the menu closes automatically
-    //             var method = target.get("data-value");
-    //             self[method]();
-    //         }
-    //     });
-    //     var dropdownbtn = Element.from(templates.menubtn({icon: self.options.icons.menuicon}));
-
-
-    //     var dropdownEffect = new Fx.Tween(dropdownbtn, {
-    //         duration: "long",
-    //         property: "opacity",
-    //         link: "chain"
-    //     });
-    //     var dropdownhint = Element.from(templates.dropdownhint())
-    //                 .inject(this.parentElement)
-    //                 .position({
-    //                     relativeTo: this.outerTabs,
-    //                     position: {'y': 'bottom'},
-    //                     offset: {y:10}
-    //                 });
-
-    //     dropdownEffect.start(0.25)
-    //                 .start(1)
-    //                 .start(0.33)
-    //                 .start(1);
-
-    //     ui.decorateDropdown(dropdownbtn, dropdownMenu, {
-    //         onShow: function() {
-    //             if(self.hideHint)
-    //                 self.hideHint();
-    //             delete self.hideHint;
-    //         },
-    //         btnlistener: true,
-    //         autohide: true
-    //     });
-
-    //     new Fx.Morph(dropdownhint, {
-    //         duration: "normal",
-    //         transition: Fx.Transitions.Sine.easeOut
-    //     }).start({
-    //         left: [900, 5]
-    //     });
-
-    //     var hider = function() {
-    //             new Fx.Morph(dropdownhint, {
-    //                 duration: "long"
-    //             }).start({
-    //                 left: [5, -900]
-    //             });
-    //         }.delay(4000);
-
-    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
-
-    //     _.delay(hider2, 4000);
-
-    //     document.addEvents({
-    //         "mousedown:once": hider2,
-    //         "keydown:once": hider2
-    //     });
-    //     return dropdownbtn;
-    //     // return dropdownMenu;
-    // },
-
     hotkeys: {
         keyboard: {
             nextWindow: {
@@ -283,29 +97,29 @@ ui.QUI = new Class({
             bold: {
                 keys: 'ctrl+b',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('bold').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('bold').bbcode)
             },
             italic: {
                 keys: 'ctrl+i',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('italic').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('italic').bbcode)
             },
             underline: {
                 keys: 'ctrl+u',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('underline').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('underline').bbcode)
             },
             colour: {
                 keys: 'ctrl+c',
                 description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .input-field', util.getStyleByName('colour').bbcode)
+                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('colour').bbcode)
             },
             submitInput: {
                 keys: 'enter',
                 description: '',
                 handler: function(e) {
                     var $tar = e.target;
-                    if($tar.hasClass('input-field'))  {
+                    if($tar.hasClass('irc-input'))  {
                         $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
                     }
                 }
@@ -342,41 +156,6 @@ ui.QUI = new Class({
             }
         });
     },
-
-    //the effect on page load
-    // __createDropdownHint: function() {
-    //     var dropdownhint = Element.from(templates.dropdownhint())
-    //                 .inject(this.parentElement)
-    //                 .position({
-    //                     relativeTo: this.outerTabs,
-    //                     position: {'y': 'bottom'},
-    //                     offset: {y:10}
-    //                 });
-
-    //     new Fx.Morph(dropdownhint, {
-    //         duration: "normal",
-    //         transition: Fx.Transitions.Sine.easeOut
-    //     }).start({
-    //         left: [900, 5]
-    //     });
-
-    //     var hider = function() {
-    //             new Fx.Morph(dropdownhint, {
-    //                 duration: "long"
-    //             }).start({
-    //                 left: [5, -900]
-    //             });
-    //         }.delay(4000);
-
-    //     var hider2 = this.hideHint = _.once(_.partial(Element.destroy, dropdownhint));
-
-    //     _.delay(hider2, 4000);
-
-    //     document.addEvents({
-    //         "mousedown:once": hider2,
-    //         "keydown:once": hider2
-    //     });
-    // },
 
     //todo use other dropdown menu code
     __createChannelMenu: function(e) {
@@ -432,8 +211,9 @@ ui.QUI = new Class({
 
     setWindow: function(win) {
         this.parent(win);
-        win.element.getSiblings('.active:not(.detached)').hide().removeClass('active');
-        win.element.show().addClass('active');
+        win.element.show().addClass('active')
+                    .getSiblings('.active:not(.detached)')
+                    .hide().removeClass('active');
     },
 
     nickChange: function(data, client) {

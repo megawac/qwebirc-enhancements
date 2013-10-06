@@ -6,8 +6,8 @@ config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is
     "O": irc.styles.colour.key,
     "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
-    "NN": templates.userlink({'userid':'{N}', 'username': '{N}'}),//nick name
-    "CN": templates.userlink({'userid':'{newnick}', 'username': '{newnick}'}),// change nick
+    "NN": templates.userlink({'nick':'{N}'}),//nick name
+    "CN": templates.userlink({'nick':'{newnick}'}),// change nick
     "P": "{C}4=={O} "
 };
 
@@ -41,11 +41,11 @@ config.ThemeIRCTemplates = {
     "HILIGHT": "{C}4",
     "HILIGHTEND": "{O}",
 
-    "CHANMSG": "{D}&lt;{@}{(}{N}&gt;{)}{D} {m}",
-    "PRIVMSG": "{(}&lt;{N}&gt;{)} {m}",
+    "CHANMSG": "{D}{nicktmpl}{)}{D} {m}",
+    "PRIVMSG": "{(}{nicktmpl}{)} {m}",
 
-    "OURCHANMSG": "&lt;{@}{N}&gt; {m}",
-    "OURPRIVMSG": "&lt;{N}&gt; {m}",
+    "OURCHANMSG": "{nicktmpl} {m}",
+    "OURPRIVMSG": "{nicktmpl} {m}",
     "OURTARGETEDMSG": "*{[}{t}{]}* {m}",
     "OURCHANACTION": " * {N} {m}",
     "OURPRIVACTION": " * {N} {m}",
@@ -71,7 +71,7 @@ config.ThemeIRCTemplates = {
     "WHOISOPERNAME": "{P} operedas : {m}",
     "WHOISACTUALLY": "{P} realhost : {m} [ip: {x}]",
     "WHOISGENERICTEXT": "{P} note  : {m}",
-    "WHOISEND": "{P}End of WHOIS",
+    "WHOISEND": "{P}End of whois {N}",
 
     "AWAY": "{P}{N} is away: {m}",
     "GENERICERROR": "{P}{m}: {t}",

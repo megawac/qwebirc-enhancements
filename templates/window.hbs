@@ -3,7 +3,7 @@
     <div class="qui content">
         <div class="qui leftpanel lines"></div>
         {{#if isChannel}}
-            {{> verticalDivider}}
+            {{#if splitPane}}{{> verticalDivider}}{{/if}}
             <div class="qui rightpanel"></div>
         {{/if}}
     </div>

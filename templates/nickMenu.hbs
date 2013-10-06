@@ -1,0 +1,13 @@
+<div class='nick-menu'>
+    {{#if showNick}}<h5>{{nick}}</h5>{{/if}}
+    <ul>
+        <li data-exec="/WHOIS {{nick}}">whois</li>
+        {{#if notus}}<li data-exec="/QUERY {{nick}}">query</li>{{/if}}
+        <li data-exec="/ME {{format lang.fishSlap}}">slap</li>
+        {{#if weOped}}{{#unless theyOped}}<li data-exec="/KICK {{channel}} {{nick}}">kick</li>{{/unless}}{{/if}}
+        {{#if notus}}{{#if weOped}}{{#unless theyOped}}<li data-exec="/OP {{nick}}">op</li>{{/unless}}{{/if}}{{/if}}
+        {{#if notus}}{{#if weOped}}<li data-exec="/DEOP {{nick}}">deop</li>{{/if}}{{/if}}
+        {{#if notus}}{{#if weOped}}{{#unless theyVoiced}}<li data-exec="/VOICE {{nick}}">voice</li>{{/unless}}{{/if}}{{/if}}
+        {{#if notus}}{{#if weOped}}<li data-exec="/DEVOICE {{nick}}">devoice</li>{{/if}}{{/if}}
+    </ul>
+</div>

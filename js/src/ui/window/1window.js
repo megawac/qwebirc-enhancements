@@ -14,7 +14,6 @@ ui.Window = new Class({
     template: util.loadTemplate('window'),
 
     active: false,
-    lastSelected: null,
     closed: false,
     highlight: ui.HIGHLIGHT.none,
     lastNickHash: {},
@@ -29,6 +28,10 @@ ui.Window = new Class({
         this.parent({
             element: $par
         });
+    },
+
+    getOption: function(option) {
+        return this.parentObject.uiOptions.get(option);
     },
 
     close: function() {
@@ -46,7 +49,6 @@ ui.Window = new Class({
             this.highlightTab(ui.HIGHLIGHT.none);
 
         this.fireEvent("selected");
-        this.lastSelected = new Date();
     },
 
     deselect: function() {
@@ -65,8 +67,8 @@ ui.Window = new Class({
     */
     addLine: function(type, data, colour, $ele) {
         var self = this,
-            uiobj = self.parentObject;
-        var highlight =  this.name !== BROUHAHA ? uiobj.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
+            parent = self.parentObject;
+        var highlight =  this.name !== BROUHAHA ? parent.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
             hl_line = false;
 
         if (!self.active && (highlight !== ui.HIGHLIGHT.none)) {
@@ -76,11 +78,11 @@ ui.Window = new Class({
         var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
         $ele.insertAdjacentHTML('afterbegin', tsE);
 
-        var formatted = uiobj.theme.formatMessage($ele, type, data, hl_line);
+        var formatted = parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
                 .maxChildren(this.options.maxLines);
 
-        if(uiobj.uiOptions.get("lastpos_line") && type.endsWith("CHANMSG")) {
+        if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
         }
     },

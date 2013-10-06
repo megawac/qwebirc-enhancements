@@ -7,8 +7,8 @@
 var urlifier = util.urlifier = new Urlerizer({
     target: '_blank'
 });
-var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
-    chan_re = /#|\/|\\/;
+// var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
+//     chan_re = /#|\/|\\/;
 
 urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
 urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
@@ -21,16 +21,17 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
 
                 if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
                     var cmd = mid.slice(10);//remove qwebirc://
-                    if(cmd.startsWith("whois/")) {
+                    /*if(cmd.startsWith("whois/")) {
                         var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
                         var chan = chan_match ? chan_match[0] : "";
                         var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
                         var user = cmd.slice(6, chanlen);//whois to channel
                         cmd = templates.userlink({'userid': user, 'username': user + chan});
                     }
-                    else if(cmd.startsWith("options") || cmd.startsWith("embedded")) {
-                        cmd = cmd.match(/.*\//)[0];
-                        cmd = cmd.slice(0, cmd.length);
+                    else */if(["options", "embedded", "privacy"].some(cmd.startsWith.bind(cmd))) {
+                        cmd = templates.customlink({
+                            val: cmd.match(/\w+\w/)
+                        });
                     }
                     word = parsed.lead + cmd + parsed.end;
                 }
@@ -43,8 +44,10 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
             var parsed = this.parsePunctuation(word),
                 res = parsed.mid;
 
-            if(isChannel(res) && !res.startsWith("#mode") && !res.slice(1).test()) {
-                res = templates.channellink({channel:util.formatChannel(res)});
+            if(util.isChannel(res)) {
+                res = templates.customlink({
+                    val: res
+                });
             }
 
             return parsed.lead + res + parsed.end;

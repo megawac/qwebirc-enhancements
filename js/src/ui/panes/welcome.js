@@ -19,10 +19,9 @@ ui.WelcomePane = new Class({
         this.parent(options);
     },
     getData: function() {
-        return {
-            options: this.ui.options,
+        return _.extend({}, this.options, {
             Browser: window.Browser
-        };
+        });
     }
 })
 .extend({

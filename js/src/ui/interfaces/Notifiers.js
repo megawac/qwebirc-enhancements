@@ -150,7 +150,7 @@ ui.INotifiers = new Class({
 
 
     beep: function() {
-        this.playSound('beep');
+        return this.playSound('beep');
     },
     playSound: function(alias) {
         if(!this.soundPlayer) {
@@ -163,6 +163,7 @@ ui.INotifiers = new Class({
                 volume: this.uiOptions.get("volume")
             });
         }
+        return this;
     },
     soundInit: function() {
         //used to have a bunch of flash checks. going to let the sm handle it
@@ -180,7 +181,7 @@ ui.INotifiers = new Class({
 
         var flash = function() {
             var vis = self.toggleFavIcon();
-            ui.setTitle(vis ? self.titleText : lang.activityNotice.message);
+            ui.setTitle(vis ? self.titleText : lang.activityNotice);
         };
 
         self.flashing = true;
@@ -191,6 +192,7 @@ ui.INotifiers = new Class({
             "keydown:once": self.cancelFlash,
             "focus:once": self.cancelFlash
         });
+        return self;
     },
 
     showNotice: function(options, force) {
@@ -204,6 +206,7 @@ ui.INotifiers = new Class({
                 close: notice.close
             });
         }
+        return self;
     },
 
     cancelFlash: function() {

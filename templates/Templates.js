@@ -32,7 +32,7 @@
 
     // source.resizeHandle = "<div><span class='resize-handle ui-icon ui-icon-grip-diagonal-se'></span></div>";
 
-    source.nickMenu = "<div class='menu'></div>";
+    // source.nickMenu = "<div class='menu'></div>";
     // source.menubtn = "<div class='dropdown-tab'><img src='{{icon}}' title='menu' alt='menu'></div>";
     // source.menudrop = "<div class='main-menu dropdownmenu'></div>";
     // source.chanmenu = "<div class='chanmenu dropdownmenu'>{{#each channels}}{{> menuitem}}{{/each}}</div>";
@@ -51,7 +51,7 @@
     source.tabAttach = "<span class='attach ui-icon ui-icon-circle-minus'></span>";
     source.tabClose = "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>";
 
-	source.loadingPage = "<div class='loading'>" + lang.loadingPage + "</div>";
+	source.loadingPage = "<div class='loading'>" + lang.loadingPage + "<img src='images/loading.gif' alt='url'></div>";
 
 
     source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -68,6 +68,8 @@
         return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
     });
 
+    engine.registerHelper('$link', util.formatURL);
+
     //f(property name, type of prop, default val)
     engine.registerHelper('$css', function(prop, def, type, default2) {//this refers to context
         if(type === "c") {//colour
@@ -83,6 +85,10 @@
         else {
             return this[prop] || def;
         }
+    });
+
+    engine.registerHelper("format", function(prop) {
+        return util.format(prop, this);
     });
 
     /******************

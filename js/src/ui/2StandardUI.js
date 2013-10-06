@@ -2,7 +2,7 @@
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
-    Binds: ["urlDispatcher", "whoisURL", "updateStylesheet",
+    Binds: ["whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
             "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
@@ -15,8 +15,10 @@ ui.StandardUI = new Class({
         self.theme = theme;
         self.config();
 
-        self.element = self.parentElement = parentElement.addClasses("qwebirc", "qwebirc-" + uiName);
-        self.commandhistory = new irc.CommandHistory();
+        self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
+        self.commandhistory = new irc.CommandHistory({
+            store: self.uiOptions.get("completer").store
+        });
         self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
 
         getTemplate("topPane", function(template) {
@@ -58,21 +60,25 @@ ui.StandardUI = new Class({
                 "#!about": "about",
                 "#!faq": "faq",
                 "#!embedded": 'embedded',
-                "#!privacy": "privacy"//,
+                "#!privacy": "privacy"
             },
             // no route event was found, though route was defined
             onError: function(error){
-                console.error(error);
+                if(DEBUG) console.error(error);
                 // recover by going default route
                 this.navigate('');
             },
             //try to select the window if it exists
             onUndefined: function(data) {
-                var request = data.request.startsWith(rprefix) && data.request.slice(rprefix.length);
+                var request = util.unformatURL(data.request);
                 if(request) {
-                    var win = _.findWhere(self.windowArray, {identifier:request}) || _.findWhere(self.windowArray, {identifier:util.formatChannel(request)});
+                    var win = _.findWhere(self.windowArray, {identifier:request});
                     if(win) {
                         win.select();
+                    } else if(util.isChannel(request)) {
+                        _.each(self.clients, function(client) {
+                            client.exec("/JOIN " + request);
+                        });
                     }
                 }
             },
@@ -89,16 +95,27 @@ ui.StandardUI = new Class({
         
         return this;
     },
-    updateURI: function() {
+
+    updateURI: function() {//format channels specially like #@tf2mix
         if(this.router instanceof Epitome.Router && this.active) {
-            this.router.navigate(this.options.routerPrefix + util.unformatChannel(this.active.identifier));
+            this.router.navigate(util.formatURL(this.active.identifier));
         }
+    },
+
+    whoisURL: function(e, target) {
+        var client = target.getParent('.window').retrieve('window').client,
+            nick = target.get('data-user');
+        /*if (this.uiOptions.get("query_on_nick_click")) {
+            client.exec("/QUERY " + nick);
+        } else {*/
+        client.exec("/WHOIS " + nick);
+        //}
     },
 
     optionsWindow: function() {
         var self = this;
         return self.addCustomWindow("Options", ui.OptionView, "options", {
-            model: self.uiOptions2,
+            model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
                 self.beep();
@@ -123,59 +140,5 @@ ui.StandardUI = new Class({
     },
     faqWindow: function() {
         return this.addCustomWindow("FAQ", ui.FAQPane, "faq");
-    },
-    urlDispatcher: function(name, window) {
-        if (name == "embedded") {
-            return ["a", this.embeddedWindow];
-        }
-        else if (name == "options"){
-            return ["a", this.optionsWindow];
-        }
-        /* doesn't really belong here */
-        else if (name === "whois") {
-            var uiOptions2 = this.uiOptions2;
-            ///this method is dumb
-            return ["span", function(nick) {
-                if (uiOptions2.QUERY_ON_NICK_CLICK) {
-                    window.client.exec("/QUERY " + nick);
-                } else {
-                    if (isChannel(nick)) {
-                        nick = util.unformatChannel(nick);
-                    } else {
-                        if (nick.search(window.client.nickname + '>') >= 0) {
-                            nick = nick.substr(nick.search('>') + 1, nick.length);
-                        } else {
-                            nick = nick.substr(0, nick.search('>'));
-                        }
-                    }
-                    // window.properties.text(nick);
-                    window.client.exec("/WHOIS " + nick);
-                }
-            }];
-        }
-        else
-            return null;
-    },
-
-    whoisURL: function(e, target) {
-        var client = target.getParent('.window').retrieve('window').client,
-            nick = target.get('data-user');
-        if (this.uiOptions2.QUERY_ON_NICK_CLICK) {
-            client.exec("/QUERY " + nick);
-        } else {
-            if (isChannel(nick)) {
-                nick = util.unformatChannel(nick);
-            } else if (nick.search(client.nickname + '>') >= 0) {
-                nick = nick.substr(nick.search('>') + 1, nick.length);
-            } 
-            client.exec("/WHOIS " + nick);
-        }
-    },
-
-    chanURL: function(e, target) {
-        var client = target.getParent('.lines').retrieve('client'),
-            chan = target.get('data-chan');
-        if(util.isChannel(chan))
-            client.exec("/JOIN " + chan);
     }
 });
