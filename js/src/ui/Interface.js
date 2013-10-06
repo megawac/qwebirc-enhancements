@@ -12,6 +12,25 @@ ui.Interface = new Class({
         initialNickname: "",
         minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
 
+        validators: {//test is a helper from ircutils
+            nick: [{
+                test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
+                description: "Nick must be between 1 and 9 characters"
+            }],
+            password: [{
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing password"
+            }],
+            username: [{
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing username"
+            }]
+        },
+
         hue: null,
         saturation: null,
         lightness: null,
@@ -19,8 +38,7 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
-        loginRegex: /I recogni[sz]e you\./,
-        nickValidation: null
+        loginRegex: /I recogni[sz]e you\./
     },
     clients: [],
 
@@ -30,8 +48,6 @@ ui.Interface = new Class({
         this.setOptions(options);
         var self = this,
             opts = self.options;
-
-        qwebirc.global.nicknameValidator = opts.nickValidation ? new irc.NicknameValidator(opts.nickValidation) : new irc.DummyNicknameValidator();
 
         window.addEvent("domready", function() {
             var inick = opts.initialNickname,
@@ -44,7 +60,7 @@ ui.Interface = new Class({
 
             var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
             //if(usingAutoNick && autoConnect) {
-            inick = opts.initialNickname;
+            // inick = opts.initialNickname;
             //}
 
             var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
@@ -58,9 +74,16 @@ ui.Interface = new Class({
                 var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
                                         loginopts);
 
-                var client = self.IRCClient = new irc.IRCClient(ircopts, self.ui);
+                var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
+                self.ui.newClient(client);
+                client.writeMessages(lang.copyright);
                 client.connect();
-
+                client.addEvent("auth", function(data) {
+                    self.ui.showNotice({
+                        title: 'Authenticated with network!',
+                        body: util.format("{nick}: {message}", data)
+                    }, true);
+                });
 
                 window.onbeforeunload = function(e) {
                     if (client.isConnected()) {//ie has gotten passed the IRC gate

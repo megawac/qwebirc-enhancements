@@ -1,5 +1,26 @@
 (function() {
-var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName) {
+    function validate($ele, validators) {
+        if(_.isEmpty(validators)) return;
+        var text = $ele.val();
+        var failed = _.find(validators, function(validator) {
+            return !validator.test(text, $ele);
+        });
+        var failbool = !!failed;
+        var controlpar = $ele.getParent('.control-group')
+                            .toggleClass('has-error', failbool);
+        if (failbool) {
+            getTemplate("failed-validator", function(template) {
+                Elements.from(template(failed)).inject(controlpar);
+                // $ele.focus();
+            });
+        } else {
+            controlpar.getElements('.help-block').dispose();
+        }
+        return !failed;
+    }
+
+
+var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, validators) {
     var Base64 = window.Base64;
     var _nick = new Storer(cookies.nickname),//initial nick
         _user = new Storer(cookies.username),//auth username
@@ -26,6 +47,12 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
             $passwordBox = page.getElement('#password'),
             $chkAddAuth = page.getElement('#authenticate');
 
+        $form.addEvents({
+            "blur:relay([data-validate])": function(e, target) {
+                validate(target, validators[target.get("data-validate")]);
+            }
+        });
+
         $chkAddAuth.addEvent('click', function () {
             $form.getElements('[name="full"]').getParent('div').toggle();
         });
@@ -33,25 +60,17 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
         $form.addEvent("submit", function(e) {
             e.stop();
 
+            if(!validate($nickBox, validators.nick) ||
+                    !validate($usernameBox, validators.username) ||
+                    !validate($passwordBox, validators.password)) {
+                return;
+            }
+
             var nickname = $nickBox.val();
 
-            //validate nick
-            if (!nickname) {
-                new ui.Alert({
-                    text: lang.missingNick,
-                    onClose: $nickBox.focus.bind($nickBox)
-                });
-                return;
-            }
-            var stripped = qwebirc.global.nicknameValidator.validate(nickname);
-            if (stripped !== nickname) {
-                $nickBox.val(stripped);
-                new ui.Alert({
-                    text: lang.invalidNick,
-                    onClose: $nickBox.focus.bind($nickBox)
-                });
-                return;
-            }
+            /****
+            * Valid*
+            ****/
 
             var data = {
                 "nickname": nickname
@@ -63,29 +82,11 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                 data.username = username = $usernameBox.val();
                 data.realname = username || "";
                 data.password = password = $passwordBox.val();
+
                 if (auth.bouncerAuth()) {
-                    if (!$chk(password)) {
-                        new ui.Alert({
-                            text: lang.missingPass,
-                            onClose: $passwordBox.focus.bind($passwordBox)
-                        });
-                        return;
-                    }
                     data.serverPassword = password;
                 }
-                if (!username || !password) {
-                    new ui.Alert({
-                        text: lang.missingAuthInfo,
-                        onClose: function() {
-                            if (!$chk(username)) {
-                                $usernameBox.focus();
-                            } else {
-                                $passwordBox.focus();
-                            }
-                        }
-                    });                    
-                    return;
-                } else if(auth.passAuth()){
+                else if(auth.passAuth()){
                     data.serverPassword = username + " " + password;
                 }
 
@@ -121,7 +122,7 @@ ui.ILogin = new Class({
                 win.close();
                 self.fireEvent("login", data);
             };
-        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName);
+        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName, this.options.validators);
         return win;
     }
 });

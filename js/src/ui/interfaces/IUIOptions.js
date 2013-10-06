@@ -36,7 +36,14 @@ ui.IUIOptions = new Class({
             "change:custom_notices": setCustomNotice,
             "change:notices": setStandardNotice,
             "change:show_nicklist": function(state) {
-                _.each(this.windowArray, function(win){win.toggleNickList()});
+                _.each(self.windowArray, function(win){win.toggleNickList()});
+            },
+            "change:completer": function(completer) {
+                self.commandhistory.options.store = completer.store;
+                if(!completer.store) self.commandhistory.clear();
+                _.each(self.windowArray, function(win) {
+                    win.toggleAutocomplete(completer.intrusive);
+                });
             }
         });
         setCustomNotice(uiOptions.get("custom_notices"));
@@ -51,7 +58,7 @@ ui.IUIOptions = new Class({
     },
 
     setModifiableStylesheet: function(vals) {
-        this.__styleSheet = new Element("style", {
+        this._styleSheet = new Element("style", {
                                 type: "text/css",
                                 media: "all"
                             }).inject(document.head);
@@ -62,7 +69,7 @@ ui.IUIOptions = new Class({
         getTemplate("modifiablecss", function(template) {
             var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
             var stylesheet = template(styles);//.split("}").join("}\n")
-            var node = self.__styleSheet;
+            var node = self._styleSheet;
 
             if (node.styleSheet) { /* ie */
                 node.styleSheet.cssText = stylesheet;

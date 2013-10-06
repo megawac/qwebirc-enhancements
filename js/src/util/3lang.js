@@ -6,9 +6,7 @@
         INFO: 1,
         SERVER: 2,
         CHAN: 3,
-        MISC: 4,
-
-        MESSAGE: 5
+        MESSAGE: 4
     };
 
     var message = function(msg, type) {
@@ -28,14 +26,14 @@
                         message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],
         joinAfterAuth: message("Waiting for login before joining channels...", types.INFO),
         authFailed: [message("Could not auth with IRC network - waited 5 seconds.", types.ERROR),
-                    message("Otherwise reattempt authing by typing: \"/authserv AUTH <your username> <your password>\"", types.ERROR),
+                    message("Otherwise reattempt authing by sending: \"/AUTH <your username> <your password>\"", types.ERROR),
                     message("To ignore the error and join channels, unauthed, type: \"/autojoin\".", types.ERROR)],
         signOn: message("SIGNON", types.SERVER),
         joinChans: message("Joining channels...", types.INFO),
-        noTopic: message("(No topic set.)", types.INFO),
+        noTopic: "(No topic set.)",
 
-        needOp: message("Sorry, you need to be a channel operator to change the topic!", types.ERROR),
-        changeTopicConfirm: message("Change topic of {channel} to:", types.MISC),
+        changeTopicNeedsOp: "Sorry, you need to be a channel operator to change the topic!",
+        changeTopicConfirm: "Change topic of {channel} to:",
 
         poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
         waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
@@ -53,7 +51,7 @@
                     message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
 
         alertNotice: "Alert!",
-        activityNotice: message("Activity!", types.MISC),
+        activityNotice: "Activity!",
         partChan: "Part",
         logOut: message("Logged out", types.MESSAGE),
         quit: "Page closed",
@@ -84,7 +82,6 @@
         NICK_COLOURS: "Automatically colour nicknames",
         HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
         STYLE_HUE: "Adjust user interface hue",
-        QUERY_ON_NICK_CLICK: "Query on nickname click in channel",
         SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
@@ -96,6 +93,7 @@
         AUTO_OPEN_PM: "Automatically select window on private message:",
         FLASH: "flash",
         BEEP: "beep",
+        PM: "pm",
         MESSAGE_PLACEHOLDER: ' something ... ',
         NICK_PLACEHOLDER: ' someone ... ',
         DELETE_NOTICE: 'remove',

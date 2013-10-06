@@ -3,18 +3,22 @@ config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "auto_open_pm": true,
+            "auto_open_pm": false,
             "nick_ov_status": true,
             "accept_service_invites": true,
             "use_hiddenhost": true,
             "lastpos_line": true,
             "nick_colours": false,
             "hide_joinparts": false,
-            "query_on_nick_click": true,
             "show_nicklist": !Browser.isMobile,
             "show_timestamps": true,
             "font_size": 12,
-            "volume": 10, //0-10
+            "volume": 100, //0-10
+
+            "completer": {
+                "intrusive": Browser.isDecent,
+                "store": !Browser.isMobile
+            },
 
             "dn_state": false,
             "dn_duration": 4000,
@@ -27,9 +31,9 @@ config.OptionModel = new Class({
             "style_brightness": 0,
 
             "notices": {
-                "on_mention": {flash:true, beep:true},
-                "on_pm": {flash:true, beep:true},
-                "on_notice": {flash:false, beep:true}
+                "on_mention": {flash:true, beep:true, pm: false},
+                "on_pm": {flash:true, beep:true, pm: true},
+                "on_notice": {flash:false, beep:true, pm: true}
             },
             "custom_notices": [],
             "default_notice": function() {
@@ -38,6 +42,7 @@ config.OptionModel = new Class({
                         msg: '',
                         flash: false,
                         beep: false,
+                        pm: false,
                         id: String.uniqueID(),
                         autoescape: true
                     };

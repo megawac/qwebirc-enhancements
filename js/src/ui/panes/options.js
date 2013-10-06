@@ -50,7 +50,7 @@ ui.OptionView = new Class({
     },
 
     addNotifier: function(data) {
-        if(!data) {
+        if(!data || Type.isDOMEvent(data)) {
             data = this.model.get("default_notice")();
             var n = _.clone(this.model.get("custom_notices"));
             n.push(data);

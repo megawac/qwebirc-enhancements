@@ -8,12 +8,13 @@ irc.CommandHistory = new Class({
         storage: {
             fallback: false//dont save on shit browsers
         },
+        store: !Browser.isMobile,
         key: cookies.history
     },
 
     addLine: function(name, line) {
-        var data = this.get(name);
-        if(line.length > this.options.minlen && !data.contains(line)) {
+        var data = this.get(name).erase(line)
+        if(line.length > this.options.minlen) {
             data.unshift(line);
             if (data.length > this.options.lines) {
                 data.pop();
@@ -29,7 +30,7 @@ irc.CommandHistory = new Class({
 
     removeChannel: function(name) {
         this.unset(name);
-        this.save();
+        if(this.options.store) this.save();
     },
 
     _filter: function(val) {

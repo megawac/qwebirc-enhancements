@@ -51,12 +51,6 @@
                 </label>
             </div>
             <div class="controls">
-                <label class="checkbox" for="query_on_nick_click">
-                    {{lang.QUERY_ON_NICK_CLICK}}
-                    <input type="checkbox" id="query_on_nick_click" {{check query_on_nick_click}}>
-                </label>
-            </div>
-            <div class="controls">
                 <label class="checkbox" for="font_size">
                     {{lang.FONT_SIZE}}
                     <input type="number" id="font_size" value={{font_size}}>
@@ -103,6 +97,9 @@
                         <label class="checkbox-inline" for="on_mention.flash">{{lang.FLASH}}
                             <input type="checkbox" id="on_mention.flash" {{check notices.on_mention.flash}}>
                         </label>
+                        <label class="checkbox-inline" for="on_mention.pm">{{lang.PM}}
+                            <input type="checkbox" id="on_mention.pm" {{check notices.on_mention.pm}}>
+                        </label>
                     </label>
                 </div>
                 <div class="controls">
@@ -113,6 +110,9 @@
                         <label class="checkbox-inline" for="on_pm.flash">{{lang.FLASH}}
                             <input type="checkbox" id="on_pm.flash" {{check notices.on_pm.flash}}>
                         </label>
+                        <label class="checkbox-inline" for="on_pm.pm">{{lang.PM}}
+                            <input type="checkbox" id="on_pm.pm" {{check notices.on_pm.pm}}>
+                        </label>
                     </label>
                 </div>
                 <div class="controls">
@@ -122,6 +122,9 @@
                         </label>
                         <label class="checkbox-inline" for="on_notice.flash">{{lang.FLASH}}
                             <input type="checkbox" id="on_notice.flash" {{check notices.on_notice.flash}}>
+                        </label>
+                        <label class="checkbox-inline" for="on_notice.pm">{{lang.PM}}
+                            <input type="checkbox" id="on_notice.pm" {{check notices.on_notice.pm}}>
                         </label>
                     </label>
                 </div>

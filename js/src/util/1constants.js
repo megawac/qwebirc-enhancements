@@ -105,47 +105,48 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
 ];
 
-irc.Numerics = {
-    "001": "RPL_WELCOME",
-    "004": "RPL_MYINFO",
-    "005": "RPL_ISUPPORT",
-    "353": "RPL_NAMREPLY",
-    "366": "RPL_ENDOFNAMES",
+// irc.Numerics = {
+//     "001": "RPL_WELCOME",
+//     "004": "RPL_MYINFO",
+//     "005": "RPL_ISUPPORT",
+//     "353": "RPL_NAMREPLY",
+//     "366": "RPL_ENDOFNAMES",
 
-    "331": "RPL_NOTOPIC",
-    "332": "RPL_TOPIC",
-    "333": "RPL_TOPICWHOTIME",
+//     "331": "RPL_NOTOPIC",
+//     "332": "RPL_TOPIC",
+//     "333": "RPL_TOPICWHOTIME",
 
-    "311": "RPL_WHOISUSER",
-    "312": "RPL_WHOISSERVER",
-    "313": "RPL_WHOISOPERATOR",
-    "317": "RPL_WHOISIDLE",
-    "671": "RPL_WHOISSECURE",
-    "318": "RPL_ENDOFWHOIS",
-    "319": "RPL_WHOISCHANNELS",
-    "330": "RPL_WHOISACCOUNT",
-    "338": "RPL_WHOISACTUALLY",
-    "343": "RPL_WHOISOPERNAME",
-    "320": "RPL_WHOISGENERICTEXT",
-    "325": "RPL_WHOISWEBIRC",
+//     "311": "RPL_WHOISUSER",
+//     "312": "RPL_WHOISSERVER",
+//     "313": "RPL_WHOISOPERATOR",
+//     "317": "RPL_WHOISIDLE",
+//     "671": "RPL_WHOISSECURE",
+//     "318": "RPL_ENDOFWHOIS",
+//     "319": "RPL_WHOISCHANNELS",
+//     "330": "RPL_WHOISACCOUNT",
+//     "338": "RPL_WHOISACTUALLY",
+//     "343": "RPL_WHOISOPERNAME",
+//     "320": "RPL_WHOISGENERICTEXT",
+//     "325": "RPL_WHOISWEBIRC",
 
-    "301": "RPL_AWAY",
-    "305": "RPL_UNAWAY",
-    "306": "RPL_NOWAWAY",
+//     "301": "RPL_AWAY",
+//     "305": "RPL_UNAWAY",
+//     "306": "RPL_NOWAWAY",
 
-    "324": "RPL_CHANNELMODEIS",
-    "329": "RPL_CREATIONTIME",
+//     "324": "RPL_CHANNELMODEIS",
+//     "329": "RPL_CREATIONTIME",
 
-    "433": "ERR_NICKNAMEINUSE",
-    "401": "ERR_NOSUCHNICK",
-    "404": "ERR_CANNOTSENDTOCHAN",
-    "482": "ERR_CHANOPPRIVSNEEDED",
+//     "433": "ERR_NICKNAMEINUSE",
+//     "401": "ERR_NOSUCHNICK",
+//     "404": "ERR_CANNOTSENDTOCHAN",
+//     "482": "ERR_CHANOPPRIVSNEEDED",
 
-    "321": "RPL_LISTSTART",
-    "322": "RPL_LIST",
-    "323": "RPL_LISTEND"
-};
+//     "321": "RPL_LISTSTART",
+//     "322": "RPL_LIST",
+//     "323": "RPL_LISTEND"
+// };
 
+//https://www.alien.net.au/irc/irc2numerics.html
 irc.Numerics2 = { // from node-irc
     "001": {
         "name": "RPL_WELCOME",
