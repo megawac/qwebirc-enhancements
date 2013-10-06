@@ -22,6 +22,7 @@ project name and URL in the about dialog, thanks!
 
 ; (function(undefined) {
     "use strict";
+    var DEBUG = true;
 
     //common globals
     var window = this,

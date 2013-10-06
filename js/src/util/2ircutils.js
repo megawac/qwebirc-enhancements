@@ -29,9 +29,9 @@ var join = function(by, xs) {
 
     $identity = _.identity,
 
-    splitBang = _.partial(split, "!"),
+    // splitBang = _.partial(split, "!"),
 
-    joinBang = _.partial(join, "!"),
+    // joinBang = _.partial(join, "!"),
 
     joinEmpty = _.partial(join, ""),
 
@@ -70,9 +70,9 @@ util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if prop
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
-util.hostToNick = _.compose(joinBang, restRight, splitBang);
+// util.hostToNick = _.compose(joinBang, restRight, splitBang);
 //megawac!~megawac@megawac.user.gamesurge -> ~megawac@megawac.user.gamesurge
-util.hostToHost = _.compose(Array.getLast, splitBang);
+// util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
 var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
@@ -113,16 +113,24 @@ util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
 util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
 
+util.formatURL = function(link) {
+    link = util.isChannel(link) ? link.replace("#", "@") : link;
+    return link.startsWith("!") ? link : "!" + link;
+}
+
+util.unformatURL = function(link) {
+    if(link.startsWith("!")) {
+        return link.slice(1).replace(/^@/, "#");
+    }
+    return link;
+}
+
 //appends a channel to the end of the list of channels
 //string -> string
 //could just call Array.include?
 util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
 util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
-
-
-//calls splits string by comma then calls array.erase on value
-util.removeChannel = Array.erase;
 
 (function() {
 /*
@@ -141,11 +149,13 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     data_re = /^[^ ]+ +/,
     args_re = /^:|\s+:/,
     argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
-    args_split_re = / +/;
-util.parseIRCData = function(line/*, stripColors*/) { // {{{
+    args_split_re = / +/,
+    NUMERICS = irc.Numerics2;
+util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
         'raw': line,
-        'prefix': ''
+        'prefix': '',
+        'commandType': 'normal'
     };
     var match;
 
@@ -170,12 +180,11 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
     match = line.match(command_re);
     message.command = match[1].toUpperCase();
     message.rawCommand = match[1];
-    message.commandType = 'normal';
     line = line.replace(data_re, '');
 
-    if (irc.Numerics2[message.rawCommand]) {
-        message.command = irc.Numerics2[message.rawCommand].name.toUpperCase();
-        message.commandType = irc.Numerics2[message.rawCommand].type;
+    if (NUMERICS[message.rawCommand]) {
+        message.command = NUMERICS[message.rawCommand].name;
+        message.commandType = NUMERICS[message.rawCommand].type;
     }
 
     message.args = [];
@@ -196,6 +205,28 @@ util.parseIRCData = function(line/*, stripColors*/) { // {{{
 
     return message;
 };
+util.processTwistedData = function(data) {
+    var message = {
+        commandType: 'normal',
+        rawCommand: data[1],
+        command: data[1],
+        args: data[3],
+        prefix: data[2]
+    },
+    match;
+    if(NUMERICS[data[1]]) {
+        message.command = NUMERICS[data[1]].name;
+        message.commandType = NUMERICS[data[1]].type
+    }
+    if (match = message.prefix.match(prefix_re)) {
+        message.nick = match[1];
+        message.user = match[3];
+        message.host = match[4];
+    } else {
+        message.server = message.prefix;
+    }
+    return message;
+}
 })();
 
 util.formatCommand = function(cmdline) {
@@ -221,12 +252,6 @@ util.nickChanComparitor = function(client, nickHash) {
     };
 };
 
-util.nickPrefixer = function(nickHash) { //_.lambda('a -> b -> a[b].prefixes + b')
-    return function(nick) {
-        return nickHash[nick].prefixes + nick;
-    };
-};
-
 util.validPrefix = _.contains;
 
 util.addPrefix = function(nc, pref, prefs) {
@@ -249,12 +274,12 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
 util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
 
-util.createNickRegex = function(nick) {
-    return new RegExp('(^|[\\s.,;:\'"])' + String.escapeRegExp(nick) + '([\\s.,;:\'"]|$)', "i");
+util.createWordRegex = function(word) {
+    return new RegExp('\\b' + String.escapeRegExp(word) + '\\b', "i");//=> /\bmegawac\b/i
 };
 
 util.testForNick = _.autoCurry(function(nick, text) {
-    return util.createNickRegex(nick).test(text);
+    return util.createWordRegex(nick).test(text);
 });
 
 util.toHSBColour = function(nick, client) {
@@ -325,9 +350,6 @@ var pad = util.pad = _.autoCurry(function(cond, padding, str) {
 
 util.padzero = pad(_.lambda('.length<=1'), "0");
 util.padspace = pad(_.lambda('.length!==0'), " ");
-
-
-util.browserVersion = $lambda(navigator.userAgent);
 
 util.getEnclosedWord = function(str, pos) {
     pos = pos >>> 0; //type safety coerce int

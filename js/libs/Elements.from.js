@@ -23,7 +23,11 @@ provides: [Elements.from, Elements.From]
 ...
 */
 window.addEvent("domready", function(){
-    function getChildren($ele) {return new Elements($ele.childNodes);}//fix for #2527
+    "use strict";
+    function $filter($e) {return $e.nodeType !== 3 || $e.nodeValue !== ""}//filter empty text nodes
+    function getChildren($ele) {//fix for #2527
+        return new Elements($ele.childNodes).filter($filter);
+    }
     function tableFix(match, text) {
         var container = new Element('table');
         var tag = match[1].toLowerCase();

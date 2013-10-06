@@ -1,33 +1,31 @@
 (function() {
 
-    Array.implement({
-        /*
-        Function: Array.first
-          Returns the first item.
-        */
-        // first: function() {
-        //     return this[0];
-        // },
-        // last: function() {
-        //     return this[this.length - 1];
-        // },
-        /*
-        Returns the item at index n
-        */
+    //okay this is mainly just for preference - didnt like merges behaviour with classes particularly with Options.setOptions and this was the easiest way to reimplemnt it
+    //https://github.com/mootools/mootools-core/issues/2526
+    var mergeOne = function(source, key, current){
+        switch (typeOf(current)){
+            case 'object':
+                if(current.$constructor && "$caller" in ui.ui) source[key] = current;//class instance check (only change)
+                else if (typeOf(source[key]) == 'object') Object.merge(source[key], current);
+                else source[key] = Object.clone(current);
+            break;
+            case 'array': source[key] = current.clone(); break;
+            default: source[key] = current;
+        }
+        return source;
+    };
 
-        //returns next item in array with overflow
-        // next: function(pos, dir) {
-        //     var index = pos + (dir || 1);
-        //     if (index >= this.length) {
-        //         index %= this.length;
-        //     }
-        //     if (index < 0) {
-        //         index = this.length + (index % this.length);
-        //     }
-        //     return this[index];
-        // }
+    Object.extend({
+        merge: function(source, k, v){
+            if (typeOf(k) == 'string') return mergeOne(source, k, v);
+            for (var i = 1, l = arguments.length; i < l; i++){
+                var object = arguments[i];
+                for (var key in object) mergeOne(source, key, object[key]);
+            }
+            return source;
+        }
+    })
 
-    });
 
     var strp = String.prototype;
     ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
@@ -54,6 +52,7 @@
         // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
         //http://jsperf.com/string-splitmax-implementations
         splitMax: function(by, max) {
+            max = max || 1;
             var items = this.split(by),
                 len = max - 1,
                 newitems = items.slice(0, len);
@@ -84,9 +83,6 @@
         trimLeft: function() {
             return String(this).replace(/^\s+/, '');
         }
-    })
-    .extend({
-        escapeHTML: _.escape
     });
 
     Element.Properties.val = Element.Properties.value = {
@@ -98,10 +94,6 @@
         }
     };
 
-    var adopt = Element.prototype.adopt,
-        inject = Element.prototype.inject;
-
-
     ["html", "text", "val"].each(function(fn) {
             Element.implement(fn, function(data) {
                 if (typeof data !== 'undefined') return this.set(fn, data);
@@ -109,12 +101,18 @@
             });
         });
 
-    Element.implement({
-
+    Class.refactor(Element, {
         adopt: function() {
             //just mootools adopt method which fires an event when called
-            return adopt.apply(this, arguments).fireEvent("adopt", arguments);
+            return this.previous.apply(this, arguments).fireEvent("adopt", arguments);
         },
+        inject: function(el) {
+            var ret = this.previous.apply(this, arguments);
+            el.fireEvent('adopt', arguments);
+            return ret;
+        }
+    })
+    .implement({
 
         //removes all elements in arguments from array if found - opposite of adopt
         disown: function() {
@@ -124,12 +122,6 @@
             });
             this.fireEvent("disown", arguments);
             return this;
-        },
-
-        inject: function(el) {
-            var ret = inject.apply(this, arguments);
-            el.fireEvent('adopt', arguments);
-            return ret;
         },
 
         maxChildren: function(n) {

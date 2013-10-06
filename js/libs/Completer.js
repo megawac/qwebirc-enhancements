@@ -14,14 +14,16 @@
     };
     
     function hinter() {
-        var text = this.$input.get("value");
-        var full = "";
-        if(text.length >= this.options.minlen) {
-            full = _.find(this.data, function(txt) {
-                return txt.startsWith(text);
-            });
+        if(this.options.autocomplete) {
+            var text = this.$input.get("value");
+            var full = "";
+            if(text.length >= this.options.minlen) {
+                full = _.find(this.data, function(txt) {
+                    return txt.startsWith(text);
+                });
+            }
+            this.seth(full || "");
         }
-        this.seth(full || "");
     }
 
     this.Completer = new Class({
@@ -32,6 +34,7 @@
             stopPropogation: false,
             //autostyle -todo for now templated,
             autoPosition: true,//autopositon hint
+            autocomplete: true,
             selectors: {
                 hint: '.tt-hint',
                 input: '.tt-query'
@@ -53,12 +56,17 @@
             };
             this.$input = target.getElement(options.selectors.input)
                                 .addEvents(this.$events);
-            this.$hint = target.getElement(options.selectors.hint);
+            this.$hint = target.getElement(options.selectors.hint)
+                                .show();
             if(options.autoPosition) {
                 this.$hint.setStyle("position", "absolute");
                 this.update.delay(50);
                 window.addEvent("resize", this.update);
             }
+        },
+
+        toggleAutocomplete: function(state) {
+            this.options.autocomplete = !!state;
         },
 
         process: function(evt) {
@@ -91,7 +99,7 @@
         },
 
         complete: function() {
-            this.finish();
+            // this.finish();
             this.reset();
         },
 
@@ -123,6 +131,7 @@
 
         detach: function() {
             this.$input.removeEvents(this.$events);
+            this.$hint.hide();
             window.removeEvent("resize", this.update);
         }
     });

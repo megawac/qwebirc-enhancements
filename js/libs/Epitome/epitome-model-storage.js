@@ -77,9 +77,13 @@
                     return !Epitome.isEqual(val, this.options.defaults[key]);//dont store defaults if minimize is true
                 },
 
-                destroy: function() {
-                    // destroy the model, send delete to server
+                clear: function() {
                     this.properties.storage.remove(this.options.key);
+                },
+
+                destroy: function() {
+                    // destroy the model and the storage space
+                    this.clear();
                     return this.parent();
                 }
             });
