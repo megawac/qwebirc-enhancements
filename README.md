@@ -1,0 +1,59 @@
+qwebirc-mods  
+=============  
+
+![logo](https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png "QWebirc logo")
+Complete rewrite of Chris Porter's [qwebirc](http://qwebirc.org/). I began this project when I became frustrated creating a plugin on top of Qwebirc, so flexibility and extensibility are two of the focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Been working on this for a couple months, the plugin is almost stable, come play with it  ([Screenshot](http://puu.sh/4ANPf.png)).  
+  
+##Demo:
+I currently have an instance running for the gamesurge network at: [qwebirc.herokuapp.com](http://qwebirc.herokuapp.com/)  
+Note: heroku doesnt support websockets so its using xhr long polls :/ 
+
+##Done:  
+* improved extendibility through modularization and refactoring
+* ui client relationship event driven and moving important functions to utils. Makes implementing extensions much simpler
+ * redid url parser to be easier to add patterns
+ * reduced network bandwidth load
+* various new ui features and fixes (some mentioned below)
+ * detachable windows and resizable components
+ * fixed tab overflow not showing
+ * stable scrolling implementation
+* code quality improvements (more dry and intuitive and less hacky)
+ * join-flood detection
+ * Rewrote ui using mv* style
+* rewrote irc colouriser and moved to theme
+* rewrote and improved urlifier and moved to theme + module
+* moved modifiable css to a precompiled handlebars template
+* fix some memory leaks
+* moved all panes to seperate modules (havent rewritten the embed wizard)
+* mocked up new input bar see screenshot above
+  
+##TODOs:  
+* add options for:
+ * configure notification type per option (in works)
+ * store commands between sessions
+ * configure hotkeys
+* Process lines for brouhaha and the proper window once
+* Finish implementing the BaseUI in empitome
+* Finish Drag.SplitPane module (issues with keeping relative pos with window resizes) {{link to repo}}
+  
+  
+##KNOWN BUGS:  
+* Opera ui is bugged due to https://github.com/mootools/mootools-core/issues/2325
+* __ie7 isnt rendering__ the site according to webpagetest.org. please send help or maple syrup  
+* old drag.splitpane doesnt work on ff reimplementing  
+
+##Future Goals 
+* make client portable enough to be enabled as an overlay  
+* amd support  
+
+###Making Changes:  
+To make changes to the static files make them in the base directory and run ```grunt``` in the command line. Use ```npm install``` if this is your first change.  
+
+
+##DEMO:  
+To run the demo:  
+ 1.  optionally run grunt in base
+ 2.  Start demo\run.py
+ 3.  Navigate to 127.0.0.1:9090
+  
+Code is almost stable - planning to release a version commit shortly. Currently finishing remimplementing and bug testing some features and then it should be ready for production.
