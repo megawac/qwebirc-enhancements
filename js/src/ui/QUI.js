@@ -84,6 +84,13 @@ ui.QUI = new Class({
                     this.scope.nextWindow();
                 }
             },
+            next: {
+                keys: 'tab',
+                description: '',
+                handler: function() {
+                    this.scope.nextWindow();
+                }
+            },
             prevWindow: {
                 keys: 'left',
                 description: '',

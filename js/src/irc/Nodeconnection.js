@@ -44,7 +44,6 @@ irc.NodeConnection = new Class({
         self.setOptions(options);
         var ip = util.formatter("{url}", self.options.socket);
         var socket = self.socket = io.connect(ip);
-
         var $evts = {
             "raw": self.recv,
             "echo": _.log,

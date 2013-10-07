@@ -698,7 +698,6 @@ irc.IRCClient = new Class({
             channels = self.tracker.getNick(nick);
 
         self.tracker.removeNick(nick);
-
         _.keys(channels).each(function(chan) {
             self.updateNickList(chan);
         });

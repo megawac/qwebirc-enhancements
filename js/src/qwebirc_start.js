@@ -20,13 +20,12 @@ instances leaving a mention of the original author(s) and the
 project name and URL in the about dialog, thanks!
 */
 
-; (function(undefined) {
+; (function(Epitome, undefined) {
     "use strict";
     var DEBUG = true;
 
     //common globals
-    var window = this,
-        document = window.document,
+    var document = window.document,
         $ = document.id,
         $$ = document.getElements;
 
@@ -36,7 +35,7 @@ project name and URL in the about dialog, thanks!
     var QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
 
     //global object
-    var qwebirc = window.qwebirc = _.extend(window.qwebirc || {}, {
+    var qwebirc = _.merge(window.qwebirc || {}, {
         irc: {},
         ui: {
             themes: {}

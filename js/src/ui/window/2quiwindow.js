@@ -419,8 +419,7 @@ ui.QUI.Window = new Class({
         });
 
         _.each(_.difference(_.keys(lnh), nicks), function(nick) {
-            var element = lnh[nick];
-            self.nickListRemove(nick, element);
+            lnh[nick].element.dispose();
             delete lnh[nick];
         });
     },
@@ -440,12 +439,5 @@ ui.QUI.Window = new Class({
         return _.extend({
             element: nickele
         }, nickobj);
-    },
-
-    nickListRemove: function(nick, stored) {
-        try {
-            stored.dispose();
-        } catch (e) {
-        }
     }
 });

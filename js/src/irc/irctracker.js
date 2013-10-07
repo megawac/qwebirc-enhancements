@@ -57,37 +57,33 @@ irc.IRCTracker = new Class({
 
     removeNick: function(nick) {
         var nickchan = this.getNick(nick);
-        if (!nickchan)
-            return;
+        if (nickchan){
+            _.each(nickchan, function(data, chan) {
+                var lchannel = this.toIRCLower(chan),
+                    channel = this.channels[lchannel];
 
-        _.each(_.keys(nickchan), function(chan) {
-            var lchannel = this.toIRCLower(chan),
-                channel = this.channels[lchannel];
-
-            delete channel[nick];
-            if (_.size(channel) === 0) {
-                delete this.channels[lchannel];
-            }
-        }, this);
-        delete this.nicknames[nick];
+                delete channel[nick];
+                if (_.isEmpty(channel)) {
+                    delete this.channels[lchannel];
+                }
+            }, this);
+            delete this.nicknames[nick];
+        }
     },
 
     removeChannel: function(channel) {
         var chan = this.getChannel(channel);
-        if (!chan)
-            return;
-
-        var lchannel = this.toIRCLower(channel);
-
-
-        _.each(_.keys(chan), function(nick) {
-            var nc = this.nicknames[nick];
-            delete nc[lchannel];
-            if (_.size(nc) === 0) { //in no more channels
-                delete this.nicknames[nick];
-            }
-        }, this);
-        delete this.channels[lchannel];
+        if (chan) {
+            var lchannel = this.toIRCLower(channel);
+            _.each(_.keys(chan), function(nick) {
+                var nc = this.nicknames[nick];
+                delete nc[lchannel];
+                if (_.isEmpty(nc)) { //in no more channels
+                    delete this.nicknames[nick];
+                }
+            }, this);
+            delete this.channels[lchannel];
+        }
     },
 
     removeNickFromChannel: function(nick, channel) {
@@ -144,7 +140,7 @@ irc.IRCTracker = new Class({
 
     getSortedNicksForChannel: function(channel, sorter) {
         var nickHash = this.getChannel(channel);
-        if(_.size(nickHash) === 0) return [];
+        if(_.isEmpty(nickHash)) return [];
         if(!sorter) {
             //sorts nicks by status > lexigraphy
             //then add the prefix in front of the name

@@ -125,6 +125,6 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
         }
 
         return stac.join("") + text;
-    }, true)
+    }, true);
 
-})()
+})();

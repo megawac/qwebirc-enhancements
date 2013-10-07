@@ -108,7 +108,7 @@
         },
         inject: function(el) {
             var ret = this.previous.apply(this, arguments);
-            el.fireEvent('adopt', arguments);
+            el.fireEvent("adopt", [this]);
             return ret;
         }
     })

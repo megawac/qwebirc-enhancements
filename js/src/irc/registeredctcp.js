@@ -1,4 +1,3 @@
-
 irc.RegisteredCTCPs = {
     "VERSION": $lambda("qwebirc v" + qwebirc.VERSION + ", copyright (C) 2008-2011 Chris Porter and the qwebirc project -- " + navigator.userAgent),
     "USERINFO": $lambda("qwebirc"),

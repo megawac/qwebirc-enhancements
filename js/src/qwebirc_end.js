@@ -1,2 +1,3 @@
 //close the iife and call with this
-}).call(this);
+    return qwebirc;
+})(Epitome);

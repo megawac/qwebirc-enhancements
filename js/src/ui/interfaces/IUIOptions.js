@@ -23,7 +23,7 @@ ui.IUIOptions = new Class({
         }
         function setStandardNotice(notices) {
             _.each(self.theme.messageParsers, function(parser) {
-                if( _.has(notices, parser.id) )
+                if(_.has(notices, parser.id) )
                     _.extend(parser, notices[parser.id]);
             });
         }

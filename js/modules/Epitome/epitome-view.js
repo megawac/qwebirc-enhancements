@@ -3,7 +3,7 @@
 	// 'use strict';  // breaks tests due to mootools reliance on args.callee and fireEvent
 
 	// wrapper function for requirejs or normal object
-	var wrap = function(Template, Model, Collection, Events){
+	var wrap = function(Template, Model, Events){
 
 		return new Class({
 
@@ -185,10 +185,6 @@
 	}; // end wrap
 
 	if (typeof define === 'function' && define.amd){
-		define(['./epitome-template', './epitome-model', './epitome-collection', './epitome-events'], wrap);
-	}
-	else {
-		this.Epitome || (this.Epitome = {Template: {}, Model: {}, Collection: {}, Events: {}});
-		this.Epitome.View = wrap(this.Epitome.Template, this.Epitome.Model, this.Epitome.Collection, this.Epitome.Events);
+		define(['./epitome-template', './epitome-model', './epitome-events'], wrap);
 	}
 }.call(this));

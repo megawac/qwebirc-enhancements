@@ -52,8 +52,14 @@ To make changes to the static files make them in the base directory and run ```g
 
 ##DEMO:  
 To run the demo:  
+#####Twisted
  1.  optionally run grunt in base
- 2.  Start demo\run.py
+ 2.  Run demo\twisted python run.py
  3.  Navigate to 127.0.0.1:9090
-  
+
+#####Node
+ 1.  optionally run grunt in base
+ 2.  Run demo\node -> node config
+ 3.  Navigate to 127.0.0.1:8080
+ 
 Code is almost stable - planning to release a version commit shortly. Currently finishing remimplementing and bug testing some features and then it should be ready for production.

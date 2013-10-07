@@ -1,12 +1,11 @@
 module.exports = function(grunt) {
     var concatfiles = [
-    'js/src/qwebirc_start.js',
     'js/templates/qwebirc.js',
+    'js/src/qwebirc_start.js',
     'js/src/util/*.js',
-    'js/src/qwebirc.js',
+    'templates/Templates.js',
     'js/src/config/**.js',
     'js/src/irc/*.js',
-    'templates/Templates.js',
     'js/src/ui/interfaces/*.js',
     'js/src/ui/*.js',//ui +etc
     'js/src/ui/window/*.js',
@@ -34,8 +33,8 @@ module.exports = function(grunt) {
                             'enableDisable': true,
                             '$link': true,
                             'format': true
-                        }//,
-                        // knownHelpersOnly: true,
+                        },//,
+                        knownHelpersOnly: true,
                     },
                     wrapped: true,
                     node: false,

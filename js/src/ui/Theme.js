@@ -166,8 +166,7 @@ ui.Theme = new Class({
             id: 'highlighter',
             tabhl: ui.HIGHLIGHT.activity,
             types: [ui.WINDOW.channel]
-        },
-
+        }
     ],
 
     highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],

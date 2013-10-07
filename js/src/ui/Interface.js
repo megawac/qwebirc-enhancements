@@ -38,6 +38,8 @@ ui.Interface = new Class({
         theme: undefined,
         uiOptionsArg: null,
 
+        socketio: "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
+
         loginRegex: /I recogni[sz]e you\./
     },
     clients: [],
@@ -50,8 +52,7 @@ ui.Interface = new Class({
             opts = self.options;
 
         window.addEvent("domready", function() {
-            var inick = opts.initialNickname,
-                ichans = storage.get(cookies.channels) || opts.initialChannels,
+            var ichans = storage.get(cookies.channels) || opts.initialChannels,
                 autoConnect = false;
 
             self.element = document.id(element);
@@ -59,11 +60,9 @@ ui.Interface = new Class({
             self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
 
             var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
-            //if(usingAutoNick && autoConnect) {
-            // inick = opts.initialNickname;
-            //}
+            if(opts.node) { Asset.javascript(opts.socketio); }
 
-            var details = self.ui.loginBox(inick, ichans, autoConnect, usingAutoNick, opts.networkName);
+            var details = self.ui.loginBox(opts.initialNickname, ichans, autoConnect, usingAutoNick, opts.networkName);
             //cleans up old properties
             if(storage.get(cookies.newb) !== false) {
                 self.welcome();

@@ -8,10 +8,10 @@
 	}; // end wrap
 
 	if (typeof define === 'function' && define.amd){
-		define(['./epitome'], wrap);
+		define([], wrap);
 	}
 	else if (typeof module !== 'undefined' && module.exports){
-		require('mootools');
+		// require('mootools');
 		module.exports = wrap();
 	}
 	else {
