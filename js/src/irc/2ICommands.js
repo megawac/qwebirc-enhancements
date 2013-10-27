@@ -162,9 +162,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 target: target,
                 message: message
             });
+            var noticeType = util.isChannel(target) ? "chanNotice" : "privNotice";
 
             if (this.send(msg)) {
-                this.trigger("chanNotice", {
+                this.trigger(noticeType, {
                     'nick': this.nickname,
                     'channel': target,
                     'target': target,
@@ -195,8 +196,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 'nick': this.nickname,
                 'channel': target,
                 'message': message,
-                'type': 'privmsg',
-                'open': true
+                'type': 'privmsg'/*,
+                'open': true*/
             });
         }
     },
@@ -250,9 +251,9 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 1,
         fn: function(args, target) {
             this.send(format(cmd.KICK, {
-                channel: channel,
-                kickee: target,
-                message: args[0] || ""
+                channel: target,
+                kickee: args[0],
+                message: args[1] || ""
             }));
         }
     },
@@ -371,8 +372,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 2,
         minargs: 0,
         fn: function(args, channel) {
-            var chans = this.channels.erase(channel);
-            this.storeChannels(chans);
+            this.storeChannels(util.removeChannel(this.channels, channel));
             this.send(format(cmd.PART, {
                 channel: args[0] || channel,
                 message: args[1] || lang.partChan
@@ -393,7 +393,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         fn: function(args) {
             if(!this.__autojoined) {
                 this.__autojoined = true;
-                return ["JOIN", this.options.autojoin];
+                this.currentChannel = BROUHAHA;
+                return ["JOIN", this.getChannels()];
             }
         }
     }

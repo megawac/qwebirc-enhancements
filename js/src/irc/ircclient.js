@@ -3,8 +3,6 @@ irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
     Binds: ["lostConnection", "send", "quit", "connected","retry", "_ndispatch", "_tdispatch"],
     options: {
-        nickname: "",
-        autojoin: "",
         minRejoinTime: [0],
         networkServices: [],
         loginRegex: /^$/ //always fail
@@ -134,13 +132,14 @@ irc.IRCClient = new Class({
     },
 
     storeChannels: function(channels) {
-        var store = _.uniq(channels);
-        this.channels = channels;
-        storage.set(cookies.channels, store);
+        this.channels = channels = channels || this.channels;
+        var store = util.removeChannel(channels, BROUHAHA);
+        this.options.settings.set("channels", store);
+        return this;
     },
 
     getChannels: function() {
-        var chans = this.channels = storage.get(cookies.channels) || [];
+        var chans = this.channels = util.prependChannel(this.options.settings.get("channels") || [], BROUHAHA);
         return chans;
     },
 
@@ -320,18 +319,6 @@ irc.IRCClient = new Class({
             channels;
 
         this.writeMessages(lang.signOn);
-
-        channels = this.getChannels();
-        if (channels.length > 0) {
-            options.autojoin = channels;
-        } else { //if no stored channels join intial channels from interface options
-            options.autojoin = channels = options.initialChannels;
-            this.storeChannels(channels);
-        }
-        // Sort the autojoin channels.
-        channels = options.autojoin = util.prependChannel(channels, BROUHAHA);
-        this.currentChannel = BROUHAHA;
-
         this.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
 
         if (!this.authed && auth.enabled) {
@@ -633,7 +620,7 @@ irc.IRCClient = new Class({
 
         if (wasus) {
             self.nickname = newnick;
-            storage.set(cookies.nickname, newnick);
+            self.options.settings.set("nickname", newnick);
         }
 
         self.tracker.renameNick(oldnick, newnick);
@@ -884,7 +871,8 @@ irc.IRCClient = new Class({
                 this.trigger("privNotice", {
                     'message': message,
                     'host': data.host,
-                    'nick': data.nick
+                    'nick': data.nick,
+                    'channel': data.nick
                 });
             }
         } else {

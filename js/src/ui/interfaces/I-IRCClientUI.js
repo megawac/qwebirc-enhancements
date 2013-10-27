@@ -141,6 +141,15 @@ function addClientEvents(client, windows) { // mi gusta xD
         }
     }
 
+    function queried(type, data) {//queries and private notices
+        data = formatData(type, data);
+        var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
+        if(data.nick === client.nickname || ui_.uiOptions2.get("auto_open_pm")) {
+            ui_.selectWindow(win);
+        }
+        if(data.message) parser(type, data, win);
+    }
+
     client.addEvents({
         "connect": lineParser,
         // "disconnect": lineParser,
@@ -200,16 +209,9 @@ function addClientEvents(client, windows) { // mi gusta xD
             ui_.nickChange(data, client);
             lineParser(type, data);
         },
-        "privNotice": lineParser,
 
-        "query": function(type, data) {//queries
-            data = formatData(type, data);
-            var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
-            if(data.open || ui_.uiOptions2.get("auto_open_pm")) {
-                ui_.selectWindow(win);
-            }
-            if(data.message) parser(type, data, win);
-        },
+        "privNotice": queried,
+        "query": queried,
 
         "awayStatus": lineParser,
         "mode": function(type, data) {
