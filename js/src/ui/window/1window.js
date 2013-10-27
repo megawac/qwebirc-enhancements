@@ -75,12 +75,9 @@ ui.Window = new Class({
             self.highlightTab(highlight);
         }
 
-        var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
-        $ele.insertAdjacentHTML('afterbegin', tsE);
-
         var formatted = parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
-                .maxChildren(this.options.maxLines);
+                .maxChildren(this.options.maxLines);//remove lines if > maxLines
 
         if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);

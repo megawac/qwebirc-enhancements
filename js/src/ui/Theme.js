@@ -38,11 +38,13 @@ ui.Theme = new Class({
             });
         }
 
+
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var $eles = Elements.from(result);
+        var timestamp = templates.timestamp({time:util.IRCTimestamp(new Date())});
+        var msghtml = timestamp + result;
         $ele.addClass('colourline')
-            .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
+            .insertAdjacentHTML('beforeend', msghtml);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
@@ -112,62 +114,7 @@ ui.Theme = new Class({
         return util.urlifier.parse(text);
     },
 
-    messageParsers: [
-        {
-            type: /^(?!SERVER)+NOTICE+$/,//notice not server notice
-            classes: '',
-            beep: true,
-            id: 'on_notice',
-            tabhl: ui.HIGHLIGHT.speech
-        },
-        {
-            type: /PRIVMSG$/,
-            flash: true,
-            beep: true,
-            pm: true,
-            id: 'on_pm',
-            tabhl: ui.HIGHLIGHT.speech
-        },
-        {
-            type: /^OUR/,
-            classes: 'our-msg'
-        },
-        {//match bots
-            nick: /(^tf2)|((serv|bot)$)/i,
-            classes: 'bot',
-            types: [ui.WINDOW.channel]
-        },
-        {
-            msg: /^\!/,
-            classes: 'command',
-            types: [ui.WINDOW.channel]
-        },
-        {
-            mentioned: true,
-            highlight: 'mentioned',
-            notus: true,
-            tabhl: ui.HIGHLIGHT.us
-        },
-        {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            mentioned: true,
-            classes: '',
-            beep: true,
-            pm: true,
-            notus: true,
-            id: 'on_mention'//for filtering
-        },
-        {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            msg: /^((?!(^\!)).)*$/, //dont hl commands
-            classes: '',
-            highlight: true,
-            notus: true,
-            id: 'highlighter',
-            tabhl: ui.HIGHLIGHT.activity,
-            types: [ui.WINDOW.channel]
-        }
-    ],
+    messageParsers: [],
 
     highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
 
@@ -176,13 +123,13 @@ ui.Theme = new Class({
             tabHighlight = ui.HIGHLIGHT.none,
             highlights = self.highlightClasses,
             nick = win.client.nickname,
-            notus = data.n !== nick,
-            parsers = _.clone(self.messageParsers).concat(self.customNotices);
+            notus = data.n !== nick;
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
-            if(data.m)
+            if(data.m) {
                 $ele.addClass('message');
-            _.each( parsers , function(parser) {
+            }
+            _.each( self.messageParsers , function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&

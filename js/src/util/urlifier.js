@@ -30,7 +30,8 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
                     }
                     else */if(["options", "embedded", "privacy"].some(cmd.startsWith.bind(cmd))) {
                         cmd = templates.customlink({
-                            val: cmd.match(/\w+\w/)
+                            val: cmd.match(/\w+\w/),
+                            internal: true
                         });
                     }
                     word = parsed.lead + cmd + parsed.end;
@@ -46,7 +47,8 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
 
             if(util.isChannel(res)) {
                 res = templates.customlink({
-                    val: res
+                    val: res,
+                    internal: true
                 });
             }
 

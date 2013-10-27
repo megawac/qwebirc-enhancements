@@ -13,7 +13,7 @@ irc.CommandHistory = new Class({
     },
 
     addLine: function(name, line) {
-        var data = this.get(name).erase(line)
+        var data = this.get(name).erase(line);
         if(line.length > this.options.minlen) {
             data.unshift(line);
             if (data.length > this.options.lines) {
@@ -33,7 +33,5 @@ irc.CommandHistory = new Class({
         if(this.options.store) this.save();
     },
 
-    _filter: function(val) {
-        return _.size(val) !== 0;
-    }
+    _filter: _.not(_.isEmpty)
 });

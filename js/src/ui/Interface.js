@@ -52,25 +52,21 @@ ui.Interface = new Class({
             opts = self.options;
 
         window.addEvent("domready", function() {
-            var ichans = storage.get(cookies.channels) || opts.initialChannels,
-                autoConnect = false;
-
-            self.element = document.id(element);
+            var settings = self.options.settings = new config.Settings(opts.settings);
+            self.element = $(element);
 
             self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
 
-            var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
             if(opts.node) { Asset.javascript(opts.socketio); }
-
-            var details = self.ui.loginBox(opts.initialNickname, ichans, autoConnect, usingAutoNick, opts.networkName);
             //cleans up old properties
-            if(storage.get(cookies.newb) !== false) {
+            if(settings.get("newb")) {
                 self.welcome();
-                storage.set(cookies.newb, false);
+                settings.set("newb", false);
             }
+            self.ui.loginBox();
 
             self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
+                var ircopts = _.extend(Object.subset(opts, ['settings', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
                                         loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
@@ -108,9 +104,20 @@ ui.Interface = new Class({
         });
     },
     welcome: function() {
-        ui.WelcomePane.show(this.ui, {
+        ui.WelcomePane.show(this.ui, _.extend({
             element: this.element,
             firstvisit: true
+        }, this.options));
+
+        var settings = this.options.settings;
+        storage.remove("qweb-new");
+        ['account', 'password', 'nickname', 'channels'].each(function(key) {
+            var skey = "qweb-" + key;
+            var val = storage.get(skey);
+            if(val) {
+                settings.set(key, val);
+            }
+            storage.remove(skey);
         });
     }
 });

@@ -5,7 +5,7 @@
     var mergeOne = function(source, key, current){
         switch (typeOf(current)){
             case 'object':
-                if(current.$constructor && "$caller" in ui.ui) source[key] = current;//class instance check (only change)
+                if(current.$constructor && "$caller" in current) source[key] = current;//class instance check (only change)
                 else if (typeOf(source[key]) == 'object') Object.merge(source[key], current);
                 else source[key] = Object.clone(current);
             break;
@@ -24,7 +24,7 @@
             }
             return source;
         }
-    })
+    });
 
 
     var strp = String.prototype;
@@ -100,6 +100,11 @@
                 return this.get(fn);
             });
         });
+
+    _.extend(Element.NativeEvents, {
+        adopt: 2,
+        disown: 2
+    });
 
     Class.refactor(Element, {
         adopt: function() {

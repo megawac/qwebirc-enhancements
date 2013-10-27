@@ -3,29 +3,40 @@ ui.IUIOptions = new Class({
 
     config: function() {
         var self = this;
+        var options = self.options;
         if(self.uiOptions instanceof config.OptionModel) return this;
         var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({
-            defaults: self.options.uiOptionsArg
+            defaults: options.uiOptionsArg
         });
-        function setCustomNotice(notices) {
-            self.theme.customNotices = _.chain(notices).clone()
-                .reject(function(data) {
-                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
-                })
+        function setNotices() {
+            var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
+            var notifiers = _.chain(notices)
+                .filter(uiOptions.notice_filter)
                 .map(function(notice) {
-                    return {
-                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+                    var onotice = {
                         beep: notice.beep,
-                        flash: notice.flash
-                    };
+                        flash: notice.flash,
+                        pm: notice.pm,
+
+                        mentioned: notice.mentioned,
+                        notus: notice.notus,
+                        highlight: notice.highlight,
+                        tabhl: notice.tabhl,
+                        classes: notice.classes,
+                        types: notice.types
+                    }
+                    _.each(["msg", "nick", "type"], function(type) {
+                        if(notice[type]) {
+                            onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type],//format regex
+                                        notice.case ? "i" : "");//set flag
+                        }
+                    });
+
+                    return _.clean(onotice);
                 })
-                .value();
-        }
-        function setStandardNotice(notices) {
-            _.each(self.theme.messageParsers, function(parser) {
-                if(_.has(notices, parser.id) )
-                    _.extend(parser, notices[parser.id]);
-            });
+                .value()
+            
+            self.theme.messageParsers.empty().combine(notifiers);
         }
 
         uiOptions.on({
@@ -33,8 +44,8 @@ ui.IUIOptions = new Class({
                 self.updateStylesheet();
             },
             "change:font_size": self.updateStylesheet,
-            "change:custom_notices": setCustomNotice,
-            "change:notices": setStandardNotice,
+            "change:custom_notices": setNotices,
+            "change:standard_notices": setNotices,
             "change:show_nicklist": function(state) {
                 _.each(self.windowArray, function(win){win.toggleNickList()});
             },
@@ -46,13 +57,12 @@ ui.IUIOptions = new Class({
                 });
             }
         });
-        setCustomNotice(uiOptions.get("custom_notices"));
-        setStandardNotice(uiOptions.get("notices"));
+        setNotices();
 
         self.setModifiableStylesheet({
-            style_hue: self.options.hue || self.uiOptions.get("style_hue"),
-            style_saturation: self.options.saturation || self.uiOptions.get("style_saturation"),
-            style_brightness: self.options.brightness || self.uiOptions.get("style_brightness")
+            style_hue: options.hue || self.uiOptions.get("style_hue"),
+            style_saturation: options.saturation || self.uiOptions.get("style_saturation"),
+            style_brightness: options.brightness || self.uiOptions.get("style_brightness")
         });
         return self;
     },

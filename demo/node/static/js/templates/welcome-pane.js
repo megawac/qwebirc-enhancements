@@ -53,7 +53,7 @@ function program11(depth0,data) {
   }
 
   buffer += "<div class=\"alert alert-block fade in\"><button type=\"button\" class=\"close\" data-trigger=\"nix\" data-nix-options=\"'target': '!div.alert'\">×</button><h4>Welcome to "
-    + escapeExpression(((stack1 = ((stack1 = depth0.options),stack1 == null || stack1 === false ? stack1 : stack1.appTitle)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + escapeExpression(((stack1 = depth0.appTitle),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</h4><div class=\"controls\"><p>";
   stack2 = helpers['if'].call(depth0, ((stack1 = ((stack1 = depth0.Browser),stack1 == null || stack1 === false ? stack1 : stack1.Features)),stack1 == null || stack1 === false ? stack1 : stack1.notifications), {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
   if(stack2 || stack2 === 0) { buffer += stack2; }

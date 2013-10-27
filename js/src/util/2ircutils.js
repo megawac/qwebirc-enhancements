@@ -115,15 +115,12 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatCha
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
-    return link.startsWith("!") ? link : "!" + link;
+    return '#!' + link;
 }
 
 util.unformatURL = function(link) {
-    if(link.startsWith("!")) {
-        return link.slice(1).replace(/^@/, "#");
-    }
-    return link;
-}
+    return link.replace(/^!/, "").replace(/^@/, "#");
+};
 
 //appends a channel to the end of the list of channels
 //string -> string
@@ -131,6 +128,10 @@ util.unformatURL = function(link) {
 util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
 util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
+
+util.removeChannel = _.compose(_.uniq, function(chans, chan) {
+    return _.clone(chans).erase(chan);
+});
 
 (function() {
 /*

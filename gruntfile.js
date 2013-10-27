@@ -32,7 +32,8 @@ module.exports = function(grunt) {
                             '$css': true,
                             'enableDisable': true,
                             '$link': true,
-                            'format': true
+                            'format': true,
+                            'lang': true
                         },//,
                         knownHelpersOnly: true,
                     },
@@ -156,12 +157,12 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', [
 
-    'handlebars',
+        'handlebars',
 
-    'concat:qweb',
-    // 'concat:full',
-    'uglify:strip',
-    'copy:demo',
-    //, 'uglify:min'
+        'concat:qweb',
+        // 'concat:full',
+        'uglify:strip',
+        'copy:demo'
+        //, 'uglify:min'
     ]);
 };

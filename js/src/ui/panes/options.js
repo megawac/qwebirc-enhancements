@@ -6,19 +6,11 @@ ui.OptionView = new Class({
         pane: 'options',
         events: {
             'change:relay(#options input)': 'inputChange',
-            'change:relay(#options #standard-notices input)': 'snoticeChange',
-            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'change:relay(#options .notice-group input)': 'noticeChange',
             'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
+            'click:relay(#options .remove-notice)': 'removeNotifier',
             'click:relay(#options #dn_state)': 'dnToggle',
             'click:relay(#options #notice-test)': 'noticeTest'
-        },
-
-        onSnoticeChange: function(e, target) {
-            e.stop();
-            var notices = _.clone(this.model.get('notices'));
-            _.assign(notices, target.get('id'), target.val());
-            this.model.set('notices', notices);
         },
 
         onAddNotifier: function(e) {
@@ -51,13 +43,13 @@ ui.OptionView = new Class({
 
     addNotifier: function(data) {
         if(!data || Type.isDOMEvent(data)) {
-            data = this.model.get("default_notice")();
+            data = this.model.defaultNotice();
             var n = _.clone(this.model.get("custom_notices"));
             n.push(data);
             this.model.set("custom_notices", n);
         }
 
-        var parent = this.element.getElement('#custom-notices');
+        var parent = this.element.getElement('#custom_notices');
 
         var _data = _.clone(data);
         _data.lang = lang;
@@ -69,15 +61,19 @@ ui.OptionView = new Class({
 
     removeNotifier: function(e, target) {
         e.stop();
-        var par = target.getParent('.custom-notice').dispose();
-        this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+        var type = target.getParent('.notice-group').id;
+        var par = target.getParent('.controls').dispose();
+        var id = par.get("data-id");
+        this.model.set('custom_notices', (_.reject(this.model.get(type), function(xs) {return xs.id === id})));
     },
 
     noticeChange: function(e, target) {
         e.stop();
-        var notices = _.clone(this.model.get('custom_notices'));
-        var par = target.getParent('.custom-notice');
-        _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+        var type = target.getParent('.notice-group').id;
+        var notices = _.clone(this.model.get(type));
+        var par = target.getParent('.controls');
+        var notice = _.findWhere(notices, {id: par.get("data-id")});
+        notice[target.get('data-id')] = target.val();
         this.model.set('custom_notices', notices);
     },
     /*********LISTENERS**************/
@@ -86,10 +82,10 @@ ui.OptionView = new Class({
         var model = this.model,
             options = this.options;
 
-        _.each(model.get("custom_notices"), function(notice) {
-            notice.lang = lang;
-            this.addNotifier(notice);
-        }, this);
+        // _.each(model.get("custom_notices"), function(notice) {
+        //     notice.lang = lang;
+        //     this.addNotifier(notice);
+        // }, this);
 
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
@@ -120,7 +116,7 @@ ui.OptionView = new Class({
 
     getData: function() {
         var data = this.model.toJSON();
-        data.lang = lang;
+        // data.lang = lang;
         return data;
     },
 

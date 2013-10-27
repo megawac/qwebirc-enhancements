@@ -1,6 +1,6 @@
 /*!
 qwebirc-WebIRC-client ::: Version 0.93.11 :::
-Built on 2013-10-07
+Built on 2013-10-27
 Description: webirc client - See qwebirc.org
 Authors: Graeme Yeates (www.github.com/megawac)
 Repository: www.github.com/megawac/qwebirc-enhancements
@@ -2061,168 +2061,6 @@ var Slider = new Class({
         }
     });
 }(), function() {
-    var Keyboard = this.Keyboard = new Class({
-        Extends: Events,
-        Implements: [ Options ],
-        options: {
-            defaultEventType: "keydown",
-            active: !1,
-            manager: null,
-            events: {},
-            nonParsedEvents: [ "activate", "deactivate", "onactivate", "ondeactivate", "changed", "onchanged" ]
-        },
-        initialize: function(options) {
-            options && options.manager && (this._manager = options.manager, delete options.manager), 
-            this.setOptions(options), this._setup();
-        },
-        addEvent: function(type, fn, internal) {
-            return this.parent(Keyboard.parse(type, this.options.defaultEventType, this.options.nonParsedEvents), fn, internal);
-        },
-        removeEvent: function(type, fn) {
-            return this.parent(Keyboard.parse(type, this.options.defaultEventType, this.options.nonParsedEvents), fn);
-        },
-        toggleActive: function() {
-            return this[this.isActive() ? "deactivate" : "activate"]();
-        },
-        activate: function(instance) {
-            if (instance) {
-                if (instance.isActive()) return this;
-                this._activeKB && instance != this._activeKB && (this.previous = this._activeKB, 
-                this.previous.fireEvent("deactivate")), this._activeKB = instance.fireEvent("activate"), 
-                Keyboard.manager.fireEvent("changed");
-            } else this._manager && this._manager.activate(this);
-            return this;
-        },
-        isActive: function() {
-            return this._manager ? this._manager._activeKB == this : Keyboard.manager == this;
-        },
-        deactivate: function(instance) {
-            return instance ? instance === this._activeKB && (this._activeKB = null, instance.fireEvent("deactivate"), 
-            Keyboard.manager.fireEvent("changed")) : this._manager && this._manager.deactivate(this), 
-            this;
-        },
-        relinquish: function() {
-            return this.isActive() && this._manager && this._manager.previous ? this._manager.activate(this._manager.previous) : this.deactivate(), 
-            this;
-        },
-        manage: function(instance) {
-            return instance._manager && instance._manager.drop(instance), this._instances.push(instance), 
-            instance._manager = this, this._activeKB || this.activate(instance), this;
-        },
-        drop: function(instance) {
-            return instance.relinquish(), this._instances.erase(instance), this._activeKB == instance && (this.previous && this._instances.contains(this.previous) ? this.activate(this.previous) : this._activeKB = this._instances[0]), 
-            this;
-        },
-        trace: function() {
-            Keyboard.trace(this);
-        },
-        each: function(fn) {
-            Keyboard.each(this, fn);
-        },
-        _instances: [],
-        _disable: function(instance) {
-            this._activeKB == instance && (this._activeKB = null);
-        },
-        _setup: function() {
-            this.addEvents(this.options.events), Keyboard.manager && !this._manager && Keyboard.manager.manage(this), 
-            this.options.active ? this.activate() : this.relinquish();
-        },
-        _handle: function(event, type) {
-            if (!event.preventKeyboardPropagation) {
-                var bubbles = !!this._manager;
-                bubbles && this._activeKB && (this._activeKB._handle(event, type), event.preventKeyboardPropagation) || (this.fireEvent(type, event), 
-                !bubbles && this._activeKB && this._activeKB._handle(event, type));
-            }
-        }
-    }), parsed = {}, modifiers = [ "shift", "control", "alt", "meta" ], regex = /^(?:shift|control|ctrl|alt|meta)$/;
-    Keyboard.parse = function(type, eventType, ignore) {
-        if (ignore && ignore.contains(type.toLowerCase())) return type;
-        if (type = type.toLowerCase().replace(/^(keyup|keydown):/, function($0, $1) {
-            return eventType = $1, "";
-        }), !parsed[type]) {
-            var key, mods = {};
-            type.split("+").each(function(part) {
-                regex.test(part) ? mods[part] = !0 : key = part;
-            }), mods.control = mods.control || mods.ctrl;
-            var keys = [];
-            modifiers.each(function(mod) {
-                mods[mod] && keys.push(mod);
-            }), key && keys.push(key), parsed[type] = keys.join("+");
-        }
-        return eventType + ":keys(" + parsed[type] + ")";
-    }, Keyboard.each = function(keyboard, fn) {
-        for (var current = keyboard || Keyboard.manager; current; ) fn.run(current), current = current._activeKB;
-    }, Keyboard.stop = function(event) {
-        event.preventKeyboardPropagation = !0;
-    }, Keyboard.manager = new Keyboard({
-        active: !0
-    }), Keyboard.trace = function(keyboard) {
-        keyboard = keyboard || Keyboard.manager;
-        var hasConsole = window.console && console.log;
-        hasConsole && console.log("the following items have focus: "), Keyboard.each(keyboard, function(current) {
-            hasConsole && console.log(document.id(current.widget) || current.wiget || current);
-        });
-    };
-    var handler = function(event) {
-        var keys = [];
-        modifiers.each(function(mod) {
-            event[mod] && keys.push(mod);
-        }), regex.test(event.key) || keys.push(event.key), Keyboard.manager._handle(event, event.type + ":keys(" + keys.join("+") + ")");
-    };
-    document.addEvents({
-        keyup: handler,
-        keydown: handler
-    });
-}(), Keyboard.prototype.options.nonParsedEvents.combine([ "rebound", "onrebound" ]), 
-Keyboard.implement({
-    addShortcut: function(name, shortcut) {
-        return this._shortcuts = this._shortcuts || [], this._shortcutIndex = this._shortcutIndex || {}, 
-        shortcut.getKeyboard = Function.from(this), shortcut.name = name, this._shortcutIndex[name] = shortcut, 
-        this._shortcuts.push(shortcut), shortcut.keys && this.addEvent(shortcut.keys, shortcut.handler), 
-        this;
-    },
-    addShortcuts: function(obj) {
-        for (var name in obj) this.addShortcut(name, obj[name]);
-        return this;
-    },
-    removeShortcut: function(name) {
-        var shortcut = this.getShortcut(name);
-        return shortcut && shortcut.keys && (this.removeEvent(shortcut.keys, shortcut.handler), 
-        delete this._shortcutIndex[name], this._shortcuts.erase(shortcut)), this;
-    },
-    removeShortcuts: function(names) {
-        return names.each(this.removeShortcut, this), this;
-    },
-    getShortcuts: function() {
-        return this._shortcuts || [];
-    },
-    getShortcut: function(name) {
-        return (this._shortcutIndex || {})[name];
-    }
-}), Keyboard.rebind = function(newKeys, shortcuts) {
-    Array.from(shortcuts).each(function(shortcut) {
-        shortcut.getKeyboard().removeEvent(shortcut.keys, shortcut.handler), shortcut.getKeyboard().addEvent(newKeys, shortcut.handler), 
-        shortcut.keys = newKeys, shortcut.getKeyboard().fireEvent("rebound");
-    });
-}, Keyboard.getActiveShortcuts = function(keyboard) {
-    var activeKBS = [], activeSCS = [];
-    return Keyboard.each(keyboard, [].push.bind(activeKBS)), activeKBS.each(function(kb) {
-        activeSCS.extend(kb.getShortcuts());
-    }), activeSCS;
-}, Keyboard.getShortcut = function(name, keyboard, opts) {
-    opts = opts || {};
-    var shortcuts = opts.many ? [] : null, set = opts.many ? function(kb) {
-        var shortcut = kb.getShortcut(name);
-        shortcut && shortcuts.push(shortcut);
-    } : function(kb) {
-        shortcuts || (shortcuts = kb.getShortcut(name));
-    };
-    return Keyboard.each(keyboard, set), shortcuts;
-}, Keyboard.getShortcuts = function(name, keyboard) {
-    return Keyboard.getShortcut(name, keyboard, {
-        many: !0
-    });
-}, function() {
     var root = this, previousUnderscore = root._, ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype, getTime = Date.now, push = ArrayProto.push, slice = ArrayProto.slice, concat = ArrayProto.concat, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf;
     FuncProto.bind;
     var _ = function(obj) {
@@ -2753,6 +2591,11 @@ Keyboard.implement({
         toFunction: Function.from,
         arrayarize: Array.from,
         toInt: Number.toInt,
+        clean: function(xs) {
+            return _.reject(xs, function(val) {
+                return null == val;
+            });
+        },
         log: function() {
             console.log(arguments);
         },
@@ -2793,7 +2636,7 @@ Keyboard.implement({
     var mergeOne = function(source, key, current) {
         switch (typeOf(current)) {
           case "object":
-            current.$constructor && "$caller" in ui.ui ? source[key] = current : "object" == typeOf(source[key]) ? Object.merge(source[key], current) : source[key] = Object.clone(current);
+            current.$constructor && "$caller" in current ? source[key] = current : "object" == typeOf(source[key]) ? Object.merge(source[key], current) : source[key] = Object.clone(current);
             break;
 
           case "array":
@@ -2853,6 +2696,9 @@ Keyboard.implement({
         Element.implement(fn, function(data) {
             return "undefined" != typeof data ? this.set(fn, data) : this.get(fn);
         });
+    }), _.extend(Element.NativeEvents, {
+        adopt: 2,
+        disown: 2
     }), Class.refactor(Element, {
         adopt: function() {
             return this.previous.apply(this, arguments).fireEvent("adopt", arguments);
@@ -3321,7 +3167,169 @@ Element.Properties.mask = {
     from: function(text, es) {
         return Elements.from(text, es)[0];
     }
-}), /*!
+}), function() {
+    var Keyboard = this.Keyboard = new Class({
+        Extends: Events,
+        Implements: [ Options ],
+        options: {
+            defaultEventType: "keydown",
+            active: !1,
+            manager: null,
+            events: {},
+            nonParsedEvents: [ "activate", "deactivate", "onactivate", "ondeactivate", "changed", "onchanged" ]
+        },
+        initialize: function(options) {
+            options && options.manager && (this._manager = options.manager, delete options.manager), 
+            this.setOptions(options), this._setup();
+        },
+        addEvent: function(type, fn, internal) {
+            return this.parent(Keyboard.parse(type, this.options.defaultEventType, this.options.nonParsedEvents), fn, internal);
+        },
+        removeEvent: function(type, fn) {
+            return this.parent(Keyboard.parse(type, this.options.defaultEventType, this.options.nonParsedEvents), fn);
+        },
+        toggleActive: function() {
+            return this[this.isActive() ? "deactivate" : "activate"]();
+        },
+        activate: function(instance) {
+            if (instance) {
+                if (instance.isActive()) return this;
+                this._activeKB && instance != this._activeKB && (this.previous = this._activeKB, 
+                this.previous.fireEvent("deactivate")), this._activeKB = instance.fireEvent("activate"), 
+                Keyboard.manager.fireEvent("changed");
+            } else this._manager && this._manager.activate(this);
+            return this;
+        },
+        isActive: function() {
+            return this._manager ? this._manager._activeKB == this : Keyboard.manager == this;
+        },
+        deactivate: function(instance) {
+            return instance ? instance === this._activeKB && (this._activeKB = null, instance.fireEvent("deactivate"), 
+            Keyboard.manager.fireEvent("changed")) : this._manager && this._manager.deactivate(this), 
+            this;
+        },
+        relinquish: function() {
+            return this.isActive() && this._manager && this._manager.previous ? this._manager.activate(this._manager.previous) : this.deactivate(), 
+            this;
+        },
+        manage: function(instance) {
+            return instance._manager && instance._manager.drop(instance), this._instances.push(instance), 
+            instance._manager = this, this._activeKB || this.activate(instance), this;
+        },
+        drop: function(instance) {
+            return instance.relinquish(), this._instances.erase(instance), this._activeKB == instance && (this.previous && this._instances.contains(this.previous) ? this.activate(this.previous) : this._activeKB = this._instances[0]), 
+            this;
+        },
+        trace: function() {
+            Keyboard.trace(this);
+        },
+        each: function(fn) {
+            Keyboard.each(this, fn);
+        },
+        _instances: [],
+        _disable: function(instance) {
+            this._activeKB == instance && (this._activeKB = null);
+        },
+        _setup: function() {
+            this.addEvents(this.options.events), Keyboard.manager && !this._manager && Keyboard.manager.manage(this), 
+            this.options.active ? this.activate() : this.relinquish();
+        },
+        _handle: function(event, type) {
+            if (!event.preventKeyboardPropagation) {
+                var bubbles = !!this._manager;
+                bubbles && this._activeKB && (this._activeKB._handle(event, type), event.preventKeyboardPropagation) || (this.fireEvent(type, event), 
+                !bubbles && this._activeKB && this._activeKB._handle(event, type));
+            }
+        }
+    }), parsed = {}, modifiers = [ "shift", "control", "alt", "meta" ], regex = /^(?:shift|control|ctrl|alt|meta)$/;
+    Keyboard.parse = function(type, eventType, ignore) {
+        if (ignore && ignore.contains(type.toLowerCase())) return type;
+        if (type = type.toLowerCase().replace(/^(keyup|keydown):/, function($0, $1) {
+            return eventType = $1, "";
+        }), !parsed[type]) {
+            var key, mods = {};
+            type.split("+").each(function(part) {
+                regex.test(part) ? mods[part] = !0 : key = part;
+            }), mods.control = mods.control || mods.ctrl;
+            var keys = [];
+            modifiers.each(function(mod) {
+                mods[mod] && keys.push(mod);
+            }), key && keys.push(key), parsed[type] = keys.join("+");
+        }
+        return eventType + ":keys(" + parsed[type] + ")";
+    }, Keyboard.each = function(keyboard, fn) {
+        for (var current = keyboard || Keyboard.manager; current; ) fn.run(current), current = current._activeKB;
+    }, Keyboard.stop = function(event) {
+        event.preventKeyboardPropagation = !0;
+    }, Keyboard.manager = new Keyboard({
+        active: !0
+    }), Keyboard.trace = function(keyboard) {
+        keyboard = keyboard || Keyboard.manager;
+        var hasConsole = window.console && console.log;
+        hasConsole && console.log("the following items have focus: "), Keyboard.each(keyboard, function(current) {
+            hasConsole && console.log(document.id(current.widget) || current.wiget || current);
+        });
+    };
+    var handler = function(event) {
+        var keys = [];
+        modifiers.each(function(mod) {
+            event[mod] && keys.push(mod);
+        }), regex.test(event.key) || keys.push(event.key), Keyboard.manager._handle(event, event.type + ":keys(" + keys.join("+") + ")");
+    };
+    document.addEvents({
+        keyup: handler,
+        keydown: handler
+    });
+}(), Keyboard.prototype.options.nonParsedEvents.combine([ "rebound", "onrebound" ]), 
+Keyboard.implement({
+    addShortcut: function(name, shortcut) {
+        return this._shortcuts = this._shortcuts || [], this._shortcutIndex = this._shortcutIndex || {}, 
+        shortcut.getKeyboard = Function.from(this), shortcut.name = name, this._shortcutIndex[name] = shortcut, 
+        this._shortcuts.push(shortcut), shortcut.keys && this.addEvent(shortcut.keys, shortcut.handler), 
+        this;
+    },
+    addShortcuts: function(obj) {
+        for (var name in obj) this.addShortcut(name, obj[name]);
+        return this;
+    },
+    removeShortcut: function(name) {
+        var shortcut = this.getShortcut(name);
+        return shortcut && shortcut.keys && (this.removeEvent(shortcut.keys, shortcut.handler), 
+        delete this._shortcutIndex[name], this._shortcuts.erase(shortcut)), this;
+    },
+    removeShortcuts: function(names) {
+        return names.each(this.removeShortcut, this), this;
+    },
+    getShortcuts: function() {
+        return this._shortcuts || [];
+    },
+    getShortcut: function(name) {
+        return (this._shortcutIndex || {})[name];
+    }
+}), Keyboard.rebind = function(newKeys, shortcuts) {
+    Array.from(shortcuts).each(function(shortcut) {
+        shortcut.getKeyboard().removeEvent(shortcut.keys, shortcut.handler), shortcut.getKeyboard().addEvent(newKeys, shortcut.handler), 
+        shortcut.keys = newKeys, shortcut.getKeyboard().fireEvent("rebound");
+    });
+}, Keyboard.getActiveShortcuts = function(keyboard) {
+    var activeKBS = [], activeSCS = [];
+    return Keyboard.each(keyboard, [].push.bind(activeKBS)), activeKBS.each(function(kb) {
+        activeSCS.extend(kb.getShortcuts());
+    }), activeSCS;
+}, Keyboard.getShortcut = function(name, keyboard, opts) {
+    opts = opts || {};
+    var shortcuts = opts.many ? [] : null, set = opts.many ? function(kb) {
+        var shortcut = kb.getShortcut(name);
+        shortcut && shortcuts.push(shortcut);
+    } : function(kb) {
+        shortcuts || (shortcuts = kb.getShortcut(name));
+    };
+    return Keyboard.each(keyboard, set), shortcuts;
+}, Keyboard.getShortcuts = function(name, keyboard) {
+    return Keyboard.getShortcut(name, keyboard, {
+        many: !0
+    });
+}, /*!
 Copyright (c) 2010 Arieh Glazer
 */
 function(window) {
@@ -5395,7 +5403,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     data = data || {};
     var stack1, stack2, buffer = "", functionType = "function", escapeExpression = this.escapeExpression, self = this;
     return buffer += '<div class="container center"><form id="login"><h2>Connect to ' + escapeExpression((stack1 = depth0.network, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + ' IRC</h2><!-- <div class="controls"> --><div class="control-group right"><label class="control-label" for="nickname">Nickname:<input type="text" class="form-control" data-validate="nick" name="basic" id="nickname" value="' + escapeExpression((stack1 = depth0.nickname, 
+    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + ' IRC</h2><div class="control-group right"><label class="control-label" for="nickname">Nickname:<input type="text" class="form-control" data-validate="nick" name="basic" id="nickname" value="' + escapeExpression((stack1 = depth0.nickname, 
     typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '" placeholder="Nickname" required /></label></div><div class="control-group right ', 
     stack2 = helpers.unless.call(depth0, depth0.full, {
         hash: {},
@@ -5415,7 +5423,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '"></label></div><div class="authenticate"><label for="authenticate">Authenticate (optional)<input type="checkbox" id="authenticate" ' + escapeExpression(helpers.check.call(depth0, depth0.full, {
         hash: {},
         data: data
-    })) + '></label for="authenticate"></div><div><input type="submit" value="Connect" class="btn btn-primary btn-smaller" /></div><!-- </div> --></form><div class="qwebirc-init-channels"><span>' + escapeExpression((stack1 = depth0.channels, 
+    })) + '></label></div><div><input type="submit" value="Connect" class="btn btn-primary btn-smaller" /></div></form><div class="qwebirc-init-channels"><span>' + escapeExpression((stack1 = depth0.channels, 
     typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span></div></div>";
 }), this.qwebirc.templates.chanmenu = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     function program1(depth0, data) {
@@ -5438,21 +5446,21 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     var stack1, stack2, buffer = "", functionType = "function";
     return buffer += "<div class='channel-name'>", stack1 = depth0.channel, stack2 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1, 
     (stack2 || 0 === stack2) && (buffer += stack2), buffer += "</div>";
-}), this.qwebirc.templates.channellink = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
-    this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
-    data = data || {};
-    var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
-    return buffer += "<span class='hyperlink-channel' data-chan='" + escapeExpression((stack1 = depth0.channel, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "'>" + escapeExpression((stack1 = depth0.channel, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span>";
 }), this.qwebirc.templates.customlink = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
+    function program1() {
+        return "internal";
+    }
     this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
     data = data || {};
-    var stack1, buffer = "", escapeExpression = this.escapeExpression, functionType = "function";
-    return buffer += '<a href="#' + escapeExpression(helpers.$link.call(depth0, depth0.val, {
+    var stack1, buffer = "", self = this, functionType = "function", escapeExpression = this.escapeExpression;
+    return buffer += '<a class="', stack1 = helpers["if"].call(depth0, depth0.internal, {
         hash: {},
+        inverse: self.noop,
+        fn: self.program(1, program1, data),
         data: data
-    })) + '">' + escapeExpression((stack1 = depth0.val, typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</a>";
+    }), (stack1 || 0 === stack1) && (buffer += stack1), buffer += '" href="' + escapeExpression((stack1 = depth0.val, 
+    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '">' + escapeExpression((stack1 = depth0.val, 
+    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</a>";
 }), this.qwebirc.templates.detachedWindow = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     function program1(depth0, data) {
         var stack1;
@@ -5548,7 +5556,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     buffer += "</span>";
 }), this.qwebirc.templates.mainmenu = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     return this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
-    data = data || {}, '<ul class="main-menu dropdownmenu hidden"><a href="#!options"><li><span>Options</span></li></a><a href="#!embedded"><li><span>Add webchat to your site</span></li></a><a href="#!privacy"><li><span>Privacy policy</span></li></a><a href="#!faq"><li><span>Frequently asked questions</span></li></a><a href="#!feedback"><li><span>Submit feedback</span></li></a><a href="#!about"><li><span>About qwebirc</span></li></a></ul>';
+    data = data || {}, '<ul class="main-menu dropdownmenu hidden"><a class="internal" href="options"><li><span>Options</span></li></a><a class="internal" href="embedded"><li><span>Add webchat to your site</span></li></a><a class="internal" href="privacy"><li><span>Privacy policy</span></li></a><a class="internal" href="faq"><li><span>Frequently asked questions</span></li></a><a class="internal" href="feedback"><li><span>Submit feedback</span></li></a><a class="internal" href="about"><li><span>About qwebirc</span></li></a></ul>';
 }), this.qwebirc.templates.menubtn = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
     data = data || {};
@@ -5747,19 +5755,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     data = data || {};
     var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
     return buffer += "<li>" + escapeExpression((stack1 = depth0.text, typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</li>";
-}), this.qwebirc.templates.qweblink = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
-    this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
-    data = data || {};
-    var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
-    return buffer += "<span class='hyperlink-page' data-page='" + escapeExpression((stack1 = depth0.page, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "'>" + escapeExpression((stack1 = depth0.page, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span>";
-}), this.qwebirc.templates.spanURL = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
-    this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
-    data = data || {};
-    var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
-    return buffer += "<span class='hyperlink-channel'>" + escapeExpression((stack1 = depth0.message, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span>";
 }), this.qwebirc.templates.timestamp = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
     data = data || {};
@@ -5889,14 +5884,9 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         lang: {},
         templates: {},
         cookies: {
-            channels: "qweb-channels",
-            nickname: "qweb-nickname",
-            username: "qweb-account",
-            password: "qweb-password",
-            auth: "qweb-auth",
-            newb: "qweb-new",
             options: "qweb-options",
-            history: "qweb-hist"
+            history: "qweb-hist",
+            settings: "qweb-settings"
         },
         BUILD: QWEBIRC_BUILD,
         FILE_SUFFIX: "-" + QWEBIRC_BUILD,
@@ -6478,11 +6468,13 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES), util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan), 
     util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan), 
     util.formatURL = function(link) {
-        return link = util.isChannel(link) ? link.replace("#", "@") : link, link.startsWith("!") ? link : "!" + link;
+        return link = util.isChannel(link) ? link.replace("#", "@") : link, "#!" + link;
     }, util.unformatURL = function(link) {
-        return link.startsWith("!") ? link.slice(1).replace(/^@/, "#") : link;
+        return link.replace(/^!/, "").replace(/^@/, "#");
     }, util.addChannel = _.compose(_.uniq, appendChannel), util.prependChannel = _.compose(_.uniq, _.flip(appendChannel)), 
-    function() {
+    util.removeChannel = _.compose(_.uniq, function(chans, chan) {
+        return _.clone(chans).erase(chan);
+    }), function() {
         var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/, hasprefix_re = /^:([^ ]+) +/, colonrem_re = /^:[^ ]+ +/, command_re = /^([^ ]+) */, data_re = /^[^ ]+ +/, args_re = /^:|\s+:/, argsm_re = /(.*?)(?:^:|\s+:)(.*)/, args_split_re = / +/, NUMERICS = irc.Numerics2;
         util.parseIRCData = function(line) {
             var match, message = {
@@ -6655,24 +6647,29 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             SHOW_NICKLIST: "Show nickname list in channels",
             SHOW_TIMESTAMPS: "Show timestamps",
             FONT_SIZE: "Set font size",
-            NOTIFY_ON_MENTION: "When nick mentioned:",
-            NOTIFY_ON_PM: "When private messaged:",
-            NOTIFY_ON_NOTICE: "When channel notice:",
+            VOLUME: "Volume",
             AUTO_OPEN_PM: "Automatically select window on private message:",
             FLASH: "flash",
             BEEP: "beep",
             PM: "pm",
+            MENTION: "mentioned",
             MESSAGE_PLACEHOLDER: " something ... ",
             NICK_PLACEHOLDER: " someone ... ",
+            TYPE_PLACEHOLDER: "type test",
             DELETE_NOTICE: "remove",
             ADD_NOTICE: "Add notifier",
             USER_NOTICE: "User:",
+            TYPE_NOTICE: "Type:",
             MESSAGE_NOTICE: "Message:",
             AUTOESCAPE: "Escape text",
-            HIGHLIGHT: "Highlight",
             MENTIONED: "Mentioned",
             ESCAPE_HINT: "This text is transformed into a regular expressions - autoescaping will check for the exact text you entered",
             DESKTOP_NOTICES: "Allow us to send desktop notifications if supported (on any notice with flash):",
+            IGNORE_CASE: "Case insensitive",
+            NOTUS: "Not us",
+            NOTUS_HINT: "Not our message",
+            HIGHLIGHT: "hl",
+            HIGHLIGHT_HINT: "highlight",
             ENABLE: "Enable",
             DISABLE: "Disable"
         });
@@ -6848,7 +6845,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 if (mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
                     var cmd = mid.slice(10);
                     [ "options", "embedded", "privacy" ].some(cmd.startsWith.bind(cmd)) && (cmd = templates.customlink({
-                        val: cmd.match(/\w+\w/)
+                        val: cmd.match(/\w+\w/),
+                        internal: !0
                     })), word = parsed.lead + cmd + parsed.end;
                 }
             }
@@ -6856,7 +6854,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         }).addPattern(/\B#+(?![\._#-+])/, function(word) {
             var parsed = this.parsePunctuation(word), res = parsed.mid;
             return util.isChannel(res) && (res = templates.customlink({
-                val: res
+                val: res,
+                internal: !0
             })), parsed.lead + res + parsed.end;
         });
         var inputurl = util.inputParser = new Urlerizer({
@@ -6916,6 +6915,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             return "comp" === type ? this[prop] ? def : default2 : this[prop] || def;
         }), engine.registerHelper("format", function(prop) {
             return util.format(prop, this);
+        }), engine.registerHelper("lang", function(prop) {
+            return lang[prop];
         }), compileAll(source, compiled), engine.partials = compiled;
     }(Handlebars), config.IRC_COMMANDS = {
         ACTION: {
@@ -6995,43 +6996,79 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 style_hue: 210,
                 style_saturation: 0,
                 style_brightness: 0,
-                notices: {
-                    on_mention: {
-                        flash: !0,
-                        beep: !0,
-                        pm: !1
-                    },
-                    on_pm: {
-                        flash: !0,
-                        beep: !0,
-                        pm: !0
-                    },
-                    on_notice: {
-                        flash: !1,
-                        beep: !0,
-                        pm: !0
-                    }
-                },
-                custom_notices: [],
-                default_notice: function() {
-                    return {
-                        nick: null,
-                        msg: "",
-                        flash: !1,
-                        beep: !1,
-                        pm: !1,
-                        id: String.uniqueID(),
-                        autoescape: !0
-                    };
-                }
+                standard_notices: [ {
+                    type: "^(?!SERVER)+NOTICE+$",
+                    classes: "",
+                    beep: !0,
+                    tabhl: ui.HIGHLIGHT.speech,
+                    id: "notice"
+                }, {
+                    type: "PRIVMSG$",
+                    flash: !0,
+                    beep: !0,
+                    pm: !0,
+                    tabhl: ui.HIGHLIGHT.speech,
+                    id: "pm"
+                }, {
+                    type: "^OUR",
+                    classes: "our-msg",
+                    id: "ourmsg"
+                }, {
+                    nick: "(^tf2)|((serv|bot)$)",
+                    classes: "bot",
+                    types: [ ui.WINDOW.channel ],
+                    "case": !0,
+                    id: "bot"
+                }, {
+                    msg: "^\\!",
+                    classes: "command",
+                    types: [ ui.WINDOW.channel ],
+                    id: "cmd"
+                }, {
+                    mentioned: !0,
+                    highlight: "mentioned",
+                    notus: !0,
+                    tabhl: ui.HIGHLIGHT.us,
+                    id: "mention"
+                }, {
+                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
+                    mentioned: !0,
+                    classes: "",
+                    beep: !0,
+                    pm: !0,
+                    notus: !0,
+                    "case": !0,
+                    id: "onmention"
+                }, {
+                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
+                    msg: "^((?!(^\\!)).)*$",
+                    classes: "",
+                    highlight: !0,
+                    notus: !0,
+                    "case": !0,
+                    tabhl: ui.HIGHLIGHT.activity,
+                    types: [ ui.WINDOW.channel ],
+                    id: "hl"
+                } ],
+                custom_notices: []
             },
             key: cookies.options,
             minimize: !0
         },
+        defaultNotice: function() {
+            return {
+                id: String.uniqueID(),
+                autoescape: !0,
+                description: ""
+            };
+        },
+        notice_filter: function(data) {
+            return !(!data.msg || "" === data.msg.trim()) || !(!data.nick || "" === data.nick.trim()) || !(!data.type || "" === data.type.trim()) || data.notus;
+        },
         save: function() {
-            return this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) {
-                return "" === data.msg.trim();
-            })), this.parent();
+            return this.set("custom_notices", _.filter(this.get("custom_notices"), this.notice_filter)), 
+            this.set("standard_notices", _.filter(this.get("standard_notices"), this.notice_filter)), 
+            this.parent();
         },
         set: function(key, data) {
             var props = key.split(".");
@@ -7041,6 +7078,29 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             }
             this.parent(key, data);
         }.overloadSetter()
+    }), config.Settings = new Class({
+        Extends: Epitome.Model.Storage,
+        options: {
+            defaults: {
+                channels: "",
+                nickname: "",
+                username: "",
+                password: "",
+                auth: !1,
+                newb: !0
+            },
+            key: cookies.settings,
+            minimize: !1,
+            onReady: function() {
+                this.loaded = !0;
+            }
+        },
+        set: function(key, data) {
+            return this.parent(key, data), this.loaded && this.save(), this;
+        },
+        unset: function(key) {
+            return this.parent(key), this.save();
+        }
     }), irc.styles = [ {
         name: "normal",
         style: "",
@@ -7330,8 +7390,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     var message = args[0], msg = format(cmd.NOTICE, {
                         target: target,
                         message: message
-                    });
-                    this.send(msg) && this.trigger("chanNotice", {
+                    }), noticeType = util.isChannel(target) ? "chanNotice" : "privNotice";
+                    this.send(msg) && this.trigger(noticeType, {
                         nick: this.nickname,
                         channel: target,
                         target: target,
@@ -7357,8 +7417,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         nick: this.nickname,
                         channel: target,
                         message: message,
-                        type: "privmsg",
-                        open: !0
+                        type: "privmsg"
                     });
                 }
             },
@@ -7374,9 +7433,9 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 minargs: 1,
                 fn: function(args, target) {
                     this.send(format(cmd.KICK, {
-                        channel: channel,
-                        kickee: target,
-                        message: args[0] || ""
+                        channel: target,
+                        kickee: args[0],
+                        message: args[1] || ""
                     }));
                 }
             },
@@ -7478,8 +7537,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 splitargs: 2,
                 minargs: 0,
                 fn: function(args, channel) {
-                    var chans = this.channels.erase(channel);
-                    this.storeChannels(chans), this.send(format(cmd.PART, {
+                    this.storeChannels(util.removeChannel(this.channels, channel)), this.send(format(cmd.PART, {
                         channel: args[0] || channel,
                         message: args[1] || lang.partChan
                     }));
@@ -7497,7 +7555,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             },
             cmd_AUTOJOIN: {
                 fn: function() {
-                    return this.__autojoined ? void 0 : (this.__autojoined = !0, [ "JOIN", this.options.autojoin ]);
+                    return this.__autojoined ? void 0 : (this.__autojoined = !0, this.currentChannel = BROUHAHA, 
+                    [ "JOIN", this.getChannels() ]);
                 }
             }
         }), irc.CommandHistory = new Class({
@@ -7523,9 +7582,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             removeChannel: function(name) {
                 this.unset(name), this.options.store && this.save();
             },
-            _filter: function(val) {
-                return 0 !== _.size(val);
-            }
+            _filter: _.not(_.isEmpty)
         }), irc.NodeConnection = new Class({
             Implements: [ Options, Events ],
             Binds: [ "recv", "error", "_connected", "_disconnected" ],
@@ -7608,8 +7665,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             Implements: [ Options, Events, irc.Commands ],
             Binds: [ "lostConnection", "send", "quit", "connected", "retry", "_ndispatch", "_tdispatch" ],
             options: {
-                nickname: "",
-                autojoin: "",
                 minRejoinTime: [ 0 ],
                 networkServices: [],
                 loginRegex: /^$/
@@ -7700,11 +7755,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 return this.channels.contains(name);
             },
             storeChannels: function(channels) {
-                var store = _.uniq(channels);
-                this.channels = channels, storage.set(cookies.channels, store);
+                this.channels = channels = channels || this.channels;
+                var store = util.removeChannel(channels, BROUHAHA);
+                return this.options.settings.set("channels", store), this;
             },
             getChannels: function() {
-                var chans = this.channels = storage.get(cookies.channels) || [];
+                var chans = this.channels = util.prependChannel(this.options.settings.get("channels") || [], BROUHAHA);
                 return chans;
             },
             nickOnChanHasPrefix: function(nick, channel, prefix) {
@@ -7817,10 +7873,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 }), !0;
             },
             _signOn: function() {
-                var channels, options = this.options;
-                this.writeMessages(lang.signOn), channels = this.getChannels(), channels.length > 0 ? options.autojoin = channels : (options.autojoin = channels = options.initialChannels, 
-                this.storeChannels(channels)), channels = options.autojoin = util.prependChannel(channels, BROUHAHA), 
-                this.currentChannel = BROUHAHA, this.writeMessages(lang.loginMessages, {}, {
+                var channels;
+                this.options, this.writeMessages(lang.signOn), this.writeMessages(lang.loginMessages, {}, {
                     channel: BROUHAHA
                 }), !this.authed && auth.enabled ? (this.exec(util.format("/AUTH {username} {password}", this.options)), 
                 this.writeMessages.delay(100, this, lang.joinAfterAuth), this.activeTimers.autojoin = function() {
@@ -7999,7 +8053,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             irc_NICK: function(data) {
                 var self = this, newnick = data.args[0], oldnick = data.nick, wasus = this.nickname === oldnick;
                 wasus && (this.nickname = newnick, this.lowerNickname = this.toIRCLower(this.nickname)), 
-                wasus && (self.nickname = newnick, storage.set(cookies.nickname, newnick)), self.tracker.renameNick(oldnick, newnick);
+                wasus && (self.nickname = newnick, self.options.settings.set("nickname", newnick)), 
+                self.tracker.renameNick(oldnick, newnick);
                 var channels = self.tracker.getNick(newnick);
                 return _.each(channels, function(obj, chan) {
                     self.updateNickList(chan);
@@ -8132,7 +8187,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     }) : this.trigger("privNotice", {
                         message: message,
                         host: data.host,
-                        nick: data.nick
+                        nick: data.nick,
+                        channel: data.nick
                     });
                 } else this.trigger("chanNotice", {
                     nick: data.nick,
@@ -8712,6 +8768,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     win && win.close();
                 } else joinPart(type, data);
             }
+            function queried(type, data) {
+                data = formatData(type, data);
+                var win = ui_.newWindow(client, ui.WINDOW.query, data.channel);
+                (data.nick === client.nickname || ui_.uiOptions2.get("auto_open_pm")) && ui_.selectWindow(win), 
+                data.message && parser(type, data, win);
+            }
             if (!(!client instanceof irc.IRCClient)) {
                 var ui_ = this;
                 client.addEvents({
@@ -8757,12 +8819,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     nickChange: function(type, data) {
                         ui_.nickChange(data, client), lineParser(type, data);
                     },
-                    privNotice: lineParser,
-                    query: function(type, data) {
-                        data = formatData(type, data);
-                        var win = ui_.newWindow(client, ui.WINDOW.query, data.channel);
-                        (data.open || ui_.uiOptions2.get("auto_open_pm")) && ui_.selectWindow(win), data.message && parser(type, data, win);
-                    },
+                    privNotice: queried,
+                    query: queried,
                     awayStatus: lineParser,
                     mode: function(type, data) {
                         var win = ui_.getWindow(client, data.channel);
@@ -8805,8 +8863,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 }) : controlpar.getElements(".help-block").dispose(), !failed;
             }
         }
-        var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, validators) {
-            var Base64 = window.Base64, _nick = new Storer(cookies.nickname), _user = new Storer(cookies.username), _pass = new Storer(cookies.password), _auth = new Storer(cookies.auth), nickname = _nick.get() || initialNickname, username = Base64.decode(_user.get()), password = Base64.decode(_pass.get()), eauth = auth.enabled || _auth.get();
+        var LoginBox = function(parentElement, callback, settings, networkName, validators) {
+            var nickname = settings.get("nickname"), username = Base64.decode(settings.get("username")), password = Base64.decode(settings.get("password")), eauth = auth.enabled || settings.get("auth");
             getTemplate("authpage", function(template) {
                 var page = Element.from(template({
                     network: networkName,
@@ -8814,7 +8872,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     username: username,
                     password: password,
                     full: eauth,
-                    channels: initialChannels.join()
+                    channels: settings.get("channels").join()
                 })).inject(parentElement), $form = page.getElement("#login"), $nickBox = page.getElement("#nickname"), $usernameBox = page.getElement("#username"), $passwordBox = page.getElement("#password"), $chkAddAuth = page.getElement("#authenticate");
                 $form.addEvents({
                     "blur:relay([data-validate])": function(e, target) {
@@ -8827,11 +8885,11 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         var nickname = $nickBox.val(), data = {
                             nickname: nickname
                         };
-                        _nick.set(nickname), $chkAddAuth.val() || auth.enabled ? (data.username = username = $usernameBox.val(), 
+                        settings.set("nickname", nickname), auth.enabled || $chkAddAuth.val() ? (data.username = username = $usernameBox.val(), 
                         data.realname = username || "", data.password = password = $passwordBox.val(), auth.bouncerAuth() ? data.serverPassword = password : auth.passAuth() && (data.serverPassword = username + " " + password), 
-                        _user.set(Base64.encode(username)), _pass.set(Base64.encode(password)), _auth.set(!0), 
-                        auth.enabled = !0) : _auth.dispose(), parentElement.empty(), auth.loggedin = !0, 
-                        callback(data);
+                        settings.set("username", Base64.encode(username)), settings.set("password", Base64.encode(password)), 
+                        settings.set("auth", !0), auth.enabled = !0) : settings.unset("auth"), parentElement.empty(), 
+                        auth.loggedin = !0, callback(data);
                     }
                 }), window === window.top && $nickBox.focus(), ui.Behaviour.apply(page);
             });
@@ -8839,46 +8897,49 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         ui.ILogin = new Class({
             Implements: [ Events ],
             LoginBox: LoginBox,
-            loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
+            loginBox: function() {
                 this.postInitialize();
                 var self = this, win = this.newCustomWindow(CONNECTION_DETAILS, !0, ui.WINDOW.connect), callback = function(data) {
                     win.close(), self.fireEvent("login", data);
                 };
-                return this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName, this.options.validators), 
+                return this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators), 
                 win;
             }
         });
     }(), ui.IUIOptions = new Class({
         theme: ui.Theme,
         config: function() {
-            function setCustomNotice(notices) {
-                self.theme.customNotices = _.chain(notices).clone().reject(function(data) {
-                    return !(data.msg || "" === data.msg.trim() || data.nick && "" !== data.nick.trim());
-                }).map(function(notice) {
-                    return {
-                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+            function setNotices() {
+                var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices")), notifiers = _.chain(notices).filter(uiOptions.notice_filter).map(function(notice) {
+                    var onotice = {
                         beep: notice.beep,
-                        flash: notice.flash
+                        flash: notice.flash,
+                        pm: notice.pm,
+                        mentioned: notice.mentioned,
+                        notus: notice.notus,
+                        highlight: notice.highlight,
+                        tabhl: notice.tabhl,
+                        classes: notice.classes,
+                        types: notice.types
                     };
+                    return _.each([ "msg", "nick", "type" ], function(type) {
+                        notice[type] && (onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type], notice.case ? "i" : ""));
+                    }), _.clean(onotice);
                 }).value();
+                self.theme.messageParsers.empty().combine(notifiers);
             }
-            function setStandardNotice(notices) {
-                _.each(self.theme.messageParsers, function(parser) {
-                    _.has(notices, parser.id) && _.extend(parser, notices[parser.id]);
-                });
-            }
-            var self = this;
+            var self = this, options = self.options;
             if (self.uiOptions instanceof config.OptionModel) return this;
             var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({
-                defaults: self.options.uiOptionsArg
+                defaults: options.uiOptionsArg
             });
             return uiOptions.on({
                 "change:style_hue": function() {
                     self.updateStylesheet();
                 },
                 "change:font_size": self.updateStylesheet,
-                "change:custom_notices": setCustomNotice,
-                "change:notices": setStandardNotice,
+                "change:custom_notices": setNotices,
+                "change:standard_notices": setNotices,
                 "change:show_nicklist": function() {
                     _.each(self.windowArray, function(win) {
                         win.toggleNickList();
@@ -8890,11 +8951,10 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         win.toggleAutocomplete(completer.intrusive);
                     });
                 }
-            }), setCustomNotice(uiOptions.get("custom_notices")), setStandardNotice(uiOptions.get("notices")), 
-            self.setModifiableStylesheet({
-                style_hue: self.options.hue || self.uiOptions.get("style_hue"),
-                style_saturation: self.options.saturation || self.uiOptions.get("style_saturation"),
-                style_brightness: self.options.brightness || self.uiOptions.get("style_brightness")
+            }), setNotices(), self.setModifiableStylesheet({
+                style_hue: options.hue || self.uiOptions.get("style_hue"),
+                style_saturation: options.saturation || self.uiOptions.get("style_saturation"),
+                style_brightness: options.brightness || self.uiOptions.get("style_brightness")
             }), self;
         },
         setModifiableStylesheet: function(vals) {
@@ -9008,6 +9068,42 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             });
         },
         postInitialize: function() {
+            function checkRoute(data) {
+                var request = util.unformatURL(data.request).toLowerCase();
+                if (console.log("Route: %s Formatted: %s", data.request, request), !self.active || request !== self.active.identifier) switch (request) {
+                  case "options":
+                    self.optionsWindow();
+                    break;
+
+                  case "privacy":
+                    self.privacyWindow();
+                    break;
+
+                  case "faq":
+                    self.faqWindow();
+                    break;
+
+                  case "about":
+                    self.aboutWindow();
+                    break;
+
+                  case "embedded":
+                    self.embeddedWindow();
+                    break;
+
+                  case "feedback":
+                    self.feedbackWindow();
+                    break;
+
+                  default:
+                    var win = _.findWhere(self.windowArray, {
+                        identifier: request
+                    });
+                    win ? win.select() : util.isChannel(request) && _.each(self.clients, function(client) {
+                        client.exec("/JOIN " + request);
+                    });
+                }
+            }
             var self = this;
             return self.options.routerPrefix, self.nav = new ui.NavBar({
                 element: self.outerTabs,
@@ -9021,41 +9117,14 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 },
                 nextWindow: self.nextWindow,
                 prevWindow: self.prevWindow
+            }), self.element.addEvent("click:relay(.internal)", function(e, $tar) {
+                e.preventDefault(), self.updateURI($tar.get("href"));
             }), self.router = new Epitome.Router({
-                routes: {
-                    "": "index",
-                    "#!options": "options",
-                    "#!feedback": "feedback",
-                    "#!about": "about",
-                    "#!faq": "faq",
-                    "#!embedded": "embedded",
-                    "#!privacy": "privacy"
-                },
-                onError: function(error) {
-                    DEBUG && console.error(error), this.navigate("");
-                },
-                onUndefined: function(data) {
-                    var request = util.unformatURL(data.request);
-                    if (request) {
-                        var win = _.findWhere(self.windowArray, {
-                            identifier: request
-                        });
-                        win ? win.select() : util.isChannel(request) && _.each(self.clients, function(client) {
-                            client.exec("/JOIN " + request);
-                        });
-                    }
-                },
-                onIndex: function() {},
-                onOptions: self.optionsWindow,
-                onFaq: self.faqWindow,
-                onPrivacy: self.privacyWindow,
-                onAbout: self.aboutWindow,
-                onFeedback: self.feedbackWindow,
-                onEmbedded: self.embeddedWindow
+                onUndefined: checkRoute
             }), this;
         },
-        updateURI: function() {
-            this.router instanceof Epitome.Router && this.active && this.router.navigate(util.formatURL(this.active.identifier));
+        updateURI: function(url) {
+            this.router && this.router.navigate(util.formatURL(url || this.active.identifier));
         },
         whoisURL: function(e, target) {
             var client = target.getParent(".window").retrieve("window").client, nick = target.get("data-user");
@@ -9129,14 +9198,11 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             this.setOptions(options);
             var self = this, opts = self.options;
             window.addEvent("domready", function() {
-                var ichans = storage.get(cookies.channels) || opts.initialChannels, autoConnect = !1;
-                self.element = document.id(element), self.ui = new UI(self.element, new ui.Theme(opts.theme), opts);
-                var usingAutoNick = !0;
-                //!$defined(nick);//stupid used out of scope
-                opts.node && Asset.javascript(opts.socketio), self.ui.loginBox(opts.initialNickname, ichans, autoConnect, usingAutoNick, opts.networkName), 
-                storage.get(cookies.newb) !== !1 && (self.welcome(), storage.set(cookies.newb, !1)), 
-                self.ui.addEvent("login:once", function(loginopts) {
-                    var ircopts = _.extend(Object.subset(opts, [ "initialChannels", "specialUserActions", "minRejoinTime", "networkServices", "loginRegex", "node" ]), loginopts), client = self.IRCClient = new irc.IRCClient(ircopts);
+                var settings = self.options.settings = new config.Settings(opts.settings);
+                self.element = $(element), self.ui = new UI(self.element, new ui.Theme(opts.theme), opts), 
+                opts.node && Asset.javascript(opts.socketio), settings.get("newb") && (self.welcome(), 
+                settings.set("newb", !1)), self.ui.loginBox(), self.ui.addEvent("login:once", function(loginopts) {
+                    var ircopts = _.extend(Object.subset(opts, [ "settings", "specialUserActions", "minRejoinTime", "networkServices", "loginRegex", "node" ]), loginopts), client = self.IRCClient = new irc.IRCClient(ircopts);
                     self.ui.newClient(client), client.writeMessages(lang.copyright), client.connect(), 
                     client.addEvent("auth", function(data) {
                         self.ui.showNotice({
@@ -9157,9 +9223,14 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             });
         },
         welcome: function() {
-            ui.WelcomePane.show(this.ui, {
+            ui.WelcomePane.show(this.ui, _.extend({
                 element: this.element,
                 firstvisit: !0
+            }, this.options));
+            var settings = this.options.settings;
+            storage.remove("qweb-new"), [ "account", "password", "nickname", "channels" ].each(function(key) {
+                var skey = "qweb-" + key, val = storage.get(skey);
+                val && settings.set(key, val), storage.remove(skey);
             });
         }
     }), ui.QUI = new Class({
@@ -9558,8 +9629,10 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 var val = data[key];
                 val && (_.isArray(val) && (val = val.join("")), data[key] = self.urlerize(val));
             }));
-            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed), $eles = Elements.from(result);
-            return $ele.addClass("colourline").adopt($eles), result;
+            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed), timestamp = templates.timestamp({
+                time: util.IRCTimestamp(new Date())
+            }), msghtml = timestamp + result;
+            return $ele.addClass("colourline").insertAdjacentHTML("beforeend", msghtml), result;
         },
         formatElement: function(line, $ele) {
             var result = this.colourise(this.urlerize(line));
@@ -9593,58 +9666,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         urlerize: function(text) {
             return util.urlifier.parse(text);
         },
-        messageParsers: [ {
-            type: /^(?!SERVER)+NOTICE+$/,
-            classes: "",
-            beep: !0,
-            id: "on_notice",
-            tabhl: ui.HIGHLIGHT.speech
-        }, {
-            type: /PRIVMSG$/,
-            flash: !0,
-            beep: !0,
-            pm: !0,
-            id: "on_pm",
-            tabhl: ui.HIGHLIGHT.speech
-        }, {
-            type: /^OUR/,
-            classes: "our-msg"
-        }, {
-            nick: /(^tf2)|((serv|bot)$)/i,
-            classes: "bot",
-            types: [ ui.WINDOW.channel ]
-        }, {
-            msg: /^\!/,
-            classes: "command",
-            types: [ ui.WINDOW.channel ]
-        }, {
-            mentioned: !0,
-            highlight: "mentioned",
-            notus: !0,
-            tabhl: ui.HIGHLIGHT.us
-        }, {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            mentioned: !0,
-            classes: "",
-            beep: !0,
-            pm: !0,
-            notus: !0,
-            id: "on_mention"
-        }, {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            msg: /^((?!(^\!)).)*$/,
-            classes: "",
-            highlight: !0,
-            notus: !0,
-            id: "highlighter",
-            tabhl: ui.HIGHLIGHT.activity,
-            types: [ ui.WINDOW.channel ]
-        } ],
+        messageParsers: [],
         highlightClasses: [ "highlight1", "highlight2" ],
         highlightAndNotice: function(data, type, win, $ele) {
-            var self = this, tabHighlight = ui.HIGHLIGHT.none, highlights = self.highlightClasses, nick = win.client.nickname, notus = data.n !== nick, parsers = _.clone(self.messageParsers).concat(self.customNotices);
+            var self = this, tabHighlight = ui.HIGHLIGHT.none, highlights = self.highlightClasses, nick = win.client.nickname, notus = data.n !== nick;
             return data && type && /(NOTICE|ACTION|MSG)$/.test(type) && (data.m && $ele.addClass("message"), 
-            _.each(parsers, function(parser) {
+            _.each(self.messageParsers, function(parser) {
                 parser.notus && !notus || parser.types && !parser.types.contains(win.type) || parser.type && !parser.type.test(type) || parser.msg && !parser.msg.test(data.m) || parser.nick && !parser.nick.test(data.n) || parser.mentioned && !util.testForNick(nick, data.m) || ((!win.active && win.name !== BROUHAHA || !document.hasFocus()) && (parser.flash && win.parentObject.flash(), 
                 parser.beep && win.parentObject.beep(), parser.pm && win.parentObject.showNotice({
                     title: "IRC " + type + "!",
@@ -9690,12 +9717,9 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         },
         addLine: function(type, data, colour, $ele) {
             var self = this, parent = self.parentObject, highlight = this.name !== BROUHAHA ? parent.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none, hl_line = !1;
-            self.active || highlight === ui.HIGHLIGHT.none || self.highlightTab(highlight);
-            var tsE = templates.timestamp({
-                time: util.IRCTimestamp(new Date())
-            });
-            $ele.insertAdjacentHTML("afterbegin", tsE), parent.theme.formatMessage($ele, type, data, hl_line), 
-            self.lines.adopt($ele).maxChildren(this.options.maxLines), self.getOption("lastpos_line") && type.endsWith("CHANMSG") && (this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines));
+            self.active || highlight === ui.HIGHLIGHT.none || self.highlightTab(highlight), 
+            parent.theme.formatMessage($ele, type, data, hl_line), self.lines.adopt($ele).maxChildren(this.options.maxLines), 
+            self.getOption("lastpos_line") && type.endsWith("CHANMSG") && (this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines));
         },
         errorMessage: function(message) {
             this.addLine("", message, "warn");
@@ -10047,17 +10071,11 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 pane: "options",
                 events: {
                     "change:relay(#options input)": "inputChange",
-                    "change:relay(#options #standard-notices input)": "snoticeChange",
-                    "change:relay(#options #custom-notices input)": "noticeChange",
+                    "change:relay(#options .notice-group input)": "noticeChange",
                     "click:relay(#options #add-notice)": "addNotifier",
-                    "click:relay(#options #custom-notices .remove-notice)": "removeNotifier",
+                    "click:relay(#options .remove-notice)": "removeNotifier",
                     "click:relay(#options #dn_state)": "dnToggle",
                     "click:relay(#options #notice-test)": "noticeTest"
-                },
-                onSnoticeChange: function(e, target) {
-                    e.stop();
-                    var notices = _.clone(this.model.get("notices"));
-                    _.assign(notices, target.get("id"), target.val()), this.model.set("notices", notices);
                 },
                 onAddNotifier: function(e) {
                     e.stop(), this.addNotifier();
@@ -10075,34 +10093,32 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             },
             addNotifier: function(data) {
                 if (!data || Type.isDOMEvent(data)) {
-                    data = this.model.get("default_notice")();
+                    data = this.model.defaultNotice();
                     var n = _.clone(this.model.get("custom_notices"));
                     n.push(data), this.model.set("custom_notices", n);
                 }
-                var parent = this.element.getElement("#custom-notices"), _data = _.clone(data);
+                var parent = this.element.getElement("#custom_notices"), _data = _.clone(data);
                 _data.lang = lang;
                 var temp = templates.customNotice(_data);
                 parent.insertAdjacentHTML("beforeend", temp);
             },
             removeNotifier: function(e, target) {
                 e.stop();
-                var par = target.getParent(".custom-notice").dispose();
-                this.model.set("custom_notices", _.reject(this.model.get("custom_notices"), function(xs) {
-                    return xs.id === par.id;
+                var type = target.getParent(".notice-group").id, par = target.getParent(".controls").dispose(), id = par.get("data-id");
+                this.model.set("custom_notices", _.reject(this.model.get(type), function(xs) {
+                    return xs.id === id;
                 }));
             },
             noticeChange: function(e, target) {
                 e.stop();
-                var notices = _.clone(this.model.get("custom_notices")), par = target.getParent(".custom-notice");
-                _.findWhere(notices, {
-                    id: par.id
-                })[target.get("data-id")] = target.val(), this.model.set("custom_notices", notices);
+                var type = target.getParent(".notice-group").id, notices = _.clone(this.model.get(type)), par = target.getParent(".controls"), notice = _.findWhere(notices, {
+                    id: par.get("data-id")
+                });
+                notice[target.get("data-id")] = target.val(), this.model.set("custom_notices", notices);
             },
             postRender: function() {
                 var model = this.model, options = this.options;
-                return _.each(model.get("custom_notices"), function(notice) {
-                    notice.lang = lang, this.addNotifier(notice);
-                }, this), this.element.getElements(".slider").each(function(slider) {
+                return this.element.getElements(".slider").each(function(slider) {
                     var id = slider.get("id"), knob = slider.getElement(".knob");
                     new Slider(slider, knob, {
                         steps: 36,
@@ -10120,7 +10136,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             },
             getData: function() {
                 var data = this.model.toJSON();
-                return data.lang = lang, data;
+                return data;
             },
             save: function(e) {
                 e && e.stop(), this.model.save(), this.destroy();

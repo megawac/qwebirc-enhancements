@@ -2,7 +2,7 @@ qwebirc-mods
 =============  
 
 ![logo](https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png "QWebirc logo")
-Complete rewrite of Chris Porter's [qwebirc](http://qwebirc.org/). I began this project when I became frustrated creating a plugin on top of Qwebirc, so flexibility and extensibility are two of the focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Been working on this for a couple months, the plugin is almost stable, come play with it  ([Screenshot](http://puu.sh/4ANPf.png)).  
+Qwebirc is intended to be a simple, intuitive and full-featured IRC client that operated out of the clients browser. This *fork* of Chris Porter's [qwebirc](http://qwebirc.org/) is a complete rewrite of the project in order to introduce more customability, add features introduced with HTML5, improve the extensibility of the code and revamp the ui. I began this project when I became frustrated trying to create a plugin atop of Qwebirc; flexibility and extensibility are two of the main focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Been working on this for a couple months, the plugin is almost stable, come play with it  ([Screenshot](http://puu.sh/4ANPf.png)).  
   
 ##Demo:
 I currently have an instance running for the gamesurge network at: [qwebirc.herokuapp.com](http://qwebirc.herokuapp.com/)  

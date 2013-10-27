@@ -53,14 +53,9 @@ project name and URL in the about dialog, thanks!
         lang: {},
         templates: {},
         cookies: {
-            "channels": "qweb-channels",
-            "nickname": "qweb-nickname",
-            "username": "qweb-account",
-            "password": "qweb-password",
-            "auth": "qweb-auth",
-            "newb": "qweb-new",
             "options": "qweb-options",
-            "history": "qweb-hist"
+            "history": "qweb-hist",
+            "settings": "qweb-settings"
         },
         BUILD: QWEBIRC_BUILD,
         FILE_SUFFIX: "-" + QWEBIRC_BUILD,

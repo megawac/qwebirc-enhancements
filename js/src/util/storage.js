@@ -29,8 +29,3 @@ var Storer = util.Storer = new Class({
         return this.storage.remove(this.name);
     }
 });
-/*.alias({
-    get: 'read',
-    write: 'set',
-    remove: 'dispose'
-}));*/

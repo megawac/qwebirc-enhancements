@@ -92,7 +92,7 @@ function program1(depth0,data) {
 
   buffer += "<div class=\"container center\"><form id=\"login\"><h2>Connect to "
     + escapeExpression(((stack1 = depth0.network),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " IRC</h2><!-- <div class=\"controls\"> --><div class=\"control-group right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" class=\"form-control\" data-validate=\"nick\" name=\"basic\" id=\"nickname\" value=\""
+    + " IRC</h2><div class=\"control-group right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" class=\"form-control\" data-validate=\"nick\" name=\"basic\" id=\"nickname\" value=\""
     + escapeExpression(((stack1 = depth0.nickname),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" placeholder=\"Nickname\" required /></label></div><div class=\"control-group right ";
   stack2 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
@@ -110,7 +110,7 @@ function program1(depth0,data) {
     + escapeExpression(((stack1 = depth0.password),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\"></label></div><div class=\"authenticate\"><label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" "
     + escapeExpression(helpers.check.call(depth0, depth0.full, {hash:{},data:data}))
-    + "></label for=\"authenticate\"></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div><!-- </div> --></form><div class=\"qwebirc-init-channels\"><span>"
+    + "></label></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div></form><div class=\"qwebirc-init-channels\"><span>"
     + escapeExpression(((stack1 = depth0.channels),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</span></div></div>";
   return buffer;
@@ -149,28 +149,22 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["qwebirc"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-channel' data-chan='"
-    + escapeExpression(((stack1 = depth0.channel),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "'>"
-    + escapeExpression(((stack1 = depth0.channel),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
-  return buffer;
-  });
-
 this["qwebirc"]["templates"]["customlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, escapeExpression=this.escapeExpression, functionType="function";
+  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
 
+function program1(depth0,data) {
+  
+  
+  return "internal";
+  }
 
-  buffer += "<a href=\"#"
-    + escapeExpression(helpers.$link.call(depth0, depth0.val, {hash:{},data:data}))
+  buffer += "<a class=\"";
+  stack1 = helpers['if'].call(depth0, depth0.internal, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\" href=\""
+    + escapeExpression(((stack1 = depth0.val),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = depth0.val),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</a>";
@@ -333,7 +327,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<ul class=\"main-menu dropdownmenu hidden\"><a href=\"#!options\"><li><span>Options</span></li></a><a href=\"#!embedded\"><li><span>Add webchat to your site</span></li></a><a href=\"#!privacy\"><li><span>Privacy policy</span></li></a><a href=\"#!faq\"><li><span>Frequently asked questions</span></li></a><a href=\"#!feedback\"><li><span>Submit feedback</span></li></a><a href=\"#!about\"><li><span>About qwebirc</span></li></a></ul>";
+  return "<ul class=\"main-menu dropdownmenu hidden\"><a class=\"internal\" href=\"options\"><li><span>Options</span></li></a><a class=\"internal\" href=\"embedded\"><li><span>Add webchat to your site</span></li></a><a class=\"internal\" href=\"privacy\"><li><span>Privacy policy</span></li></a><a class=\"internal\" href=\"faq\"><li><span>Frequently asked questions</span></li></a><a class=\"internal\" href=\"feedback\"><li><span>Submit feedback</span></li></a><a class=\"internal\" href=\"about\"><li><span>About qwebirc</span></li></a></ul>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -578,32 +572,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["qwebirc"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-page' data-page='"
-    + escapeExpression(((stack1 = depth0.page),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "'>"
-    + escapeExpression(((stack1 = depth0.page),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
-  return buffer;
-  });
-
-this["qwebirc"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-channel'>"
-    + escapeExpression(((stack1 = depth0.message),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
-  return buffer;
-  });
-
 this["qwebirc"]["templates"]["timestamp"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -803,14 +771,9 @@ project name and URL in the about dialog, thanks!
         lang: {},
         templates: {},
         cookies: {
-            "channels": "qweb-channels",
-            "nickname": "qweb-nickname",
-            "username": "qweb-account",
-            "password": "qweb-password",
-            "auth": "qweb-auth",
-            "newb": "qweb-new",
             "options": "qweb-options",
-            "history": "qweb-hist"
+            "history": "qweb-hist",
+            "settings": "qweb-settings"
         },
         BUILD: QWEBIRC_BUILD,
         FILE_SUFFIX: "-" + QWEBIRC_BUILD,
@@ -1630,15 +1593,12 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatCha
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
-    return link.startsWith("!") ? link : "!" + link;
+    return '#!' + link;
 }
 
 util.unformatURL = function(link) {
-    if(link.startsWith("!")) {
-        return link.slice(1).replace(/^@/, "#");
-    }
-    return link;
-}
+    return link.replace(/^!/, "").replace(/^@/, "#");
+};
 
 //appends a channel to the end of the list of channels
 //string -> string
@@ -1646,6 +1606,10 @@ util.unformatURL = function(link) {
 util.addChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ appendChannel);
 //adds channel to front of list of channels
 util.prependChannel = _.compose( /*joinComma,*/ _.uniq, /* splitChan, */ _.flip(appendChannel));
+
+util.removeChannel = _.compose(_.uniq, function(chans, chan) {
+    return _.clone(chans).erase(chan);
+});
 
 (function() {
 /*
@@ -2008,26 +1972,31 @@ util.generateID = (function() {
         SHOW_NICKLIST: "Show nickname list in channels",
         SHOW_TIMESTAMPS: "Show timestamps",
         FONT_SIZE: "Set font size",
+        VOLUME: "Volume",
 
 
-        NOTIFY_ON_MENTION: "When nick mentioned:",
-        NOTIFY_ON_PM: "When private messaged:",
-        NOTIFY_ON_NOTICE: "When channel notice:",
         AUTO_OPEN_PM: "Automatically select window on private message:",
         FLASH: "flash",
         BEEP: "beep",
         PM: "pm",
+        MENTION: "mentioned",
         MESSAGE_PLACEHOLDER: ' something ... ',
         NICK_PLACEHOLDER: ' someone ... ',
+        TYPE_PLACEHOLDER: 'type test',
         DELETE_NOTICE: 'remove',
         ADD_NOTICE: 'Add notifier',
         USER_NOTICE: 'User:',
+        TYPE_NOTICE: 'Type:',
         MESSAGE_NOTICE: 'Message:',
         AUTOESCAPE: 'Escape text',
-        HIGHLIGHT: 'Highlight',
         MENTIONED: 'Mentioned',
         ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered',
         DESKTOP_NOTICES: 'Allow us to send desktop notifications if supported (on any notice with flash):',
+        IGNORE_CASE: 'Case insensitive',
+        NOTUS: "Not us",
+        NOTUS_HINT: "Not our message",
+        HIGHLIGHT: "hl",
+        HIGHLIGHT_HINT: "highlight",
 
         ENABLE: 'Enable',
         DISABLE: 'Disable'
@@ -2074,12 +2043,6 @@ var Storer = util.Storer = new Class({
         return this.storage.remove(this.name);
     }
 });
-/*.alias({
-    get: 'read',
-    write: 'set',
-    remove: 'dispose'
-}));*/
-
 ui.Behaviour = (function() {
     var behaviour = new Behavior();
     var delegator = new Delegator({
@@ -2342,7 +2305,8 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
                     }
                     else */if(["options", "embedded", "privacy"].some(cmd.startsWith.bind(cmd))) {
                         cmd = templates.customlink({
-                            val: cmd.match(/\w+\w/)
+                            val: cmd.match(/\w+\w/),
+                            internal: true
                         });
                     }
                     word = parsed.lead + cmd + parsed.end;
@@ -2358,7 +2322,8 @@ urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
 
             if(util.isChannel(res)) {
                 res = templates.customlink({
-                    val: res
+                    val: res,
+                    internal: true
                 });
             }
 
@@ -2534,6 +2499,10 @@ inputurl.addPattern(bbmatch,//this pattern needs to be optimized
         return util.format(prop, this);
     });
 
+    engine.registerHelper("lang", function(prop) {
+        return lang[prop];
+    });
+
     /******************
         Compiliation
     *********************/
@@ -2630,7 +2599,7 @@ config.OptionModel = new Class({
             "show_nicklist": !Browser.isMobile,
             "show_timestamps": true,
             "font_size": 12,
-            "volume": 100, //0-10
+            "volume": 100, //0-100
 
             "completer": {
                 "intrusive": Browser.isDecent,
@@ -2647,32 +2616,101 @@ config.OptionModel = new Class({
             "style_saturation": 0,
             "style_brightness": 0,
 
-            "notices": {
-                "on_mention": {flash:true, beep:true, pm: false},
-                "on_pm": {flash:true, beep:true, pm: true},
-                "on_notice": {flash:false, beep:true, pm: true}
-            },
-            "custom_notices": [],
-            "default_notice": function() {
-                return {
-                        nick: null,
-                        msg: '',
-                        flash: false,
-                        beep: false,
-                        pm: false,
-                        id: String.uniqueID(),
-                        autoescape: true
-                    };
+            "standard_notices": [
+                {
+                    type: "^(?!SERVER)+NOTICE+$",//notice not server notice
+                    classes: '',
+                    beep: true,
+                    tabhl: ui.HIGHLIGHT.speech,
+                    id: 'notice'
+                },
+                {
+                    type: "PRIVMSG$",
+                    flash: true,
+                    beep: true,
+                    pm: true,
+                    tabhl: ui.HIGHLIGHT.speech,
+                    id: 'pm'
+                },
+                {
+                    type: "^OUR",
+                    classes: 'our-msg',
+                    id: 'ourmsg'
+                },
+                {//match bots
+                    nick: "(^tf2)|((serv|bot)$)",
+                    classes: 'bot',
+                    types: [ui.WINDOW.channel],
+                    "case": true,
+                    id: 'bot'
+                },
+                {
+                    msg: "^\\!",
+                    classes: 'command',
+                    types: [ui.WINDOW.channel],
+                    id: 'cmd'
+                },
+                {
+                    mentioned: true,
+                    highlight: 'mentioned',
+                    notus: true,
+                    tabhl: ui.HIGHLIGHT.us,
+                    id: 'mention'
+                },
+                {
+                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
+                    mentioned: true,
+                    classes: '',
+                    beep: true,
+                    pm: true,
+                    notus: true,
+                    "case": true,
+                    id: 'onmention'
+                },
+                {
+                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
+                    msg: "^((?!(^\\!)).)*$", //dont hl commands
+                    classes: '',
+                    highlight: true,
+                    notus: true,
+                    "case": true,
+                    tabhl: ui.HIGHLIGHT.activity,
+                    types: [ui.WINDOW.channel],
+                    id: 'hl'
                 }
+            ],
+
+            "custom_notices": []
         },
         key: cookies.options,
         minimize: true
     },
 
+    defaultNotice: function() {//default custom notice
+        return {
+                // nick: '',
+                // msg: '',
+                // type: '',
+                // flash: false,
+                // beep: false,
+                // pm: false,
+                id: String.uniqueID(),
+                autoescape: true,
+                description: ''
+            };
+    },
+
+    notice_filter: function(data) {
+        return !(!data.msg || data.msg.trim() === "") || !(!data.nick || data.nick.trim() === "") || !(!data.type || data.type.trim() === "") || data.notus;
+    },
+
+    //storing procedures
     save: function() {
-        this.set("custom_notices", _.reject(this.get("custom_notices"), function(data) { return data.msg.trim() === "" }));//cleanup
+        this.set("custom_notices", _.filter(this.get("custom_notices"), this.notice_filter));//cleanup
+        this.set("standard_notices", _.filter(this.get("standard_notices"), this.notice_filter));//cleanup
         return this.parent();
     },
+
 
     set: function(key, data) {
         var props = key.split(".");
@@ -2683,6 +2721,40 @@ config.OptionModel = new Class({
             this.parent(key, data);
         }
     }.overloadSetter()
+});
+
+
+config.Settings = new Class({
+    Extends: Epitome.Model.Storage,
+    options: {
+        defaults: {
+            "channels": "",
+            "nickname": "",
+            "username": "",
+            "password": "",
+            "auth": false,
+            "newb": true
+        },
+        key: cookies.settings,
+        minimize: false,
+
+        onReady: function() {
+            this.loaded = true;
+        }
+    },
+
+    set: function(key, data) {
+        this.parent(key, data);
+        if(this.loaded) {//set is called when initing if we save we will lose state
+            this.save();
+        }
+        return this;
+    },
+
+    unset: function(key, data) {
+        this.parent(key);
+        return this.save();
+    }
 });
 
 
@@ -3078,9 +3150,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 target: target,
                 message: message
             });
+            var noticeType = util.isChannel(target) ? "chanNotice" : "privNotice";
 
             if (this.send(msg)) {
-                this.trigger("chanNotice", {
+                this.trigger(noticeType, {
                     'nick': this.nickname,
                     'channel': target,
                     'target': target,
@@ -3111,8 +3184,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 'nick': this.nickname,
                 'channel': target,
                 'message': message,
-                'type': 'privmsg',
-                'open': true
+                'type': 'privmsg'/*,
+                'open': true*/
             });
         }
     },
@@ -3166,9 +3239,9 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 1,
         fn: function(args, target) {
             this.send(format(cmd.KICK, {
-                channel: channel,
-                kickee: target,
-                message: args[0] || ""
+                channel: target,
+                kickee: args[0],
+                message: args[1] || ""
             }));
         }
     },
@@ -3287,8 +3360,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 2,
         minargs: 0,
         fn: function(args, channel) {
-            var chans = this.channels.erase(channel);
-            this.storeChannels(chans);
+            this.storeChannels(util.removeChannel(this.channels, channel));
             this.send(format(cmd.PART, {
                 channel: args[0] || channel,
                 message: args[1] || lang.partChan
@@ -3309,7 +3381,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         fn: function(args) {
             if(!this.__autojoined) {
                 this.__autojoined = true;
-                return ["JOIN", this.options.autojoin];
+                this.currentChannel = BROUHAHA;
+                return ["JOIN", this.getChannels()];
             }
         }
     }
@@ -3329,7 +3402,7 @@ irc.CommandHistory = new Class({
     },
 
     addLine: function(name, line) {
-        var data = this.get(name).erase(line)
+        var data = this.get(name).erase(line);
         if(line.length > this.options.minlen) {
             data.unshift(line);
             if (data.length > this.options.lines) {
@@ -3349,9 +3422,7 @@ irc.CommandHistory = new Class({
         if(this.options.store) this.save();
     },
 
-    _filter: function(val) {
-        return _.size(val) !== 0;
-    }
+    _filter: _.not(_.isEmpty)
 });
 
 
@@ -3499,8 +3570,6 @@ irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
     Binds: ["lostConnection", "send", "quit", "connected","retry", "_ndispatch", "_tdispatch"],
     options: {
-        nickname: "",
-        autojoin: "",
         minRejoinTime: [0],
         networkServices: [],
         loginRegex: /^$/ //always fail
@@ -3630,13 +3699,14 @@ irc.IRCClient = new Class({
     },
 
     storeChannels: function(channels) {
-        var store = _.uniq(channels);
-        this.channels = channels;
-        storage.set(cookies.channels, store);
+        this.channels = channels = channels || this.channels;
+        var store = util.removeChannel(channels, BROUHAHA);
+        this.options.settings.set("channels", store);
+        return this;
     },
 
     getChannels: function() {
-        var chans = this.channels = storage.get(cookies.channels) || [];
+        var chans = this.channels = util.prependChannel(this.options.settings.get("channels") || [], BROUHAHA);
         return chans;
     },
 
@@ -3816,18 +3886,6 @@ irc.IRCClient = new Class({
             channels;
 
         this.writeMessages(lang.signOn);
-
-        channels = this.getChannels();
-        if (channels.length > 0) {
-            options.autojoin = channels;
-        } else { //if no stored channels join intial channels from interface options
-            options.autojoin = channels = options.initialChannels;
-            this.storeChannels(channels);
-        }
-        // Sort the autojoin channels.
-        channels = options.autojoin = util.prependChannel(channels, BROUHAHA);
-        this.currentChannel = BROUHAHA;
-
         this.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
 
         if (!this.authed && auth.enabled) {
@@ -4129,7 +4187,7 @@ irc.IRCClient = new Class({
 
         if (wasus) {
             self.nickname = newnick;
-            storage.set(cookies.nickname, newnick);
+            self.options.settings.set("nickname", newnick);
         }
 
         self.tracker.renameNick(oldnick, newnick);
@@ -4380,7 +4438,8 @@ irc.IRCClient = new Class({
                 this.trigger("privNotice", {
                     'message': message,
                     'host': data.host,
-                    'nick': data.nick
+                    'nick': data.nick,
+                    'channel': data.nick
                 });
             }
         } else {
@@ -5536,6 +5595,15 @@ function addClientEvents(client, windows) { // mi gusta xD
         }
     }
 
+    function queried(type, data) {//queries and private notices
+        data = formatData(type, data);
+        var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
+        if(data.nick === client.nickname || ui_.uiOptions2.get("auto_open_pm")) {
+            ui_.selectWindow(win);
+        }
+        if(data.message) parser(type, data, win);
+    }
+
     client.addEvents({
         "connect": lineParser,
         // "disconnect": lineParser,
@@ -5595,16 +5663,9 @@ function addClientEvents(client, windows) { // mi gusta xD
             ui_.nickChange(data, client);
             lineParser(type, data);
         },
-        "privNotice": lineParser,
 
-        "query": function(type, data) {//queries
-            data = formatData(type, data);
-            var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
-            if(data.open || ui_.uiOptions2.get("auto_open_pm")) {
-                ui_.selectWindow(win);
-            }
-            if(data.message) parser(type, data, win);
-        },
+        "privNotice": queried,
+        "query": queried,
 
         "awayStatus": lineParser,
         "mode": function(type, data) {
@@ -5649,16 +5710,11 @@ function addClientEvents(client, windows) { // mi gusta xD
     }
 
 
-var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, validators) {
-    var Base64 = window.Base64;
-    var _nick = new Storer(cookies.nickname),//initial nick
-        _user = new Storer(cookies.username),//auth username
-        _pass = new Storer(cookies.password),//auth password
-        _auth = new Storer(cookies.auth);//enable full auth
-    var nickname = _nick.get() || initialNickname,
-        username = Base64.decode(_user.get()),
-        password = Base64.decode(_pass.get()),
-        eauth = auth.enabled || _auth.get();
+var LoginBox = function(parentElement, callback, settings, networkName, validators) {
+    var nickname = settings.get("nickname"),
+        username = Base64.decode(settings.get("username")),
+        password = Base64.decode(settings.get("password")),
+        eauth = auth.enabled || settings.get("auth");
 
     getTemplate("authpage", function(template) {
         var page = Element.from(template({
@@ -5667,7 +5723,7 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
             'username': username,
             'password': password,
             'full': eauth, //whether to show the extra auth options (check the checkbox)
-            'channels': initialChannels.join()
+            'channels': settings.get("channels").join()
         })).inject(parentElement);
 
         var $form = page.getElement('#login'),
@@ -5705,9 +5761,9 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                 "nickname": nickname
             };
 
-            _nick.set(nickname);// nicks valid
+            settings.set("nickname", nickname);// nicks valid
 
-            if ($chkAddAuth.val() || auth.enabled) {
+            if (auth.enabled || $chkAddAuth.val()) {
                 data.username = username = $usernameBox.val();
                 data.realname = username || "";
                 data.password = password = $passwordBox.val();
@@ -5719,12 +5775,12 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                     data.serverPassword = username + " " + password;
                 }
 
-                _user.set(Base64.encode(username));
-                _pass.set(Base64.encode(password));
-                _auth.set(true);
+                settings.set("username", Base64.encode(username));
+                settings.set("password", Base64.encode(password));
+                settings.set("auth", true);
                 auth.enabled = true;
             } else {
-                _auth.dispose();
+                settings.unset("auth");
             }
 
             parentElement.empty();
@@ -5743,7 +5799,7 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
 ui.ILogin = new Class({
     Implements: [Events],
     LoginBox: LoginBox,
-    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
+    loginBox: function() {
         this.postInitialize();
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
@@ -5751,7 +5807,7 @@ ui.ILogin = new Class({
                 win.close();
                 self.fireEvent("login", data);
             };
-        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName, this.options.validators);
+        this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
         return win;
     }
 });
@@ -5762,29 +5818,40 @@ ui.IUIOptions = new Class({
 
     config: function() {
         var self = this;
+        var options = self.options;
         if(self.uiOptions instanceof config.OptionModel) return this;
         var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({
-            defaults: self.options.uiOptionsArg
+            defaults: options.uiOptionsArg
         });
-        function setCustomNotice(notices) {
-            self.theme.customNotices = _.chain(notices).clone()
-                .reject(function(data) {
-                    return !(data.msg || data.msg.trim() === "") && (!data.nick || data.nick.trim() === "");
-                })
+        function setNotices() {
+            var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
+            var notifiers = _.chain(notices)
+                .filter(uiOptions.notice_filter)
                 .map(function(notice) {
-                    return {
-                        msg: new RegExp(notice.autoescape ? String.escapeRegExp(notice.msg) : notice.msg),
+                    var onotice = {
                         beep: notice.beep,
-                        flash: notice.flash
-                    };
+                        flash: notice.flash,
+                        pm: notice.pm,
+
+                        mentioned: notice.mentioned,
+                        notus: notice.notus,
+                        highlight: notice.highlight,
+                        tabhl: notice.tabhl,
+                        classes: notice.classes,
+                        types: notice.types
+                    }
+                    _.each(["msg", "nick", "type"], function(type) {
+                        if(notice[type]) {
+                            onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type],//format regex
+                                        notice.case ? "i" : "");//set flag
+                        }
+                    });
+
+                    return _.clean(onotice);
                 })
-                .value();
-        }
-        function setStandardNotice(notices) {
-            _.each(self.theme.messageParsers, function(parser) {
-                if(_.has(notices, parser.id) )
-                    _.extend(parser, notices[parser.id]);
-            });
+                .value()
+            
+            self.theme.messageParsers.empty().combine(notifiers);
         }
 
         uiOptions.on({
@@ -5792,8 +5859,8 @@ ui.IUIOptions = new Class({
                 self.updateStylesheet();
             },
             "change:font_size": self.updateStylesheet,
-            "change:custom_notices": setCustomNotice,
-            "change:notices": setStandardNotice,
+            "change:custom_notices": setNotices,
+            "change:standard_notices": setNotices,
             "change:show_nicklist": function(state) {
                 _.each(self.windowArray, function(win){win.toggleNickList()});
             },
@@ -5805,13 +5872,12 @@ ui.IUIOptions = new Class({
                 });
             }
         });
-        setCustomNotice(uiOptions.get("custom_notices"));
-        setStandardNotice(uiOptions.get("notices"));
+        setNotices();
 
         self.setModifiableStylesheet({
-            style_hue: self.options.hue || self.uiOptions.get("style_hue"),
-            style_saturation: self.options.saturation || self.uiOptions.get("style_saturation"),
-            style_brightness: self.options.brightness || self.uiOptions.get("style_brightness")
+            style_hue: options.hue || self.uiOptions.get("style_hue"),
+            style_saturation: options.saturation || self.uiOptions.get("style_saturation"),
+            style_brightness: options.brightness || self.uiOptions.get("style_brightness")
         });
         return self;
     },
@@ -6132,28 +6198,40 @@ ui.StandardUI = new Class({
             "nextWindow": self.nextWindow,
             "prevWindow": self.prevWindow
         });
+        
+        self.element.addEvent("click:relay(.internal)", function(e, $tar) {
+            e.preventDefault();
+            self.updateURI($tar.get("href"));
+        });
 
-        self.router = new Epitome.Router({
-            // routes definition will proxy the events
-            routes: {
-                '': 'index',
-                '#!options': 'options',
-                "#!feedback": 'feedback',
-                "#!about": "about",
-                "#!faq": "faq",
-                "#!embedded": 'embedded',
-                "#!privacy": "privacy"
-            },
-            // no route event was found, though route was defined
-            onError: function(error){
-                if(DEBUG) console.error(error);
-                // recover by going default route
-                this.navigate('');
-            },
-            //try to select the window if it exists
-            onUndefined: function(data) {
-                var request = util.unformatURL(data.request);
-                if(request) {
+        function checkRoute(data) {
+            var request = util.unformatURL(data.request).toLowerCase();
+            console.log("Route: %s Formatted: %s", data.request, request);
+
+            if(self.active && request === self.active.identifier) {
+                return;
+            }
+
+            switch(request) {
+                case "options":
+                    self.optionsWindow();
+                    break;
+                case "privacy":
+                    self.privacyWindow();
+                    break;
+                case "faq":
+                    self.faqWindow();
+                    break;
+                case "about":
+                    self.aboutWindow();
+                    break;
+                case "embedded":
+                    self.embeddedWindow();
+                    break;
+                case "feedback":
+                    self.feedbackWindow();
+                    break;
+                default:
                     var win = _.findWhere(self.windowArray, {identifier:request});
                     if(win) {
                         win.select();
@@ -6162,26 +6240,62 @@ ui.StandardUI = new Class({
                             client.exec("/JOIN " + request);
                         });
                     }
-                }
-            },
-            'onIndex': function() {
-                //update options with query string?
-            },
-            'onOptions': self.optionsWindow,
-            'onFaq': self.faqWindow,
-            'onPrivacy': self.privacyWindow,
-            'onAbout': self.aboutWindow,
-            'onFeedback': self.feedbackWindow,
-            'onEmbedded': self.embeddedWindow
+            }
+        }
+
+        // hasher.initialized.add(checkRoute); // parse initial hash
+        // hasher.changed.add(checkRoute); //parse hash changes
+        // hasher.init(); //start listening for history change
+        // hasher.prependHash = "~";
+        self.router = new Epitome.Router({
+            // routes definition will proxy the events
+            // routes: {
+            //     '': 'index',
+            //     '#!options': 'options',
+            //     "#!feedback": 'feedback',
+            //     "#!about": "about",
+            //     "#!faq": "faq",
+            //     "#!embedded": 'embedded',
+            //     "#!privacy": "privacy"
+            // },
+            // // no route event was found, though route was defined
+            // onError: function(error){
+            //     if(DEBUG) console.error(error);
+            //     // recover by going default route
+            //     this.navigate('');
+            // },
+            // 'onIndex': function() {
+            //     //update options with query string?
+            // },
+            // 'onOptions': self.optionsWindow,
+            // 'onFaq': self.faqWindow,
+            // 'onPrivacy': self.privacyWindow,
+            // 'onAbout': self.aboutWindow,
+            // 'onFeedback': self.feedbackWindow,
+            // 'onEmbedded': self.embeddedWindow,
+            //try to select the window if it exists
+            // onUndefined: function(data) {
+            //     var request = util.unformatURL(data.request);
+            //     if(request) {
+            //         var win = _.findWhere(self.windowArray, {identifier:request});
+            //         if(win) {
+            //             win.select();
+            //         } else if(util.isChannel(request)) {
+            //             _.each(self.clients, function(client) {
+            //                 client.exec("/JOIN " + request);
+            //             });
+            //         }
+            //     }
+            // }
+            onUndefined: checkRoute
         });
-        
+
         return this;
     },
 
-    updateURI: function() {//format channels specially like #@tf2mix
-        if(this.router instanceof Epitome.Router && this.active) {
-            this.router.navigate(util.formatURL(this.active.identifier));
-        }
+    updateURI: function(url) {
+        // hasher.setHash(util.formatURL(url || this.active.identifier));
+        if(this.router) this.router.navigate(util.formatURL(url || this.active.identifier));
     },
 
     whoisURL: function(e, target) {
@@ -6279,25 +6393,21 @@ ui.Interface = new Class({
             opts = self.options;
 
         window.addEvent("domready", function() {
-            var ichans = storage.get(cookies.channels) || opts.initialChannels,
-                autoConnect = false;
-
-            self.element = document.id(element);
+            var settings = self.options.settings = new config.Settings(opts.settings);
+            self.element = $(element);
 
             self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
 
-            var usingAutoNick = true; //!$defined(nick);//stupid used out of scope
             if(opts.node) { Asset.javascript(opts.socketio); }
-
-            var details = self.ui.loginBox(opts.initialNickname, ichans, autoConnect, usingAutoNick, opts.networkName);
             //cleans up old properties
-            if(storage.get(cookies.newb) !== false) {
+            if(settings.get("newb")) {
                 self.welcome();
-                storage.set(cookies.newb, false);
+                settings.set("newb", false);
             }
+            self.ui.loginBox();
 
             self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['initialChannels', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
+                var ircopts = _.extend(Object.subset(opts, ['settings', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
                                         loginopts);
 
                 var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
@@ -6335,9 +6445,20 @@ ui.Interface = new Class({
         });
     },
     welcome: function() {
-        ui.WelcomePane.show(this.ui, {
+        ui.WelcomePane.show(this.ui, _.extend({
             element: this.element,
             firstvisit: true
+        }, this.options));
+
+        var settings = this.options.settings;
+        storage.remove("qweb-new");
+        ['account', 'password', 'nickname', 'channels'].each(function(key) {
+            var skey = "qweb-" + key;
+            var val = storage.get(skey);
+            if(val) {
+                settings.set(key, val);
+            }
+            storage.remove(skey);
         });
     }
 });
@@ -6948,11 +7069,13 @@ ui.Theme = new Class({
             });
         }
 
+
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var $eles = Elements.from(result);
+        var timestamp = templates.timestamp({time:util.IRCTimestamp(new Date())});
+        var msghtml = timestamp + result;
         $ele.addClass('colourline')
-            .adopt($eles);//insertAdjacentHTML may render escaped chars incorrectly
+            .insertAdjacentHTML('beforeend', msghtml);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
@@ -7022,62 +7145,7 @@ ui.Theme = new Class({
         return util.urlifier.parse(text);
     },
 
-    messageParsers: [
-        {
-            type: /^(?!SERVER)+NOTICE+$/,//notice not server notice
-            classes: '',
-            beep: true,
-            id: 'on_notice',
-            tabhl: ui.HIGHLIGHT.speech
-        },
-        {
-            type: /PRIVMSG$/,
-            flash: true,
-            beep: true,
-            pm: true,
-            id: 'on_pm',
-            tabhl: ui.HIGHLIGHT.speech
-        },
-        {
-            type: /^OUR/,
-            classes: 'our-msg'
-        },
-        {//match bots
-            nick: /(^tf2)|((serv|bot)$)/i,
-            classes: 'bot',
-            types: [ui.WINDOW.channel]
-        },
-        {
-            msg: /^\!/,
-            classes: 'command',
-            types: [ui.WINDOW.channel]
-        },
-        {
-            mentioned: true,
-            highlight: 'mentioned',
-            notus: true,
-            tabhl: ui.HIGHLIGHT.us
-        },
-        {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            mentioned: true,
-            classes: '',
-            beep: true,
-            pm: true,
-            notus: true,
-            id: 'on_mention'//for filtering
-        },
-        {
-            nick: /^((?!(^tf2|bot$|serv$)).)*$/i,
-            msg: /^((?!(^\!)).)*$/, //dont hl commands
-            classes: '',
-            highlight: true,
-            notus: true,
-            id: 'highlighter',
-            tabhl: ui.HIGHLIGHT.activity,
-            types: [ui.WINDOW.channel]
-        }
-    ],
+    messageParsers: [],
 
     highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
 
@@ -7086,13 +7154,13 @@ ui.Theme = new Class({
             tabHighlight = ui.HIGHLIGHT.none,
             highlights = self.highlightClasses,
             nick = win.client.nickname,
-            notus = data.n !== nick,
-            parsers = _.clone(self.messageParsers).concat(self.customNotices);
+            notus = data.n !== nick;
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
-            if(data.m)
+            if(data.m) {
                 $ele.addClass('message');
-            _.each( parsers , function(parser) {
+            }
+            _.each( self.messageParsers , function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
@@ -7207,12 +7275,9 @@ ui.Window = new Class({
             self.highlightTab(highlight);
         }
 
-        var tsE = templates.timestamp({time:util.IRCTimestamp(new Date())});
-        $ele.insertAdjacentHTML('afterbegin', tsE);
-
         var formatted = parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
-                .maxChildren(this.options.maxLines);
+                .maxChildren(this.options.maxLines);//remove lines if > maxLines
 
         if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
             this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
@@ -7786,19 +7851,11 @@ ui.OptionView = new Class({
         pane: 'options',
         events: {
             'change:relay(#options input)': 'inputChange',
-            'change:relay(#options #standard-notices input)': 'snoticeChange',
-            'change:relay(#options #custom-notices input)': 'noticeChange',
+            'change:relay(#options .notice-group input)': 'noticeChange',
             'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options #custom-notices .remove-notice)': 'removeNotifier',
+            'click:relay(#options .remove-notice)': 'removeNotifier',
             'click:relay(#options #dn_state)': 'dnToggle',
             'click:relay(#options #notice-test)': 'noticeTest'
-        },
-
-        onSnoticeChange: function(e, target) {
-            e.stop();
-            var notices = _.clone(this.model.get('notices'));
-            _.assign(notices, target.get('id'), target.val());
-            this.model.set('notices', notices);
         },
 
         onAddNotifier: function(e) {
@@ -7831,13 +7888,13 @@ ui.OptionView = new Class({
 
     addNotifier: function(data) {
         if(!data || Type.isDOMEvent(data)) {
-            data = this.model.get("default_notice")();
+            data = this.model.defaultNotice();
             var n = _.clone(this.model.get("custom_notices"));
             n.push(data);
             this.model.set("custom_notices", n);
         }
 
-        var parent = this.element.getElement('#custom-notices');
+        var parent = this.element.getElement('#custom_notices');
 
         var _data = _.clone(data);
         _data.lang = lang;
@@ -7849,15 +7906,19 @@ ui.OptionView = new Class({
 
     removeNotifier: function(e, target) {
         e.stop();
-        var par = target.getParent('.custom-notice').dispose();
-        this.model.set('custom_notices', (_.reject(this.model.get('custom_notices'), function(xs) {return xs.id === par.id})));
+        var type = target.getParent('.notice-group').id;
+        var par = target.getParent('.controls').dispose();
+        var id = par.get("data-id");
+        this.model.set('custom_notices', (_.reject(this.model.get(type), function(xs) {return xs.id === id})));
     },
 
     noticeChange: function(e, target) {
         e.stop();
-        var notices = _.clone(this.model.get('custom_notices'));
-        var par = target.getParent('.custom-notice');
-        _.findWhere(notices, {id: par.id})[target.get('data-id')] = target.val();
+        var type = target.getParent('.notice-group').id;
+        var notices = _.clone(this.model.get(type));
+        var par = target.getParent('.controls');
+        var notice = _.findWhere(notices, {id: par.get("data-id")});
+        notice[target.get('data-id')] = target.val();
         this.model.set('custom_notices', notices);
     },
     /*********LISTENERS**************/
@@ -7866,10 +7927,10 @@ ui.OptionView = new Class({
         var model = this.model,
             options = this.options;
 
-        _.each(model.get("custom_notices"), function(notice) {
-            notice.lang = lang;
-            this.addNotifier(notice);
-        }, this);
+        // _.each(model.get("custom_notices"), function(notice) {
+        //     notice.lang = lang;
+        //     this.addNotifier(notice);
+        // }, this);
 
         this.element.getElements(".slider").each(function(slider) {
             var id = slider.get('id'),
@@ -7900,7 +7961,7 @@ ui.OptionView = new Class({
 
     getData: function() {
         var data = this.model.toJSON();
-        data.lang = lang;
+        // data.lang = lang;
         return data;
     },
 

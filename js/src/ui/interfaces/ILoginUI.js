@@ -20,16 +20,11 @@
     }
 
 
-var LoginBox = function(parentElement, callback, initialNickname, initialChannels, networkName, validators) {
-    var Base64 = window.Base64;
-    var _nick = new Storer(cookies.nickname),//initial nick
-        _user = new Storer(cookies.username),//auth username
-        _pass = new Storer(cookies.password),//auth password
-        _auth = new Storer(cookies.auth);//enable full auth
-    var nickname = _nick.get() || initialNickname,
-        username = Base64.decode(_user.get()),
-        password = Base64.decode(_pass.get()),
-        eauth = auth.enabled || _auth.get();
+var LoginBox = function(parentElement, callback, settings, networkName, validators) {
+    var nickname = settings.get("nickname"),
+        username = Base64.decode(settings.get("username")),
+        password = Base64.decode(settings.get("password")),
+        eauth = auth.enabled || settings.get("auth");
 
     getTemplate("authpage", function(template) {
         var page = Element.from(template({
@@ -38,7 +33,7 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
             'username': username,
             'password': password,
             'full': eauth, //whether to show the extra auth options (check the checkbox)
-            'channels': initialChannels.join()
+            'channels': settings.get("channels").join()
         })).inject(parentElement);
 
         var $form = page.getElement('#login'),
@@ -76,9 +71,9 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                 "nickname": nickname
             };
 
-            _nick.set(nickname);// nicks valid
+            settings.set("nickname", nickname);// nicks valid
 
-            if ($chkAddAuth.val() || auth.enabled) {
+            if (auth.enabled || $chkAddAuth.val()) {
                 data.username = username = $usernameBox.val();
                 data.realname = username || "";
                 data.password = password = $passwordBox.val();
@@ -90,12 +85,12 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
                     data.serverPassword = username + " " + password;
                 }
 
-                _user.set(Base64.encode(username));
-                _pass.set(Base64.encode(password));
-                _auth.set(true);
+                settings.set("username", Base64.encode(username));
+                settings.set("password", Base64.encode(password));
+                settings.set("auth", true);
                 auth.enabled = true;
             } else {
-                _auth.dispose();
+                settings.unset("auth");
             }
 
             parentElement.empty();
@@ -114,7 +109,7 @@ var LoginBox = function(parentElement, callback, initialNickname, initialChannel
 ui.ILogin = new Class({
     Implements: [Events],
     LoginBox: LoginBox,
-    loginBox: function(initialNickname, initialChannels, autoConnect, autoNick, network) {
+    loginBox: function() {
         this.postInitialize();
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
@@ -122,7 +117,7 @@ ui.ILogin = new Class({
                 win.close();
                 self.fireEvent("login", data);
             };
-        this.LoginBox(win.lines, callback, initialNickname, initialChannels, network || this.options.networkName, this.options.validators);
+        this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
         return win;
     }
 });

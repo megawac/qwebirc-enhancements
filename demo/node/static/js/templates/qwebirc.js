@@ -92,7 +92,7 @@ function program1(depth0,data) {
 
   buffer += "<div class=\"container center\"><form id=\"login\"><h2>Connect to "
     + escapeExpression(((stack1 = depth0.network),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " IRC</h2><!-- <div class=\"controls\"> --><div class=\"control-group right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" class=\"form-control\" data-validate=\"nick\" name=\"basic\" id=\"nickname\" value=\""
+    + " IRC</h2><div class=\"control-group right\"><label class=\"control-label\" for=\"nickname\">Nickname:<input type=\"text\" class=\"form-control\" data-validate=\"nick\" name=\"basic\" id=\"nickname\" value=\""
     + escapeExpression(((stack1 = depth0.nickname),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\" placeholder=\"Nickname\" required /></label></div><div class=\"control-group right ";
   stack2 = helpers.unless.call(depth0, depth0.full, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
@@ -110,7 +110,7 @@ function program1(depth0,data) {
     + escapeExpression(((stack1 = depth0.password),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\"></label></div><div class=\"authenticate\"><label for=\"authenticate\">Authenticate (optional)<input type=\"checkbox\" id=\"authenticate\" "
     + escapeExpression(helpers.check.call(depth0, depth0.full, {hash:{},data:data}))
-    + "></label for=\"authenticate\"></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div><!-- </div> --></form><div class=\"qwebirc-init-channels\"><span>"
+    + "></label></div><div><input type=\"submit\" value=\"Connect\" class=\"btn btn-primary btn-smaller\" /></div></form><div class=\"qwebirc-init-channels\"><span>"
     + escapeExpression(((stack1 = depth0.channels),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</span></div></div>";
   return buffer;
@@ -149,28 +149,22 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-this["qwebirc"]["templates"]["channellink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-channel' data-chan='"
-    + escapeExpression(((stack1 = depth0.channel),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "'>"
-    + escapeExpression(((stack1 = depth0.channel),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
-  return buffer;
-  });
-
 this["qwebirc"]["templates"]["customlink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, escapeExpression=this.escapeExpression, functionType="function";
+  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
 
+function program1(depth0,data) {
+  
+  
+  return "internal";
+  }
 
-  buffer += "<a href=\"#"
-    + escapeExpression(helpers.$link.call(depth0, depth0.val, {hash:{},data:data}))
+  buffer += "<a class=\"";
+  stack1 = helpers['if'].call(depth0, depth0.internal, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\" href=\""
+    + escapeExpression(((stack1 = depth0.val),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = depth0.val),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</a>";
@@ -333,7 +327,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<ul class=\"main-menu dropdownmenu hidden\"><a href=\"#!options\"><li><span>Options</span></li></a><a href=\"#!embedded\"><li><span>Add webchat to your site</span></li></a><a href=\"#!privacy\"><li><span>Privacy policy</span></li></a><a href=\"#!faq\"><li><span>Frequently asked questions</span></li></a><a href=\"#!feedback\"><li><span>Submit feedback</span></li></a><a href=\"#!about\"><li><span>About qwebirc</span></li></a></ul>";
+  return "<ul class=\"main-menu dropdownmenu hidden\"><a class=\"internal\" href=\"options\"><li><span>Options</span></li></a><a class=\"internal\" href=\"embedded\"><li><span>Add webchat to your site</span></li></a><a class=\"internal\" href=\"privacy\"><li><span>Privacy policy</span></li></a><a class=\"internal\" href=\"faq\"><li><span>Frequently asked questions</span></li></a><a class=\"internal\" href=\"feedback\"><li><span>Submit feedback</span></li></a><a class=\"internal\" href=\"about\"><li><span>About qwebirc</span></li></a></ul>";
   });
 
 this["qwebirc"]["templates"]["menubtn"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -575,32 +569,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   buffer += "<li>"
     + escapeExpression(((stack1 = depth0.text),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</li>";
-  return buffer;
-  });
-
-this["qwebirc"]["templates"]["qweblink"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-page' data-page='"
-    + escapeExpression(((stack1 = depth0.page),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "'>"
-    + escapeExpression(((stack1 = depth0.page),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
-  return buffer;
-  });
-
-this["qwebirc"]["templates"]["spanURL"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<span class='hyperlink-channel'>"
-    + escapeExpression(((stack1 = depth0.message),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>";
   return buffer;
   });
 

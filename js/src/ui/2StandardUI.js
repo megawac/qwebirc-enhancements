@@ -50,28 +50,40 @@ ui.StandardUI = new Class({
             "nextWindow": self.nextWindow,
             "prevWindow": self.prevWindow
         });
+        
+        self.element.addEvent("click:relay(.internal)", function(e, $tar) {
+            e.preventDefault();
+            self.updateURI($tar.get("href"));
+        });
 
-        self.router = new Epitome.Router({
-            // routes definition will proxy the events
-            routes: {
-                '': 'index',
-                '#!options': 'options',
-                "#!feedback": 'feedback',
-                "#!about": "about",
-                "#!faq": "faq",
-                "#!embedded": 'embedded',
-                "#!privacy": "privacy"
-            },
-            // no route event was found, though route was defined
-            onError: function(error){
-                if(DEBUG) console.error(error);
-                // recover by going default route
-                this.navigate('');
-            },
-            //try to select the window if it exists
-            onUndefined: function(data) {
-                var request = util.unformatURL(data.request);
-                if(request) {
+        function checkRoute(data) {
+            var request = util.unformatURL(data.request).toLowerCase();
+            console.log("Route: %s Formatted: %s", data.request, request);
+
+            if(self.active && request === self.active.identifier) {
+                return;
+            }
+
+            switch(request) {
+                case "options":
+                    self.optionsWindow();
+                    break;
+                case "privacy":
+                    self.privacyWindow();
+                    break;
+                case "faq":
+                    self.faqWindow();
+                    break;
+                case "about":
+                    self.aboutWindow();
+                    break;
+                case "embedded":
+                    self.embeddedWindow();
+                    break;
+                case "feedback":
+                    self.feedbackWindow();
+                    break;
+                default:
                     var win = _.findWhere(self.windowArray, {identifier:request});
                     if(win) {
                         win.select();
@@ -80,26 +92,62 @@ ui.StandardUI = new Class({
                             client.exec("/JOIN " + request);
                         });
                     }
-                }
-            },
-            'onIndex': function() {
-                //update options with query string?
-            },
-            'onOptions': self.optionsWindow,
-            'onFaq': self.faqWindow,
-            'onPrivacy': self.privacyWindow,
-            'onAbout': self.aboutWindow,
-            'onFeedback': self.feedbackWindow,
-            'onEmbedded': self.embeddedWindow
+            }
+        }
+
+        // hasher.initialized.add(checkRoute); // parse initial hash
+        // hasher.changed.add(checkRoute); //parse hash changes
+        // hasher.init(); //start listening for history change
+        // hasher.prependHash = "~";
+        self.router = new Epitome.Router({
+            // routes definition will proxy the events
+            // routes: {
+            //     '': 'index',
+            //     '#!options': 'options',
+            //     "#!feedback": 'feedback',
+            //     "#!about": "about",
+            //     "#!faq": "faq",
+            //     "#!embedded": 'embedded',
+            //     "#!privacy": "privacy"
+            // },
+            // // no route event was found, though route was defined
+            // onError: function(error){
+            //     if(DEBUG) console.error(error);
+            //     // recover by going default route
+            //     this.navigate('');
+            // },
+            // 'onIndex': function() {
+            //     //update options with query string?
+            // },
+            // 'onOptions': self.optionsWindow,
+            // 'onFaq': self.faqWindow,
+            // 'onPrivacy': self.privacyWindow,
+            // 'onAbout': self.aboutWindow,
+            // 'onFeedback': self.feedbackWindow,
+            // 'onEmbedded': self.embeddedWindow,
+            //try to select the window if it exists
+            // onUndefined: function(data) {
+            //     var request = util.unformatURL(data.request);
+            //     if(request) {
+            //         var win = _.findWhere(self.windowArray, {identifier:request});
+            //         if(win) {
+            //             win.select();
+            //         } else if(util.isChannel(request)) {
+            //             _.each(self.clients, function(client) {
+            //                 client.exec("/JOIN " + request);
+            //             });
+            //         }
+            //     }
+            // }
+            onUndefined: checkRoute
         });
-        
+
         return this;
     },
 
-    updateURI: function() {//format channels specially like #@tf2mix
-        if(this.router instanceof Epitome.Router && this.active) {
-            this.router.navigate(util.formatURL(this.active.identifier));
-        }
+    updateURI: function(url) {
+        // hasher.setHash(util.formatURL(url || this.active.identifier));
+        if(this.router) this.router.navigate(util.formatURL(url || this.active.identifier));
     },
 
     whoisURL: function(e, target) {

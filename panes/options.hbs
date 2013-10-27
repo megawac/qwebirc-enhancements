@@ -10,55 +10,61 @@
         <div class="ui-options control-group well active">
             <div class="controls">
                 <label class="checkbox" for="auto_open_pm">
-                    {{lang.AUTO_OPEN_PM}}
+                    {{lang "AUTO_OPEN_PM"}}
                     <input type="checkbox" id="auto_open_pm" {{check auto_open_pm}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="nick_colours">
-                    {{lang.NICK_COLOURS}}
+                    {{lang "NICK_COLOURS"}}
                     <input type="checkbox" id="nick_colours" {{check nick_colours}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="nick_ov_status">
-                    {{lang.NICK_OV_STATUS}}
+                    {{lang "NICK_OV_STATUS"}}
                     <input type="checkbox" id="nick_ov_status" {{check nick_ov_status}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="show_timestamps">
-                    {{lang.SHOW_TIMESTAMPS}}
+                    {{lang "SHOW_TIMESTAMPS"}}
                     <input type="checkbox" id="show_timestamps" {{check show_timestamps}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="show_nicklist">
-                    {{lang.SHOW_NICKLIST}}
+                    {{lang "SHOW_NICKLIST"}}
                     <input type="checkbox" id="show_nicklist" {{check show_nicklist}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="lastpos_line">
-                    {{lang.LASTPOS_LINE}}
+                    {{lang "LASTPOS_LINE"}}
                     <input type="checkbox" id="lastpos_line" {{check lastpos_line}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="hide_joinparts">
-                    {{lang.HIDE_JOINPARTS}}
+                    {{lang "HIDE_JOINPARTS"}}
                     <input type="checkbox" id="hide_joinparts" {{check hide_joinparts}}>
                 </label>
             </div>
             <div class="controls">
-                <label class="checkbox" for="font_size">
-                    {{lang.FONT_SIZE}}
+                <label for="font_size">
+                    {{lang "FONT_SIZE"}}
                     <input type="number" id="font_size" value={{font_size}}>
                 </label>
             </div>
             <div class="controls">
+                <label for="volume">
+                    {{lang "VOLUME"}}
+                    <input type="number" id="volume" value={{volume}}>
+                </label>
+            </div>
+            <div class="controls">
                 <label for="style_hue">
-                    {{lang.STYLE_HUE}}
+                    {{lang "STYLE_HUE"}}
                     <div id="style_hue" class="slider hue-slider"><div class="knob"></div></div>
                 </label>
             </div>
@@ -66,20 +72,20 @@
         <div class="irc-options control-group well">
             <div class="controls">
             <label class="checkbox" for="use_hiddenhost">
-                {{lang.USE_HIDDENHOST}}
+                {{lang "USE_HIDDENHOST"}}
                 <input type="checkbox" id="use_hiddenhost" {{check use_hiddenhost}}>
             </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="accept_service_invites">
-                    {{lang.ACCEPT_SERVICE_INVITES}}
+                    {{lang "ACCEPT_SERVICE_INVITES"}}
                     <input type="checkbox" id="accept_service_invites" {{check accept_service_invites}}>
                 </label>
             </div>
         </div>
         <div class="alert-options control-group well">
             <div class="controls">
-                <label class="control-label-inline">{{lang.DESKTOP_NOTICES}}
+                <label class="control-label-inline">{{lang "DESKTOP_NOTICES"}}
                     <input type="button" value="{{enableDisable dn_state}}" id="dn_state">
                 </label>
                 <label class="control-label-inline" for="dn_duration">Notification duration:
@@ -88,52 +94,29 @@
                 <input type="button" value="Test" id="notice-test">
                 <a href="http://caniuse.com/notifications" target="_blank">Notification Support</a>
             </div>
-            <div id="standard-notices">
-                <div class="controls">
-                    <label class="control-label">{{lang.NOTIFY_ON_MENTION}}
-                        <label class="checkbox-inline" for="on_mention.beep">{{lang.BEEP}}
-                            <input type="checkbox" id="on_mention.beep" {{check notices.on_mention.beep}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_mention.flash">{{lang.FLASH}}
-                            <input type="checkbox" id="on_mention.flash" {{check notices.on_mention.flash}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_mention.pm">{{lang.PM}}
-                            <input type="checkbox" id="on_mention.pm" {{check notices.on_mention.pm}}>
-                        </label>
-                    </label>
+            <div>
+                <div id="standard_notices" class="controls notice-group panel panel-default">
+                    <div class="panel-heading" data-trigger="toggleReveal" data-togglereveal-target="~.panel-body" data-togglereveal-options="{}">
+                        <h4><a>Standard Notices</a></h4>
+                    </div>
+                    <div class="panel-body" {{!style="display: none;"}}>
+                        {{#each standard_notices}}
+                            {{> customNotice}}
+                        {{/each}}
+                    </div>
                 </div>
-                <div class="controls">
-                    <label class="control-label">{{lang.NOTIFY_ON_PM}}
-                        <label class="checkbox-inline" for="on_pm.beep">{{lang.BEEP}}
-                            <input type="checkbox" id="on_pm.beep" {{check notices.on_pm.beep}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_pm.flash">{{lang.FLASH}}
-                            <input type="checkbox" id="on_pm.flash" {{check notices.on_pm.flash}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_pm.pm">{{lang.PM}}
-                            <input type="checkbox" id="on_pm.pm" {{check notices.on_pm.pm}}>
-                        </label>
-                    </label>
-                </div>
-                <div class="controls">
-                    <label class="control-label">{{lang.NOTIFY_ON_NOTICE}}
-                        <label class="checkbox-inline" for="on_notice.beep">{{lang.BEEP}}
-                            <input type="checkbox" id="on_notice.beep" {{check notices.on_notice.beep}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_notice.flash">{{lang.FLASH}}
-                            <input type="checkbox" id="on_notice.flash" {{check notices.on_notice.flash}}>
-                        </label>
-                        <label class="checkbox-inline" for="on_notice.pm">{{lang.PM}}
-                            <input type="checkbox" id="on_notice.pm" {{check notices.on_notice.pm}}>
-                        </label>
-                    </label>
+                <div id="custom_notices" class="controls notice-group panel panel-default">
+                    <div class="panel-heading">
+                        <h4><a>Custom Notices</a></h4>
+                    </div>
+                    <div class="panel-body">
+                        {{#each custom_notices}}
+                            {{> customNotice}}
+                        {{/each}}
+                        <input type="button" value="{{lang "ADD_NOTICE"}}" id="add-notice" class="btn btn-default btn-small">
+                    </div>
                 </div>
             </div>
-            <h3>Custom Notices</h3>
-            <div id="custom-notices" class="controls">
-                
-            </div>
-            <input type="button" value="{{lang.ADD_NOTICE}}" id="add-notice" class="btn btn-default btn-small">
         </div>
         <div class="hotkeys control-group well">
             

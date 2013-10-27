@@ -91,6 +91,10 @@
         return util.format(prop, this);
     });
 
+    engine.registerHelper("lang", function(prop) {
+        return lang[prop];
+    });
+
     /******************
         Compiliation
     *********************/
