@@ -58,7 +58,7 @@ ui.StandardUI = new Class({
 
         function checkRoute(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            console.log("Route: %s Formatted: %s", data.request, request);
+            // console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.identifier) {
                 return;

@@ -366,16 +366,13 @@ util.getEnclosedWord = function(str, pos) {
 };
 
 // NOT cryptographically secure! 
+//http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
 util.randHexString = function(numBytes) {
-    function getByte() {
-        return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
-    };
-
-    var l = [];
-    for (var i = 0; i < numBytes; i++) {
-        l.push(getByte());
+    var id = "";
+    for (; numBytes > 0; numBytes--) {
+        id += (((1 + Math.random()) * 0x100) | 0).toString(16).slice(1);
     }
-    return l.join("");
+    return id;
 };
 
 

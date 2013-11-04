@@ -45,8 +45,8 @@ ui.QUI.Window = new Class({
                 id: self.name.clean().replace(" ", "-"),
                 topic: false,
                 needsInput: hasInput,
-                nick: self.client ? self.client.nickname : "",
-                splitPane: false//feature in development having issue with resizes {{link to repo}}
+                nick: self.client ? self.client.nickname : ""/*,
+                splitPane: false//feature in development having issue with resizes {{link to repo}}*/
             }));
         var $win = self.window = self.element.getElement('.window').store("window", self);
 

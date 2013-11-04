@@ -1844,16 +1844,13 @@ util.getEnclosedWord = function(str, pos) {
 };
 
 // NOT cryptographically secure! 
+//http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
 util.randHexString = function(numBytes) {
-    function getByte() {
-        return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
-    };
-
-    var l = [];
-    for (var i = 0; i < numBytes; i++) {
-        l.push(getByte());
+    var id = "";
+    for (; numBytes > 0; numBytes--) {
+        id += (((1 + Math.random()) * 0x100) | 0).toString(16).slice(1);
     }
-    return l.join("");
+    return id;
 };
 
 
@@ -3428,16 +3425,13 @@ irc.CommandHistory = new Class({
 
 irc.NodeConnection = new Class({
     Implements: [Options, Events],
-    Binds: ["recv", "error", "_connected", "_disconnected"],
+    Binds: ["_recv", "_error"],
     options: {
-        socket: {
-            url: document.location.hostname
-        },
+        socket_connect: document.location.hostname,
         nickname: "ircconnX",
         password: '',
         serverPassword: null,
         autoConnect: true,
-        autoRejoin: false,
         debug: true,
         floodProtection: false,
         /*server: xxx,
@@ -3461,21 +3455,60 @@ irc.NodeConnection = new Class({
         stripColors: false,
         channelPrefixes: "&#",
         messageSplit: 512*/
+        autoretry: true,
         retryInterval: 5000,
-        retryScalar: 2
+        // retryScalar: 2,
+        retryAttempts: 30,//retry for 60 seconds
+
+        clientID: util.randHexString(16)
     },
     connected: false,
 
     initialize: function(options) {
         var self = this;
-        self.setOptions(options);
-        var ip = util.formatter("{url}", self.options.socket);
-        var socket = self.socket = io.connect(ip);
+        options = self.setOptions(options).options;
+
+        var socket = self.socket = io.connect(options.socket_connect, {
+          'reconnect': options.autoretry,
+          'reconnection delay': options.retryInterval,
+          'max reconnection attempts': options.retryAttempts
+        });
+
         var $evts = {
-            "raw": self.recv,
-            "echo": _.log,
-            "connected": self._connected,
-            "disconnect": self._disconnected,
+            "raw": self._recv,
+
+            "connected": function() {
+                self.connected = true;
+                self.attempts = 0;
+                self.fireEvent("connected");
+                // this.__retry = this.options.retryInterval;
+            },
+            "disconnect": function() {
+                self.connected = false;
+            },
+            "reconnect": function() {
+                console.log("reconnecting");
+                self.socket.emit("reconnect", options);
+            },
+            "reconnecting": function() {
+                console.log("reattempt");
+                self.fireEvent("retry", {
+                    next: options.retryInterval
+                });
+            },
+
+            "lostConnection": function() {
+                self.fireEvent("lostConnection", self.attempts++);
+                self.connected = false;
+            },
+            "abort": function() {
+                new ui.Alert({
+                    title: "Lost connection to IRC server",
+                    text: "Server lost connection to the IRC server"
+                });
+                self.connected = false;
+            },
+
             "max_connections": function() {
                 new ui.Alert({
                     title: 'Maximum connections reached',
@@ -3485,11 +3518,8 @@ irc.NodeConnection = new Class({
                     }
                 });
             },
-            "terminated": function(message) {
-                alert(message);
-            },
-            // "connected": _.log,
-            "error": self.error
+            "echo": _.log,
+            "error": self._error
         };
 
         _.each($evts, function(fn, key) {
@@ -3510,24 +3540,12 @@ irc.NodeConnection = new Class({
         this.socket.emit("irc", this.options);
     },
 
-    //irc connection on server in
-    _connected: function() {
-        this.connected = true;
-        this.fireEvent("connected");
-        this.__retry = this.options.retryInterval;
-    },
-
     disconnect: function() {
         this.socket.emit("quit");
         this.socket.disconnect();
     },
 
-    _disconnected: function() {
-        this.connected = false;
-        this.autoretry();
-    },
-
-    recv: function(data) {
+    _recv: function(data) {
         var processed = util.parseIRCData(data.raw);
         this.fireEvent("recv", processed);
     },
@@ -3542,10 +3560,10 @@ irc.NodeConnection = new Class({
         }
     },
 
-    error: function() {
+    _error: function() {
         console.error(arguments);
-        this.fireEvent("error");
-    },
+        this.fireEvent("error", arguments);
+    }/*,
 
     autoretry: function() {
         if(this.connected) {return;}
@@ -3553,9 +3571,9 @@ irc.NodeConnection = new Class({
         this.fireEvent("retry", {
             next: next
         });
-        this.socket.emit("retry", "please");
+        this.socket.emit("retry", this.options);
         return _.delay(this.autoretry, next, this);
-    }
+    }*/
 });
 
 
@@ -3664,9 +3682,13 @@ irc.IRCClient = new Class({
         return this;
     },
 
-    lostConnection: function() {
-        console.log("todo");
+    lostConnection: function(attempt) {
         console.log(arguments);
+        this.writeMessages(lang.connRetry, {
+            retryAttempts: attempt
+        }, {
+            channels: "ALL"
+        });
     },
 
     retry: function(data) {
@@ -6206,7 +6228,7 @@ ui.StandardUI = new Class({
 
         function checkRoute(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            console.log("Route: %s Formatted: %s", data.request, request);
+            // console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.identifier) {
                 return;
@@ -7358,8 +7380,8 @@ ui.QUI.Window = new Class({
                 id: self.name.clean().replace(" ", "-"),
                 topic: false,
                 needsInput: hasInput,
-                nick: self.client ? self.client.nickname : "",
-                splitPane: false//feature in development having issue with resizes {{link to repo}}
+                nick: self.client ? self.client.nickname : ""/*,
+                splitPane: false//feature in development having issue with resizes {{link to repo}}*/
             }));
         var $win = self.window = self.element.getElement('.window').store("window", self);
 
@@ -7857,11 +7879,6 @@ ui.OptionView = new Class({
             'click:relay(#options #dn_state)': 'dnToggle',
             'click:relay(#options #notice-test)': 'noticeTest'
         },
-
-        onAddNotifier: function(e) {
-            e.stop();
-            this.addNotifier();
-        },
         
         onDnToggle: function(e, target) {
             toggleNotifications(this.model);
@@ -7894,14 +7911,14 @@ ui.OptionView = new Class({
             this.model.set("custom_notices", n);
         }
 
-        var parent = this.element.getElement('#custom_notices');
+        var $addbtn = this.element.getElement('#add-notice'/*'#custom_notices .panel-body'*/);
 
         var _data = _.clone(data);
         _data.lang = lang;
 
         var temp = templates.customNotice(_data);
 
-        parent.insertAdjacentHTML('beforeend', temp);
+        $addbtn.insertAdjacentHTML('beforebegin', temp);//insert before btn
     },
 
     removeNotifier: function(e, target) {

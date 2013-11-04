@@ -97,9 +97,13 @@ irc.IRCClient = new Class({
         return this;
     },
 
-    lostConnection: function() {
-        console.log("todo");
+    lostConnection: function(attempt) {
         console.log(arguments);
+        this.writeMessages(lang.connRetry, {
+            retryAttempts: attempt
+        }, {
+            channels: "ALL"
+        });
     },
 
     retry: function(data) {

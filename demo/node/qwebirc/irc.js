@@ -139,9 +139,9 @@ _.extend(Client.prototype, {
             if (options.debug) util.log('Connection got "end" event');
         });
         self.conn.addListener("close", function() {
-            if (options.debug) util.log('Connection got "close" event');
+            if (options.debug) util.log('Connection got "close" event --- requested: ' + self.conn.requestedDisconnect);
             if (self.conn.requestedDisconnect) return;
-            if (options.debug) util.log('Disconnected: reconnecting');
+            if (options.debug) util.log('Disconnected: reconnect attempt');
             if (options.retryCount !== null && retryCount >= options.retryCount) {
                 if (options.debug) {
                     util.log('Maximum retry count (' + options.retryCount + ') reached. Aborting');
@@ -164,7 +164,7 @@ _.extend(Client.prototype, {
         });
     },
 
-    disconnect: function(message, callback) {
+    disconnect: function(callback) {
         this.conn.requestedDisconnect = true;
         if (_.isFunction(callback)) {
             this.conn.once('end', callback);

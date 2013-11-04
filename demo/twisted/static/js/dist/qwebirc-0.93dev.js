@@ -1,6 +1,6 @@
 /*!
 qwebirc-WebIRC-client ::: Version 0.93.11 :::
-Built on 2013-10-27
+Built on 2013-11-03
 Description: webirc client - See qwebirc.org
 Authors: Graeme Yeates (www.github.com/megawac)
 Repository: www.github.com/megawac/qwebirc-enhancements
@@ -6566,11 +6566,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         var left = str.slice(0, pos + 1).search(notwhitespace), right = str.slice(pos).search(whitespace), word = 0 > right ? str.slice(left) : str.slice(left, right + pos);
         return [ left, word ];
     }, util.randHexString = function(numBytes) {
-        function getByte() {
-            return (0 | 256 * (1 + Math.random())).toString(16).substring(1);
-        }
-        for (var l = [], i = 0; numBytes > i; i++) l.push(getByte());
-        return l.join("");
+        for (var id = ""; numBytes > 0; numBytes--) id += (0 | 256 * (1 + Math.random())).toString(16).slice(1);
+        return id;
     }, util.IRCTimestamp = function(date) {
         return date.format("[%H:%M]");
     }, util.IRCDate = function(date) {
@@ -7585,30 +7582,53 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             _filter: _.not(_.isEmpty)
         }), irc.NodeConnection = new Class({
             Implements: [ Options, Events ],
-            Binds: [ "recv", "error", "_connected", "_disconnected" ],
+            Binds: [ "_recv", "_error" ],
             options: {
-                socket: {
-                    url: document.location.hostname
-                },
+                socket_connect: document.location.hostname,
                 nickname: "ircconnX",
                 password: "",
                 serverPassword: null,
                 autoConnect: !0,
-                autoRejoin: !1,
                 debug: !0,
                 floodProtection: !1,
+                autoretry: !0,
                 retryInterval: 5e3,
-                retryScalar: 2
+                retryAttempts: 30,
+                clientID: util.randHexString(16)
             },
             connected: !1,
             initialize: function(options) {
                 var self = this;
-                self.setOptions(options);
-                var ip = util.formatter("{url}", self.options.socket), socket = self.socket = io.connect(ip), $evts = {
-                    raw: self.recv,
-                    echo: _.log,
-                    connected: self._connected,
-                    disconnect: self._disconnected,
+                options = self.setOptions(options).options;
+                var socket = self.socket = io.connect(options.socket_connect, {
+                    reconnect: options.autoretry,
+                    "reconnection delay": options.retryInterval,
+                    "max reconnection attempts": options.retryAttempts
+                }), $evts = {
+                    raw: self._recv,
+                    connected: function() {
+                        self.connected = !0, self.attempts = 0, self.fireEvent("connected");
+                    },
+                    disconnect: function() {
+                        self.connected = !1;
+                    },
+                    reconnect: function() {
+                        console.log("reconnecting"), self.socket.emit("reconnect", options);
+                    },
+                    reconnecting: function() {
+                        console.log("reattempt"), self.fireEvent("retry", {
+                            next: options.retryInterval
+                        });
+                    },
+                    lostConnection: function() {
+                        self.fireEvent("lostConnection", self.attempts++), self.connected = !1;
+                    },
+                    abort: function() {
+                        new ui.Alert({
+                            title: "Lost connection to IRC server",
+                            text: "Server lost connection to the IRC server"
+                        }), self.connected = !1;
+                    },
                     max_connections: function() {
                         new ui.Alert({
                             title: "Maximum connections reached",
@@ -7618,10 +7638,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                             }
                         });
                     },
-                    terminated: function(message) {
-                        alert(message);
-                    },
-                    error: self.error
+                    echo: _.log,
+                    error: self._error
                 };
                 _.each($evts, function(fn, key) {
                     fn ? socket.on(key, fn) : socket.on(key, function() {
@@ -7632,16 +7650,10 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             connect: function() {
                 this.socket.emit("irc", this.options);
             },
-            _connected: function() {
-                this.connected = !0, this.fireEvent("connected"), this.__retry = this.options.retryInterval;
-            },
             disconnect: function() {
                 this.socket.emit("quit"), this.socket.disconnect();
             },
-            _disconnected: function() {
-                this.connected = !1, this.autoretry();
-            },
-            recv: function(data) {
+            _recv: function(data) {
                 var processed = util.parseIRCData(data.raw);
                 this.fireEvent("recv", processed);
             },
@@ -7649,16 +7661,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 return this.connected ? (this.socket.emit("send", data), !0) : (console.error("disconnected dude"), 
                 void 0);
             },
-            error: function() {
-                console.error(arguments), this.fireEvent("error");
-            },
-            autoretry: function() {
-                if (!this.connected) {
-                    var next = this.__retry *= this.options.retryScalar;
-                    return this.fireEvent("retry", {
-                        next: next
-                    }), this.socket.emit("retry", "please"), _.delay(this.autoretry, next, this);
-                }
+            _error: function() {
+                console.error(arguments), this.fireEvent("error", arguments);
             }
         }), auth.loggedin = !1, auth.enabled = !1, auth.passAuth = $lambda(!0), auth.bouncerAuth = $lambda(!1), 
         irc.IRCClient = new Class({
@@ -7732,8 +7736,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     channels: "ALL"
                 }), this.disconnect(), this.trigger("disconnect"), this.__signedOn = !1), this;
             },
-            lostConnection: function() {
-                console.log("todo"), console.log(arguments);
+            lostConnection: function(attempt) {
+                console.log(arguments), this.writeMessages(lang.connRetry, {
+                    retryAttempts: attempt
+                }, {
+                    channels: "ALL"
+                });
             },
             retry: function(data) {
                 this.trigger("retry", data), this.writeMessages(lang.connRetry, {
@@ -9070,7 +9078,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         postInitialize: function() {
             function checkRoute(data) {
                 var request = util.unformatURL(data.request).toLowerCase();
-                if (console.log("Route: %s Formatted: %s", data.request, request), !self.active || request !== self.active.identifier) switch (request) {
+                if (!self.active || request !== self.active.identifier) switch (request) {
                   case "options":
                     self.optionsWindow();
                     break;
@@ -9768,8 +9776,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 id: self.name.clean().replace(" ", "-"),
                 topic: !1,
                 needsInput: hasInput,
-                nick: self.client ? self.client.nickname : "",
-                splitPane: !1
+                nick: self.client ? self.client.nickname : ""
             }));
             var $win = self.window = self.element.getElement(".window").store("window", self), $content = self.content = $win.getElement(".content"), lines = self.lines = $content.getElement(".lines");
             return lines.store("window", self), type === ui.WINDOW.channel && ($win.addClass("channel"), 
@@ -10077,9 +10084,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     "click:relay(#options #dn_state)": "dnToggle",
                     "click:relay(#options #notice-test)": "noticeTest"
                 },
-                onAddNotifier: function(e) {
-                    e.stop(), this.addNotifier();
-                },
                 onDnToggle: function(e, target) {
                     toggleNotifications(this.model), target.val(this.model.get("dn_state") ? lang.DISABLE : lang.ENABLE);
                 },
@@ -10097,10 +10101,10 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     var n = _.clone(this.model.get("custom_notices"));
                     n.push(data), this.model.set("custom_notices", n);
                 }
-                var parent = this.element.getElement("#custom_notices"), _data = _.clone(data);
+                var $addbtn = this.element.getElement("#add-notice"), _data = _.clone(data);
                 _data.lang = lang;
                 var temp = templates.customNotice(_data);
-                parent.insertAdjacentHTML("beforeend", temp);
+                $addbtn.insertAdjacentHTML("beforebegin", temp);
             },
             removeNotifier: function(e, target) {
                 e.stop();

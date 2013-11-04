@@ -12,11 +12,6 @@ ui.OptionView = new Class({
             'click:relay(#options #dn_state)': 'dnToggle',
             'click:relay(#options #notice-test)': 'noticeTest'
         },
-
-        onAddNotifier: function(e) {
-            e.stop();
-            this.addNotifier();
-        },
         
         onDnToggle: function(e, target) {
             toggleNotifications(this.model);
@@ -49,14 +44,14 @@ ui.OptionView = new Class({
             this.model.set("custom_notices", n);
         }
 
-        var parent = this.element.getElement('#custom_notices');
+        var $addbtn = this.element.getElement('#add-notice'/*'#custom_notices .panel-body'*/);
 
         var _data = _.clone(data);
         _data.lang = lang;
 
         var temp = templates.customNotice(_data);
 
-        parent.insertAdjacentHTML('beforeend', temp);
+        $addbtn.insertAdjacentHTML('beforebegin', temp);//insert before btn
     },
 
     removeNotifier: function(e, target) {
