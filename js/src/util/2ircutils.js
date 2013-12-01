@@ -11,9 +11,9 @@ var join = function(by, xs) {
         return str.split(by);
     },
 
-    restRight = _.autoCurry(function(xs) {
-        return xs.slice(0, xs.length - 1);
-    }),
+    // restRight = function(xs) {
+    //     return xs.slice(0, xs.length - 1);
+    // },
 
     test = _.autoCurry(function(reg, str) {
         return str.test(reg);
@@ -111,7 +111,7 @@ util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
 util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
-util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChannel), splitChan);
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
@@ -151,7 +151,7 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     args_re = /^:|\s+:/,
     argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
     args_split_re = / +/,
-    NUMERICS = irc.Numerics2;
+    NUMERICS = irc.Numerics;
 util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
         'raw': line,
@@ -264,11 +264,12 @@ util.removePrefix = function(nc, pref) {
     return nc.prefixes = nc.prefixes.replaceAll(pref, "");
 };
 
-//if theres a prefix it gets returned
-//i dont think its possible to have multiple prefixes
+//get prefixs on a nick
 util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
-    var c = nick.charAt(0);
-    return util.validPrefix(prefixes, c) ? [c, nick.slice(1)] : ['', nick];
+    for (var i = 0; i < nick.length; i++) {
+        if(!util.validPrefix(prefixes, nick.charAt(i))) break;
+    }
+    return [nick.slice(0, i), nick.slice(i)];
 });
 
 util.getPrefix = _.compose(_.first, util.prefixOnNick);

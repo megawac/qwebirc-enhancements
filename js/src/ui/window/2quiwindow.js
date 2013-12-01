@@ -5,7 +5,7 @@ ui.QUI.Window = new Class({
     Binds: ['close'],
     options: {
         events: {
-            'click:relay(.input .send)': 'sendInput',
+            // 'click:relay(.input .send)': 'sendInput',
             'dblclick:relay(.input .nickname)': 'setNickname',
             'dblclick:relay(.topic)': 'editTopic',
 
@@ -66,6 +66,9 @@ ui.QUI.Window = new Class({
                 start: false
             });
             self.$input = $win.getElement('.input .irc-input');
+
+            $win.getElement('form')
+                .addEvent("submit", self.sendInput);
         }
         return self;
     },
@@ -414,6 +417,7 @@ ui.QUI.Window = new Class({
             nicks.push(nick);
 
             if(!old || old.prefix !== nickobj.prefix) {
+                if(old && old.element) old.element.dispose();//or update it jeez
                 lnh[nick] = self.nickListAdd(nickobj, index);
             }
         });

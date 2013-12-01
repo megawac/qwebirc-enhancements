@@ -1,12 +1,11 @@
-//this must refer to a model
 function toggleNotifications(model, state, save) {
     if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
         notify.requestPermission(function() {
-            model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
+            toggleNotifications(model, notify.permissionLevel() === notify.PERMISSION_GRANTED, save);
         });
     }
     else {
-        model.set('dn_state', state || !model.get('dn_state'));
+        model.set('dn_state', state != null ? !!state : !model.get('dn_state'));
     }
     if(save) model.save();
 }
