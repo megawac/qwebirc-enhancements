@@ -57,7 +57,7 @@
 
             if(this.options.default_parser) {
                 this.patterns.push({
-                    pattern: /[a-z0-9]\.[a-z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
+                    pattern: /[a-z0-9]{2,}\.[a-z]{2,4}/i,//i think this should pass tests on all valid urls... will also pick up things like test.test
                     entireStr: false,
                     parse: function(text) {
                         var options = this.options;

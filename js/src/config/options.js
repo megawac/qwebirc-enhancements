@@ -1,101 +1,103 @@
 
+ui["default options"] = {
+    "auto_open_pm": false,
+    "nick_ov_status": true,
+    "accept_service_invites": true,
+    "use_hiddenhost": true,
+    "lastpos_line": true,
+    "nick_colours": false,
+    "hide_joinparts": false,
+    "show_nicklist": !Browser.isMobile,
+    "show_timestamps": true,
+    "font_size": 12,
+    "volume": 100, //0-100
+
+    "completer": {
+        "intrusive": Browser.isDecent,
+        "store": !Browser.isMobile
+    },
+
+    "dn_state": false,
+    "dn_duration": 4000,
+
+    "highlight": true,
+    "highlight_mentioned": true,
+
+    "style_hue": 210,
+    "style_saturation": 0,
+    "style_brightness": 0,
+
+    "standard_notices": [
+        {
+            type: "^(?!SERVER)+NOTICE+$",//notice not server notice
+            classes: '',
+            beep: true,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: 'notice'
+        },
+        {
+            type: "PRIVMSG$",
+            flash: true,
+            beep: true,
+            pm: true,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: 'pm'
+        },
+        {
+            type: "^OUR",
+            classes: 'our-msg',
+            id: 'ourmsg'
+        },
+        {//match bots
+            nick: "(^tf2)|((serv|bot)$)",
+            classes: 'bot',
+            types: [ui.WINDOW.channel],
+            "case": true,
+            id: 'bot'
+        },
+        {
+            msg: "^\\!",
+            classes: 'command',
+            types: [ui.WINDOW.channel],
+            id: 'cmd'
+        },
+        {
+            mentioned: true,
+            highlight: 'mentioned',
+            notus: true,
+            tabhl: ui.HIGHLIGHT.us,
+            id: 'mention'
+        },
+        {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            mentioned: true,
+            classes: '',
+            beep: true,
+            pm: true,
+            notus: true,
+            "case": true,
+            id: 'onmention'
+        },
+        {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            msg: "^((?!(^\\!)).)*$", //dont hl commands
+            classes: '',
+            highlight: true,
+            notus: true,
+            "case": true,
+            tabhl: ui.HIGHLIGHT.activity,
+            types: [ui.WINDOW.channel],
+            id: 'hl'
+        }
+    ],
+
+    "custom_notices": []
+}
+
 config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
-        defaults: {
-            "auto_open_pm": false,
-            "nick_ov_status": true,
-            "accept_service_invites": true,
-            "use_hiddenhost": true,
-            "lastpos_line": true,
-            "nick_colours": false,
-            "hide_joinparts": false,
-            "show_nicklist": !Browser.isMobile,
-            "show_timestamps": true,
-            "font_size": 12,
-            "volume": 100, //0-100
-
-            "completer": {
-                "intrusive": Browser.isDecent,
-                "store": !Browser.isMobile
-            },
-
-            "dn_state": false,
-            "dn_duration": 4000,
-
-            "highlight": true,
-            "highlight_mentioned": true,
-
-            "style_hue": 210,
-            "style_saturation": 0,
-            "style_brightness": 0,
-
-            "standard_notices": [
-                {
-                    type: "^(?!SERVER)+NOTICE+$",//notice not server notice
-                    classes: '',
-                    beep: true,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: 'notice'
-                },
-                {
-                    type: "PRIVMSG$",
-                    flash: true,
-                    beep: true,
-                    pm: true,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: 'pm'
-                },
-                {
-                    type: "^OUR",
-                    classes: 'our-msg',
-                    id: 'ourmsg'
-                },
-                {//match bots
-                    nick: "(^tf2)|((serv|bot)$)",
-                    classes: 'bot',
-                    types: [ui.WINDOW.channel],
-                    "case": true,
-                    id: 'bot'
-                },
-                {
-                    msg: "^\\!",
-                    classes: 'command',
-                    types: [ui.WINDOW.channel],
-                    id: 'cmd'
-                },
-                {
-                    mentioned: true,
-                    highlight: 'mentioned',
-                    notus: true,
-                    tabhl: ui.HIGHLIGHT.us,
-                    id: 'mention'
-                },
-                {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    mentioned: true,
-                    classes: '',
-                    beep: true,
-                    pm: true,
-                    notus: true,
-                    "case": true,
-                    id: 'onmention'
-                },
-                {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    msg: "^((?!(^\\!)).)*$", //dont hl commands
-                    classes: '',
-                    highlight: true,
-                    notus: true,
-                    "case": true,
-                    tabhl: ui.HIGHLIGHT.activity,
-                    types: [ui.WINDOW.channel],
-                    id: 'hl'
-                }
-            ],
-
-            "custom_notices": []
-        },
+        defaults: ui["default options"],
         key: cookies.options,
         minimize: true
     },

@@ -12,6 +12,7 @@ ui.Theme = new Class({
         });
 
         self.highlightClasses.channels = {};
+        self.config = config;
     },
 
     //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
@@ -41,10 +42,9 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var timestamp = templates.timestamp({time:util.IRCTimestamp(new Date())});
-        var msghtml = timestamp + result;
+        var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', msghtml);//insertAdjacentHTML may render escaped chars incorrectly
+            .insertAdjacentHTML('beforeend', timestamp + result);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 

@@ -327,7 +327,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 1,
         minargs: 0,
         fn: function(args) {
-            this.quit(args[0] || "");
+            this.quit(args[0] || "", true);
         }
     },
     // cmd_CYCLE: {

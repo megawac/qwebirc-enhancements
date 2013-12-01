@@ -213,13 +213,13 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status "
+  buffer += "<form class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status "
     + escapeExpression(((stack1 = depth0.status),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "'></span><span class=\"nickname\">"
     + escapeExpression(((stack1 = depth0.nick),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</span></span>"
     + "<input class='tt-hint hidden' type='text' autocomplete='off' spellcheck='off' disabled>"
-    + "<input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
+    + "<input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='submit'>&gt;</button></span></div></form>";
   return buffer;
   });
 
@@ -907,49 +907,8 @@ irc.IRCLowercaseTable = [ /* x00-x07 */ '\x00', '\x01', '\x02', '\x03', '\x04', 
     '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'
 ];
 
-// irc.Numerics = {
-//     "001": "RPL_WELCOME",
-//     "004": "RPL_MYINFO",
-//     "005": "RPL_ISUPPORT",
-//     "353": "RPL_NAMREPLY",
-//     "366": "RPL_ENDOFNAMES",
-
-//     "331": "RPL_NOTOPIC",
-//     "332": "RPL_TOPIC",
-//     "333": "RPL_TOPICWHOTIME",
-
-//     "311": "RPL_WHOISUSER",
-//     "312": "RPL_WHOISSERVER",
-//     "313": "RPL_WHOISOPERATOR",
-//     "317": "RPL_WHOISIDLE",
-//     "671": "RPL_WHOISSECURE",
-//     "318": "RPL_ENDOFWHOIS",
-//     "319": "RPL_WHOISCHANNELS",
-//     "330": "RPL_WHOISACCOUNT",
-//     "338": "RPL_WHOISACTUALLY",
-//     "343": "RPL_WHOISOPERNAME",
-//     "320": "RPL_WHOISGENERICTEXT",
-//     "325": "RPL_WHOISWEBIRC",
-
-//     "301": "RPL_AWAY",
-//     "305": "RPL_UNAWAY",
-//     "306": "RPL_NOWAWAY",
-
-//     "324": "RPL_CHANNELMODEIS",
-//     "329": "RPL_CREATIONTIME",
-
-//     "433": "ERR_NICKNAMEINUSE",
-//     "401": "ERR_NOSUCHNICK",
-//     "404": "ERR_CANNOTSENDTOCHAN",
-//     "482": "ERR_CHANOPPRIVSNEEDED",
-
-//     "321": "RPL_LISTSTART",
-//     "322": "RPL_LIST",
-//     "323": "RPL_LISTEND"
-// };
-
 //https://www.alien.net.au/irc/irc2numerics.html
-irc.Numerics2 = { // from node-irc
+irc.Numerics = { // from node-irc
     "001": {
         "name": "RPL_WELCOME",
         "type": "reply"
@@ -1489,9 +1448,9 @@ var join = function(by, xs) {
         return str.split(by);
     },
 
-    restRight = _.autoCurry(function(xs) {
-        return xs.slice(0, xs.length - 1);
-    }),
+    // restRight = function(xs) {
+    //     return xs.slice(0, xs.length - 1);
+    // },
 
     test = _.autoCurry(function(reg, str) {
         return str.test(reg);
@@ -1589,7 +1548,7 @@ util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
 util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
-util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChannel), splitChan);
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
@@ -1629,7 +1588,7 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     args_re = /^:|\s+:/,
     argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
     args_split_re = / +/,
-    NUMERICS = irc.Numerics2;
+    NUMERICS = irc.Numerics;
 util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
         'raw': line,
@@ -1742,11 +1701,12 @@ util.removePrefix = function(nc, pref) {
     return nc.prefixes = nc.prefixes.replaceAll(pref, "");
 };
 
-//if theres a prefix it gets returned
-//i dont think its possible to have multiple prefixes
+//get prefixs on a nick
 util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
-    var c = nick.charAt(0);
-    return util.validPrefix(prefixes, c) ? [c, nick.slice(1)] : ['', nick];
+    for (var i = 0; i < nick.length; i++) {
+        if(!util.validPrefix(prefixes, nick.charAt(i))) break;
+    }
+    return [nick.slice(0, i), nick.slice(i)];
 });
 
 util.getPrefix = _.compose(_.first, util.prefixOnNick);
@@ -1943,7 +1903,7 @@ util.generateID = (function() {
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),
-        connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
+        // connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
         connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 
@@ -2582,103 +2542,105 @@ config.COMMAND_ALIAS = {
     "SLAP": "ME"
 };
 
+ui["default options"] = {
+    "auto_open_pm": false,
+    "nick_ov_status": true,
+    "accept_service_invites": true,
+    "use_hiddenhost": true,
+    "lastpos_line": true,
+    "nick_colours": false,
+    "hide_joinparts": false,
+    "show_nicklist": !Browser.isMobile,
+    "show_timestamps": true,
+    "font_size": 12,
+    "volume": 100, //0-100
+
+    "completer": {
+        "intrusive": Browser.isDecent,
+        "store": !Browser.isMobile
+    },
+
+    "dn_state": false,
+    "dn_duration": 4000,
+
+    "highlight": true,
+    "highlight_mentioned": true,
+
+    "style_hue": 210,
+    "style_saturation": 0,
+    "style_brightness": 0,
+
+    "standard_notices": [
+        {
+            type: "^(?!SERVER)+NOTICE+$",//notice not server notice
+            classes: '',
+            beep: true,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: 'notice'
+        },
+        {
+            type: "PRIVMSG$",
+            flash: true,
+            beep: true,
+            pm: true,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: 'pm'
+        },
+        {
+            type: "^OUR",
+            classes: 'our-msg',
+            id: 'ourmsg'
+        },
+        {//match bots
+            nick: "(^tf2)|((serv|bot)$)",
+            classes: 'bot',
+            types: [ui.WINDOW.channel],
+            "case": true,
+            id: 'bot'
+        },
+        {
+            msg: "^\\!",
+            classes: 'command',
+            types: [ui.WINDOW.channel],
+            id: 'cmd'
+        },
+        {
+            mentioned: true,
+            highlight: 'mentioned',
+            notus: true,
+            tabhl: ui.HIGHLIGHT.us,
+            id: 'mention'
+        },
+        {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            mentioned: true,
+            classes: '',
+            beep: true,
+            pm: true,
+            notus: true,
+            "case": true,
+            id: 'onmention'
+        },
+        {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            msg: "^((?!(^\\!)).)*$", //dont hl commands
+            classes: '',
+            highlight: true,
+            notus: true,
+            "case": true,
+            tabhl: ui.HIGHLIGHT.activity,
+            types: [ui.WINDOW.channel],
+            id: 'hl'
+        }
+    ],
+
+    "custom_notices": []
+}
+
 config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
     options: {
-        defaults: {
-            "auto_open_pm": false,
-            "nick_ov_status": true,
-            "accept_service_invites": true,
-            "use_hiddenhost": true,
-            "lastpos_line": true,
-            "nick_colours": false,
-            "hide_joinparts": false,
-            "show_nicklist": !Browser.isMobile,
-            "show_timestamps": true,
-            "font_size": 12,
-            "volume": 100, //0-100
-
-            "completer": {
-                "intrusive": Browser.isDecent,
-                "store": !Browser.isMobile
-            },
-
-            "dn_state": false,
-            "dn_duration": 4000,
-
-            "highlight": true,
-            "highlight_mentioned": true,
-
-            "style_hue": 210,
-            "style_saturation": 0,
-            "style_brightness": 0,
-
-            "standard_notices": [
-                {
-                    type: "^(?!SERVER)+NOTICE+$",//notice not server notice
-                    classes: '',
-                    beep: true,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: 'notice'
-                },
-                {
-                    type: "PRIVMSG$",
-                    flash: true,
-                    beep: true,
-                    pm: true,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: 'pm'
-                },
-                {
-                    type: "^OUR",
-                    classes: 'our-msg',
-                    id: 'ourmsg'
-                },
-                {//match bots
-                    nick: "(^tf2)|((serv|bot)$)",
-                    classes: 'bot',
-                    types: [ui.WINDOW.channel],
-                    "case": true,
-                    id: 'bot'
-                },
-                {
-                    msg: "^\\!",
-                    classes: 'command',
-                    types: [ui.WINDOW.channel],
-                    id: 'cmd'
-                },
-                {
-                    mentioned: true,
-                    highlight: 'mentioned',
-                    notus: true,
-                    tabhl: ui.HIGHLIGHT.us,
-                    id: 'mention'
-                },
-                {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    mentioned: true,
-                    classes: '',
-                    beep: true,
-                    pm: true,
-                    notus: true,
-                    "case": true,
-                    id: 'onmention'
-                },
-                {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    msg: "^((?!(^\\!)).)*$", //dont hl commands
-                    classes: '',
-                    highlight: true,
-                    notus: true,
-                    "case": true,
-                    tabhl: ui.HIGHLIGHT.activity,
-                    types: [ui.WINDOW.channel],
-                    id: 'hl'
-                }
-            ],
-
-            "custom_notices": []
-        },
+        defaults: ui["default options"],
         key: cookies.options,
         minimize: true
     },
@@ -3312,7 +3274,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 1,
         minargs: 0,
         fn: function(args) {
-            this.quit(args[0] || "");
+            this.quit(args[0] || "", true);
         }
     },
     // cmd_CYCLE: {
@@ -3428,7 +3390,7 @@ irc.NodeConnection = new Class({
     Binds: ["_recv", "_error"],
     options: {
         socket_connect: document.location.hostname,
-        nickname: "ircconnX",
+        nickname: '',
         password: '',
         serverPassword: null,
         autoConnect: true,
@@ -3457,8 +3419,7 @@ irc.NodeConnection = new Class({
         messageSplit: 512*/
         autoretry: true,
         retryInterval: 5000,
-        // retryScalar: 2,
-        retryAttempts: 30,//retry for 60 seconds
+        // retryAttempts: 30,//retry for 60 seconds
 
         clientID: util.randHexString(16)
     },
@@ -3487,7 +3448,7 @@ irc.NodeConnection = new Class({
                 self.connected = false;
             },
             "reconnect": function() {
-                console.log("reconnecting");
+                console.log("reconnected");
                 self.socket.emit("reconnect", options);
             },
             "reconnecting": function() {
@@ -3586,7 +3547,7 @@ auth.bouncerAuth = $lambda(false);
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
-    Binds: ["lostConnection", "send", "quit", "connected","retry", "_ndispatch", "_tdispatch"],
+    Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch", "_tdispatch"],
     options: {
         minRejoinTime: [0],
         networkServices: [],
@@ -3594,12 +3555,12 @@ irc.IRCClient = new Class({
     },
     lastNicks: [],
     inviteChanList: [],
+    channels: [],
     activeTimers: {},
-    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice)
+    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice) - will be overriden by server
     modeprefixes: "ov",
     __signedOn: false,
     authed: false,
-    channels: [],
     nextctcp: 0,
     pmodes: {
         b: irc.PMODE_LIST,
@@ -3625,18 +3586,22 @@ irc.IRCClient = new Class({
                 serverPassword: options.serverPassword
             });
             conn.addEvents({
-                "recv": self._ndispatch,
+                "recv": self.dispatch,
                 "quit": self.quit,
-                "retry": self.retry,
+                // "retry": self.retry,
                 "connected": self.connected,
                 "lostConnection": self.lostConnection
             });
         } else {
             self.connection = new irc.TwistedConnection({
-                initialNickname: self.nickname,
-                serverPassword: options.serverPassword
+                nickname: self.nickname,
+                serverPassword: options.serverPassword,
             });
-            self.connection.addEvent("recv", self._tdispatch);
+            self.connection.addEvents({
+                "recv": self._tdispatch,
+                // "retry": self.retry,
+                "lostConnection": self.lostConnection
+            });
         }
 
         // self.commandparser = new irc.Commands(self);
@@ -3646,7 +3611,8 @@ irc.IRCClient = new Class({
 
     //connection methods
     connect: function() {
-        return this.connection.connect();
+        this.connection.connect();
+        return this;
     },
 
     connected: function() {
@@ -3669,36 +3635,37 @@ irc.IRCClient = new Class({
         });
     },
 
-    quit: function(message) {
-        if(this.isConnected()) {    
-            this.send("QUIT :" + (message || lang.quit), true);
-            _.each(this.activeTimers, $clear);
-            this.activeTimers = {};
-            this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
-            this.disconnect();
-            this.trigger("disconnect");
-            this.__signedOn = false;
+    quit: function(message, notify) {
+        if(this.isConnected()) {
+            this.send("QUIT :" + (message || lang.quit), false);//
+            if(notify) {//time to go
+                _.each(this.activeTimers, $clear);
+                this.activeTimers = {};
+                this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+                this.disconnect();
+                this.trigger("disconnect");
+                this.__signedOn = false;
+            }
         }
         return this;
     },
 
     lostConnection: function(attempt) {
-        console.log(arguments);
-        this.writeMessages(lang.connRetry, {
+        this.writeMessages(lang.connTimeOut, {
             retryAttempts: attempt
         }, {
             channels: "ALL"
         });
     },
 
-    retry: function(data) {
-        this.trigger("retry", data);
-        this.writeMessages(lang.connRetry, {
-            next: (data.next/1000).round(1)
-        }, {
-            channels: "ALL"
-        });
-    },
+    // retry: function(data) {
+    //     this.trigger("retry", data);
+    //     this.writeMessages(lang.connRetry, {
+    //         next: (data.next/1000).round(1)
+    //     }, {
+    //         channels: "ALL"
+    //     });
+    // },
     /***********************************************
     *           General helpers                    *
     ************************************************/
@@ -3771,7 +3738,7 @@ irc.IRCClient = new Class({
         this.addEvent("listend:once", function() {
             var chans = _.chain(this.listedChans)
                         .clone()
-                        .sortBy(function(chan) {return -chan.users})//neg to sort max -> min
+                        .sortBy(function(chan) {return -chan.users}) //neg to sort descending
                         .value();
             cb(chans);
             this.hidelistout = false;
@@ -3810,7 +3777,7 @@ irc.IRCClient = new Class({
     /*************************************************
     *   Process server/network data & call method    *
     **************************************************/
-    _ndispatch: function(data) {
+    dispatch: function(data) {
         var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
 
         if (!(fn && fn.call(this, data))) {//fn dne or does not return true
@@ -3834,7 +3801,7 @@ irc.IRCClient = new Class({
             break;
             case "c":
                 var _data = util.processTwistedData(data);
-                this._ndispatch(_data);
+                this.dispatch(_data);
             break;
         }
     },
@@ -3904,6 +3871,13 @@ irc.IRCClient = new Class({
     *       private server event handlers             *
     **************************************************/
     _signOn: function(/*data*/) {
+        if(this.__signedOn) {//server/client crashed reconnect
+            console.log("REjoining " + util.formatChannelString(this.channels));
+            return this.send(format(cmd.JOIN, {
+                channel: util.formatChannelString(this.channels)
+            }));
+        }
+
         var options = this.options,
             channels;
 
@@ -3998,9 +3972,7 @@ irc.IRCClient = new Class({
         var i = this.lastNicks.indexOf(nick);
         if (i != -1) {
             this.lastNicks.splice(i, 1);
-        } /*else if (this.lastNicks.length == this.options.maxnicks) {
-            this.lastNicks.pop();
-        }*/
+        }
         this.lastNicks.unshift(nick);
     },
 
@@ -4130,7 +4102,7 @@ irc.IRCClient = new Class({
     *                BEGIN STANDARD IRC HANDLERS                         *
     *                                                                    *
     **********************************************************************/
-    IRC_COMMAND_MAP: {// function router see _ndispatch
+    IRC_COMMAND_MAP: {// function router see dispatch
         // "ERROR": "",
         // "INVITE": "",
         // "JOIN": "",
@@ -4234,7 +4206,8 @@ irc.IRCClient = new Class({
     irc_JOIN: function(data) {
         var channel = data.args[0],
             nick = data.nick,
-            wasus = (nick === this.nickname);
+            wasus = (nick === this.nickname),
+            type = wasus ? "OURJOIN" : "JOIN"
 
         if(wasus) {
             if(!isBaseWindow(channel)) {
@@ -4244,12 +4217,9 @@ irc.IRCClient = new Class({
                 this.currentChannel = channel;
             }
         }
+        var windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
 
-        var nick = data.nick,
-            host = data.host,
-            wasus = (nick === this.nickname),
-            type = wasus ? "OURJOIN" : "JOIN",
-            windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
+
 
         this.tracker.addNickToChannel(nick, BROUHAHA);
         this.tracker.addNickToChannel(nick, channel);
@@ -4258,7 +4228,7 @@ irc.IRCClient = new Class({
 
         this.trigger("userJoined", {
             'nick': nick,
-            'host': host,
+            'host': data.host,
             'channel': channel,
             'thisclient': wasus,
             'select': windowSelected
@@ -4274,7 +4244,7 @@ irc.IRCClient = new Class({
             channels = self.tracker.getNick(nick);
 
         self.tracker.removeNick(nick);
-        _.keys(channels).each(function(chan) {
+        _.each(channels, function(nick, chan) {
             self.updateNickList(chan);
         });
 
@@ -4394,7 +4364,7 @@ irc.IRCClient = new Class({
                     'data': type
                 });
             } else {
-                var data = {
+                var context = {
                         'nick': nick,
                         'channel': target,
                         'message': ctcp[1] || "",
@@ -4402,10 +4372,10 @@ irc.IRCClient = new Class({
                     };
                 if (type == "ACTION") {
                     this.tracker.updateLastSpoke(nick, target, Date.now());
-                    this.trigger("chanAction", data);
+                    this.trigger("chanAction", context);
                 }
                 else {
-                    this.trigger("chanCTCP", data);
+                    this.trigger("chanCTCP", context);
                 }
             }
         } else {
@@ -4544,7 +4514,7 @@ irc.IRCClient = new Class({
 
                 cmode = OPED;
 
-            var modes = modes.filter(function(mode) {
+            modes.filter(function(mode) {
                 var dir = (mode === OPED) || (mode === DEOPED);
                 if (dir) {
                     cmode = mode;
@@ -4834,317 +4804,306 @@ irc.IRCClient = new Class({
 ***************************/
 // /* This could do with a rewrite from scratch. */
 //going to rewrite using socket.io commet.
-// //COMMANDS = dict(p=push, n=newConnection, s=subscribe)
-irc.TwistedConnection = new Class({
-    Implements: [Events, Options],
-    Binds: ["send","__completeRequest"],
-    options: {
-        initialNickname: "ircconnX",
-        minTimeout: 45000,
-        maxTimeout: 5 * 60000,
-        timeoutIncrement: 10000,
-        initialTimeout: 65000,
-        floodInterval: 200,
-        floodMax: 10,
-        floodReset: 5000,
-        errorAlert: true,
-        maxRetries: 5,
-        serverPassword: null
-    },
+// //uris = dict(p=push, n=newConnection, s=subscribe)
+(function() {
+    //http://blog.mibbit.com/?p=143
+    // moved browser specific headers to be removed here so it doesnt have to be computed each connection.
+    // header nullables are browser dependent
+    var killBit = "";
+    var killHeaders = {//http://www.w3.org/TR/XMLHttpRequest/#dom-xmlhttprequest-setrequestheader
+        // "User-Agent": killBit,
+        "Accept": killBit,
+        "Accept-Language": killBit
+        /*,
+        "Content-Type": "M"*/
+    };
 
-    initialize: function(options) {
-        var self = this;
-        self.setOptions(options);
-        self.counter = 0;
-        self.disconnected = false;
-        self.__floodLastRequest = 0;
-        self.__floodCounter = 0;
-        self.__floodLastFlood = 0;
-        self.__retryAttempts = 0;
-        self.__timeoutId = null;
-        self.__timeout = self.options.initialTimeout;
-        self.__lastActiveRequest = null;
-        self.__activeRequest = null;
-        self.__sendQueue = [];
-        self.__sendQueueActive = false;
-    },
+    irc.TwistedConnection = new Class({
+        Implements: [Events, Options],
+        Binds: ["send"],
+        options: {
+            nickname: "",
+            minTimeout: 45000,
+            maxTimeout: 5 * 60000,
+            timeoutIncrement: 10000,
+            initialTimeout: 65000,
+            floodInterval: 200,
+            floodMax: 10,
+            floodReset: 5000,
+            errorAlert: true,
+            maxRetries: 5,
+            serverPassword: null
+        },
+        connected: false,
+        counter: 0,
 
-    connect: function() {
-        var self = this;
-        self.cacheAvoidance = util.randHexString(16);
-        var request = self.newRequest("n");
+        __sendQueue: [],
+        __lastActiveRequest: null,
+        __activeRequest: null,
+        __sendQueueActive: false,
 
-        request.addEvent("complete", function(stream) {
-            if (!stream) {
-                self.disconnected = true;
-                self.__error(lang.connectionFail);
-                return;
-            }
-            else if (!stream[0]) {
-                self.disconnect();
-                self.__error(lang.connError, stream);
-                return;
-            }
-            self.sessionid = stream[1];
-            self.recv();
-        });
+        __floodLastRequest: 0,
+        __retryAttempts: 0,
+        __floodCounter: 0,
+        __floodLastFlood: 0,
+        __timeoutId: null,
 
-        var postdata = "nick=" + encodeURIComponent(self.options.initialNickname);
-        if ($defined(self.options.serverPassword)) {
-            postdata += "&password=" + encodeURIComponent(self.options.serverPassword);
-        }
-        request.send(postdata);
-    },
 
-    disconnect: function() {
-        this.disconnected = true;
-        this.__cancelTimeout();
-        this.__cancelRequests();
-    },
+        initialize: function(options) {
+            this.setOptions(options);
+            this.__timeout = this.options.initialTimeout;
+        },
 
-    newRequest: function(url, floodProtection, synchronous) {
-        var self = this;
-        //check if request should proceed
-        if (self.disconnected) {
-            return null;
-        } else if (floodProtection && !self.disconnected && self.__isFlooding()) {
-            self.disconnect();
-            self.__error(lang.uncontrolledFlood);
-        }
-        var request = new Request.JSON({
-            url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
-            async: !synchronous
-        });
+        connect: function() {
+            var self = this;
+            self.connected = true;
+            self.cacheAvoidance = util.randHexString(16);
+            var request = self.newRequest("n");
 
-        // try to minimise the amount of headers 
-        request.headers = {};
-
-        //calls forEach on headers to be removed in the context of the request.xhr on readystatechange.
-        //calls setXHRHeaders in the context of the request.xhr object
-        // request.addEvent("request", _.partial(irc.TwistedConnection.setXHRHeaders, request.xhr));
-        if (Browser.ie && Browser.version < 8) {
-            request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
-        }
-        return request;
-    },
-
-    recv: function() {
-        var self = this,
-            request = self.newRequest("s", true);
-        if (!$defined(request)) {
-            return;
-        }
-        self.__activeRequest = request;
-        request.__replaced = false;
-        var onComplete = function(stream) {
-            // replaced requests... 
-            if (request.__replaced) {
-                self.__lastActiveRequest = null;
-                if (stream) {
-                    self.__processData(stream);
+            request.addEvent("complete", function(stream) {
+                if (!stream) {
+                    self.lostConnection(lang.connectionFail);
+                    return;
+                } else if (!stream[0]) {
+                    self.disconnect();
+                    self.lostConnection(lang.connError, stream);
+                    return;
                 }
+                self.sessionid = stream[1];
+                self.recv();
+            });
+
+            var postdata = "nick=" + encodeURIComponent(self.options.nickname);
+            if (self.options.serverPassword != null) {
+                postdata += "&password=" + encodeURIComponent(self.options.serverPassword);
+            }
+            request.send(postdata);
+        },
+
+        disconnect: function() {
+            this.connected = false;
+            this.__cancelTimeout();
+            this.__cancelRequests();
+        },
+
+        newRequest: function(url, floodProtection, synchronous) {
+            var self = this;
+            //check if request should proceed
+            if (!self.connected) {
+                return null;
+            } else if (floodProtection && self.__isFlooding()) {
+                self.disconnect();
+                self.__error(lang.uncontrolledFlood);
+            }
+            var request = new Request.JSON({
+                url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
+                async: !synchronous
+            });
+
+            // try to minimise the amount of headers 
+            request.headers = {};//{X-Requested-With: "XMLHttpRequest", Accept: "application/json", X-Request: "JSON"}
+            request.addEvent("request", function() {
+                Object.each(killHeaders, function(val, key) {
+                    try {
+                        request.xhr.setRequestHeader(key, val);
+                    } catch (o_O) {
+                        delete killHeaders[key];//cant set header on this browser
+                    }
+                });
+            });
+
+            if (Browser.ie && Browser.version < 8) {
+                request.setHeader("If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT");
+            }
+            return request;
+        },
+
+        recv: function() {
+            var self = this,
+                request = self.newRequest("s", true);
+            if (request == null) {
                 return;
             }
-            // the main request 
-            self.__activeRequest = null;
-            self.__cancelTimeout();
-            if (!stream) {
-                if (!self.disconnected && self.__checkRetries()) {
+            self.__activeRequest = request;
+            request.__replaced = false;
+            var onComplete = function(stream) {
+                // replaced requests... 
+                if (request.__replaced) {
+                    self.__lastActiveRequest = null;
+                    if (stream) {
+                        self.__processData(stream);
+                    }
+                    return;
+                }
+                // the main request 
+                self.__activeRequest = null;
+                self.__cancelTimeout();
+                if (!stream) {
+                    if (self.connected && self.__checkRetries()) {
+                        self.recv();
+                    }
+                    return;
+                } else if (self.__processData(stream)) {
                     self.recv();
                 }
+            };
+            request.addEvent("complete", onComplete);
+            self.__scheduleTimeout();
+            request.send("s=" + self.sessionid);
+        },
+
+        send: function(data, synchronous) {
+            if (!this.connected) {
+                return false;
+            }
+            if (synchronous) {
+                this.__send(data, false);
+            } else {
+                this.__sendQueue.push(data);
+                this.__processSendQueue();
+            }
+            return true;
+        },
+
+        __processSendQueue: function() {
+            if (this.__sendQueueActive || this.__sendQueue.length === 0) {
                 return;
             }
-            else if (self.__processData(stream)) {
-                self.recv();
-            }
-        };
-        request.addEvent("complete", onComplete);
-        self.__scheduleTimeout();
-        request.send("s=" + self.sessionid);
-    },
+            this.sendQueueActive = true;
+            this.__send(this.__sendQueue.shift(), true);
+        },
 
-    send: function(data, synchronous) {
-        if (this.disconnected) {
-            return false;
-        }
-        if (synchronous) {
-            this.__send(data, false);
-        } else {
-            this.__sendQueue.push(data);
+        __send: function(data, async) {
+            var request = this.newRequest("p", false, !async);
+            if (request == null) {
+                return;
+            }
+            request.addEvent("complete", this.__completeRequest.bind(this, async))
+                    .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
+        },
+
+        __completeRequest: function(async, stream) {
+            if (async) {
+                this.__sendQueueActive = false;
+            }
+            if (!stream || (!stream[0])) {
+                this.__sendQueue = [];
+                if (this.connected) {
+                    this.lostConnection(lang.connError, stream)
+                }
+                return false;
+            }
             this.__processSendQueue();
-        }
-        return true;
-    },
+        },
 
-    __processSendQueue: function() {
-        if (this.__sendQueueActive || this.__sendQueue.length === 0) {
-            return;
-        }
-        this.sendQueueActive = true;
-        this.__send(this.__sendQueue.shift(), true);
-    },
-
-    __send: function(data, async) {
-        var request = this.newRequest("p", false, !async);
-        if (request === null) {
-            return;
-        }
-        request.addEvent("complete", _.partial(this.__completeRequest, async))
-                .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
-    },
-
-    __completeRequest: function(async, stream) {
-        if (async) {
-            this.__sendQueueActive = false;
-        }
-        if (!stream || (!stream[0])) {
-            this.__sendQueue = [];
-            if (!this.disconnected) {
-                this.disconnected = true;
-                this.__error(lang.connError, stream);
+        __isFlooding: function() {
+            var t = Date.now(),
+                floodt = t - this.__floodLastRequest;
+            if (floodt < this.options.floodInterval) {
+                if (this.__floodLastFlood !== 0 && (floodt > this.options.floodReset)) {
+                    this.__floodCounter = 0;
+                }
+                this.__floodLastFlood = t;
+                if (++this.__floodCounter > this.options.floodMax) {
+                    return true;
+                }
             }
+            this.__floodLastRequest = t;
             return false;
-        }
-        this.__processSendQueue();
-    },
+        },
 
-    __isFlooding: function() {
-        var t = Date.now(),
-            floodt = t - this.__floodLastRequest;
-        if (floodt < this.options.floodInterval) {
-            if (this.__floodLastFlood !== 0 && (floodt > this.options.floodReset)) {
-                this.__floodCounter = 0;
+        __checkRetries: function() { /* hmm, something went wrong! */
+            if (++this.__retryAttempts > this.options.maxRetries && this.connected) {
+                this.disconnect();
+                this.__error(lang.connTimeOut, {
+                    retryAttempts: this.__retryAttempts
+                });
+                this.fireEvent("lostConnection", this.__retryAttempts);
+                return false;
             }
-            this.__floodLastFlood = t;
-            if (++this.__floodCounter > this.options.floodMax) {
-                return true;
+            var to = this.__timeout - this.options.timeoutIncrement;
+            if (to >= this.options.minTimeout) {
+                this.__timeout = to;
             }
-        }
-        this.__floodLastRequest = t;
-        return false;
-    },
+            return true;
+        },
 
-    __checkRetries: function() { /* hmm, something went wrong! */
-        if (++this.__retryAttempts > this.options.maxRetries && !this.disconnected) {
-            this.disconnect();
-            this.__error(lang.connTimeOut, {retryAttempts: this.__retryAttempts});
-            return false;
-        }
-        var to = this.__timeout - this.options.timeoutIncrement;
-        if (to >= this.options.minTimeout) {
-            this.__timeout = to;
-        }
-        return true;
-    },
-
-    __cancelRequests: function() {
-        if ($defined(this.__lastActiveRequest)) {
-            this.__lastActiveRequest.cancel();
-            this.__lastActiveRequest = null;
-        }
-        if ($defined(this.__activeRequest)) {
-            this.__activeRequest.cancel();
-            this.__activeRequest = null;
-        }
-    },
-
-    __processData: function(o) {
-        if (o[0] == false) {
-            if (!this.disconnected) {
-                this.disconnected = true;
-                this.__error(lang.connError, o);
+        __cancelRequests: function() {
+            if (this.__lastActiveRequest != null) {
+                this.__lastActiveRequest.cancel();
+                this.__lastActiveRequest = null;
             }
-            return false;
-        }
+            if (this.__activeRequest != null) {
+                this.__activeRequest.cancel();
+                this.__activeRequest = null;
+            }
+        },
 
-        this.__retryAttempts = 0;
-        o.each(function(x) {
-            this.fireEvent("recv", [x]);
-        }, this);
+        __processData: function(payload) {
+            var self = this;
+            if (payload[0] == false) {
+                if (self.connected) {
+                    self.lostConnection(lang.connError, payload);
+                }
+                return false;
+            }
 
-        return true;
-    },
+            self.__retryAttempts = 0;
+            payload.each(function(data) {
+                self.fireEvent("recv", [data]);//array because mootools fire event is broken for arrays
+            });
+
+            return true;
+        },
 
 
-    __scheduleTimeout: function() {
-        this.__timeoutId = this.__timeoutEvent.delay(this.__timeout, this);
-    },
+        __scheduleTimeout: function() {
+            this.__timeoutId = this.__timeoutEvent.delay(this.__timeout, this);
+        },
 
-    __cancelTimeout: function() {
-        if ($defined(this.__timeoutId)) {
-            $clear(this.__timeoutId);
+        __cancelTimeout: function() {
+            if (this.__timeoutId != null) {
+                $clear(this.__timeoutId);
+                this.__timeoutId = null;
+            }
+        },
+
+        __timeoutEvent: function() {
             this.__timeoutId = null;
+            if (this.__activeRequest == null) {
+                return;
+            } else if (this.__lastActiveRequest) {
+                this.__lastActiveRequest.cancel();
+            }
+            // this.fireEvent("retry", {
+            //     duration: this.__timeout
+            // });
+            this.__activeRequest.__replaced = true;
+            this.__lastActiveRequest = this.__activeRequest;
+            var to = this.__timeout + this.options.timeoutIncrement;
+            if (to <= this.options.maxTimeout) {
+                this.__timeout = to;
+            }
+            this.recv();
+        },
+
+        lostConnection: function(reason) {
+            this.connected = false;
+            this.fireEvent("lostConnection", this.__retryAttempts);
+            this.__error.apply(this, arguments);
+        },
+
+        __error: function(message, context) {
+            var msg = context ? util.formatter(message.message, context) : message.message;
+            this.fireEvent("error", msg);
+            new ui.Alert({
+                title: "Connection Error",
+                text: msg
+            });
         }
-    },
+    });
+})();
 
-    __timeoutEvent: function() {
-        this.__timeoutId = null;
-        if (!$defined(this.__activeRequest)) {
-            return;
-        } else if (this.__lastActiveRequest) {
-            this.__lastActiveRequest.cancel();
-        }
-        this.fireEvent("timeout", {
-            duration: this.__timeout
-        });
-        this.__activeRequest.__replaced = true;
-        this.__lastActiveRequest = this.__activeRequest;
-        var to = this.__timeout + this.options.timeoutIncrement;
-        if (to <= this.options.maxTimeout) {
-            this.__timeout = to;
-        }
-        this.recv();
-    },
-
-    __error: function(message, context) {
-        var msg = context ? util.formatter(message.message, context) : message.message;
-        this.fireEvent("error", msg);
-        if (this.options.errorAlert) {
-            alert(msg);
-        }
-        console.log('had error:' + msg);
-    }
-});
-
-// (function() {//http://blog.mibbit.com/?p=143
-//     //moved browser specific headers to be removed here so it doesnt have to be computed each connection.
-//     //header nullables are browser dependent
-//     //http://www.michael-noll.com/tutorials/cookie-monster-for-xmlhttprequest/
-//     // var killBit = null;
-
-//     // var kill = {
-//     //     "User-Agent": killBit,
-//     //     "Accept": killBit,
-//     //     "Accept-Language": killBit,
-//     //     "Content-Type": "M",
-//     //     "Connection": "keep-alive",
-//     //     "Keep-Alive": killBit
-//     // };
-
-//     // //removes a header from an xhr object (this instanceof xhr)
-
-//     // function removeHeaders(val, header) {
-//     //     try {
-//     //         this.setRequestHeader(header, val);
-//     //     } catch (e) {console.log(header)}
-//     // }
-
-
-
-//     //iteratres the headers to be removed with the removeHeaders function
-//     //expects a xhr object as the third param 
-//     // conn.setXHRHeaders = function(xhr) {
-//     //     kill.each(removeHeaders, xhr);
-//     //     //remove cookies from xhr
-//     //     // new CookieMonster(xhr);
-//     // };
-
-//     irc.TwistedConnection.setXHRHeaders = _.identity; //_.partial(_.each, kill, removeHeaders);
-
-//     // conn.setXHRHeaders = function(xhr) {
-//     //     kill.each(removeHeaders, xhr);
-//     // };
-// })();
 
 irc.IRCTracker = new Class({
     channels: {},
@@ -5718,15 +5677,17 @@ function addClientEvents(client, windows) { // mi gusta xD
             return !validator.test(text, $ele);
         });
         var failbool = !!failed;
-        var controlpar = $ele.getParent('.control-group')
+        var $controlpar = $ele.getParent('.control-group')
                             .toggleClass('has-error', failbool);
         if (failbool) {
-            getTemplate("failed-validator", function(template) {
-                Elements.from(template(failed)).inject(controlpar);
-                // $ele.focus();
-            });
+            if($controlpar.getElements(".help-block").filter(function(ele) {return ele.html() === failed.description}).length === 0) {
+                getTemplate("failed-validator", function(template) {
+                    Elements.from(template(failed)).inject($controlpar);
+                    // $ele.focus();
+                });
+            }
         } else {
-            controlpar.getElements('.help-block').dispose();
+            $controlpar.getElements('.help-block').dispose();
         }
         return !failed;
     }
@@ -5822,7 +5783,6 @@ ui.ILogin = new Class({
     Implements: [Events],
     LoginBox: LoginBox,
     loginBox: function() {
-        this.postInitialize();
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
         var callback = function(data) {
@@ -5831,6 +5791,12 @@ ui.ILogin = new Class({
             };
         this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
         return win;
+    },
+    welcome: function() {
+        ui.WelcomePane.show(this.ui, _.extend({
+            element: this.element,
+            firstvisit: true
+        }, this.options));
     }
 });
 })();
@@ -5842,8 +5808,8 @@ ui.IUIOptions = new Class({
         var self = this;
         var options = self.options;
         if(self.uiOptions instanceof config.OptionModel) return this;
-        var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({
-            defaults: options.uiOptionsArg
+        var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({}, {
+            defaults: options.uiOptions
         });
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
@@ -5861,7 +5827,7 @@ ui.IUIOptions = new Class({
                         tabhl: notice.tabhl,
                         classes: notice.classes,
                         types: notice.types
-                    }
+                    };
                     _.each(["msg", "nick", "type"], function(type) {
                         if(notice[type]) {
                             onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type],//format regex
@@ -5871,9 +5837,10 @@ ui.IUIOptions = new Class({
 
                     return _.clean(onotice);
                 })
-                .value()
+                .value();
             
             self.theme.messageParsers.empty().combine(notifiers);
+            self.theme.config = uiOptions;
         }
 
         uiOptions.on({
@@ -5915,7 +5882,7 @@ ui.IUIOptions = new Class({
         var self = this;
         getTemplate("modifiablecss", function(template) {
             var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
-            var stylesheet = template(styles);//.split("}").join("}\n")
+            var stylesheet = template(styles);
             var node = self._styleSheet;
 
             if (node.styleSheet) { /* ie */
@@ -6168,7 +6135,6 @@ ui.INotifiers = new Class({
     }
 });
 })();
-
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
@@ -6182,22 +6148,26 @@ ui.StandardUI = new Class({
     initialize: function(parentElement, theme, uiName, options) {
         var self = this.setOptions(options);
 
-        self.theme = theme;
-        self.config();
+        document.addEvent("domready", function() {
+            self.theme = theme;
+            self.config();
 
-        self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
-        self.commandhistory = new irc.CommandHistory({
-            store: self.uiOptions.get("completer").store
-        });
-        self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
+            parentElement = self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
+            self.commandhistory = new irc.CommandHistory({
+                store: self.uiOptions.get("completer").store
+            });
+            self.windows[ui.CUSTOM_CLIENT] = self.customWindows;
 
-        getTemplate("topPane", function(template) {
-            self.outerTabs = Element.from(template()).inject(parentElement);
-        });
-        getTemplate("windowsPane", function(template) {
-            self.windowsPanel = Element.from(template()).inject(parentElement);
-        });
+            getTemplate("topPane", function(template) {
+                self.outerTabs = Element.from(template()).inject(parentElement);
+            });
+            getTemplate("windowsPane", function(template) {
+                self.windowsPanel = Element.from(template()).inject(parentElement);
+            });
 
+            self.postInitialize();
+            self.fireEvent("ready");
+        });
     },
 
     postInitialize: function() {
@@ -6228,7 +6198,7 @@ ui.StandardUI = new Class({
 
         function checkRoute(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            // console.log("Route: %s Formatted: %s", data.request, request);
+            // if(self.options.debug) console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.identifier) {
                 return;
@@ -6270,45 +6240,6 @@ ui.StandardUI = new Class({
         // hasher.init(); //start listening for history change
         // hasher.prependHash = "~";
         self.router = new Epitome.Router({
-            // routes definition will proxy the events
-            // routes: {
-            //     '': 'index',
-            //     '#!options': 'options',
-            //     "#!feedback": 'feedback',
-            //     "#!about": "about",
-            //     "#!faq": "faq",
-            //     "#!embedded": 'embedded',
-            //     "#!privacy": "privacy"
-            // },
-            // // no route event was found, though route was defined
-            // onError: function(error){
-            //     if(DEBUG) console.error(error);
-            //     // recover by going default route
-            //     this.navigate('');
-            // },
-            // 'onIndex': function() {
-            //     //update options with query string?
-            // },
-            // 'onOptions': self.optionsWindow,
-            // 'onFaq': self.faqWindow,
-            // 'onPrivacy': self.privacyWindow,
-            // 'onAbout': self.aboutWindow,
-            // 'onFeedback': self.feedbackWindow,
-            // 'onEmbedded': self.embeddedWindow,
-            //try to select the window if it exists
-            // onUndefined: function(data) {
-            //     var request = util.unformatURL(data.request);
-            //     if(request) {
-            //         var win = _.findWhere(self.windowArray, {identifier:request});
-            //         if(win) {
-            //             win.select();
-            //         } else if(util.isChannel(request)) {
-            //             _.each(self.clients, function(client) {
-            //                 client.exec("/JOIN " + request);
-            //             });
-            //         }
-            //     }
-            // }
             onUndefined: checkRoute
         });
 
@@ -6316,8 +6247,8 @@ ui.StandardUI = new Class({
     },
 
     updateURI: function(url) {
-        // hasher.setHash(util.formatURL(url || this.active.identifier));
-        if(this.router) this.router.navigate(util.formatURL(url || this.active.identifier));
+        url = url || this.active.identifier;
+        if(this.router && (url != "login" || location.hash)) this.router.navigate(util.formatURL(url));
     },
 
     whoisURL: function(e, target) {
@@ -6336,7 +6267,7 @@ ui.StandardUI = new Class({
             model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
-                self.beep();
+                self.login();
                 self.showNotice({}, true);
             },
             getUI: function() {
@@ -6362,128 +6293,111 @@ ui.StandardUI = new Class({
 });
 
 
-ui.Interface = new Class({
-    Implements: [Options, Events],
-    options: {
-        node: false,//use the node implementation with socket.io
-        debug: false,
+var defaults = {
+    debug: false,
 
-        appTitle: ""/*Quake Net Web IRC*/,
-        networkName: "" /* Quake Net */,
-        networkServices: [],//registered hosts to treat as a server admin
+    appTitle: ""/*Quake Net Web IRC*/,
+    networkName: "" /* Quake Net */,
 
-        initialNickname: "",
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
-
-        validators: {//test is a helper from ircutils
-            nick: [{
-                test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
-                description: "Nick must be between 1 and 9 characters"
-            }],
-            password: [{
-                test: function(pass, $ele) {
-                    return pass.length > 0 || !$ele.isVisible();
-                },
-                description: "Missing password"
-            }],
-            username: [{
-                test: function(pass, $ele) {
-                    return pass.length > 0 || !$ele.isVisible();
-                },
-                description: "Missing username"
-            }]
-        },
-
-        hue: null,
-        saturation: null,
-        lightness: null,
-
-        theme: undefined,
-        uiOptionsArg: null,
-
-        socketio: "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
-
-        loginRegex: /I recogni[sz]e you\./
+    validators: {//test is a helper from ircutils
+        nick: [{
+            test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
+            description: "Nick must be between 1 and 9 characters"
+        }],
+        password: [{
+            test: function(pass, $ele) {
+                return pass.length > 0 || !$ele.isVisible();
+            },
+            description: "Missing password"
+        }],
+        username: [{
+            test: function(pass, $ele) {
+                return pass.length > 0 || !$ele.isVisible();
+            },
+            description: "Missing username"
+        }]
     },
-    clients: [],
+    theme: undefined,
 
+    uiOptions: {/*see config/options.js*/},
+    settings: {/*see config/settings.js*/},
+    client: {/*see irc/IRCClient.js*/
+        networkServices: [],//registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
+        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
+        loginRegex: /I recogni[sz]e you\./,//network service response when auth successful
+        node: false
+    }
+};
 
-    //Note removed option args to configure router. May support it later.
-    initialize: function(element, UI, options) {
-        this.setOptions(options);
-        var self = this,
-            opts = self.options;
+qwebirc.createInstance = function(element_id, UIclass, options) {
+    options = _.merge({}, defaults, options);
+    var settings = options.settings = new config.Settings({}, {
+        defaults: options.settings
+    });
+    
+    //parse query string
+    // it will override any non cached (localstorage/cookie) options for uiOptions and settings
+    //so ?nickname=test&style_saturation=30 will set the saturation to 30 and the initial nickname to test
+    var query = window.location.search;
+    if(query) {
+        var parsed = query.slice(1).parseQueryString();
 
-        window.addEvent("domready", function() {
-            var settings = self.options.settings = new config.Settings(opts.settings);
-            self.element = $(element);
+        if(parsed.channels) {//append query string channels to saved channels
+            parsed.channels = concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels));
+        }
 
-            self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
+        var softextend = function(obj) {//only sets vals if they exist on the object
+            _.each(parsed, function(val, key) {
+                if(_.has(obj, key)) {
+                    obj[key] = +val == val ? +val : val;//coerce nums
+                }
+            });
+        };
 
-            if(opts.node) { Asset.javascript(opts.socketio); }
+        softextend(options.uiOptions = _.merge({}, ui["default options"], options.uiOptions));
+        softextend(options.client);
+        softextend(options.settings._attributes);//poor practice
+    }
+
+    //create instance
+    var instance = new UIclass(element_id, new ui.Theme(options.theme), options); //unconventional naming scheme
+    instance.addEvents({
+        "ready:once": function() {
+            instance.loginBox();
             //cleans up old properties
             if(settings.get("newb")) {
-                self.welcome();
+                instance.welcome();
                 settings.set("newb", false);
-            }
-            self.ui.loginBox();
+            } 
+        },
+        "login:once": function(loginopts) {
+            var ircopts = _.extend({settings: settings}, options.client, loginopts);
 
-            self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['settings', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
-                                        loginopts);
-
-                var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
-                self.ui.newClient(client);
-                client.writeMessages(lang.copyright);
-                client.connect();
-                client.addEvent("auth", function(data) {
-                    self.ui.showNotice({
-                        title: 'Authenticated with network!',
-                        body: util.format("{nick}: {message}", data)
-                    }, true);
-                });
-
-                window.onbeforeunload = function(e) {
-                    if (client.isConnected()) {//ie has gotten passed the IRC gate
-                        var message = "This action will close all active IRC connections.";
-                        if ((e = e || window.event)) {
-                            e.returnValue = message;
-                        }
-                        return message;
-                    }
-                };
-                window.addEvent('unload', client.quit);
-                window.onunload = client.quit;
-
-                if(!auth.enabled) {
-                    self.ui.beep();
-                }
-
-                self.fireEvent("login", {
-                    'IRCClient': client,
-                    'parent': self
-                });
+            var client = new irc.IRCClient(ircopts);
+            instance.newClient(client);
+            client.writeMessages(lang.copyright);
+            client.connect();
+            client.addEvent("auth", function(data) {
+                instance.showNotice({
+                    title: 'Authenticated with network!',
+                    body: util.format("{nick}: {message}", data)
+                }, true);
             });
-        });
-    },
-    welcome: function() {
-        ui.WelcomePane.show(this.ui, _.extend({
-            element: this.element,
-            firstvisit: true
-        }, this.options));
+            window.onbeforeunload = function(e) {
+                if (client.isConnected()) {//has gotten passed the IRC gate
+                    e = e || window.event;
+                    e.preventDefault = true;
+                    var message = "This action will close all active IRC connections.";
+                    e.returnValue = message;//legacy ie
+                    return message;
+                }
+            };
+            window.addEvent("unload", client.quit);
+        }
+    });
 
-        var settings = this.options.settings;
-        storage.remove("qweb-new");
-        ['account', 'password', 'nickname', 'channels'].each(function(key) {
-            var skey = "qweb-" + key;
-            var val = storage.get(skey);
-            if(val) {
-                settings.set(key, val);
-            }
-            storage.remove(skey);
-        });
-    }
-});
+    return instance;
+};
 
 
 ui.QUI = new Class({
@@ -6492,13 +6406,12 @@ ui.QUI = new Class({
     initialize: function(parentElement, theme, options) {
         this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
-
-        parentElement.addClasses('qui', 'signed-out')
-                    .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
-        this.setHotKeys();
     },
     postInitialize: function() {
         var self = this.parent();
+        self.element.addClasses('qui', 'signed-out')
+            .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
+        self.setHotKeys();
         self.nav.on({
             "selectTab": function(e,tab) {
                 self.selectTab(tab);
@@ -6607,7 +6520,7 @@ ui.QUI = new Class({
                 keys: 'ctrl+c',
                 description: '',
                 handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('colour').bbcode)
-            },
+            }/*,
             submitInput: {
                 keys: 'enter',
                 description: '',
@@ -6617,7 +6530,7 @@ ui.QUI = new Class({
                         $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
                     }
                 }
-            }
+            }*/
         }
     },
 
@@ -7013,7 +6926,6 @@ sound.SoundPlayer = new Class({
             var soundinit = function() {
                 var sm = self.sm = window.soundManager;
                 //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
-                // var extension = self.extension = sm.hasHTML5 && (Browser.firefox || Browser.opera || Browser.chrome) ? ".ogg" : ".mp3";
                 sm.setup({
                     url: opts.swfurl,
                     preferFlash: opts.preferFlash,
@@ -7065,6 +6977,7 @@ ui.Theme = new Class({
         });
 
         self.highlightClasses.channels = {};
+        self.config = config;
     },
 
     //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
@@ -7094,10 +7007,9 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
-        var timestamp = templates.timestamp({time:util.IRCTimestamp(new Date())});
-        var msghtml = timestamp + result;
+        var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
         $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', msghtml);//insertAdjacentHTML may render escaped chars incorrectly
+            .insertAdjacentHTML('beforeend', timestamp + result);//insertAdjacentHTML may render escaped chars incorrectly
         return result;
     },
 
@@ -7223,6 +7135,7 @@ ui.Theme = new Class({
 
 ui.Window = new Class({
     Extends: Epitome.View,
+    Binds: ["sendInput"],
     options: {
         events: {
 
@@ -7340,7 +7253,7 @@ ui.QUI.Window = new Class({
     Binds: ['close'],
     options: {
         events: {
-            'click:relay(.input .send)': 'sendInput',
+            // 'click:relay(.input .send)': 'sendInput',
             'dblclick:relay(.input .nickname)': 'setNickname',
             'dblclick:relay(.topic)': 'editTopic',
 
@@ -7401,6 +7314,9 @@ ui.QUI.Window = new Class({
                 start: false
             });
             self.$input = $win.getElement('.input .irc-input');
+
+            $win.getElement('form')
+                .addEvent("submit", self.sendInput);
         }
         return self;
     },
@@ -7749,6 +7665,7 @@ ui.QUI.Window = new Class({
             nicks.push(nick);
 
             if(!old || old.prefix !== nickobj.prefix) {
+                if(old && old.element) old.element.dispose();//or update it jeez
                 lnh[nick] = self.nickListAdd(nickobj, index);
             }
         });
@@ -7826,15 +7743,14 @@ var PanelView = new Class({
         return this.destroy();
     }
 });
-//this must refer to a model
 function toggleNotifications(model, state, save) {
     if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
         notify.requestPermission(function() {
-            model.set('dn_state', notify.permissionLevel() === notify.PERMISSION_GRANTED);
+            toggleNotifications(model, notify.permissionLevel() === notify.PERMISSION_GRANTED, save);
         });
     }
     else {
-        model.set('dn_state', state || !model.get('dn_state'));
+        model.set('dn_state', state != null ? !!state : !model.get('dn_state'));
     }
     if(save) model.save();
 }

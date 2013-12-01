@@ -59,7 +59,7 @@
 
         uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
         connError: message("An error occured: {1}", types.ERROR),
-        connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
+        // connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
         connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
         connectionFail: message("Couldn't connect to remote server.", types.ERROR),
 

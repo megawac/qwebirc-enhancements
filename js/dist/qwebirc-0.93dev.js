@@ -1,6 +1,6 @@
 /*!
-qwebirc-WebIRC-client ::: Version 0.93.11 :::
-Built on 2013-11-03
+qwebirc-WebIRC-client ::: Version 0.93.97 :::
+Built on 2013-12-01
 Description: webirc client - See qwebirc.org
 Authors: Graeme Yeates (www.github.com/megawac)
 Repository: www.github.com/megawac/qwebirc-enhancements
@@ -2061,9 +2061,7 @@ var Slider = new Class({
         }
     });
 }(), function() {
-    var root = this, previousUnderscore = root._, ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype, getTime = Date.now, push = ArrayProto.push, slice = ArrayProto.slice, concat = ArrayProto.concat, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf;
-    FuncProto.bind;
-    var _ = function(obj) {
+    var root = this, previousUnderscore = root._, ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype, getTime = Date.now, push = ArrayProto.push, slice = ArrayProto.slice, concat = ArrayProto.concat, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf, nativeBind = FuncProto.bind, _ = function(obj) {
         return obj instanceof _ ? obj : this instanceof _ ? (this._wrapped = obj, void 0) : new _(obj);
     };
     "undefined" != typeof exports ? ("undefined" != typeof module && module.exports && (exports = module.exports = _), 
@@ -2263,7 +2261,7 @@ var Slider = new Class({
         start += step;
         return range;
     }, _.bind = function(fn) {
-        return fn.bind(slice.call(arguments, 1));
+        return nativeBind.apply(fn, slice.call(arguments, 1));
     }, _.partial = function(func) {
         var args = slice.call(arguments, 1);
         return function() {
@@ -2532,8 +2530,8 @@ var Slider = new Class({
         return new Function(params, "return (" + expr + ")");
     }, stringToFunction = function(str) {
         return str.match(/\breturn\b/) ? new Function(str) : stringLambda(str);
-    }, functional = _.func = {}, slice = Array.prototype.slice, concat = Array.prototype.concat;
-    _.each([ "each", "map", "filter", "some", "every", "find", "sortBy", "groupBy", "invoke", "lookup" ], function(name) {
+    }, functional = _.func = {}, slice = Array.prototype.slice;
+    Array.prototype.concat, _.each([ "each", "map", "filter", "some", "every", "find", "sortBy", "groupBy", "invoke", "lookup" ], function(name) {
         functional[name] = function(fn, list) {
             return _[name].apply(this, [ list, fn ].concat(slice.call(arguments, 2)));
         };
@@ -2541,7 +2539,7 @@ var Slider = new Class({
         autoCurry: function(fn, numArgs) {
             return numArgs = numArgs || fn.length, function wrapper(prev_args) {
                 return function() {
-                    var args = concat.call(prev_args, slice.call(arguments));
+                    var args = prev_args.concat(slice.call(arguments));
                     return args.length < numArgs ? wrapper(args) : fn.apply(this, args);
                 };
             }([]);
@@ -3447,7 +3445,7 @@ function(window) {
         wrapping_punctuation: [ [ "(", ")" ], [ "<", ">" ], [ "&lt;", "&gt;" ], [ "“", "”" ], [ "‘", "’" ], [ "'", "'" ], [ "[", "]" ] ],
         initialize: function(opts) {
             this.setOptions(opts), this.options.default_parser && this.patterns.push({
-                pattern: /[a-z0-9]\.[a-z]{2,4}/i,
+                pattern: /[a-z0-9]{2,}\.[a-z]{2,4}/i,
                 entireStr: !1,
                 parse: function(text) {
                     var options = this.options, word = text;
@@ -4751,7 +4749,8 @@ var Asset = {
         properties || (properties = {});
         var script = new Element("script", {
             src: source,
-            type: "text/javascript"
+            type: "text/javascript",
+            async: !0
         }), doc = properties.document || document, load = properties.onload || properties.onLoad;
         return delete properties.onload, delete properties.onLoad, delete properties.document, 
         load && (script.addEventListener ? script.addEvent("load", load) : script.addEvent("readystatechange", function() {
@@ -5488,9 +5487,9 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
     data = data || {};
     var stack1, buffer = "", functionType = "function", escapeExpression = this.escapeExpression;
-    return buffer += "<div class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status " + escapeExpression((stack1 = depth0.status, 
+    return buffer += "<form class='input'><div class='tt-ahead input-group'><span class='input-group-addon user'><span class='status " + escapeExpression((stack1 = depth0.status, 
     typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '\'></span><span class="nickname">' + escapeExpression((stack1 = depth0.nick, 
-    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span></span>" + "<input class='tt-hint hidden' type='text' autocomplete='off' spellcheck='off' disabled>" + "<input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='button'>&gt;</button></span></div></div>";
+    typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + "</span></span>" + "<input class='tt-hint hidden' type='text' autocomplete='off' spellcheck='off' disabled>" + "<input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'><span class='input-group-btn'><button class='btn btn-default send' type='submit'>&gt;</button></span></div></form>";
 }), this.qwebirc.templates.ircMessage = Handlebars.template(function(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [ 4, ">= 1.0.0" ], helpers = this.merge(helpers, Handlebars.helpers), 
     data = data || {};
@@ -5907,7 +5906,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     }, irc.PMODE_LIST = 0, irc.PMODE_SET_UNSET = 1, irc.PMODE_SET_ONLY = 2, irc.PMODE_REGULAR_MODE = 3;
     var BROUHAHA = "#brouhaha", CONNECTION_DETAILS = "Connection details", STATUS = "Status", OPTIONS = "Options", ACTIVE = "	ACTIVE", BASE_WINDOWS = [ BROUHAHA, CONNECTION_DETAILS, STATUS ], CHANNEL_TYPES = [ ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages ], INPUT_TYPES = [ ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages ], OPED = "+", DEOPED = "-", OPSTATUS = "@", VOICESTATUS = "+";
     irc.IRCLowercaseTable = [ "\x00", "", "", "", "", "", "", "", "\b", "	", "\n", "", "\f", "\r", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", " ", "!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", " ", "¡", "¢", "£", "¤", "¥", "¦", "§", "¨", "©", "ª", "«", "¬", "­", "®", "¯", "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½", "¾", "¿", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "×", "ø", "ù", "ú", "û", "ü", "ý", "þ", "ß", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "÷", "ø", "ù", "ú", "û", "ü", "ý", "þ", "ÿ" ], 
-    irc.Numerics2 = {
+    irc.Numerics = {
         "001": {
             name: "RPL_WELCOME",
             type: "reply"
@@ -6437,9 +6436,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         return xs.join(by);
     }, split = function(by, str) {
         return str.split(by);
-    }, restRight = _.autoCurry(function(xs) {
-        return xs.slice(0, xs.length - 1);
-    }), test = _.autoCurry(function(reg, str) {
+    }, test = _.autoCurry(function(reg, str) {
         return str.test(reg);
     }), replace = _.autoCurry(function(reg, rep, str) {
         return str.replace(reg, rep);
@@ -6466,7 +6463,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         return _.isArray(xs) ? xs.length > 0 ? xs : [ "" ] : xs.split(",");
     }, isBaseWindow = util.isBaseWindow = _.partial(_.contains, BASE_WINDOWS), isChannelType = util.isChannelType = _.partial(_.contains, CHANNEL_TYPES);
     util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES), util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan), 
-    util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, unformatChannel), splitChan), 
+    util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChannel), splitChan), 
     util.formatURL = function(link) {
         return link = util.isChannel(link) ? link.replace("#", "@") : link, "#!" + link;
     }, util.unformatURL = function(link) {
@@ -6475,7 +6472,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     util.removeChannel = _.compose(_.uniq, function(chans, chan) {
         return _.clone(chans).erase(chan);
     }), function() {
-        var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/, hasprefix_re = /^:([^ ]+) +/, colonrem_re = /^:[^ ]+ +/, command_re = /^([^ ]+) */, data_re = /^[^ ]+ +/, args_re = /^:|\s+:/, argsm_re = /(.*?)(?:^:|\s+:)(.*)/, args_split_re = / +/, NUMERICS = irc.Numerics2;
+        var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/, hasprefix_re = /^:([^ ]+) +/, colonrem_re = /^:[^ ]+ +/, command_re = /^([^ ]+) */, data_re = /^[^ ]+ +/, args_re = /^:|\s+:/, argsm_re = /(.*?)(?:^:|\s+:)(.*)/, args_split_re = / +/, NUMERICS = irc.Numerics;
         util.parseIRCData = function(line) {
             var match, message = {
                 raw: line,
@@ -6520,8 +6517,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     }, util.removePrefix = function(nc, pref) {
         return nc.prefixes = nc.prefixes.replaceAll(pref, "");
     }, util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
-        var c = nick.charAt(0);
-        return util.validPrefix(prefixes, c) ? [ c, nick.slice(1) ] : [ "", nick ];
+        for (var i = 0; i < nick.length && util.validPrefix(prefixes, nick.charAt(i)); i++) ;
+        return [ nick.slice(0, i), nick.slice(i) ];
     }), util.getPrefix = _.compose(_.first, util.prefixOnNick), util.stripPrefix = _.compose(_.lambda("x[1]"), util.prefixOnNick), 
     util.createWordRegex = function(word) {
         return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");
@@ -6623,7 +6620,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             disconnected: message("Client has been disconnected", types.INFO),
             uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
             connError: message("An error occured: {1}", types.ERROR),
-            connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
             connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
             connectionFail: message("Couldn't connect to remote server.", types.ERROR),
             closeTab: "Close tab",
@@ -6721,7 +6717,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             });
         }
     };
-    return util.loadTemplate = function(name) {
+    util.loadTemplate = function(name) {
         var template;
         return getTemplate(name, function(tmpl) {
             template = tmpl;
@@ -6967,88 +6963,88 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         PRIVACY: "PRIVACYPOLICY",
         HOP: "CYCLE",
         SLAP: "ME"
+    }, ui["default options"] = {
+        auto_open_pm: !1,
+        nick_ov_status: !0,
+        accept_service_invites: !0,
+        use_hiddenhost: !0,
+        lastpos_line: !0,
+        nick_colours: !1,
+        hide_joinparts: !1,
+        show_nicklist: !Browser.isMobile,
+        show_timestamps: !0,
+        font_size: 12,
+        volume: 100,
+        completer: {
+            intrusive: Browser.isDecent,
+            store: !Browser.isMobile
+        },
+        dn_state: !1,
+        dn_duration: 4e3,
+        highlight: !0,
+        highlight_mentioned: !0,
+        style_hue: 210,
+        style_saturation: 0,
+        style_brightness: 0,
+        standard_notices: [ {
+            type: "^(?!SERVER)+NOTICE+$",
+            classes: "",
+            beep: !0,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: "notice"
+        }, {
+            type: "PRIVMSG$",
+            flash: !0,
+            beep: !0,
+            pm: !0,
+            tabhl: ui.HIGHLIGHT.speech,
+            id: "pm"
+        }, {
+            type: "^OUR",
+            classes: "our-msg",
+            id: "ourmsg"
+        }, {
+            nick: "(^tf2)|((serv|bot)$)",
+            classes: "bot",
+            types: [ ui.WINDOW.channel ],
+            "case": !0,
+            id: "bot"
+        }, {
+            msg: "^\\!",
+            classes: "command",
+            types: [ ui.WINDOW.channel ],
+            id: "cmd"
+        }, {
+            mentioned: !0,
+            highlight: "mentioned",
+            notus: !0,
+            tabhl: ui.HIGHLIGHT.us,
+            id: "mention"
+        }, {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            mentioned: !0,
+            classes: "",
+            beep: !0,
+            pm: !0,
+            notus: !0,
+            "case": !0,
+            id: "onmention"
+        }, {
+            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            msg: "^((?!(^\\!)).)*$",
+            classes: "",
+            highlight: !0,
+            notus: !0,
+            "case": !0,
+            tabhl: ui.HIGHLIGHT.activity,
+            types: [ ui.WINDOW.channel ],
+            id: "hl"
+        } ],
+        custom_notices: []
     }, config.OptionModel = new Class({
         Extends: Epitome.Model.Storage,
         options: {
-            defaults: {
-                auto_open_pm: !1,
-                nick_ov_status: !0,
-                accept_service_invites: !0,
-                use_hiddenhost: !0,
-                lastpos_line: !0,
-                nick_colours: !1,
-                hide_joinparts: !1,
-                show_nicklist: !Browser.isMobile,
-                show_timestamps: !0,
-                font_size: 12,
-                volume: 100,
-                completer: {
-                    intrusive: Browser.isDecent,
-                    store: !Browser.isMobile
-                },
-                dn_state: !1,
-                dn_duration: 4e3,
-                highlight: !0,
-                highlight_mentioned: !0,
-                style_hue: 210,
-                style_saturation: 0,
-                style_brightness: 0,
-                standard_notices: [ {
-                    type: "^(?!SERVER)+NOTICE+$",
-                    classes: "",
-                    beep: !0,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: "notice"
-                }, {
-                    type: "PRIVMSG$",
-                    flash: !0,
-                    beep: !0,
-                    pm: !0,
-                    tabhl: ui.HIGHLIGHT.speech,
-                    id: "pm"
-                }, {
-                    type: "^OUR",
-                    classes: "our-msg",
-                    id: "ourmsg"
-                }, {
-                    nick: "(^tf2)|((serv|bot)$)",
-                    classes: "bot",
-                    types: [ ui.WINDOW.channel ],
-                    "case": !0,
-                    id: "bot"
-                }, {
-                    msg: "^\\!",
-                    classes: "command",
-                    types: [ ui.WINDOW.channel ],
-                    id: "cmd"
-                }, {
-                    mentioned: !0,
-                    highlight: "mentioned",
-                    notus: !0,
-                    tabhl: ui.HIGHLIGHT.us,
-                    id: "mention"
-                }, {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    mentioned: !0,
-                    classes: "",
-                    beep: !0,
-                    pm: !0,
-                    notus: !0,
-                    "case": !0,
-                    id: "onmention"
-                }, {
-                    nick: "^((?!(^tf2|bot$|serv$)).)*$",
-                    msg: "^((?!(^\\!)).)*$",
-                    classes: "",
-                    highlight: !0,
-                    notus: !0,
-                    "case": !0,
-                    tabhl: ui.HIGHLIGHT.activity,
-                    types: [ ui.WINDOW.channel ],
-                    id: "hl"
-                } ],
-                custom_notices: []
-            },
+            defaults: ui["default options"],
             key: cookies.options,
             minimize: !0
         },
@@ -7505,7 +7501,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 splitargs: 1,
                 minargs: 0,
                 fn: function(args) {
-                    this.quit(args[0] || "");
+                    this.quit(args[0] || "", !0);
                 }
             },
             cmd_FJOIN: {
@@ -7585,7 +7581,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             Binds: [ "_recv", "_error" ],
             options: {
                 socket_connect: document.location.hostname,
-                nickname: "ircconnX",
+                nickname: "",
                 password: "",
                 serverPassword: null,
                 autoConnect: !0,
@@ -7593,7 +7589,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 floodProtection: !1,
                 autoretry: !0,
                 retryInterval: 5e3,
-                retryAttempts: 30,
                 clientID: util.randHexString(16)
             },
             connected: !1,
@@ -7613,7 +7608,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         self.connected = !1;
                     },
                     reconnect: function() {
-                        console.log("reconnecting"), self.socket.emit("reconnect", options);
+                        console.log("reconnected"), self.socket.emit("reconnect", options);
                     },
                     reconnecting: function() {
                         console.log("reattempt"), self.fireEvent("retry", {
@@ -7667,7 +7662,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         }), auth.loggedin = !1, auth.enabled = !1, auth.passAuth = $lambda(!0), auth.bouncerAuth = $lambda(!1), 
         irc.IRCClient = new Class({
             Implements: [ Options, Events, irc.Commands ],
-            Binds: [ "lostConnection", "send", "quit", "connected", "retry", "_ndispatch", "_tdispatch" ],
+            Binds: [ "lostConnection", "send", "quit", "connected", "retry", "dispatch", "_tdispatch" ],
             options: {
                 minRejoinTime: [ 0 ],
                 networkServices: [],
@@ -7675,12 +7670,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             },
             lastNicks: [],
             inviteChanList: [],
+            channels: [],
             activeTimers: {},
             prefixes: "@+",
             modeprefixes: "ov",
             __signedOn: !1,
             authed: !1,
-            channels: [],
             nextctcp: 0,
             pmodes: {
                 b: irc.PMODE_LIST,
@@ -7701,20 +7696,22 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         serverPassword: options.serverPassword
                     });
                     conn.addEvents({
-                        recv: self._ndispatch,
+                        recv: self.dispatch,
                         quit: self.quit,
-                        retry: self.retry,
                         connected: self.connected,
                         lostConnection: self.lostConnection
                     });
                 } else self.connection = new irc.TwistedConnection({
-                    initialNickname: self.nickname,
+                    nickname: self.nickname,
                     serverPassword: options.serverPassword
-                }), self.connection.addEvent("recv", self._tdispatch);
+                }), self.connection.addEvents({
+                    recv: self._tdispatch,
+                    lostConnection: self.lostConnection
+                });
                 self.tracker = new irc.IRCTracker(self);
             },
             connect: function() {
-                return this.connection.connect();
+                return this.connection.connect(), this;
             },
             connected: function() {
                 this.trigger("connect", {});
@@ -7730,22 +7727,15 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     message: message
                 });
             },
-            quit: function(message) {
-                return this.isConnected() && (this.send("QUIT :" + (message || lang.quit), !0), 
-                _.each(this.activeTimers, $clear), this.activeTimers = {}, this.writeMessages(lang.disconnected, {}, {
+            quit: function(message, notify) {
+                return this.isConnected() && (this.send("QUIT :" + (message || lang.quit), !1), 
+                notify && (_.each(this.activeTimers, $clear), this.activeTimers = {}, this.writeMessages(lang.disconnected, {}, {
                     channels: "ALL"
-                }), this.disconnect(), this.trigger("disconnect"), this.__signedOn = !1), this;
+                }), this.disconnect(), this.trigger("disconnect"), this.__signedOn = !1)), this;
             },
             lostConnection: function(attempt) {
-                console.log(arguments), this.writeMessages(lang.connRetry, {
+                this.writeMessages(lang.connTimeOut, {
                     retryAttempts: attempt
-                }, {
-                    channels: "ALL"
-                });
-            },
-            retry: function(data) {
-                this.trigger("retry", data), this.writeMessages(lang.connRetry, {
-                    next: (data.next / 1e3).round(1)
                 }, {
                     channels: "ALL"
                 });
@@ -7820,7 +7810,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 }
                 return 0 === broken.length;
             },
-            _ndispatch: function(data) {
+            dispatch: function(data) {
                 var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
                 fn && fn.call(this, data) || this.rawNumeric(data);
             },
@@ -7838,7 +7828,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
 
                   case "c":
                     var _data = util.processTwistedData(data);
-                    this._ndispatch(_data);
+                    this.dispatch(_data);
                 }
             },
             writeMessages: function(messages, args, data) {
@@ -7881,6 +7871,10 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 }), !0;
             },
             _signOn: function() {
+                if (this.__signedOn) return console.log("REjoining " + util.formatChannelString(this.channels)), 
+                this.send(format(cmd.JOIN, {
+                    channel: util.formatChannelString(this.channels)
+                }));
                 var channels;
                 this.options, this.writeMessages(lang.signOn), this.writeMessages(lang.loginMessages, {}, {
                     channel: BROUHAHA
@@ -8078,11 +8072,11 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 var channel = data.args[0], nick = data.nick, wasus = nick === this.nickname;
                 wasus && (isBaseWindow(channel) || this.storeChannels(util.addChannel(this.getChannels(), channel)), 
                 this.__signedOn && (this.currentChannel = channel));
-                var nick = data.nick, host = data.host, wasus = nick === this.nickname, windowSelected = channel === this.currentChannel || channel === BROUHAHA;
+                var windowSelected = channel === this.currentChannel || channel === BROUHAHA;
                 return this.tracker.addNickToChannel(nick, BROUHAHA), this.tracker.addNickToChannel(nick, channel), 
                 this.updateNickList(BROUHAHA), this.updateNickList(channel), this.trigger("userJoined", {
                     nick: nick,
-                    host: host,
+                    host: data.host,
                     channel: channel,
                     thisclient: wasus,
                     select: windowSelected
@@ -8090,7 +8084,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             },
             irc_QUIT: function(data) {
                 var self = this, message = _.last(data.args), nick = data.nick, channels = self.tracker.getNick(nick);
-                return self.tracker.removeNick(nick), _.keys(channels).each(function(chan) {
+                return self.tracker.removeNick(nick), _.each(channels, function(nick, chan) {
                     self.updateNickList(chan);
                 }), self.trigger("quit", {
                     host: data.host,
@@ -8155,13 +8149,13 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                             data: type
                         });
                     } else {
-                        var data = {
+                        var context = {
                             nick: nick,
                             channel: target,
                             message: ctcp[1] || "",
                             prefix: this.getNickStatus(target, nick)
                         };
-                        "ACTION" == type ? (this.tracker.updateLastSpoke(nick, target, Date.now()), this.trigger("chanAction", data)) : this.trigger("chanCTCP", data);
+                        "ACTION" == type ? (this.tracker.updateLastSpoke(nick, target, Date.now()), this.trigger("chanAction", context)) : this.trigger("chanCTCP", context);
                     }
                 } else target === this.nickname ? (this._pushLastNick(nick), this.trigger("query", {
                     nick: nick,
@@ -8239,7 +8233,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     type: "UMODE",
                     n: this.nickname
                 }); else {
-                    var modes = args[0].split(""), nick = _.last(args), cmode = OPED, modes = modes.filter(function(mode) {
+                    var modes = args[0].split(""), nick = _.last(args), cmode = OPED;
+                    modes.filter(function(mode) {
                         var dir = mode === OPED || mode === DEOPED;
                         return dir && (cmode = mode), !dir;
                     }).each(function(mode) {
@@ -8256,8 +8251,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                                 nickchan: nc
                             });
                         }
-                    });
-                    self.updateNickList(target);
+                    }), self.updateNickList(target);
                 }
                 return !0;
             },
@@ -8419,130 +8413,156 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             irc_RPL_LISTEND: function() {
                 return this.trigger("listend", this.listedChans), !this.hidelistout;
             }
-        }), irc.TwistedConnection = new Class({
-            Implements: [ Events, Options ],
-            Binds: [ "send", "__completeRequest" ],
-            options: {
-                initialNickname: "ircconnX",
-                minTimeout: 45e3,
-                maxTimeout: 3e5,
-                timeoutIncrement: 1e4,
-                initialTimeout: 65e3,
-                floodInterval: 200,
-                floodMax: 10,
-                floodReset: 5e3,
-                errorAlert: !0,
-                maxRetries: 5,
-                serverPassword: null
-            },
-            initialize: function(options) {
-                var self = this;
-                self.setOptions(options), self.counter = 0, self.disconnected = !1, self.__floodLastRequest = 0, 
-                self.__floodCounter = 0, self.__floodLastFlood = 0, self.__retryAttempts = 0, self.__timeoutId = null, 
-                self.__timeout = self.options.initialTimeout, self.__lastActiveRequest = null, self.__activeRequest = null, 
-                self.__sendQueue = [], self.__sendQueueActive = !1;
-            },
-            connect: function() {
-                var self = this;
-                self.cacheAvoidance = util.randHexString(16);
-                var request = self.newRequest("n");
-                request.addEvent("complete", function(stream) {
-                    return stream ? stream[0] ? (self.sessionid = stream[1], self.recv(), void 0) : (self.disconnect(), 
-                    self.__error(lang.connError, stream), void 0) : (self.disconnected = !0, self.__error(lang.connectionFail), 
-                    void 0);
-                });
-                var postdata = "nick=" + encodeURIComponent(self.options.initialNickname);
-                $defined(self.options.serverPassword) && (postdata += "&password=" + encodeURIComponent(self.options.serverPassword)), 
-                request.send(postdata);
-            },
-            disconnect: function() {
-                this.disconnected = !0, this.__cancelTimeout(), this.__cancelRequests();
-            },
-            newRequest: function(url, floodProtection, synchronous) {
-                var self = this;
-                if (self.disconnected) return null;
-                floodProtection && !self.disconnected && self.__isFlooding() && (self.disconnect(), 
-                self.__error(lang.uncontrolledFlood));
-                var request = new Request.JSON({
-                    url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
-                    async: !synchronous
-                });
-                return request.headers = {}, Browser.ie && Browser.version < 8 && request.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT"), 
-                request;
-            },
-            recv: function() {
-                var self = this, request = self.newRequest("s", !0);
-                if ($defined(request)) {
-                    self.__activeRequest = request, request.__replaced = !1;
-                    var onComplete = function(stream) {
-                        return request.__replaced ? (self.__lastActiveRequest = null, stream && self.__processData(stream), 
-                        void 0) : (self.__activeRequest = null, self.__cancelTimeout(), stream ? (self.__processData(stream) && self.recv(), 
-                        void 0) : (!self.disconnected && self.__checkRetries() && self.recv(), void 0));
-                    };
-                    request.addEvent("complete", onComplete), self.__scheduleTimeout(), request.send("s=" + self.sessionid);
+        }), function() {
+            var killBit = "", killHeaders = {
+                Accept: killBit,
+                "Accept-Language": killBit
+            };
+            irc.TwistedConnection = new Class({
+                Implements: [ Events, Options ],
+                Binds: [ "send" ],
+                options: {
+                    nickname: "",
+                    minTimeout: 45e3,
+                    maxTimeout: 3e5,
+                    timeoutIncrement: 1e4,
+                    initialTimeout: 65e3,
+                    floodInterval: 200,
+                    floodMax: 10,
+                    floodReset: 5e3,
+                    errorAlert: !0,
+                    maxRetries: 5,
+                    serverPassword: null
+                },
+                connected: !1,
+                counter: 0,
+                __sendQueue: [],
+                __lastActiveRequest: null,
+                __activeRequest: null,
+                __sendQueueActive: !1,
+                __floodLastRequest: 0,
+                __retryAttempts: 0,
+                __floodCounter: 0,
+                __floodLastFlood: 0,
+                __timeoutId: null,
+                initialize: function(options) {
+                    this.setOptions(options), this.__timeout = this.options.initialTimeout;
+                },
+                connect: function() {
+                    var self = this;
+                    self.connected = !0, self.cacheAvoidance = util.randHexString(16);
+                    var request = self.newRequest("n");
+                    request.addEvent("complete", function(stream) {
+                        return stream ? stream[0] ? (self.sessionid = stream[1], self.recv(), void 0) : (self.disconnect(), 
+                        self.lostConnection(lang.connError, stream), void 0) : (self.lostConnection(lang.connectionFail), 
+                        void 0);
+                    });
+                    var postdata = "nick=" + encodeURIComponent(self.options.nickname);
+                    null != self.options.serverPassword && (postdata += "&password=" + encodeURIComponent(self.options.serverPassword)), 
+                    request.send(postdata);
+                },
+                disconnect: function() {
+                    this.connected = !1, this.__cancelTimeout(), this.__cancelRequests();
+                },
+                newRequest: function(url, floodProtection, synchronous) {
+                    var self = this;
+                    if (!self.connected) return null;
+                    floodProtection && self.__isFlooding() && (self.disconnect(), self.__error(lang.uncontrolledFlood));
+                    var request = new Request.JSON({
+                        url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
+                        async: !synchronous
+                    });
+                    return request.headers = {}, request.addEvent("request", function() {
+                        Object.each(killHeaders, function(val, key) {
+                            try {
+                                request.xhr.setRequestHeader(key, val);
+                            } catch (o_O) {
+                                delete killHeaders[key];
+                            }
+                        });
+                    }), Browser.ie && Browser.version < 8 && request.setHeader("If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT"), 
+                    request;
+                },
+                recv: function() {
+                    var self = this, request = self.newRequest("s", !0);
+                    if (null != request) {
+                        self.__activeRequest = request, request.__replaced = !1;
+                        var onComplete = function(stream) {
+                            return request.__replaced ? (self.__lastActiveRequest = null, stream && self.__processData(stream), 
+                            void 0) : (self.__activeRequest = null, self.__cancelTimeout(), stream ? (self.__processData(stream) && self.recv(), 
+                            void 0) : (self.connected && self.__checkRetries() && self.recv(), void 0));
+                        };
+                        request.addEvent("complete", onComplete), self.__scheduleTimeout(), request.send("s=" + self.sessionid);
+                    }
+                },
+                send: function(data, synchronous) {
+                    return this.connected ? (synchronous ? this.__send(data, !1) : (this.__sendQueue.push(data), 
+                    this.__processSendQueue()), !0) : !1;
+                },
+                __processSendQueue: function() {
+                    this.__sendQueueActive || 0 === this.__sendQueue.length || (this.sendQueueActive = !0, 
+                    this.__send(this.__sendQueue.shift(), !0));
+                },
+                __send: function(data, async) {
+                    var request = this.newRequest("p", !1, !async);
+                    null != request && request.addEvent("complete", this.__completeRequest.bind(this, async)).send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
+                },
+                __completeRequest: function(async, stream) {
+                    return async && (this.__sendQueueActive = !1), stream && stream[0] ? (this.__processSendQueue(), 
+                    void 0) : (this.__sendQueue = [], this.connected && this.lostConnection(lang.connError, stream), 
+                    !1);
+                },
+                __isFlooding: function() {
+                    var t = Date.now(), floodt = t - this.__floodLastRequest;
+                    return floodt < this.options.floodInterval && (0 !== this.__floodLastFlood && floodt > this.options.floodReset && (this.__floodCounter = 0), 
+                    this.__floodLastFlood = t, ++this.__floodCounter > this.options.floodMax) ? !0 : (this.__floodLastRequest = t, 
+                    !1);
+                },
+                __checkRetries: function() {
+                    if (++this.__retryAttempts > this.options.maxRetries && this.connected) return this.disconnect(), 
+                    this.__error(lang.connTimeOut, {
+                        retryAttempts: this.__retryAttempts
+                    }), this.fireEvent("lostConnection", this.__retryAttempts), !1;
+                    var to = this.__timeout - this.options.timeoutIncrement;
+                    return to >= this.options.minTimeout && (this.__timeout = to), !0;
+                },
+                __cancelRequests: function() {
+                    null != this.__lastActiveRequest && (this.__lastActiveRequest.cancel(), this.__lastActiveRequest = null), 
+                    null != this.__activeRequest && (this.__activeRequest.cancel(), this.__activeRequest = null);
+                },
+                __processData: function(payload) {
+                    var self = this;
+                    return 0 == payload[0] ? (self.connected && self.lostConnection(lang.connError, payload), 
+                    !1) : (self.__retryAttempts = 0, payload.each(function(data) {
+                        self.fireEvent("recv", [ data ]);
+                    }), !0);
+                },
+                __scheduleTimeout: function() {
+                    this.__timeoutId = this.__timeoutEvent.delay(this.__timeout, this);
+                },
+                __cancelTimeout: function() {
+                    null != this.__timeoutId && ($clear(this.__timeoutId), this.__timeoutId = null);
+                },
+                __timeoutEvent: function() {
+                    if (this.__timeoutId = null, null != this.__activeRequest) {
+                        this.__lastActiveRequest && this.__lastActiveRequest.cancel(), this.__activeRequest.__replaced = !0, 
+                        this.__lastActiveRequest = this.__activeRequest;
+                        var to = this.__timeout + this.options.timeoutIncrement;
+                        to <= this.options.maxTimeout && (this.__timeout = to), this.recv();
+                    }
+                },
+                lostConnection: function() {
+                    this.connected = !1, this.fireEvent("lostConnection", this.__retryAttempts), this.__error.apply(this, arguments);
+                },
+                __error: function(message, context) {
+                    var msg = context ? util.formatter(message.message, context) : message.message;
+                    this.fireEvent("error", msg), new ui.Alert({
+                        title: "Connection Error",
+                        text: msg
+                    });
                 }
-            },
-            send: function(data, synchronous) {
-                return this.disconnected ? !1 : (synchronous ? this.__send(data, !1) : (this.__sendQueue.push(data), 
-                this.__processSendQueue()), !0);
-            },
-            __processSendQueue: function() {
-                this.__sendQueueActive || 0 === this.__sendQueue.length || (this.sendQueueActive = !0, 
-                this.__send(this.__sendQueue.shift(), !0));
-            },
-            __send: function(data, async) {
-                var request = this.newRequest("p", !1, !async);
-                null !== request && request.addEvent("complete", _.partial(this.__completeRequest, async)).send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
-            },
-            __completeRequest: function(async, stream) {
-                return async && (this.__sendQueueActive = !1), stream && stream[0] ? (this.__processSendQueue(), 
-                void 0) : (this.__sendQueue = [], this.disconnected || (this.disconnected = !0, 
-                this.__error(lang.connError, stream)), !1);
-            },
-            __isFlooding: function() {
-                var t = Date.now(), floodt = t - this.__floodLastRequest;
-                return floodt < this.options.floodInterval && (0 !== this.__floodLastFlood && floodt > this.options.floodReset && (this.__floodCounter = 0), 
-                this.__floodLastFlood = t, ++this.__floodCounter > this.options.floodMax) ? !0 : (this.__floodLastRequest = t, 
-                !1);
-            },
-            __checkRetries: function() {
-                if (++this.__retryAttempts > this.options.maxRetries && !this.disconnected) return this.disconnect(), 
-                this.__error(lang.connTimeOut, {
-                    retryAttempts: this.__retryAttempts
-                }), !1;
-                var to = this.__timeout - this.options.timeoutIncrement;
-                return to >= this.options.minTimeout && (this.__timeout = to), !0;
-            },
-            __cancelRequests: function() {
-                $defined(this.__lastActiveRequest) && (this.__lastActiveRequest.cancel(), this.__lastActiveRequest = null), 
-                $defined(this.__activeRequest) && (this.__activeRequest.cancel(), this.__activeRequest = null);
-            },
-            __processData: function(o) {
-                return 0 == o[0] ? (this.disconnected || (this.disconnected = !0, this.__error(lang.connError, o)), 
-                !1) : (this.__retryAttempts = 0, o.each(function(x) {
-                    this.fireEvent("recv", [ x ]);
-                }, this), !0);
-            },
-            __scheduleTimeout: function() {
-                this.__timeoutId = this.__timeoutEvent.delay(this.__timeout, this);
-            },
-            __cancelTimeout: function() {
-                $defined(this.__timeoutId) && ($clear(this.__timeoutId), this.__timeoutId = null);
-            },
-            __timeoutEvent: function() {
-                if (this.__timeoutId = null, $defined(this.__activeRequest)) {
-                    this.__lastActiveRequest && this.__lastActiveRequest.cancel(), this.fireEvent("timeout", {
-                        duration: this.__timeout
-                    }), this.__activeRequest.__replaced = !0, this.__lastActiveRequest = this.__activeRequest;
-                    var to = this.__timeout + this.options.timeoutIncrement;
-                    to <= this.options.maxTimeout && (this.__timeout = to), this.recv();
-                }
-            },
-            __error: function(message, context) {
-                var msg = context ? util.formatter(message.message, context) : message.message;
-                this.fireEvent("error", msg), this.options.errorAlert && alert(msg), console.log("had error:" + msg);
-            }
-        }), irc.IRCTracker = new Class({
+            });
+        }(), irc.IRCTracker = new Class({
             channels: {},
             nicknames: {},
             initialize: function(owner) {
@@ -8865,10 +8885,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             if (!_.isEmpty(validators)) {
                 var text = $ele.val(), failed = _.find(validators, function(validator) {
                     return !validator.test(text, $ele);
-                }), failbool = !!failed, controlpar = $ele.getParent(".control-group").toggleClass("has-error", failbool);
-                return failbool ? getTemplate("failed-validator", function(template) {
-                    Elements.from(template(failed)).inject(controlpar);
-                }) : controlpar.getElements(".help-block").dispose(), !failed;
+                }), failbool = !!failed, $controlpar = $ele.getParent(".control-group").toggleClass("has-error", failbool);
+                return failbool ? 0 === $controlpar.getElements(".help-block").filter(function(ele) {
+                    return ele.html() === failed.description;
+                }).length && getTemplate("failed-validator", function(template) {
+                    Elements.from(template(failed)).inject($controlpar);
+                }) : $controlpar.getElements(".help-block").dispose(), !failed;
             }
         }
         var LoginBox = function(parentElement, callback, settings, networkName, validators) {
@@ -8906,12 +8928,17 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             Implements: [ Events ],
             LoginBox: LoginBox,
             loginBox: function() {
-                this.postInitialize();
                 var self = this, win = this.newCustomWindow(CONNECTION_DETAILS, !0, ui.WINDOW.connect), callback = function(data) {
                     win.close(), self.fireEvent("login", data);
                 };
                 return this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators), 
                 win;
+            },
+            welcome: function() {
+                ui.WelcomePane.show(this.ui, _.extend({
+                    element: this.element,
+                    firstvisit: !0
+                }, this.options));
             }
         });
     }(), ui.IUIOptions = new Class({
@@ -8934,12 +8961,12 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                         notice[type] && (onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type], notice.case ? "i" : ""));
                     }), _.clean(onotice);
                 }).value();
-                self.theme.messageParsers.empty().combine(notifiers);
+                self.theme.messageParsers.empty().combine(notifiers), self.theme.config = uiOptions;
             }
             var self = this, options = self.options;
             if (self.uiOptions instanceof config.OptionModel) return this;
-            var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({
-                defaults: options.uiOptionsArg
+            var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({}, {
+                defaults: options.uiOptions
             });
             return uiOptions.on({
                 "change:style_hue": function() {
@@ -9066,13 +9093,15 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         },
         initialize: function(parentElement, theme, uiName, options) {
             var self = this.setOptions(options);
-            self.theme = theme, self.config(), self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName), 
-            self.commandhistory = new irc.CommandHistory({
-                store: self.uiOptions.get("completer").store
-            }), self.windows[ui.CUSTOM_CLIENT] = this.customWindows, getTemplate("topPane", function(template) {
-                self.outerTabs = Element.from(template()).inject(parentElement);
-            }), getTemplate("windowsPane", function(template) {
-                self.windowsPanel = Element.from(template()).inject(parentElement);
+            document.addEvent("domready", function() {
+                self.theme = theme, self.config(), parentElement = self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName), 
+                self.commandhistory = new irc.CommandHistory({
+                    store: self.uiOptions.get("completer").store
+                }), self.windows[ui.CUSTOM_CLIENT] = self.customWindows, getTemplate("topPane", function(template) {
+                    self.outerTabs = Element.from(template()).inject(parentElement);
+                }), getTemplate("windowsPane", function(template) {
+                    self.windowsPanel = Element.from(template()).inject(parentElement);
+                }), self.postInitialize(), self.fireEvent("ready");
             });
         },
         postInitialize: function() {
@@ -9132,7 +9161,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             }), this;
         },
         updateURI: function(url) {
-            this.router && this.router.navigate(util.formatURL(url || this.active.identifier));
+            url = url || this.active.identifier, this.router && ("login" != url || location.hash) && this.router.navigate(util.formatURL(url));
         },
         whoisURL: function(e, target) {
             var client = target.getParent(".window").retrieve("window").client, nick = target.get("data-user");
@@ -9143,7 +9172,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             return self.addCustomWindow("Options", ui.OptionView, "options", {
                 model: self.uiOptions,
                 onNoticeTest: function() {
-                    self.flash(!0), self.beep(), self.showNotice({}, !0);
+                    self.flash(!0), self.login(), self.showNotice({}, !0);
                 },
                 getUI: function() {
                     return self;
@@ -9165,93 +9194,89 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         faqWindow: function() {
             return this.addCustomWindow("FAQ", ui.FAQPane, "faq");
         }
-    }), ui.Interface = new Class({
-        Implements: [ Options, Events ],
-        options: {
-            node: !1,
-            debug: !1,
-            appTitle: "",
-            networkName: "",
+    });
+    var defaults = {
+        debug: !1,
+        appTitle: "",
+        networkName: "",
+        validators: {
+            nick: [ {
+                test: test(/^[\s\S]{1,9}$/),
+                description: "Nick must be between 1 and 9 characters"
+            } ],
+            password: [ {
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing password"
+            } ],
+            username: [ {
+                test: function(pass, $ele) {
+                    return pass.length > 0 || !$ele.isVisible();
+                },
+                description: "Missing username"
+            } ]
+        },
+        theme: undefined,
+        uiOptions: {},
+        settings: {},
+        client: {
             networkServices: [],
-            initialNickname: "",
             minRejoinTime: [ 5, 20, 300 ],
-            validators: {
-                nick: [ {
-                    test: test(/^[\s\S]{1,9}$/),
-                    description: "Nick must be between 1 and 9 characters"
-                } ],
-                password: [ {
-                    test: function(pass, $ele) {
-                        return pass.length > 0 || !$ele.isVisible();
-                    },
-                    description: "Missing password"
-                } ],
-                username: [ {
-                    test: function(pass, $ele) {
-                        return pass.length > 0 || !$ele.isVisible();
-                    },
-                    description: "Missing username"
-                } ]
-            },
-            hue: null,
-            saturation: null,
-            lightness: null,
-            theme: undefined,
-            uiOptionsArg: null,
-            socketio: "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
-            loginRegex: /I recogni[sz]e you\./
-        },
-        clients: [],
-        initialize: function(element, UI, options) {
-            this.setOptions(options);
-            var self = this, opts = self.options;
-            window.addEvent("domready", function() {
-                var settings = self.options.settings = new config.Settings(opts.settings);
-                self.element = $(element), self.ui = new UI(self.element, new ui.Theme(opts.theme), opts), 
-                opts.node && Asset.javascript(opts.socketio), settings.get("newb") && (self.welcome(), 
-                settings.set("newb", !1)), self.ui.loginBox(), self.ui.addEvent("login:once", function(loginopts) {
-                    var ircopts = _.extend(Object.subset(opts, [ "settings", "specialUserActions", "minRejoinTime", "networkServices", "loginRegex", "node" ]), loginopts), client = self.IRCClient = new irc.IRCClient(ircopts);
-                    self.ui.newClient(client), client.writeMessages(lang.copyright), client.connect(), 
-                    client.addEvent("auth", function(data) {
-                        self.ui.showNotice({
-                            title: "Authenticated with network!",
-                            body: util.format("{nick}: {message}", data)
-                        }, !0);
-                    }), window.onbeforeunload = function(e) {
-                        if (client.isConnected()) {
-                            var message = "This action will close all active IRC connections.";
-                            return (e = e || window.event) && (e.returnValue = message), message;
-                        }
-                    }, window.addEvent("unload", client.quit), window.onunload = client.quit, auth.enabled || self.ui.beep(), 
-                    self.fireEvent("login", {
-                        IRCClient: client,
-                        parent: self
-                    });
-                });
-            });
-        },
-        welcome: function() {
-            ui.WelcomePane.show(this.ui, _.extend({
-                element: this.element,
-                firstvisit: !0
-            }, this.options));
-            var settings = this.options.settings;
-            storage.remove("qweb-new"), [ "account", "password", "nickname", "channels" ].each(function(key) {
-                var skey = "qweb-" + key, val = storage.get(skey);
-                val && settings.set(key, val), storage.remove(skey);
-            });
+            loginRegex: /I recogni[sz]e you\./,
+            node: !1
         }
-    }), ui.QUI = new Class({
+    };
+    return qwebirc.createInstance = function(element_id, UIclass, options) {
+        options = _.merge({}, defaults, options);
+        var settings = options.settings = new config.Settings({}, {
+            defaults: options.settings
+        }), query = window.location.search;
+        if (query) {
+            var parsed = query.slice(1).parseQueryString();
+            parsed.channels && (parsed.channels = concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels)));
+            var softextend = function(obj) {
+                _.each(parsed, function(val, key) {
+                    _.has(obj, key) && (obj[key] = +val == val ? +val : val);
+                });
+            };
+            softextend(options.uiOptions = _.merge({}, ui["default options"], options.uiOptions)), 
+            softextend(options.client), softextend(options.settings._attributes);
+        }
+        var instance = new UIclass(element_id, new ui.Theme(options.theme), options);
+        return instance.addEvents({
+            "ready:once": function() {
+                instance.loginBox(), settings.get("newb") && (instance.welcome(), settings.set("newb", !1));
+            },
+            "login:once": function(loginopts) {
+                var ircopts = _.extend({
+                    settings: settings
+                }, options.client, loginopts), client = new irc.IRCClient(ircopts);
+                instance.newClient(client), client.writeMessages(lang.copyright), client.connect(), 
+                client.addEvent("auth", function(data) {
+                    instance.showNotice({
+                        title: "Authenticated with network!",
+                        body: util.format("{nick}: {message}", data)
+                    }, !0);
+                }), window.onbeforeunload = function(e) {
+                    if (client.isConnected()) {
+                        e = e || window.event, e.preventDefault = !0;
+                        var message = "This action will close all active IRC connections.";
+                        return e.returnValue = message, message;
+                    }
+                }, window.addEvent("unload", client.quit);
+            }
+        }), instance;
+    }, ui.QUI = new Class({
         Extends: ui.StandardUI,
         Binds: [ "__createChannelMenu" ],
         initialize: function(parentElement, theme, options) {
-            this.Window = ui.QUI.Window, this.parent(parentElement, theme, "qui", options), 
-            parentElement.addClasses("qui", "signed-out").addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL), 
-            this.setHotKeys();
+            this.Window = ui.QUI.Window, this.parent(parentElement, theme, "qui", options);
         },
         postInitialize: function() {
             var self = this.parent();
-            return self.nav.on({
+            return self.element.addClasses("qui", "signed-out").addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL), 
+            self.setHotKeys(), self.nav.on({
                 selectTab: function(e, tab) {
                     self.selectTab(tab);
                 },
@@ -9330,14 +9355,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                     keys: "ctrl+c",
                     description: "",
                     handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("colour").bbcode)
-                },
-                submitInput: {
-                    keys: "enter",
-                    description: "",
-                    handler: function(e) {
-                        var $tar = e.target;
-                        $tar.hasClass("irc-input") && $tar.getParent(".window").retrieve("window").sendInput(e, $tar);
-                    }
                 }
             }
         },
@@ -9628,7 +9645,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             });
             self.__theme = _.map(defaults, function(str) {
                 return util.formatSafe(str, thememap);
-            }), self.highlightClasses.channels = {};
+            }), self.highlightClasses.channels = {}, self.config = config;
         },
         formatMessage: function($ele, type, _data, highlight) {
             var self = this, isobj = _.isObject(_data), data = isobj ? _.clone(_data) : _data;
@@ -9637,10 +9654,11 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
                 var val = data[key];
                 val && (_.isArray(val) && (val = val.join("")), data[key] = self.urlerize(val));
             }));
-            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed), timestamp = templates.timestamp({
+            var themed = type ? self.formatText(type, data, highlight) : data, result = self.colourise(themed), timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({
                 time: util.IRCTimestamp(new Date())
-            }), msghtml = timestamp + result;
-            return $ele.addClass("colourline").insertAdjacentHTML("beforeend", msghtml), result;
+            }) : "";
+            return $ele.addClass("colourline").insertAdjacentHTML("beforeend", timestamp + result), 
+            result;
         },
         formatElement: function(line, $ele) {
             var result = this.colourise(this.urlerize(line));
@@ -9691,6 +9709,7 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         }
     }), ui.Window = new Class({
         Extends: Epitome.View,
+        Binds: [ "sendInput" ],
         options: {
             events: {},
             onReady: function() {
@@ -9749,7 +9768,6 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
         Binds: [ "close" ],
         options: {
             events: {
-                "click:relay(.input .send)": "sendInput",
                 "dblclick:relay(.input .nickname)": "setNickname",
                 "dblclick:relay(.topic)": "editTopic",
                 "contextmenu:relay(.lines .nick)": "nickLinesMenu",
@@ -9783,7 +9801,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             self.toggleNickList(), self.updateTopic("")), hasInput && ($win.addClass("ircwindow"), 
             self.fxscroll = new Fx.AutoScroll(lines, {
                 start: !1
-            }), self.$input = $win.getElement(".input .irc-input")), self;
+            }), self.$input = $win.getElement(".input .irc-input"), $win.getElement("form").addEvent("submit", self.sendInput)), 
+            self;
         },
         close: function(e) {
             return e && e.stop(), this.closed ? void 0 : (util.isChannelType(this.type) && !util.isBaseWindow(this.name) && this.client.exec("/PART " + this.name), 
@@ -9996,7 +10015,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
             var lnh = self.lastNickHash, nicks = [];
             nicklist.each(function(nickobj, index) {
                 var nick = nickobj.nick, old = lnh[nick];
-                nicks.push(nick), old && old.prefix === nickobj.prefix || (lnh[nick] = self.nickListAdd(nickobj, index));
+                nicks.push(nick), old && old.prefix === nickobj.prefix || (old && old.element && old.element.dispose(), 
+                lnh[nick] = self.nickListAdd(nickobj, index));
             }), _.each(_.difference(_.keys(lnh), nicks), function(nick) {
                 lnh[nick].element.dispose(), delete lnh[nick];
             });
@@ -10014,8 +10034,8 @@ this.qwebirc.templates.modifiablecss = Handlebars.template(function(Handlebars, 
     }), function() {
         function toggleNotifications(model, state, save) {
             notify.permissionLevel() !== notify.PERMISSION_GRANTED ? notify.requestPermission(function() {
-                model.set("dn_state", notify.permissionLevel() === notify.PERMISSION_GRANTED);
-            }) : model.set("dn_state", state || !model.get("dn_state")), save && model.save();
+                toggleNotifications(model, notify.permissionLevel() === notify.PERMISSION_GRANTED, save);
+            }) : model.set("dn_state", null != state ? !!state : !model.get("dn_state")), save && model.save();
         }
         var PanelView = new Class({
             Extends: Epitome.View,

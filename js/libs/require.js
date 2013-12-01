@@ -27,7 +27,11 @@ var Asset = {
     javascript: function(source, properties){
         if (!properties) properties = {};
 
-        var script = new Element('script', {src: source, type: 'text/javascript'}),
+        var script = new Element('script', {
+                src: source,
+                type: 'text/javascript',
+                async: true
+            }),
             doc = properties.document || document,
             load = properties.onload || properties.onLoad;
 

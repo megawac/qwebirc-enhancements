@@ -30,7 +30,6 @@ sound.SoundPlayer = new Class({
             var soundinit = function() {
                 var sm = self.sm = window.soundManager;
                 //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
-                // var extension = self.extension = sm.hasHTML5 && (Browser.firefox || Browser.opera || Browser.chrome) ? ".ogg" : ".mp3";
                 sm.setup({
                     url: opts.swfurl,
                     preferFlash: opts.preferFlash,

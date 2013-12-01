@@ -82,7 +82,7 @@
             numArgs = numArgs || fn.length;
             return function wrapper(prev_args) {
                 return function() {
-                    var args = concat.call(prev_args, slice.call(arguments));
+                    var args = prev_args.concat(slice.call(arguments));
                     return args.length < numArgs ? wrapper(args) : fn.apply(this, args);
                 };
             }([]);
