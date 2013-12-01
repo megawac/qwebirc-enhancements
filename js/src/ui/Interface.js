@@ -29,7 +29,7 @@ var defaults = {
     settings: {/*see config/settings.js*/},
     client: {/*see irc/IRCClient.js*/
         networkServices: [],//registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
+        // minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
         loginRegex: /I recogni[sz]e you\./,//network service response when auth successful
         node: false
     }

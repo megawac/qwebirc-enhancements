@@ -20,7 +20,7 @@ instances leaving a mention of the original author(s) and the
 project name and URL in the about dialog, thanks!
 */
 
-; (function(Epitome, undefined) {
+; (function(window, Epitome, undefined) {
     "use strict";
     var DEBUG = true;
 
@@ -33,7 +33,7 @@ project name and URL in the about dialog, thanks!
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
     //global object
-    var qwebirc = _.merge(window.qwebirc || {}, {
+    var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
         irc: {},
         ui: {
             themes: {}
@@ -55,8 +55,6 @@ project name and URL in the about dialog, thanks!
             "history": "qweb-hist",
             "settings": "qweb-settings"
         },
-        BUILD: QWEBIRC_BUILD,
-        FILE_SUFFIX: "-" + QWEBIRC_BUILD,
         VERSION: "0.93.97"
     });
 

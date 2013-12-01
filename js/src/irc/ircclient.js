@@ -199,33 +199,34 @@ irc.IRCClient = new Class({
         });
     },
 
-    canJoinChannel: function(chan) {
+    canJoinChannel: function(chan) {//currently not implemented due to comments. Uncomment if desired
         //check if already on channel
-        if(chan === BROUHAHA) return true;
-        else if(this.tracker.getChannel(chan)) return false;
+        // if(chan === BROUHAHA) return true;
+        // else if(this.tracker.getChannel(chan)) return false;
 
-        var chansets = session.get(chan) || [], //oldest -> newest
-            currTime = Date.now(),
-            rejoinT = this.options.minRejoinTime,
-            minTime = Math.max.apply(null, rejoinT.slice(0, chansets.length)) * 1000;//max min applicable time
-        chan = util.formatChannel(chan);
+        // var chansets = session.get(chan) || [], //oldest -> newest
+        //     currTime = Date.now(),
+        //     rejoinT = this.options.minRejoinTime,
+        //     minTime = Math.max.apply(null, rejoinT.slice(0, chansets.length)) * 1000;//max min applicable time
+        // chan = util.formatChannel(chan);
 
-        var broken = chansets.filter(function(time) {
-            return currTime - time <= minTime;
-        });
+        // var broken = chansets.filter(function(time) {
+        //     return currTime - time <= minTime;
+        // });
 
-        if(broken.length === 0) {
-            chansets.push(currTime);
-            var n = (chansets.length - rejoinT.length).limit(0, chansets.length);
-            session.set(chan, chansets.slice(n));
-        } else {
-            var maxTime = Math.max.apply(null, chansets.map(function(time, i) {
-                return ((minTime - (currTime - time))/1000).round(1); //to secs/10
-            }));
-            this.writeMessages(lang.waitToJoin, {channel: chan, time: maxTime});
-        }
+        // if(broken.length === 0) {
+        //     chansets.push(currTime);
+        //     var n = (chansets.length - rejoinT.length).limit(0, chansets.length);
+        //     session.set(chan, chansets.slice(n));
+        // } else {
+        //     var maxTime = Math.max.apply(null, chansets.map(function(time, i) {
+        //         return ((minTime - (currTime - time))/1000).round(1); //to secs/10
+        //     }));
+        //     this.writeMessages(lang.waitToJoin, {channel: chan, time: maxTime});
+        // }
 
-        return broken.length === 0;
+        // return broken.length === 0;
+        return chan === BROUHAHA || !this.tracker.getChannel(chan);
     },
 
     /*************************************************
