@@ -1,123 +1,106 @@
 
-ui.Interface = new Class({
-    Implements: [Options, Events],
-    options: {
-        node: false,//use the node implementation with socket.io
-        debug: false,
+var defaults = {
+    debug: false,
 
-        appTitle: ""/*Quake Net Web IRC*/,
-        networkName: "" /* Quake Net */,
-        networkServices: [],//registered hosts to treat as a server admin
+    appTitle: ""/*Quake Net Web IRC*/,
+    networkName: "" /* Quake Net */,
 
-        initialNickname: "",
-        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
-
-        validators: {//test is a helper from ircutils
-            nick: [{
-                test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
-                description: "Nick must be between 1 and 9 characters"
-            }],
-            password: [{
-                test: function(pass, $ele) {
-                    return pass.length > 0 || !$ele.isVisible();
-                },
-                description: "Missing password"
-            }],
-            username: [{
-                test: function(pass, $ele) {
-                    return pass.length > 0 || !$ele.isVisible();
-                },
-                description: "Missing username"
-            }]
-        },
-
-        hue: null,
-        saturation: null,
-        lightness: null,
-
-        theme: undefined,
-        uiOptionsArg: null,
-
-        socketio: "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
-
-        loginRegex: /I recogni[sz]e you\./
+    validators: {//test is a helper from ircutils
+        nick: [{
+            test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
+            description: "Nick must be between 1 and 9 characters"
+        }],
+        password: [{
+            test: function(pass, $ele) {
+                return pass.length > 0 || !$ele.isVisible();
+            },
+            description: "Missing password"
+        }],
+        username: [{
+            test: function(pass, $ele) {
+                return pass.length > 0 || !$ele.isVisible();
+            },
+            description: "Missing username"
+        }]
     },
-    clients: [],
+    theme: undefined,
 
+    uiOptions: {/*see config/options.js*/},
+    settings: {/*see config/settings.js*/},
+    client: {/*see irc/IRCClient.js*/
+        networkServices: [],//registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
+        minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
+        loginRegex: /I recogni[sz]e you\./,//network service response when auth successful
+        node: false
+    }
+};
 
-    //Note removed option args to configure router. May support it later.
-    initialize: function(element, UI, options) {
-        this.setOptions(options);
-        var self = this,
-            opts = self.options;
+qwebirc.createInstance = function(element_id, UIclass, options) {
+    options = _.merge({}, defaults, options);
+    var settings = options.settings = new config.Settings({}, {
+        defaults: options.settings
+    });
+    
+    //parse query string
+    // it will override any non cached (localstorage/cookie) options for uiOptions and settings
+    //so ?nickname=test&style_saturation=30 will set the saturation to 30 and the initial nickname to test
+    var query = window.location.search;
+    if(query) {
+        var parsed = query.slice(1).parseQueryString();
 
-        window.addEvent("domready", function() {
-            var settings = self.options.settings = new config.Settings(opts.settings);
-            self.element = $(element);
+        if(parsed.channels) {//append query string channels to saved channels
+            parsed.channels = concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels));
+        }
 
-            self.ui = new UI(self.element, new ui.Theme(opts.theme), opts); //unconventional naming scheme
+        var softextend = function(obj) {//only sets vals if they exist on the object
+            _.each(parsed, function(val, key) {
+                if(_.has(obj, key)) {
+                    obj[key] = +val == val ? +val : val;//coerce nums
+                }
+            });
+        };
 
-            if(opts.node) { Asset.javascript(opts.socketio); }
+        softextend(options.uiOptions = _.merge({}, ui["default options"], options.uiOptions));
+        softextend(options.client);
+        softextend(options.settings._attributes);//poor practice
+    }
+
+    //create instance
+    var instance = new UIclass(element_id, new ui.Theme(options.theme), options); //unconventional naming scheme
+    instance.addEvents({
+        "ready:once": function() {
+            instance.loginBox();
             //cleans up old properties
             if(settings.get("newb")) {
-                self.welcome();
+                instance.welcome();
                 settings.set("newb", false);
-            }
-            self.ui.loginBox();
+            } 
+        },
+        "login:once": function(loginopts) {
+            var ircopts = _.extend({settings: settings}, options.client, loginopts);
 
-            self.ui.addEvent("login:once", function(loginopts) {
-                var ircopts = _.extend(Object.subset(opts, ['settings', 'specialUserActions', 'minRejoinTime', 'networkServices', 'loginRegex', 'node']),
-                                        loginopts);
-
-                var client = self.IRCClient = new irc.IRCClient(ircopts/*, self.ui*/);
-                self.ui.newClient(client);
-                client.writeMessages(lang.copyright);
-                client.connect();
-                client.addEvent("auth", function(data) {
-                    self.ui.showNotice({
-                        title: 'Authenticated with network!',
-                        body: util.format("{nick}: {message}", data)
-                    }, true);
-                });
-
-                window.onbeforeunload = function(e) {
-                    if (client.isConnected()) {//ie has gotten passed the IRC gate
-                        var message = "This action will close all active IRC connections.";
-                        if ((e = e || window.event)) {
-                            e.returnValue = message;
-                        }
-                        return message;
-                    }
-                };
-                window.addEvent('unload', client.quit);
-                window.onunload = client.quit;
-
-                if(!auth.enabled) {
-                    self.ui.beep();
-                }
-
-                self.fireEvent("login", {
-                    'IRCClient': client,
-                    'parent': self
-                });
+            var client = new irc.IRCClient(ircopts);
+            instance.newClient(client);
+            client.writeMessages(lang.copyright);
+            client.connect();
+            client.addEvent("auth", function(data) {
+                instance.showNotice({
+                    title: 'Authenticated with network!',
+                    body: util.format("{nick}: {message}", data)
+                }, true);
             });
-        });
-    },
-    welcome: function() {
-        ui.WelcomePane.show(this.ui, _.extend({
-            element: this.element,
-            firstvisit: true
-        }, this.options));
+            window.onbeforeunload = function(e) {
+                if (client.isConnected()) {//has gotten passed the IRC gate
+                    e = e || window.event;
+                    e.preventDefault = true;
+                    var message = "This action will close all active IRC connections.";
+                    e.returnValue = message;//legacy ie
+                    return message;
+                }
+            };
+            window.addEvent("unload", client.quit);
+        }
+    });
 
-        var settings = this.options.settings;
-        storage.remove("qweb-new");
-        ['account', 'password', 'nickname', 'channels'].each(function(key) {
-            var skey = "qweb-" + key;
-            var val = storage.get(skey);
-            if(val) {
-                settings.set(key, val);
-            }
-            storage.remove(skey);
-        });
-    }
-});
+    return instance;
+};

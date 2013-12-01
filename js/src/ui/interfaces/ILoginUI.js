@@ -6,15 +6,17 @@
             return !validator.test(text, $ele);
         });
         var failbool = !!failed;
-        var controlpar = $ele.getParent('.control-group')
+        var $controlpar = $ele.getParent('.control-group')
                             .toggleClass('has-error', failbool);
         if (failbool) {
-            getTemplate("failed-validator", function(template) {
-                Elements.from(template(failed)).inject(controlpar);
-                // $ele.focus();
-            });
+            if($controlpar.getElements(".help-block").filter(function(ele) {return ele.html() === failed.description}).length === 0) {
+                getTemplate("failed-validator", function(template) {
+                    Elements.from(template(failed)).inject($controlpar);
+                    // $ele.focus();
+                });
+            }
         } else {
-            controlpar.getElements('.help-block').dispose();
+            $controlpar.getElements('.help-block').dispose();
         }
         return !failed;
     }
@@ -110,7 +112,6 @@ ui.ILogin = new Class({
     Implements: [Events],
     LoginBox: LoginBox,
     loginBox: function() {
-        this.postInitialize();
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
         var callback = function(data) {
@@ -119,6 +120,12 @@ ui.ILogin = new Class({
             };
         this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
         return win;
+    },
+    welcome: function() {
+        ui.WelcomePane.show(this.ui, _.extend({
+            element: this.element,
+            firstvisit: true
+        }, this.options));
     }
 });
 })();

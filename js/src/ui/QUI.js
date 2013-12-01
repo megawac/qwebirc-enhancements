@@ -5,13 +5,12 @@ ui.QUI = new Class({
     initialize: function(parentElement, theme, options) {
         this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
-
-        parentElement.addClasses('qui', 'signed-out')
-                    .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
-        this.setHotKeys();
     },
     postInitialize: function() {
         var self = this.parent();
+        self.element.addClasses('qui', 'signed-out')
+            .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
+        self.setHotKeys();
         self.nav.on({
             "selectTab": function(e,tab) {
                 self.selectTab(tab);
@@ -120,7 +119,7 @@ ui.QUI = new Class({
                 keys: 'ctrl+c',
                 description: '',
                 handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('colour').bbcode)
-            },
+            }/*,
             submitInput: {
                 keys: 'enter',
                 description: '',
@@ -130,7 +129,7 @@ ui.QUI = new Class({
                         $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
                     }
                 }
-            }
+            }*/
         }
     },
 

@@ -10,21 +10,31 @@
   <link href="css/qwebirc.css" rel="stylesheet">
   <link href="css/jqueryui_icons.css" rel="stylesheet">
   <script src='js/modules/mootools-1.4.5.js'></script>
-  <!--<script src="//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js"></script>-->
+  <!--<script src="//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-compat-yc.js"></script>-->
   <script src="js/dist/qwebirc-0.93dev.js"></script>
   <script>
-    this.App = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {
-      "appTitle": "GameSurge Web IRC",
-      "networkServices": ["Services.GameSurge.net"],
-      "initialChannels": ["#tf2newbiemix","#tf2mix","#tf2.pug.na","#tf2.pug.nahl","#jumpit","#tf2scrim","#tftv"],
-      "loginRegex": /^I recogni[sz]e you/,
+    this.app = new qwebirc.ui.Interface("ircui", qwebirc.ui.QUI, {//name of element, name of theme, options
+      "appTitle": "",
+      "networkName": "",
       "dynamicBaseURL": "",
       "staticBaseURL": "",
-      "networkName": "GameSurge",
       "baseURL": "",
-      "node": true
+      "debug": false,
+      "settings": {
+        // "channels": [],
+        // "nickname": "",
+        // "username": "",
+        // "password": "",
+        "auth": false
+      },
+      "client": {
+        "loginRegex": /^I recogni[sz]e you/,//authed when irc service sends this string
+        "node": false,
+        "networkServices": [/* network hosts ie Services.Quakenet.net */],
+      }
     });
   </script>
+  <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" async></script>  uncomment if using node  -->
 </head>
 <body>
   <div id="ircui">

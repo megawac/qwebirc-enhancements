@@ -1,4 +1,3 @@
-
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
@@ -12,22 +11,26 @@ ui.StandardUI = new Class({
     initialize: function(parentElement, theme, uiName, options) {
         var self = this.setOptions(options);
 
-        self.theme = theme;
-        self.config();
+        document.addEvent("domready", function() {
+            self.theme = theme;
+            self.config();
 
-        self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
-        self.commandhistory = new irc.CommandHistory({
-            store: self.uiOptions.get("completer").store
-        });
-        self.windows[ui.CUSTOM_CLIENT] = this.customWindows;
+            parentElement = self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
+            self.commandhistory = new irc.CommandHistory({
+                store: self.uiOptions.get("completer").store
+            });
+            self.windows[ui.CUSTOM_CLIENT] = self.customWindows;
 
-        getTemplate("topPane", function(template) {
-            self.outerTabs = Element.from(template()).inject(parentElement);
-        });
-        getTemplate("windowsPane", function(template) {
-            self.windowsPanel = Element.from(template()).inject(parentElement);
-        });
+            getTemplate("topPane", function(template) {
+                self.outerTabs = Element.from(template()).inject(parentElement);
+            });
+            getTemplate("windowsPane", function(template) {
+                self.windowsPanel = Element.from(template()).inject(parentElement);
+            });
 
+            self.postInitialize();
+            self.fireEvent("ready");
+        });
     },
 
     postInitialize: function() {
@@ -58,7 +61,7 @@ ui.StandardUI = new Class({
 
         function checkRoute(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            // console.log("Route: %s Formatted: %s", data.request, request);
+            // if(self.options.debug) console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.identifier) {
                 return;
@@ -100,45 +103,6 @@ ui.StandardUI = new Class({
         // hasher.init(); //start listening for history change
         // hasher.prependHash = "~";
         self.router = new Epitome.Router({
-            // routes definition will proxy the events
-            // routes: {
-            //     '': 'index',
-            //     '#!options': 'options',
-            //     "#!feedback": 'feedback',
-            //     "#!about": "about",
-            //     "#!faq": "faq",
-            //     "#!embedded": 'embedded',
-            //     "#!privacy": "privacy"
-            // },
-            // // no route event was found, though route was defined
-            // onError: function(error){
-            //     if(DEBUG) console.error(error);
-            //     // recover by going default route
-            //     this.navigate('');
-            // },
-            // 'onIndex': function() {
-            //     //update options with query string?
-            // },
-            // 'onOptions': self.optionsWindow,
-            // 'onFaq': self.faqWindow,
-            // 'onPrivacy': self.privacyWindow,
-            // 'onAbout': self.aboutWindow,
-            // 'onFeedback': self.feedbackWindow,
-            // 'onEmbedded': self.embeddedWindow,
-            //try to select the window if it exists
-            // onUndefined: function(data) {
-            //     var request = util.unformatURL(data.request);
-            //     if(request) {
-            //         var win = _.findWhere(self.windowArray, {identifier:request});
-            //         if(win) {
-            //             win.select();
-            //         } else if(util.isChannel(request)) {
-            //             _.each(self.clients, function(client) {
-            //                 client.exec("/JOIN " + request);
-            //             });
-            //         }
-            //     }
-            // }
             onUndefined: checkRoute
         });
 
@@ -146,8 +110,8 @@ ui.StandardUI = new Class({
     },
 
     updateURI: function(url) {
-        // hasher.setHash(util.formatURL(url || this.active.identifier));
-        if(this.router) this.router.navigate(util.formatURL(url || this.active.identifier));
+        url = url || this.active.identifier;
+        if(this.router && (url != "login" || location.hash)) this.router.navigate(util.formatURL(url));
     },
 
     whoisURL: function(e, target) {
@@ -166,7 +130,7 @@ ui.StandardUI = new Class({
             model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
-                self.beep();
+                self.login();
                 self.showNotice({}, true);
             },
             getUI: function() {
