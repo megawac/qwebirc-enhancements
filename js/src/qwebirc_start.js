@@ -32,8 +32,6 @@ project name and URL in the about dialog, thanks!
 
     /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
-    var QWEBIRC_BUILD="bbc577ad5cb78d946ac1";
-
     //global object
     var qwebirc = _.merge(window.qwebirc || {}, {
         irc: {},
@@ -59,7 +57,7 @@ project name and URL in the about dialog, thanks!
         },
         BUILD: QWEBIRC_BUILD,
         FILE_SUFFIX: "-" + QWEBIRC_BUILD,
-        VERSION: "0.93-dev"
+        VERSION: "0.93.97"
     });
 
     var irc = qwebirc.irc,

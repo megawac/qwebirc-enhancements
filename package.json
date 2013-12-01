@@ -2,7 +2,7 @@
     "name": "qwebirc-WebIRC-client",
     "description": "webirc client - See qwebirc.org",
     "repository": "www.github.com/megawac/qwebirc-enhancements",
-    "version": "0.93.11",
+    "version": "0.93.97",
     "author": {
         "name": "Graeme Yeates",
         "url": "www.github.com/megawac",
@@ -21,7 +21,7 @@
     "engines": {
         "node": ">= 0.6.0"
     },
-    "dependencies": {
+    "devDependencies": {
         "grunt": "*",
         "grunt-contrib-handlebars": "0.5.x",
         "grunt-contrib-concat": "*",
