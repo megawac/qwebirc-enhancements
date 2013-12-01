@@ -1,7 +1,7 @@
 // //ircclient with added event support
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
-    Binds: ["lostConnection", "send", "quit", "connected","retry", "_ndispatch", "_tdispatch"],
+    Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch", "_tdispatch"],
     options: {
         minRejoinTime: [0],
         networkServices: [],
@@ -9,12 +9,12 @@ irc.IRCClient = new Class({
     },
     lastNicks: [],
     inviteChanList: [],
+    channels: [],
     activeTimers: {},
-    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice)
+    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice) - will be overriden by server
     modeprefixes: "ov",
     __signedOn: false,
     authed: false,
-    channels: [],
     nextctcp: 0,
     pmodes: {
         b: irc.PMODE_LIST,
@@ -40,18 +40,22 @@ irc.IRCClient = new Class({
                 serverPassword: options.serverPassword
             });
             conn.addEvents({
-                "recv": self._ndispatch,
+                "recv": self.dispatch,
                 "quit": self.quit,
-                "retry": self.retry,
+                // "retry": self.retry,
                 "connected": self.connected,
                 "lostConnection": self.lostConnection
             });
         } else {
             self.connection = new irc.TwistedConnection({
-                initialNickname: self.nickname,
-                serverPassword: options.serverPassword
+                nickname: self.nickname,
+                serverPassword: options.serverPassword,
             });
-            self.connection.addEvent("recv", self._tdispatch);
+            self.connection.addEvents({
+                "recv": self._tdispatch,
+                // "retry": self.retry,
+                "lostConnection": self.lostConnection
+            });
         }
 
         // self.commandparser = new irc.Commands(self);
@@ -61,7 +65,8 @@ irc.IRCClient = new Class({
 
     //connection methods
     connect: function() {
-        return this.connection.connect();
+        this.connection.connect();
+        return this;
     },
 
     connected: function() {
@@ -84,36 +89,37 @@ irc.IRCClient = new Class({
         });
     },
 
-    quit: function(message) {
-        if(this.isConnected()) {    
-            this.send("QUIT :" + (message || lang.quit), true);
-            _.each(this.activeTimers, $clear);
-            this.activeTimers = {};
-            this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
-            this.disconnect();
-            this.trigger("disconnect");
-            this.__signedOn = false;
+    quit: function(message, notify) {
+        if(this.isConnected()) {
+            this.send("QUIT :" + (message || lang.quit), false);//
+            if(notify) {//time to go
+                _.each(this.activeTimers, $clear);
+                this.activeTimers = {};
+                this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
+                this.disconnect();
+                this.trigger("disconnect");
+                this.__signedOn = false;
+            }
         }
         return this;
     },
 
     lostConnection: function(attempt) {
-        console.log(arguments);
-        this.writeMessages(lang.connRetry, {
+        this.writeMessages(lang.connTimeOut, {
             retryAttempts: attempt
         }, {
             channels: "ALL"
         });
     },
 
-    retry: function(data) {
-        this.trigger("retry", data);
-        this.writeMessages(lang.connRetry, {
-            next: (data.next/1000).round(1)
-        }, {
-            channels: "ALL"
-        });
-    },
+    // retry: function(data) {
+    //     this.trigger("retry", data);
+    //     this.writeMessages(lang.connRetry, {
+    //         next: (data.next/1000).round(1)
+    //     }, {
+    //         channels: "ALL"
+    //     });
+    // },
     /***********************************************
     *           General helpers                    *
     ************************************************/
@@ -186,7 +192,7 @@ irc.IRCClient = new Class({
         this.addEvent("listend:once", function() {
             var chans = _.chain(this.listedChans)
                         .clone()
-                        .sortBy(function(chan) {return -chan.users})//neg to sort max -> min
+                        .sortBy(function(chan) {return -chan.users}) //neg to sort descending
                         .value();
             cb(chans);
             this.hidelistout = false;
@@ -225,7 +231,7 @@ irc.IRCClient = new Class({
     /*************************************************
     *   Process server/network data & call method    *
     **************************************************/
-    _ndispatch: function(data) {
+    dispatch: function(data) {
         var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
 
         if (!(fn && fn.call(this, data))) {//fn dne or does not return true
@@ -249,7 +255,7 @@ irc.IRCClient = new Class({
             break;
             case "c":
                 var _data = util.processTwistedData(data);
-                this._ndispatch(_data);
+                this.dispatch(_data);
             break;
         }
     },
@@ -319,6 +325,13 @@ irc.IRCClient = new Class({
     *       private server event handlers             *
     **************************************************/
     _signOn: function(/*data*/) {
+        if(this.__signedOn) {//server/client crashed reconnect
+            console.log("REjoining " + util.formatChannelString(this.channels));
+            return this.send(format(cmd.JOIN, {
+                channel: util.formatChannelString(this.channels)
+            }));
+        }
+
         var options = this.options,
             channels;
 
@@ -413,9 +426,7 @@ irc.IRCClient = new Class({
         var i = this.lastNicks.indexOf(nick);
         if (i != -1) {
             this.lastNicks.splice(i, 1);
-        } /*else if (this.lastNicks.length == this.options.maxnicks) {
-            this.lastNicks.pop();
-        }*/
+        }
         this.lastNicks.unshift(nick);
     },
 
@@ -545,7 +556,7 @@ irc.IRCClient = new Class({
     *                BEGIN STANDARD IRC HANDLERS                         *
     *                                                                    *
     **********************************************************************/
-    IRC_COMMAND_MAP: {// function router see _ndispatch
+    IRC_COMMAND_MAP: {// function router see dispatch
         // "ERROR": "",
         // "INVITE": "",
         // "JOIN": "",
@@ -649,7 +660,8 @@ irc.IRCClient = new Class({
     irc_JOIN: function(data) {
         var channel = data.args[0],
             nick = data.nick,
-            wasus = (nick === this.nickname);
+            wasus = (nick === this.nickname),
+            type = wasus ? "OURJOIN" : "JOIN"
 
         if(wasus) {
             if(!isBaseWindow(channel)) {
@@ -659,12 +671,9 @@ irc.IRCClient = new Class({
                 this.currentChannel = channel;
             }
         }
+        var windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
 
-        var nick = data.nick,
-            host = data.host,
-            wasus = (nick === this.nickname),
-            type = wasus ? "OURJOIN" : "JOIN",
-            windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
+
 
         this.tracker.addNickToChannel(nick, BROUHAHA);
         this.tracker.addNickToChannel(nick, channel);
@@ -673,7 +682,7 @@ irc.IRCClient = new Class({
 
         this.trigger("userJoined", {
             'nick': nick,
-            'host': host,
+            'host': data.host,
             'channel': channel,
             'thisclient': wasus,
             'select': windowSelected
@@ -689,7 +698,7 @@ irc.IRCClient = new Class({
             channels = self.tracker.getNick(nick);
 
         self.tracker.removeNick(nick);
-        _.keys(channels).each(function(chan) {
+        _.each(channels, function(nick, chan) {
             self.updateNickList(chan);
         });
 
@@ -809,7 +818,7 @@ irc.IRCClient = new Class({
                     'data': type
                 });
             } else {
-                var data = {
+                var context = {
                         'nick': nick,
                         'channel': target,
                         'message': ctcp[1] || "",
@@ -817,10 +826,10 @@ irc.IRCClient = new Class({
                     };
                 if (type == "ACTION") {
                     this.tracker.updateLastSpoke(nick, target, Date.now());
-                    this.trigger("chanAction", data);
+                    this.trigger("chanAction", context);
                 }
                 else {
-                    this.trigger("chanCTCP", data);
+                    this.trigger("chanCTCP", context);
                 }
             }
         } else {
@@ -959,7 +968,7 @@ irc.IRCClient = new Class({
 
                 cmode = OPED;
 
-            var modes = modes.filter(function(mode) {
+            modes.filter(function(mode) {
                 var dir = (mode === OPED) || (mode === DEOPED);
                 if (dir) {
                     cmode = mode;

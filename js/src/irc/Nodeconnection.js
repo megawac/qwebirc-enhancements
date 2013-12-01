@@ -4,7 +4,7 @@ irc.NodeConnection = new Class({
     Binds: ["_recv", "_error"],
     options: {
         socket_connect: document.location.hostname,
-        nickname: "ircconnX",
+        nickname: '',
         password: '',
         serverPassword: null,
         autoConnect: true,
@@ -33,8 +33,7 @@ irc.NodeConnection = new Class({
         messageSplit: 512*/
         autoretry: true,
         retryInterval: 5000,
-        // retryScalar: 2,
-        retryAttempts: 30,//retry for 60 seconds
+        // retryAttempts: 30,//retry for 60 seconds
 
         clientID: util.randHexString(16)
     },
@@ -63,7 +62,7 @@ irc.NodeConnection = new Class({
                 self.connected = false;
             },
             "reconnect": function() {
-                console.log("reconnecting");
+                console.log("reconnected");
                 self.socket.emit("reconnect", options);
             },
             "reconnecting": function() {
