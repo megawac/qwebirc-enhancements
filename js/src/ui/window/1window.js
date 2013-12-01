@@ -31,6 +31,10 @@ ui.Window = new Class({
         });
     },
 
+    isActive: function() {
+        return this.element.hasClass("active");
+    },
+
     getOption: function(option) {
         return this.parentObject.uiOptions.get(option);
     },

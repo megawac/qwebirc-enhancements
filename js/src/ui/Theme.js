@@ -48,10 +48,13 @@ ui.Theme = new Class({
         return result;
     },
 
-    formatElement: function(line, $ele) {
-        var result = this.colourise(this.urlerize(line));
+    formatTopic: function(topic, $ele) {
+        var result = this.colourise(this.urlerize(topic));
         $ele.addClass('colourline')
-            .adopt(Elements.from(result));
+            .adopt(Elements.from(templates.topicText({
+                title: topic,
+                topic: result
+            })));
         return result;
     },
 

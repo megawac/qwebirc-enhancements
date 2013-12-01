@@ -589,22 +589,9 @@ this["qwebirc"]["templates"]["topicBar"] = Handlebars.template(function (Handleb
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};
   var buffer = "", stack1, self=this;
 
-function program1(depth0,data) {
-  
-  var stack1;
-  stack1 = self.invokePartial(partials.topicText, 'topicText', depth0, helpers, partials, data);
-  if(stack1 || stack1 === 0) { return stack1; }
-  else { return ''; }
-  }
-
-function program3(depth0,data) {
-  
-  
-  return "&nbsp;";
-  }
 
   buffer += "<div class='topic qui colourline'>";
-  stack1 = helpers['if'].call(depth0, depth0.topic, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  stack1 = self.invokePartial(partials.topicText, 'topicText', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</div>";
   return buffer;
@@ -613,22 +600,15 @@ function program3(depth0,data) {
 this["qwebirc"]["templates"]["topicText"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression;
+  var buffer = "", stack1, stack2, functionType="function", escapeExpression=this.escapeExpression;
 
-function program1(depth0,data) {
-  
-  
-  return "emptytopic";
-  }
 
-  buffer += "<span class='";
-  stack1 = helpers['if'].call(depth0, depth0.empty, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "' title=\""
-    + escapeExpression(((stack1 = depth0.topic),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "\">[<span>"
-    + escapeExpression(((stack1 = depth0.topic),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</span>]</span>";
+  buffer += "<span title=\""
+    + escapeExpression(((stack1 = depth0.title),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "\">[<span>";
+  stack2 = ((stack1 = depth0.topic),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
+  if(stack2 || stack2 === 0) { buffer += stack2; }
+  buffer += "</span>]</span>";
   return buffer;
   });
 

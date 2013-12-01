@@ -66,7 +66,7 @@
         },
 
         toggleAutocomplete: function(state) {
-            this.options.autocomplete = !!state;
+            this.options.autocomplete = state != null ? !!state : !this.options.autocomplete;
         },
 
         process: function(evt) {

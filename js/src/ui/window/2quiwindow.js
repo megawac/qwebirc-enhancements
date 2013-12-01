@@ -156,7 +156,6 @@ ui.QUI.Window = new Class({
         /*** update windows and center detached window ****/
         if(self.active) po.nextWindow();//change window if we're active
         self.detached = true;
-        self.active = false;
         _.defer(function() {
             self.setActive();
             self._selectUpdates();
@@ -187,9 +186,9 @@ ui.QUI.Window = new Class({
 
 
     deselect: function() {
-        if(this.active) {
-            this.tab.removeClass("selected");
-            if(this.fxscroll) this.fxscroll.stop();//save a couple resources
+        if(this.active && !this.detached) {
+            this.tab.removeClasses("selected");
+            if(this.fxscroll) this.fxscroll.stop();//save some work as reasonably intense
             this.parent();
         }
     },
@@ -246,11 +245,10 @@ ui.QUI.Window = new Class({
             new ui.Dialog({
                 title: "Set Topic",
                 text: util.format(lang.changeTopicConfirm, {channel: self.name}),
-                value: self.topic,
+                placeholder: this.window.getElement('.topic').text(),
                 onSubmit: function(data) {
-                    var topic = data.val();
-                    if (_.isString(topic)) {
-                        self.client.exec("/TOPIC " + self.name + " " + topic, self.name);
+                    if (_.isString(data.value)) {
+                        self.client.exec("/TOPIC " + self.name + " " + data.value, self.name);
                     }
                 }
             });
@@ -269,7 +267,7 @@ ui.QUI.Window = new Class({
             new ui.Dialog({
                 title: "Set nickname",
                 text: "Enter a new nickname",
-                value: self.nickname,
+                placeholder: self.nickname,
                 onSubmit: function(data) {
                     var nick = qwebirc.global.nicknameValidator.validate(data.value);
                     if(nick) {
@@ -284,8 +282,8 @@ ui.QUI.Window = new Class({
         if(data && (!data.thisclient || data.channel !== this.name)) return;
         var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
         this.window.getElements('.input .user .status')
-                        .removeClasses('op', 'voice')
-                        .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
+                    .removeClasses('op', 'voice')
+                    .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
         this.__dirtyFixes();
     },
 
@@ -297,7 +295,7 @@ ui.QUI.Window = new Class({
             $menu.toggle();
         } else {
             var _nick = self.client.nickname,
-                _chan = self.name
+                _chan = self.name;
             $menu = Element.from(templates.nickMenu(_.extend({
                 nick: nick,
                 channel: _chan,
@@ -338,10 +336,8 @@ ui.QUI.Window = new Class({
 
     updateTopic: function(topic) {
         var $topic = this.window.getElement('.topic').empty();
-        this.topic = topic;
         if (topic) {
-            var $top = Element.from(templates.topicText({empty:false})).inject($topic);
-            this.parentObject.theme.formatElement(topic, $top.getElement('span'));
+            this.parentObject.theme.formatTopic(topic, $topic);
         } else {
             $topic.html(templates.topicText({topic: lang.noTopic, empty:true}));
         }
