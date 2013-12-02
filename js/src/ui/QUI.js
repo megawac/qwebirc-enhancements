@@ -1,7 +1,7 @@
 
 ui.QUI = new Class({
     Extends: ui.StandardUI,
-    Binds: ["__createChannelMenu"],
+    // Binds: ["__createChannelMenu"],
     initialize: function(parentElement, theme, options) {
         this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
@@ -18,8 +18,8 @@ ui.QUI = new Class({
             "detachWindow": function(e, target) {
                 e.stop();
                 target.getParent('.tab').retrieve('window').detach();
-            },
-            "addChannel": self.__createChannelMenu
+            }/*,
+            "addChannel": self.__createChannelMenu*/
         });
 
         return self;
@@ -164,48 +164,48 @@ ui.QUI = new Class({
     },
 
     //todo use other dropdown menu code
-    __createChannelMenu: function(e) {
-        if(e) e.stop();
-        var self = this,
-            client = self.getActiveIRCWindow().client,
+    // __createChannelMenu: function(e) {
+    //     if(e) e.stop();
+    //     var self = this,
+    //         client = self.getActiveIRCWindow().client,
 
-            $btn = self.outerTabs.getElement('.add-chan'),
-            $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
-        $oldmen = $oldmen && $oldmen.getParent();
+    //         $btn = self.outerTabs.getElement('.add-chan'),
+    //         $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
+    //     $oldmen = $oldmen && $oldmen.getParent();
 
-        if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
-            client.getPopularChannels(function(chans) {
-                chans = _.chain(chans).take(self.options.maxChansMenu || 10)
-                            .map(function(chan) {
-                                return {
-                                    text: chan.channel,
-                                    value: chan.channel,
-                                    hint: chan.users
-                                };
-                            })
-                            .value();
-                var $menu = Element.from(templates.chanmenu({
-                        channels: chans
-                    }));
+    //     if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
+    //         client.getPopularChannels(function(chans) {
+    //             chans = _.chain(chans).take(self.options.maxChansMenu || 10)
+    //                         .map(function(chan) {
+    //                             return {
+    //                                 text: chan.channel,
+    //                                 value: chan.channel,
+    //                                 hint: chan.users
+    //                             };
+    //                         })
+    //                         .value();
+    //             var $menu = Element.from(templates.chanmenu({
+    //                     channels: chans
+    //                 }));
 
-                var wrapper = new Element('div').inject(self.parentElement)
-                                                .adopt($menu);
-                ui.decorateDropdown($btn, wrapper);
-                wrapper.addEvent("click:relay(a)", function(e, target) {
-                    var chan = target.get('data-value');
-                    client.exec("/JOIN " + chan);
-                });
-                $btn.store('time', Date.now());//so we dont have to refresh maybe
-            });
-        } else if (!$oldmen.isDisplayed()) { //show old menu
-            $oldmen.retrieve("toggle")();
-            $oldmen.position({
-                    relativeTo: $btn,
-                    position: {x: 'left', y: 'bottom'},
-                    edge: {x: 'left', y: 'top'}
-                });
-        }
-    },
+    //             var wrapper = new Element('div').inject(self.parentElement)
+    //                                             .adopt($menu);
+    //             ui.decorateDropdown($btn, wrapper);
+    //             wrapper.addEvent("click:relay(a)", function(e, target) {
+    //                 var chan = target.get('data-value');
+    //                 client.exec("/JOIN " + chan);
+    //             });
+    //             $btn.store('time', Date.now());//so we dont have to refresh maybe
+    //         });
+    //     } else if (!$oldmen.isDisplayed()) { //show old menu
+    //         $oldmen.retrieve("toggle")();
+    //         $oldmen.position({
+    //                 relativeTo: $btn,
+    //                 position: {x: 'left', y: 'bottom'},
+    //                 edge: {x: 'left', y: 'top'}
+    //             });
+    //     }
+    // },
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');

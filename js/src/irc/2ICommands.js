@@ -345,8 +345,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 1,
         fn: function(args) {
             if(_.isEmpty(args)) return;
-            var channels = Array.from(args).flatten(),
-                formatted = util.formatChannelString(channels);
+            var channels = Array.from(args).flatten();
+            var formatted = util.formatChannelString(channels);
 
             if (!_.isEqual(channels, util.splitChans(formatted) )) {
                 this.writeMessages(lang.poorJoinFormat);

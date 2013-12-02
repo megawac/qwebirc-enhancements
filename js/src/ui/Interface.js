@@ -24,6 +24,7 @@ var defaults = {
         }]
     },
     theme: undefined,
+    parseQueryString: true,
 
     uiOptions: {/*see config/options.js*/},
     settings: {/*see config/settings.js*/},
@@ -45,7 +46,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
     // it will override any non cached (localstorage/cookie) options for uiOptions and settings
     //so ?nickname=test&style_saturation=30 will set the saturation to 30 and the initial nickname to test
     var query = window.location.search;
-    if(query) {
+    if(query && options.parseQueryString) {
         var parsed = query.slice(1).parseQueryString();
 
         if(parsed.channels) {//append query string channels to saved channels

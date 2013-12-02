@@ -268,11 +268,8 @@ ui.QUI.Window = new Class({
                 title: "Set nickname",
                 text: "Enter a new nickname",
                 placeholder: self.nickname,
-                onSubmit: function(data) {
-                    var nick = qwebirc.global.nicknameValidator.validate(data.value);
-                    if(nick) {
-                        self.client.exec("/nick " + nick);
-                    }
+                onSubmit: function(data) {//screw validating
+                    self.client.exec("/NICK " + data.value);
                 }
             });
         }

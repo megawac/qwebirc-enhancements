@@ -142,8 +142,7 @@ util.removeChannel = _.compose(_.uniq, function(chans, chan) {
  * useful keys
  * ":OCD!~OCD@76.72.16.142 PRIVMSG #tf2mix :mix servers are down. join mumble for an inhouse pug." => {"prefix":"OCD!~OCD@76.72.16.142","nick":"OCD","user":"~OCD","host":"76.72.16.142","command":"PRIVMSG","rawCommand":"PRIVMSG","commandType":"normal","args":["#tf2mix","mix servers are down. join mumble for an inhouse pug."]}
  */
-
-var prefix_re = /^([_a-zA-Z0-9\[\]\\`^{}|-]*)(!([^@]+)@(.*))?$/,
+var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     hasprefix_re = /^:([^ ]+) +/,
     colonrem_re = /^:[^ ]+ +/,
     command_re = /^([^ ]+) */,

@@ -48,13 +48,6 @@ ui["default options"] = {
             classes: 'our-msg',
             id: 'ourmsg'
         },
-        {//match bots
-            nick: "(^tf2)|((serv|bot)$)",
-            classes: 'bot',
-            types: [ui.WINDOW.channel],
-            "case": true,
-            id: 'bot'
-        },
         {
             msg: "^\\!",
             classes: 'command',
@@ -68,8 +61,15 @@ ui["default options"] = {
             tabhl: ui.HIGHLIGHT.us,
             id: 'mention'
         },
+        {//match bots
+            nick: "(serv|bot)$",
+            classes: 'bot',
+            types: [ui.WINDOW.channel],
+            "case": true,
+            id: 'bot'
+        },
         {
-            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            nick: "^((?!((serv|bot)$)).)*$",
             mentioned: true,
             classes: '',
             beep: true,
@@ -79,7 +79,7 @@ ui["default options"] = {
             id: 'onmention'
         },
         {
-            nick: "^((?!(^tf2|bot$|serv$)).)*$",
+            nick: "^((?!((serv|bot)$)).)*$",
             msg: "^((?!(^\\!)).)*$", //dont hl commands
             classes: '',
             highlight: true,
