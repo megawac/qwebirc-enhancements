@@ -19,11 +19,8 @@
 ******************************************************************/
 
 this.app = qwebirc.createInstance("ircui", qwebirc.ui.QUI, {
-    "appTitle": "",
-    "networkName": "",
-    "dynamicBaseURL": "",
-    "staticBaseURL": "",
-    "baseURL": "",
+    "appTitle": "",//eg Freenode WebIRC
+    "networkName": "",//eg Freenode
     "debug": false,
     "settings": {
         //channels: []
