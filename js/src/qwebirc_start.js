@@ -1,36 +1,13 @@
-/*
-Copyright (c) 2008-2009 the qwebirc project.
-http://www.qwebirc.org/
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-version 2 as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-Though it is not required, we would appreciate public facing
-instances leaving a mention of the original author(s) and the
-project name and URL in the about dialog, thanks!
-*/
-
+/* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 ; (function(window, Epitome, undefined) {
     "use strict";
-    var DEBUG = true;
+    var DEBUG = false;
 
     //common globals
     var document = window.document,
         $ = document.id,
         $$ = document.getElements;
 
-
-    /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
 
     //global object
     var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
@@ -55,7 +32,7 @@ project name and URL in the about dialog, thanks!
             "history": "qweb-hist",
             "settings": "qweb-settings"
         },
-        VERSION: "0.93.97"
+        VERSION: "0.95.0"
     });
 
     var irc = qwebirc.irc,
@@ -72,7 +49,7 @@ project name and URL in the about dialog, thanks!
 
         cookies = qwebirc.cookies,
 
-        sound = qwebirc.sound,//,
+        sound = qwebirc.sound,
 
         lang = qwebirc.lang,
 

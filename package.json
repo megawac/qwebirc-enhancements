@@ -1,32 +1,37 @@
 {
-    "name": "qwebirc-WebIRC-client",
-    "description": "webirc client - See qwebirc.org",
-    "repository": "www.github.com/megawac/qwebirc-enhancements",
-    "version": "0.93.97",
-    "author": {
-        "name": "Graeme Yeates",
-        "url": "www.github.com/megawac",
-        "email": "megawac@gmail.com"
-    },
-    "fork": {
-        "author": "Chris Porter",
-        "name": "qwebirc",
-        "url": "www.qwebirc.org"
-    },
-    "licence": {
-        "type": "GNU",
-        "url": "http://www.gnu.org/licenses/gpl.html",
-        "file": "licence.lic"
-    },
-    "engines": {
-        "node": ">= 0.6.0"
-    },
-    "devDependencies": {
-        "grunt": "*",
-        "grunt-contrib-handlebars": "0.5.x",
-        "grunt-contrib-concat": "*",
-        "grunt-contrib-uglify": "*",
-        "grunt-contrib-copy": "*"
-    },
-    "main": "gruntfile.js"
+  "name": "qwebirc-WebIRC-client",
+  "description": "webirc client",
+  "repository": "www.github.com/megawac/qwebirc-enhancements",
+  "version": "0.95.0",
+  "author": {
+    "name": "Graeme Yeates",
+    "url": "www.github.com/megawac",
+    "email": "megawac@gmail.com"
+  },
+  "fork": {
+    "author": "Chris Porter",
+    "name": "qwebirc",
+    "url": "www.qwebirc.org"
+  },
+  "licence": {
+    "type": "GNU",
+    "url": "http://www.gnu.org/licenses/gpl.html",
+    "file": "licence.lic"
+  },
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "devDependencies": {
+    "grunt": ">= 0.4",
+    "grunt-contrib-handlebars": "0.5.x",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-uglify": "*",
+    "js-beautify": "1.3.x",
+    "grunt-html-build": "0.4.x",
+    "grunt-contrib-cssmin": "0.7.x"
+  },
+  "build": {
+    "minify": false,
+    "concat": false
+  }
 }
