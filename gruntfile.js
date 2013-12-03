@@ -1,31 +1,46 @@
+
+/*****************************
+Build step. See settings under build in package.json
+
+Flags:
+-minify: use uglify to minimize js size
+-concat: place css and js all in the same file.
+*****************************/
+
 module.exports = function(grunt) {
-    var concatfiles = [
-    'js/templates/qwebirc.js',
-    'js/src/qwebirc_start.js',
-    'js/src/util/*.js',
-    'templates/Templates.js',
-    'js/src/config/**.js',
-    'js/src/irc/*.js',
-    'js/src/ui/interfaces/*.js',
-    'js/src/ui/*.js',//ui +etc
-    'js/src/ui/window/*.js',
-    'js/src/ui/panes/*.js',
-    'js/src/qwebirc_end.js'];
-    var fullconcat = [
-    // 'js/module/curl.js'
-    'js/libs/*.js',
-    'js/libs/Epitome/*.js',
-    'js/dist/qwebirc.js'
-    ];
+    var package = grunt.file.readJSON('./package.json');
+    var files = {
+        qweb: [
+            'js/templates/qwebirc.js',
+            'js/src/qwebirc_start.js',
+            'js/src/util/*.js',
+            'templates/Templates.js',
+            'js/src/config/**.js',
+            'js/src/irc/*.js',
+            'js/src/ui/interfaces/*.js',
+            'js/src/ui/*.js',//ui +etc
+            'js/src/ui/window/*.js',
+            'js/src/ui/panes/*.js',
+            'js/src/qwebirc_end.js'
+        ],
+        plugins: [
+            'js/libs/*.js',
+            'js/libs/Epitome/*.js'
+        ],
+        full: [
+            'js/dist/plugins-<%= pkg.version %>.js',
+            'js/dist/qwebirc-<%= pkg.version %>.js'
+        ]
+    };
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: package,
         meta: {},
 
         handlebars: {
             dist: {
                 options: {
-                    namespace: "qwebirc.templates",
+                    namespace: 'qwebirc.templates',
                     compilerOptions: {
                         knownHelpers: {
                             'check': true,
@@ -48,20 +63,20 @@ module.exports = function(grunt) {
                     },
 
                     processName: function(filename) {
-                        return filename.substring(filename.lastIndexOf("/") + 1, filename.length-4);//last dash to the end of string (sub .hbs)
+                        return filename.substring(filename.lastIndexOf('/') + 1, filename.length-4);//last dash to the end of string (sub .hbs)
                     }
                 },
                 files: {
-                    "js/templates/qwebirc.js": ['css/modifiablecss.hbs', 'templates/**.hbs'],
-                    "js/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
-                    "js/templates/wizard.js": ["panes/wizard.hbs"],
-                    "js/templates/feedback.js": ["panes/feedback.hbs"],
-                    "js/templates/about.js": ["panes/about.hbs"],
-                    "js/templates/faq.js": ["panes/faq.hbs"],
-                    "js/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
-                    "js/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
-                    "js/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
-                    "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
+                    'js/templates/qwebirc.js': ['css/modifiablecss.hbs', 'templates/**.hbs'],
+                    'js/templates/options.js': ['panes/options.hbs', 'panes/partials/customNotice.hbs'],
+                    'js/templates/wizard.js': ['panes/wizard.hbs'],
+                    'js/templates/feedback.js': ['panes/feedback.hbs'],
+                    'js/templates/about.js': ['panes/about.hbs'],
+                    'js/templates/faq.js': ['panes/faq.hbs'],
+                    'js/templates/privacypolicy.js': ['panes/privacypolicy.hbs'],
+                    'js/templates/popup-alert.js': ['templates/amd/popup-alert.hbs'],
+                    'js/templates/popup-dialog.js': ['templates/amd/popup-dialog.hbs'],
+                    'js/templates/welcome-pane.js': ['templates/amd/welcome-pane.hbs']
                 }
             }
         },
@@ -73,56 +88,30 @@ module.exports = function(grunt) {
             },
             qweb: {
                 // the files to concatenate
-                src: concatfiles,
+                src: files.qweb,
                 // the location of the resulting JS file
-                dest: 'js/dist/qwebirc.js'
+                dest: 'js/dist/qwebirc-<%= pkg.version %>.js'
             },
 
             full: {
-                // the files to concatenate
-                src: fullconcat,
-                // the location of the resulting JS file
-                dest: 'js/dist/qwebirc-0.93dev.js'
-            }
-        },
+                src: files.full,
+                dest: 'js/dist/qwebirc-full-<%= pkg.version %>.js'
+            },
 
-        copy: {
-
-            demo: {
-                files: [{
-                    expand: true,
-                    src: ['js/dist/qwebirc-0.93dev.js', 'js/modules/**', 'js/panes/**', 'js/templates/**'],
-                    dest: 'demo/node/static/'
-                },
-                {
-                    expand: true,
-                    src: ['css/*.css'],
-                    dest: 'demo/node/static/'
-                },
-                {
-                    expand: true,
-                    src: ['js/dist/qwebirc-0.93dev.js', 'js/modules/**', 'js/panes/**', 'js/templates/**'],
-                    dest: 'demo/twisted/static/'
-                },
-                {
-                    expand: true,
-                    src: ['css/*.css'],
-                    dest: 'demo/twisted/static/'
-                }]
+            plugins: {
+                src: files.plugins,
+                dest: 'js/dist/plugins-<%= pkg.version %>.js'
             }
         },
 
         uglify: {
             options: {
-                // the banner is inserted at the top of the output
-                //banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
-                mangle: false,
+                mangle: package.build.minify,
                 compress: {
                     dead_code: true
                 },
-                preserveComments: 'some',
-                //only comments which start with ! -bang
-                beautify: true,
+                preserveComments: 'none',
+                beautify: !package.build.minify,
                 ast_lift_variables: true,
                 banner: [
                     '/*!',
@@ -137,32 +126,91 @@ module.exports = function(grunt) {
                     '*/\n'
                 ].join("\n")
             },
-            strip: {
+            plugins: {
+                options: {
+                    banner: '/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n'
+                },
                 files: {
-                    'js/dist/qwebirc-0.93dev.js': fullconcat
+                    'js/dist/plugins-<%= pkg.version %>.js': files.plugins
+                }
+            },
+            qweb: {
+                files: {
+                    'js/dist/qwebirc-<%= pkg.version %>.js': 'js/dist/qwebirc-<%= pkg.version %>.js'
+                }
+            },
+            full: {
+                files: {
+                    'js/dist/qwebirc-full-<%= pkg.version %>.js': files.full
+                }
+            },
+            config: {
+                options: {banner: ''},
+                files: {
+                    'js/dist/app-<%= pkg.version %>.js': 'configure/config.js'
+                }
+            }
+        },
+
+        cssmin: {
+            combine: {
+                files: {
+                    'css/qwebirc-<%= pkg.version %>-min.css': ['css/qwebirc.css']
+                }
+            }
+        },
+
+        htmlbuild: {
+            qweb: {
+                src: 'configure/index.tmpl',
+                dest: 'index.html',
+                options: {
+                    beautify: true,
+                    relative: false,
+                    data: package,
+
+                    scripts: {
+                        bundle: package.build.concat ? ['js/dist/qwebirc-full-<%= pkg.version %>.js'] : files.full,
+                        config: ['js/dist/app-<%= pkg.version %>.js']
+                    },
+                    styles: {
+                        bundle: package.build.minify ? ['css/qwebirc-<%= pkg.version %>-min.css'] : ['css/qwebirc.css']
+                    }
                 }
             }
         }
+
     });
 
 
-    // Load the plugin that provides the "uglify" task.
+    // Load the plugin that provides the 'uglify' task.
     //grunt.loadNpmTasks('grunt-contrib-uglify');
     // Default task(s).
     //grunt.registerTask('default', ['uglify']);
     grunt.loadNpmTasks('grunt-contrib-handlebars');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-html-build');
 
     grunt.registerTask('default', [
 
         'handlebars',
 
-        'concat:qweb',
-        // 'concat:full',
-        'uglify:strip',
-        'copy:demo'
-        //, 'uglify:min'
+        'concat:qweb',//has to be concatted first for the iffe
+        // 'concat:plugins',
+
+        'uglify:plugins',
+        'uglify:qweb',
+
+        'uglify:config',
+
+        'concat:full',
+
+        'cssmin',
+
+        'htmlbuild:qweb'
+
     ]);
+
 };

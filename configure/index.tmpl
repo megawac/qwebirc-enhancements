@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base>
+  <title>WebIRC Using QWebirc V0.93-dev</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <link rel="shortcut icon" type="image/png" href="images/favicon.png">
+
+  <link href="css/bootstrap.css" rel="stylesheet">
+  <!-- build:remove --> 
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet"> <!-- switch to cdn ? -->
+  <!-- /build -->
+
+  <!-- build:style bundle -->
+    <link href="css/qwebirc.css" rel="stylesheet">
+  <!-- /build -->
+
+  <script src='js/modules/mootools-1.4.5.js'></script>
+  <!-- build:remove -->
+    <script src="//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-compat-yc.js"></script>  <!-- switch to cdn ? -->
+  <!-- /build -->
+
+  <!-- build:script bundle  -->
+    <script src="js/dist/plugins-<%= version %>.js"></script>
+    <script src="js/dist/qwebirc-<%= version %>.js"></script>
+  <!-- /build -->
+
+  <!-- build:script config -->
+    <!-- app creation script -->
+    <script src="configure/config.js"></script>
+  <!-- /build -->
+
+  <!-- build:remove -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" async></script><!-- remove surrounding build if using node -->
+  <!-- /build -->
+</head>
+<body>
+  <div id="ircui">
+    <noscript>
+      <div id="noscript">
+        Javascript is required to use IRC.
+      </div>
+    </noscript>
+  </div>
+</body>
+</html>
