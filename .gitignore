@@ -1,9 +1,16 @@
+#Compiled Resources
+index.html
+js/dist/*
+js/templates/*
+css/qwebirc*min.css
+
+**/unused/**
+
+
+#Standard stuff
 *.sublime*
 *.dropbox
 node_modules/
-js/contentscript.js
-manifest.json
-js/libs/unused/
 
 # Compiled source #
 ###################
