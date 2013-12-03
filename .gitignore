@@ -4,13 +4,11 @@ js/dist/*
 js/templates/*
 css/qwebirc*min.css
 
-**/unused/**
-
-
 #Standard stuff
 *.sublime*
 *.dropbox
 node_modules/
+**/unused/**
 
 # Compiled source #
 ###################
