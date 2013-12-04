@@ -3,7 +3,7 @@ config.Settings = new Class({
     Extends: Epitome.Model.Storage,
     options: {
         defaults: {
-            "channels": "",
+            "channels": [],
             "nickname": "",
             "username": "",
             "password": "",
