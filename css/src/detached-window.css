@@ -1,0 +1,41 @@
+.detached .detached-window {
+    border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px; 
+    border: 5px solid #800000;
+    z-index: 2;
+
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.detached.active .detached-window {
+    z-index: 10;
+}
+
+.header {
+    padding: 4px 0;
+    background-color: #FAFAFA;
+}
+
+.header .attach, .header .tab-close {
+    float:right;
+}
+
+.header .title {
+    padding-left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.resize-handle {
+    margin: -35px -5px 0 0;
+    padding: 0 5px 5px 0;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor:se-resize;
+}

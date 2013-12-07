@@ -1,16 +1,16 @@
-<div class="window qui" data-id="{{id}}" data-name="{{name}}">
+<div class="window" data-id="{{id}}" data-name="{{name}}">
     {{#if isChannel}}{{> topicBar}}{{/if}}
-    <div class="qui content">
-        <div class="qui leftpanel lines"></div>
+    <div class="content">
+        <div class="leftpanel lines"></div>
         {{#if isChannel}}
             {{#if splitPane}}{{> verticalDivider}}{{/if}}
-            <div class="qui rightpanel"></div>
+            <div class="rightpanel"></div>
         {{/if}}
     </div>
-    <div class="qui properties">
+    <div class="properties">
         {{> channelName}}
     </div>
-    <div class="qui bottompanel">
+    <div class="bottompanel">
         {{#if needsInput}}{{> ircInput}}{{/if}}
     </div>
 </div>

@@ -24,12 +24,12 @@
 
 var LoginBox = function(parentElement, callback, settings, networkName, validators) {
     var nickname = settings.get("nickname"),
-        username = Base64.decode(settings.get("username")),
+        username = Base64.decode(settings.get("username")),//clientside no need for more advanced
         password = Base64.decode(settings.get("password")),
         eauth = auth.enabled || settings.get("auth");
 
     getTemplate("authpage", function(template) {
-        var page = Element.from(template({
+        var $page = Element.from(template({
             'network': networkName,
             'nickname': nickname,
             'username': username,
@@ -38,15 +38,29 @@ var LoginBox = function(parentElement, callback, settings, networkName, validato
             'channels': settings.get("channels").join()
         })).inject(parentElement);
 
-        var $form = page.getElement('#login'),
-            $nickBox = page.getElement('#nickname'),
-            $usernameBox = page.getElement('#username'),
-            $passwordBox = page.getElement('#password'),
-            $chkAddAuth = page.getElement('#authenticate');
+        var $form = $page.getElement('.login'),
+            $nickBox = $page.getElement('#nickname'),
+            $usernameBox = $page.getElement('#username'),
+            $passwordBox = $page.getElement('#password'),
+            $chkAddAuth = $page.getElement('#authenticate');
 
-        $form.addEvents({
+        $page.addEvents({
             "blur:relay([data-validate])": function(e, target) {
                 validate(target, validators[target.get("data-validate")]);
+            },
+            "dblclick:relay(.init-channels)": function(e, target) {
+                new ui.Dialog({
+                    title: "Set Channels",
+                    text: "Set initial channels",
+                    value: target.text(),
+                    onSubmit: function(data) {
+                        if(_.isString(data.value)) {
+                            data = util.formatChannelString(data.value);
+                            settings.set("channels", util.splitChans(data));
+                            target.text(data);
+                        }
+                    }
+                })
             }
         });
 
@@ -104,7 +118,7 @@ var LoginBox = function(parentElement, callback, settings, networkName, validato
 
         if (window === window.top) $nickBox.focus();
 
-        ui.Behaviour.apply(page);
+        ui.Behaviour.apply($page);
     });
 };
 

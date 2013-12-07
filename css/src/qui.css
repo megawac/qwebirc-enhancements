@@ -1,0 +1,200 @@
+/* Main QUI theme styles */
+.qui .dropdownmenu {
+    position: absolute;
+    z-index: 100;
+    list-style: none;
+    padding: 5px 10px;
+    font-size: 0.7em;
+}
+
+.qui .chanmenu {
+    width: 150px;
+}
+
+.qui .dropdownhint {
+  position: relative;
+  left: -500px;
+  z-index: 10;
+  white-space: nowrap;
+  font-size: 0.7em;
+}
+
+.qui .dropdownmenu a {
+    cursor: pointer; cursor: hand;
+    padding-top: 3px;
+}
+
+.qui .windows {
+    width: 100%;
+}
+
+.qui .window {
+    position: absolute;
+    top: 25px;
+    bottom: 0;
+    width: 100%;
+}
+
+.qui .window > * {
+    width: 100%;
+}
+
+.qui .content {
+    top: 0;
+    bottom: 25px;
+    position: absolute;
+}
+
+.qui .ircwindow .content {
+    bottom: 52px;
+}
+
+.qui .content > * {
+    top: 0;
+    height:100%;
+}
+
+.qui .channel .content {
+    top: 15px;
+}
+
+.qui .show-nicklist .leftpanel {
+    position: absolute;
+    left: 0;
+    right: 140px;
+}
+
+.qui .ircwindow .rightpanel {
+    position: absolute;
+    right: 0;
+}
+
+.qui .properties {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    height: 25px;
+}
+
+.qui .ircwindow .properties {
+    bottom: 27px;
+}
+
+.qui .channel-name {
+    cursor: default;
+    font-size: 0.8em;
+    padding: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    float: left;
+    margin: 1px 0px 0px 1px;
+    font-weight: bold;
+}
+
+.qui .bottompanel {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+}
+
+.qui .ircwindow .lines {
+    font-family: Consolas, "Lucida Console", monospace;
+    text-indent: 10px;
+    padding-left: 1em;
+}
+
+.qui .lines, .qui .colourline {
+    word-wrap: break-word;
+    white-space: pre;
+    white-space: pre-wrap;
+    overflow: auto;
+}
+
+.qui .lines .nick {
+    margin-right: 4px;
+}
+
+.qui .lines .nick .channel {
+    color: rgb(109, 89, 89);
+}
+
+.qui .topic {
+    padding-left: 5px;
+    font-size: 0.7em;
+    cursor: default;
+}
+
+.qui .topic .emptytopic {
+    color: gray;
+}
+
+/* input stuff */
+.qui .input {
+    margin: 0;
+}
+
+.qui .input div {
+    padding: 0 5px 1px;
+    margin: 0;
+    width: 100%;
+}
+
+.qui .input div > .input-group-addon {
+    cursor:pointer;cursor:hand;
+    padding: 2px 5px;
+}
+
+.qui .input div > * {
+    height: 24px;
+}
+
+.qui .nicklist {
+    width: 140px;
+    overflow: auto;
+    font-size: 0.7em;
+}
+
+.qui .nicklist .user, .qui .nick-menu {
+    display: block;
+    text-decoration: none;
+    cursor: default;
+    padding-left: 1px;
+}
+
+.qui .nick-menu {
+    width: initial;
+}
+
+.qui .nick-menu ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: circle;
+}
+
+.qui .nick-menu li {
+    cursor:pointer;cursor:hand;
+}
+
+
+.qui .nicklist .menu {
+    margin: 0 0 0 5px;
+}
+
+.qui .nicklist .menu a {
+    border-bottom: 0;
+    border-top: 0;
+}
+
+.hyperlink-whois, .hyperlink-channel {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.hyperlink-whois:hover, .hyperlink-channel:hover {
+    text-decoration: underline;
+}
+
+.qui hr.lastpos {
+  border: none;
+  margin: .5em 3em;
+}

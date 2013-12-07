@@ -75,10 +75,10 @@ util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if prop
 // util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')),
+var isChannel = util.isChannel = _.partial(startsWith, '#'),
 
     formatChannel = util.formatChannel = function(chan) {
-        if (chan.length >= 1 && !isChannel(chan)) {
+        if (!isChannel(chan)) {
             chan = '#' + chan;
         }
         return chan;
@@ -96,8 +96,8 @@ var isChannel = util.isChannel = _.and('.length > 1', _.partial(startsWith, '#')
     },
 
     splitChan = util.splitChans = function(xs) {
-        if (_.isArray(xs)) return xs.length > 0 ? xs : [""];
-        return xs.split(",");
+        if (_.isString(xs)) xs = xs.split(",");
+        return xs.map(String.clean);
     },
 
     //function to determine if a string is one of the stock windows

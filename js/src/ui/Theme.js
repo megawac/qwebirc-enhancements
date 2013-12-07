@@ -43,8 +43,8 @@ ui.Theme = new Class({
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
         var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
-        $ele.addClass('colourline')
-            .insertAdjacentHTML('beforeend', timestamp + result);//insertAdjacentHTML may render escaped chars incorrectly
+        $ele/*.addClass('colourline')*/
+            .insertAdjacentHTML('beforeend', timestamp + result);
         return result;
     },
 

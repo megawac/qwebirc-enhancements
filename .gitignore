@@ -2,7 +2,7 @@
 index.html
 js/dist/*
 js/templates/*
-css/qwebirc*min.css
+css/qwebirc*.css
 
 #Standard stuff
 *.sublime*

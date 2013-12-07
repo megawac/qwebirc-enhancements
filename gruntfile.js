@@ -68,8 +68,7 @@ module.exports = function(grunt) {
                     'js/templates/privacypolicy.js': ['panes/privacypolicy.hbs'],
                     'js/templates/popup-alert.js': ['templates/amd/popup-alert.hbs'],
                     'js/templates/popup-dialog.js': ['templates/amd/popup-dialog.hbs'],
-                    'js/templates/welcome-pane.js': ['templates/amd/welcome-pane.hbs'],
-                    'js/test/!*.js': ['templates/amd/*.hbs']
+                    'js/templates/welcome-pane.js': ['templates/amd/welcome-pane.hbs']
                 }
             }
         },

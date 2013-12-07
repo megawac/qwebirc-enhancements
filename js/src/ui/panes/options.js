@@ -5,12 +5,12 @@ ui.OptionView = new Class({
     options: {
         pane: 'options',
         events: {
-            'change:relay(#options input)': 'inputChange',
-            'change:relay(#options .notice-group input)': 'noticeChange',
-            'click:relay(#options #add-notice)': 'addNotifier',
-            'click:relay(#options .remove-notice)': 'removeNotifier',
-            'click:relay(#options #dn_state)': 'dnToggle',
-            'click:relay(#options #notice-test)': 'noticeTest'
+            'change:relay(.options input)': 'inputChange',
+            'change:relay(.options .notice-group input)': 'noticeChange',
+            'click:relay(.options #add-notice)': 'addNotifier',
+            'click:relay(.options .remove-notice)': 'removeNotifier',
+            'click:relay(.options #dn_state)': 'dnToggle',
+            'click:relay(.options #notice-test)': 'noticeTest'
         },
         
         onDnToggle: function(e, target) {
@@ -95,7 +95,7 @@ ui.OptionView = new Class({
                 .set(model.get(id));
         });
 
-        this.element.getElement('#options').addEvents({ //default will fire before bubble
+        this.element.getElement('.options').addEvents({ //default will fire before bubble
             'submit': this.save,
             'reset': this.reset
         });

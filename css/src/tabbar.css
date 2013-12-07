@@ -1,0 +1,51 @@
+
+.qwebirc .outertabbar {   
+    height: 26px;
+    line-height: 20px;
+    padding: 2px 0;
+}
+
+.qwebirc .outertabbar > * {
+    vertical-align: top;
+}
+
+.qwebirc .tabbar {
+    display: inline-block;
+    overflow-x: hidden;
+    margin-left: 10px;
+    font-size: 13px;
+    height: 22px;
+}
+
+.qwebirc .tabbar .tab {
+    padding: 2px;
+    cursor: default;
+    margin-right: 3px;
+    white-space: nowrap;
+    font-weight: bold;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.qwebirc .outertabbar .dropdown-tab {
+    cursor: pointer; cursor: hand;
+    display: inline-block;
+    padding-left: 4px;
+    width: 30px;
+}
+
+.tabbar .detach, .tabbar .tab-close {
+    vertical-align: middle;
+    padding-bottom: 3px;
+    display: inline-block;
+}
+
+.qwebirc .tabbar .brouhaha.tab {
+    background-image: url('../images/b_background_unsel.gif');
+    padding-left: 65px; /*width wont work here*/
+}
+
+.qwebirc .tabbar .brouhaha.selected.tab {
+    background-image: url('../images/b_background_sel2.gif');
+}
