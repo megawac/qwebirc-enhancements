@@ -1,4 +1,4 @@
-
+// <% if(pkg.build['node server']) { %> only include this code if "node server" set in package.json
 irc.NodeConnection = new Class({
     Implements: [Options, Events],
     Binds: ["_recv", "_error"],
@@ -150,3 +150,5 @@ irc.NodeConnection = new Class({
         return _.delay(this.autoretry, next, this);
     }*/
 });
+
+// <% } %>

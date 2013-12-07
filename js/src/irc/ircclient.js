@@ -32,7 +32,12 @@ irc.IRCClient = new Class({
         self.nickname = options.nickname;
         self.lowerNickname = self.toIRCLower(self.nickname);
 
+        //sorry ugly bit of templating :(
+
+        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
         if(options.node) {
+        // <% } %>
+            //<% if(pkg.build['node server']) { %>
             var conn = self.connection = new irc.NodeConnection({
                 account: options.account,
                 nickname: self.nickname,
@@ -46,7 +51,11 @@ irc.IRCClient = new Class({
                 "connected": self.connected,
                 "lostConnection": self.lostConnection
             });
+            // <% } %>
+        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
         } else {
+        // <% } %>
+            //<% if(pkg.build['twisted server']) { %>
             self.connection = new irc.TwistedConnection({
                 nickname: self.nickname,
                 serverPassword: options.serverPassword,
@@ -56,7 +65,10 @@ irc.IRCClient = new Class({
                 // "retry": self.retry,
                 "lostConnection": self.lostConnection
             });
+            // <% } %>
+        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
         }
+        // <% } %>
 
         // self.commandparser = new irc.Commands(self);
         // self.exec = self.commandparser.exec;

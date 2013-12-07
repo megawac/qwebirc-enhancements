@@ -1,5 +1,4 @@
-// /* This could do with a rewrite from scratch. */
-//going to rewrite using socket.io commet.
+// <% if(pkg.build['twisted server']) { %> only include this code if "twisted server" set in package.json
 // //uris = dict(p=push, n=newConnection, s=subscribe)
 (function() {
     //http://blog.mibbit.com/?p=143
@@ -48,12 +47,12 @@
         initialize: function(options) {
             this.setOptions(options);
             this.__timeout = this.options.initialTimeout;
+            this.cacheAvoidance = util.randHexString(16);
         },
 
         connect: function() {
             var self = this;
             self.connected = true;
-            self.cacheAvoidance = util.randHexString(16);
             var request = self.newRequest("n");
 
             request.addEvent("complete", function(stream) {
@@ -299,3 +298,4 @@
         }
     });
 })();
+// <% } %>
