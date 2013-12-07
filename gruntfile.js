@@ -1,36 +1,28 @@
-
 /*****************************
 Build step. See settings under build in package.json
 
 Flags:
--minify: use uglify to minimize js size
--concat: place css and js all in the same file.
+-"minify": use uglify to minimize js size
+-"concat": place css and js all in the same file.
+-"use cdn": load files from a cdn where applicable
+-"node server": include files for a node server
+-"twisted server": include files for a twisted server (currently will break if "node server" is truthy)
 *****************************/
-
 module.exports = function(grunt) {
     var package = grunt.file.readJSON('./package.json');
-    var files = {
-        qweb: [
-            'js/templates/qwebirc.js',
-            'js/src/qwebirc_start.js',
-            'js/src/util/*.js',
-            'templates/Templates.js',
-            'js/src/config/**.js',
-            'js/src/irc/*.js',
-            'js/src/ui/interfaces/*.js',
-            'js/src/ui/*.js',//ui +etc
-            'js/src/ui/window/*.js',
-            'js/src/ui/panes/*.js',
-            'js/src/qwebirc_end.js'
-        ],
-        plugins: [
-            'js/libs/*.js',
-            'js/libs/Epitome/*.js'
-        ],
-        full: [
-            'js/dist/plugins-<%= pkg.version %>.js',
-            'js/dist/qwebirc-<%= pkg.version %>.js'
-        ]
+    var files = grunt.file.readJSON('./build-files.json');
+    var templateContext = {
+        package: package,
+        pkg: package,
+        files: files,
+        getFileURL: function(resource) {//load path to resource
+            var resc = files.resources[resource];
+            if(package.build["use cdn"] && resc.cdn) {
+                return package.build.minify ? resc["cdn min"] : resc.cdn;
+            } else {
+                return package.build.minify ? resc["local min"] : resc.local;
+            }
+        }
     };
 
     grunt.initConfig({
@@ -67,7 +59,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    'js/templates/qwebirc.js': ['css/modifiablecss.hbs', 'templates/**.hbs'],
+                    'js/templates/qwebirc.js': [/*'css/src/*.hbs', */'templates/**.hbs'],
                     'js/templates/options.js': ['panes/options.hbs', 'panes/partials/customNotice.hbs'],
                     'js/templates/wizard.js': ['panes/wizard.hbs'],
                     'js/templates/feedback.js': ['panes/feedback.hbs'],
@@ -76,7 +68,8 @@ module.exports = function(grunt) {
                     'js/templates/privacypolicy.js': ['panes/privacypolicy.hbs'],
                     'js/templates/popup-alert.js': ['templates/amd/popup-alert.hbs'],
                     'js/templates/popup-dialog.js': ['templates/amd/popup-dialog.hbs'],
-                    'js/templates/welcome-pane.js': ['templates/amd/welcome-pane.hbs']
+                    'js/templates/welcome-pane.js': ['templates/amd/welcome-pane.hbs'],
+                    'js/test/!*.js': ['templates/amd/*.hbs']
                 }
             }
         },
@@ -88,7 +81,7 @@ module.exports = function(grunt) {
             },
             qweb: {
                 // the files to concatenate
-                src: files.qweb,
+                src: files.qwebirc,
                 // the location of the resulting JS file
                 dest: 'js/dist/qwebirc-<%= pkg.version %>.js'
             },
@@ -96,6 +89,16 @@ module.exports = function(grunt) {
             full: {
                 src: files.full,
                 dest: 'js/dist/qwebirc-full-<%= pkg.version %>.js'
+            },
+
+            css: {
+                src: 'css/src/*.css',
+                dest:'css/qwebirc-<%= pkg.version %>.css'
+            },
+
+            modifiablecss: {
+                src: 'css/src/*.hbs',
+                dest: 'templates/modifiablecss.hbs'
             },
 
             plugins: {
@@ -152,10 +155,21 @@ module.exports = function(grunt) {
             }
         },
 
+        template: {
+            qweb: {
+                options: {
+                    data: templateContext
+                },
+                files: {
+                    'js/dist/qwebirc-<%= pkg.version %>.js': ['js/dist/qwebirc-<%= pkg.version %>.js']
+                }
+            }
+        },
+
         cssmin: {
             combine: {
                 files: {
-                    'css/qwebirc-<%= pkg.version %>-min.css': ['css/qwebirc.css']
+                    'css/qwebirc-<%= pkg.version %>-min.css': ['css/src/*.css']
                 }
             }
         },
@@ -167,8 +181,7 @@ module.exports = function(grunt) {
                 options: {
                     beautify: true,
                     relative: false,
-                    data: package,
-
+                    data: templateContext,
                     scripts: {
                         bundle: package.build.concat ? ['js/dist/qwebirc-full-<%= pkg.version %>.js'] : files.full,
                         config: ['js/dist/app-<%= pkg.version %>.js']
@@ -192,13 +205,17 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-html-build');
+    grunt.loadNpmTasks('grunt-template');
 
     grunt.registerTask('default', [
+        'concat:modifiablecss',
 
         'handlebars',
 
         'concat:qweb',//has to be concatted first for the iffe
         // 'concat:plugins',
+
+        'template:qweb',//remove unnessary stuff - ie say we're on node don't include twisted stuff - if channel lists are disabled don't include files etc
 
         'uglify:plugins',
         'uglify:qweb',
@@ -207,6 +224,7 @@ module.exports = function(grunt) {
 
         'concat:full',
 
+        'concat:css',//set version on css
         'cssmin',
 
         'htmlbuild:qweb'

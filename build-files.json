@@ -1,0 +1,52 @@
+{
+    "qwebirc": [
+        "js/templates/qwebirc.js",
+        "js/src/qwebirc_start.js",
+        "js/src/util/*.js",
+        "templates/Templates.js",
+        "js/src/config/**.js",
+        "js/src/irc/*.js",
+        "js/src/ui/interfaces/*.js",
+        "js/src/ui/*.js",
+        "js/src/ui/window/*.js",
+        "js/src/ui/panes/*.js",
+        "js/src/qwebirc_end.js"
+    ],
+    "plugins": [
+        "js/libs/*.js",
+        "js/libs/Epitome/*.js"
+    ],
+    "full": [
+        "js/dist/plugins-<%= pkg.version %>.js",
+        "js/dist/qwebirc-<%= pkg.version %>.js"
+    ],
+
+    "resources": {
+        "qwebirc css": {
+            "local": "css/qwebirc-<%= pkg.version %>.css",
+            "local min": "css/qwebirc-<%= pkg.version %>-min.css"
+        },
+        "bootstrap css": {
+            "local": "css/bootstrap-3.0.0.css",
+            "local min": "css/bootstrap-3.0.0-min.css"
+        },
+        "mootools": {
+            "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js",
+            "cdn min": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat-yc.js",
+            "local": "js/modules/mootools-1.4.5.js",
+            "local min": "js/modules/mootools-1.4.5.js"
+        },
+        "soundManager": {
+            "cdn": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
+            "cdn min": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
+            "local": "/js/modules/soundmanager2.js",
+            "local min": "/js/modules/soundmanager2.js"
+        },
+        "socketio": {
+            "cdn": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
+            "cdn min": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
+            "local": "/js/modules/socket.io.js",
+            "local min": "/js/modules/socket.io.js"
+        }
+    }
+}

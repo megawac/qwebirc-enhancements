@@ -4,7 +4,6 @@
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundManagersrc: "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
         soundsurl: "/sound/",//directory of sounds for sm
         swfurl: "/swf",
         flashVersion: 8,
@@ -53,8 +52,8 @@ sound.SoundPlayer = new Class({
             if(window.soundManager) {
                 soundinit();
             }
-            else {
-                Asset.javascript(opts.soundManagersrc, {onLoad: soundinit});
+            else {//lazy load
+                Asset.javascript("<%= getFileURL('soundManager') %>", {onLoad: soundinit});//see gruntfile
             }
         });
     },

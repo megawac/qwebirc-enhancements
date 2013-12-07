@@ -32,7 +32,7 @@
             "history": "qweb-hist",
             "settings": "qweb-settings"
         },
-        VERSION: "0.95.0"
+        VERSION: "<%= pkg.version %>"
     });
 
     var irc = qwebirc.irc,
