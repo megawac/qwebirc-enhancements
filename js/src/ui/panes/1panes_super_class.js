@@ -24,6 +24,7 @@ var PanelView = new Class({
         var pane = self.options.pane;
         var $loader = Element.from(templates.loadingPage()).inject(self.element);
 
+        //dream of promises here
         getTemplate(pane, function(template) {
             var eles = Elements.from(template(self.getData()));
             self.element.adopt(eles);//not inject because it can have text nodes

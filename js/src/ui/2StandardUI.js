@@ -4,7 +4,7 @@ ui.StandardUI = new Class({
     Binds: ["whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
-            "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
+            /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/],
     options: {
         routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     },
@@ -59,7 +59,7 @@ ui.StandardUI = new Class({
             self.updateURI($tar.get("href"));
         });
 
-        function checkRoute(data) {
+        var checkRoute = _.partial(_.defer, function(data) {
             var request = util.unformatURL(data.request).toLowerCase();
             // if(self.options.debug) console.log("Route: %s Formatted: %s", data.request, request);
 
@@ -70,6 +70,10 @@ ui.StandardUI = new Class({
             switch(request) {
                 case "options":
                     self.optionsWindow();
+                    break;
+                case "channels":
+                case "channel list":
+                    self.channelWindow();
                     break;
                 case "privacy":
                     self.privacyWindow();
@@ -96,7 +100,7 @@ ui.StandardUI = new Class({
                         });
                     }
             }
-        }
+        });
 
         // hasher.initialized.add(checkRoute); // parse initial hash
         // hasher.changed.add(checkRoute); //parse hash changes
@@ -135,6 +139,19 @@ ui.StandardUI = new Class({
             },
             getUI: function() {
                 return self;
+            }
+        });
+    },
+    channelWindow: function() {
+        var self = this;
+        return self.addCustomWindow("Channel list", ui.ChannelList, "channel-list", {
+            onAddChannel: function(channel) {
+                var settings = self.options.settings;
+                if(_.isEmpty(self.clients)) {
+                    settings.set("channels", util.addChannel(settings.get("channels"), channel));
+                } else {
+                    self.clients[self.clientId -1].exec("/JOIN " + channel);
+                }
             }
         });
     },

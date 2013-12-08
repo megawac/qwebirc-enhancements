@@ -92,7 +92,7 @@ var isChannel = util.isChannel = _.partial(startsWith, '#'),
     },
 
     appendChannel = function(chans, chan) {
-        return $A(chans).concat(chan);
+        return $A(chans).concat(chan).map(formatChannel);
     },
 
     splitChan = util.splitChans = function(xs) {
@@ -133,7 +133,6 @@ util.removeChannel = _.compose(_.uniq, function(chans, chan) {
     return _.clone(chans).erase(chan);
 });
 
-(function() {
 /*
  * taken from https://github.com/martynsmith/node-irc
  * parseMessage(line, stripColors)
@@ -227,16 +226,16 @@ util.processTwistedData = function(data) {
     }
     return message;
 }
-})();
 
 util.formatCommand = function(cmdline) {
     if (cmdline.startsWith("/")) {
-        cmdline = cmdline.startsWith("//") ? "SAY /" + cmdline.slice(2) : cmdline.slice(1); //qweb issue #349
+        cmdline = (cmdline.startsWith("//") ? "SAY " : "") + cmdline.slice(1); //qweb issue #349
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
     return cmdline.splitMax(" ", 2); //split command from the params
 };
+
 util.nickChanComparitor = function(client, nickHash) {
     var _prefixes = client.prefixes,
         _prefixNone = _prefixes.length,
