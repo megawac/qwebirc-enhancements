@@ -21,12 +21,13 @@
         return !failed;
     }
 
-
 var LoginBox = function(parentElement, callback, settings, networkName, validators) {
     var nickname = settings.get("nickname"),
         username = Base64.decode(settings.get("username")),//clientside no need for more advanced
         password = Base64.decode(settings.get("password")),
         eauth = auth.enabled || settings.get("auth");
+
+    var formatChans = util.formatChannelString;
 
     getTemplate("authpage", function(template) {
         var $page = Element.from(template({
@@ -35,41 +36,49 @@ var LoginBox = function(parentElement, callback, settings, networkName, validato
             'username': username,
             'password': password,
             'full': eauth, //whether to show the extra auth options (check the checkbox)
-            'channels': settings.get("channels").join()
+            'channels': formatChans(settings.get("channels"))
         })).inject(parentElement);
 
         var $form = $page.getElement('.login'),
             $nickBox = $page.getElement('#nickname'),
             $usernameBox = $page.getElement('#username'),
             $passwordBox = $page.getElement('#password'),
-            $chkAddAuth = $page.getElement('#authenticate');
+            $chkAddAuth = $page.getElement('#authenticate'),
+            $chans = $page.getElement(".init-channels");
 
         $page.addEvents({
             "blur:relay([data-validate])": function(e, target) {
                 validate(target, validators[target.get("data-validate")]);
-            },
-            "dblclick:relay(.init-channels)": function(e, target) {
-                new ui.Dialog({
-                    title: "Set Channels",
-                    text: "Set initial channels",
-                    value: target.text(),
-                    onSubmit: function(data) {
-                        if(_.isString(data.value)) {
-                            data = util.formatChannelString(data.value);
-                            settings.set("channels", util.splitChans(data));
-                            target.text(data);
-                        }
-                    }
-                })
             }
         });
-
-        $chkAddAuth.addEvent('click', function () {
-            $form.getElements('[name="full"]').getParent('div').toggle();
+        $chans.addEvent("dblclick", function() {
+            new ui.Dialog({
+                title: "Set Channels",
+                text: "Set initial channels (comma seperated)",
+                value: $chans.text(),
+                onSubmit: function(data) {
+                    if(_.isString(data.value)) {
+                        data = formatChans(data.value);
+                        settings.set("channels", util.splitChans(data));
+                    }
+                }
+            });
         });
+
+        settings.on("change:channels", function(chans) {
+            $chans.text(formatChans(chans));
+        });
+
+        function updateChans() {
+            $form.getElements('[name="full"]').getParent('div').toggle();
+        }
+
+        $chkAddAuth.addEvent('click', updateChans);
 
         $form.addEvent("submit", function(e) {
             e.stop();
+
+            settings.off("change:channels", updateChans);
 
             if(!validate($nickBox, validators.nick) ||
                     !validate($usernameBox, validators.username) ||
@@ -129,16 +138,16 @@ ui.ILogin = new Class({
         var self = this;
         var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
         var callback = function(data) {
-                win.close();
-                self.fireEvent("login", data);
-            };
+            win.close();
+            self.fireEvent("login", data);
+        };
         this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
         return win;
     },
     welcome: function() {
         ui.WelcomePane.show(this, _.extend({
             element: this.element,
-            firstvisit: true
+            firstvisit: this.settings.get("newb")
         }, this.options));
     }
 });
