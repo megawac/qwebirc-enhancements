@@ -1,4 +1,3 @@
-
 irc.CommandHistory = new Class({
     Extends: Epitome.Model.Storage,
     Implements: [Options],

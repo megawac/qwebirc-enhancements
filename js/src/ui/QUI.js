@@ -1,4 +1,3 @@
-
 ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],
@@ -8,7 +7,7 @@ ui.QUI = new Class({
     },
     postInitialize: function() {
         var self = this.parent();
-        self.element.addClasses('qui', 'signed-out')
+        self.element.addClasses("qui", "signed-out")
             .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
         self.setHotKeys();
         self.nav.on({
@@ -17,7 +16,7 @@ ui.QUI = new Class({
             },
             "detachWindow": function(e, target) {
                 e.stop();
-                target.getParent('.tab').retrieve('window').detach();
+                target.getParent(".tab").retrieve("window").detach();
             }/*,
             "addChannel": self.__createChannelMenu*/
         });
@@ -35,8 +34,8 @@ ui.QUI = new Class({
         if(!util.isBaseWindow(win.name) && isChannel) {//update brouhaha window attrs
             var brouhaha = this.windows.brouhaha;
             brouhaha.currentChannel = win.name;
-            brouhaha.window.getElement('.channel-name').text(win.name);
-            tab.addClass('selected');
+            brouhaha.window.getElement(".channel-name").text(win.name);
+            tab.addClass("selected");
         }
         tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
             .getSiblings(".selected:not(.detached,.brouhaha)").removeClass("selected");//remove last selection
@@ -51,13 +50,13 @@ ui.QUI = new Class({
         var self = this;
         var isBrouhaha = (name === BROUHAHA);
         var $tab = Element.from(templates.ircTab({
-                'name': isBrouhaha ? '&nbsp;' : name,
-                closable: !isBaseWindow(name)
+                "name": isBrouhaha ? "&nbsp;" : name,
+                closable: !util.isBaseWindow(name)
             }));
         self.nav.addTab($tab);
 
         if(isBrouhaha) {
-            $tab.addClass('brouhaha');
+            $tab.addClass("brouhaha");
             _.delay(function() {
                 _.some(self.windowArray, function(otherwin) {
                     if(util.isChannelType(otherwin.type) && !util.isBaseWindow(otherwin.name)) {
@@ -77,22 +76,22 @@ ui.QUI = new Class({
     hotkeys: {
         keyboard: {
             nextWindow: {
-                keys: 'right',
-                description: '',
+                keys: "right",
+                description: "",
                 handler: function() {
                     this.scope.nextWindow();
                 }
             },
             next: {
-                keys: 'tab',
-                description: '',
+                keys: "tab",
+                description: "",
                 handler: function() {
                     this.scope.nextWindow();
                 }
             },
             prevWindow: {
-                keys: 'left',
-                description: '',
+                keys: "left",
+                description: "",
                 handler: function() {
                     this.scope.prevWindow();
                 }
@@ -101,44 +100,46 @@ ui.QUI = new Class({
 
         input: {
             bold: {
-                keys: 'ctrl+b',
-                description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('bold').bbcode)
+                keys: "ctrl+b",
+                description: "",
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("bold").bbcode)
             },
             italic: {
-                keys: 'ctrl+i',
-                description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('italic').bbcode)
+                keys: "ctrl+i",
+                description: "",
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("italic").bbcode)
             },
             underline: {
-                keys: 'ctrl+u',
-                description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('underline').bbcode)
+                keys: "ctrl+u",
+                description: "",
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("underline").bbcode)
             },
             colour: {
-                keys: 'ctrl+c',
-                description: '',
-                handler: _.partial(util.wrapSelected, '.window:not(.hidden) .input .irc-input', util.getStyleByName('colour').bbcode)
+                keys: "ctrl+c",
+                description: "",
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("colour").bbcode)
             }/*,
             submitInput: {
-                keys: 'enter',
-                description: '',
+                keys: "enter",
+                description: "",
                 handler: function(e) {
                     var $tar = e.target;
-                    if($tar.hasClass('irc-input'))  {
-                        $tar.getParent('.window').retrieve('window').sendInput(e, $tar);
+                    if($tar.hasClass("irc-input"))  {
+                        $tar.getParent(".window").retrieve("window").sendInput(e, $tar);
                     }
                 }
             }*/
         }
     },
 
+    /* global Keyboard */
     setHotKeys: function () {
         if(Browser.isMobile) return;
         var self = this,
             keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
             inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
-            keyboard.scope = self;
+        
+        keyboard.scope = self;
 
         function isChar(code) {//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
             return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
@@ -169,11 +170,11 @@ ui.QUI = new Class({
     //     var self = this,
     //         client = self.getActiveIRCWindow().client,
 
-    //         $btn = self.outerTabs.getElement('.add-chan'),
-    //         $oldmen = self.parentElement.getElement('.chanmenu.dropdownmenu');
+    //         $btn = self.outerTabs.getElement(".add-chan"),
+    //         $oldmen = self.parentElement.getElement(".chanmenu.dropdownmenu");
     //     $oldmen = $oldmen && $oldmen.getParent();
 
-    //     if(!$oldmen || Date.now() - $btn.retrieve('time') > 60000) {//getting pop channels is expensive dontif unnecc
+    //     if(!$oldmen || Date.now() - $btn.retrieve("time") > 60000) {//getting pop channels is expensive dontif unnecc
     //         client.getPopularChannels(function(chans) {
     //             chans = _.chain(chans).take(self.options.maxChansMenu || 10)
     //                         .map(function(chan) {
@@ -188,27 +189,27 @@ ui.QUI = new Class({
     //                     channels: chans
     //                 }));
 
-    //             var wrapper = new Element('div').inject(self.parentElement)
+    //             var wrapper = new Element("div").inject(self.parentElement)
     //                                             .adopt($menu);
     //             ui.decorateDropdown($btn, wrapper);
     //             wrapper.addEvent("click:relay(a)", function(e, target) {
-    //                 var chan = target.get('data-value');
+    //                 var chan = target.get("data-value");
     //                 client.exec("/JOIN " + chan);
     //             });
-    //             $btn.store('time', Date.now());//so we dont have to refresh maybe
+    //             $btn.store("time", Date.now());//so we dont have to refresh maybe
     //         });
     //     } else if (!$oldmen.isDisplayed()) { //show old menu
     //         $oldmen.retrieve("toggle")();
     //         $oldmen.position({
     //                 relativeTo: $btn,
-    //                 position: {x: 'left', y: 'bottom'},
-    //                 edge: {x: 'left', y: 'top'}
+    //                 position: {x: "left", y: "bottom"},
+    //                 edge: {x: "left", y: "top"}
     //             });
     //     }
     // },
 
     newClient: function(client) {
-        this.parentElement.swapClass('signed-out','signed-in');
+        this.parentElement.swapClass("signed-out","signed-in");
         var self = this;
         var status = self.parent(client);
         //load brouhaha window (b4 connecting)
@@ -221,7 +222,7 @@ ui.QUI = new Class({
                     delete self.windows.brouhaha;
                 }
             }
-        }
+        };
 
         makeBrouhaha();
         self.uiOptions.on("change:brouhaha", makeBrouhaha);
@@ -230,9 +231,9 @@ ui.QUI = new Class({
 
     setWindow: function(win, hideOld) {
         this.parent(win);
-        win.element.show().addClass('active')
-                    .getSiblings('.active,:not(.hidden)').filter(':not(.detached)')
-                    .toggle(hideOld != null && !hideOld).removeClass('active');
+        win.element.show().addClass("active")
+                    .getSiblings(".active,:not(.hidden)").filter(":not(.detached)")
+                    .toggle(hideOld != null && !hideOld).removeClass("active");
     },
 
     nickChange: function(data, client) {

@@ -1,6 +1,4 @@
-
 (function() {
-
     var types = {
         ERROR: 0,
         INFO: 1,
@@ -88,31 +86,33 @@
         VOLUME: "Volume",
 
 
-        AUTO_OPEN_PM: "Automatically select window on private message:",
+        AUTO_OPEN_PM: "Automatically select window on private message",
         FLASH: "flash",
         BEEP: "beep",
         PM: "pm",
         MENTION: "mentioned",
-        MESSAGE_PLACEHOLDER: ' something ... ',
-        NICK_PLACEHOLDER: ' someone ... ',
-        TYPE_PLACEHOLDER: 'type test',
-        DELETE_NOTICE: 'remove',
-        ADD_NOTICE: 'Add notifier',
-        USER_NOTICE: 'User:',
-        TYPE_NOTICE: 'Type:',
-        MESSAGE_NOTICE: 'Message:',
-        AUTOESCAPE: 'Escape text',
-        MENTIONED: 'Mentioned',
-        ESCAPE_HINT: 'This text is transformed into a regular expressions - autoescaping will check for the exact text you entered',
-        DESKTOP_NOTICES: 'Allow us to send desktop notifications if supported (on any notice with flash):',
-        IGNORE_CASE: 'Case insensitive',
+        ENABLE_BROUHAHA: "Enable channel message aggregator (brouhaha)",
+        MESSAGE_PLACEHOLDER: " something ... ",
+        NICK_PLACEHOLDER: " someone ... ",
+        TYPE_PLACEHOLDER: "type test",
+        DELETE_NOTICE: "remove",
+        ADD_NOTICE: "Add notifier",
+        USER_NOTICE: "User:",
+        TYPE_NOTICE: "Type:",
+        MESSAGE_NOTICE: "Message:",
+        AUTOESCAPE: "Escape text",
+        MENTIONED: "Mentioned",
+        ESCAPE_HINT: "This text is transformed into a regular expressions - autoescaping will check for the exact text you entered",
+        DESKTOP_NOTICES: "Allow us to send desktop notifications if supported (on any notice with flash)",
+        IGNORE_CASE: "Case insensitive",
         NOTUS: "Not us",
         NOTUS_HINT: "Not our message",
         HIGHLIGHT: "hl",
         HIGHLIGHT_HINT: "highlight",
+        QUIT_MSG: "Set quit message: ",
 
-        ENABLE: 'Enable',
-        DISABLE: 'Disable'
+        ENABLE: "Enable",
+        DISABLE: "Disable"
     });
 
 })();

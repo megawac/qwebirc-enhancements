@@ -1,4 +1,3 @@
-
 irc.IRCTracker = new Class({
     channels: {},
     nicknames: {},
@@ -64,7 +63,8 @@ irc.IRCTracker = new Class({
         var nickchan = self.nicknames[nick];
         if (nickchan){
             _.each(nickchan, function(data, chan) {
-                var channel = self.getChannel(chan);
+                var lchannel = self.toIRCLower(chan);
+                var channel = self.channels[channel];
                 if(channel) {
                     delete channel[nick];
                     if (_.isEmpty(channel)) {

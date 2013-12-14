@@ -1,4 +1,4 @@
-// //ircclient with added event support
+// ircclient new and improved
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
     Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch", "_tdispatch"],

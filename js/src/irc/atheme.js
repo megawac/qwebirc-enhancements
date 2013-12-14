@@ -53,7 +53,7 @@ irc.atheme = {
                 }
             }
         })
-        .send(postdata);
+        .send();
     },
     /**
      * Logs out, invalidating an authentication token.

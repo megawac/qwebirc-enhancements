@@ -1,4 +1,3 @@
-
 ui.WINDOW_ID_MAP = [
     {
         id: "privacy",
@@ -22,7 +21,7 @@ ui.IWindows = new Class({
     nav: null,
 
     getWindowIdentifier: function(name) {
-        var id = name.toLowerCase()
+        var id = name.toLowerCase();
         var wid = _.find(qwebirc.ui.WINDOW_ID_MAP, function(val) {return val.keys.contains(id);});
         return wid && wid.id || id;
     },
@@ -33,7 +32,7 @@ ui.IWindows = new Class({
 
     newWindow: function(client, type, name) {
         var win = this.getWindow(client, name);
-        if (!$defined(win)) {
+        if (win == null) {
             if(util.windowNeedsInput(type)) {
                 this.commandhistory.addChannel(name);
             }
@@ -108,8 +107,9 @@ ui.IWindows = new Class({
     getWindow: function(client, name) {
         if(_.isString(client)) name = client;
         var wins = this.getWindows(client);
-        if (_.isObject(wins)) 
+        if (_.isObject(wins)) {
             return wins[this.getWindowIdentifier(name)];
+        }
     },
 
     getWindows: function(client) {
@@ -212,7 +212,6 @@ ui.IWindows = new Class({
         }, options);
         new CustomView(options)
             .addEvent("close", win.close);
-
 
         return win;
     }

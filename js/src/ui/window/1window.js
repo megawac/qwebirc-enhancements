@@ -12,7 +12,7 @@ ui.Window = new Class({
         },
         maxLines: 1000
     },
-    template: util.loadTemplate('window'),
+    template: util.loadTemplate("window"),
 
     active: false,
     closed: false,
@@ -58,6 +58,7 @@ ui.Window = new Class({
 
     deselect: function() {
         this.active = false;
+        this.fireEvent("deselected");
     },
 
 
@@ -102,7 +103,7 @@ ui.Window = new Class({
 
     sendInput: function(e/*, $tar*/) {
         if(e) e.stop();
-        // if(!$tar || !$tar.hasClass('input-field')) {
+        // if(!$tar || !$tar.hasClass("input-field")) {
         var $tar = this.$input;
         //}
         var unparsed = $tar.val(),

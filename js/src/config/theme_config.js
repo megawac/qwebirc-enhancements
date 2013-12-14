@@ -1,13 +1,12 @@
-
 config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
-    "B": util.getStyleByName('bold').key,
-    "U": util.getStyleByName('underline').key,
+    "B": util.getStyleByName("bold").key,
+    "U": util.getStyleByName("underline").key,
     "O": irc.styles.colour.key,
     "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
-    "NN": templates.userlink({'nick':'{N}'}),//nick name
-    "CN": templates.userlink({'nick':'{newnick}'}),// change nick
+    "NN": templates.userlink({"nick":"{N}"}),//nick name
+    "CN": templates.userlink({"nick":"{newnick}"}),// change nick
     "P": "{C}4=={O} "
 };
 
@@ -74,7 +73,7 @@ config.ThemeIRCTemplates = {
     "WHOISEND": "{P}End of whois {N}",
 
     "AWAY": "{P}{N} is away: {m}",
-    "GENERICERROR": "{P}{m}: {t}",
+    "GENERICERROR": "{P}{t}: {m}",
     "GENERICMESSAGE": "{P}{m}",
     "WALLOPS": "{P}WALLOP {n}: {t}",
     "CHANNELCREATIONTIME": "{P}Channel {c} was created at: {m}",

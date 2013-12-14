@@ -1,4 +1,3 @@
-
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
@@ -43,14 +42,14 @@ ui.Theme = new Class({
         var themed = type ? self.formatText(type, data, highlight) : data;
         var result = self.colourise(themed);
         var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
-        $ele/*.addClass('colourline')*/
-            .insertAdjacentHTML('beforeend', timestamp + result);
+        $ele/*.addClass("colourline")*/
+            .insertAdjacentHTML("beforeend", timestamp + result);
         return result;
     },
 
     formatTopic: function(topic, $ele) {
         var result = this.colourise(this.urlerize(topic));
-        $ele.addClass('colourline')
+        $ele.addClass("colourline")
             .adopt(Elements.from(templates.topicText({
                 title: topic,
                 topic: result
@@ -90,9 +89,9 @@ ui.Theme = new Class({
                     background = util.getColourByKey(_.last(backgroundMatch));//num aft num + comma
 
                 var html = templates.ircstyle({
-                    'colour': (colour ? colour.fore : ""),
-                    'background': (background ? background.back : ""),
-                    'text': str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
+                    "colour": (colour ? colour.fore : ""),
+                    "background": (background ? background.back : ""),
+                    "text": str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
                 });
 
 
@@ -104,8 +103,8 @@ ui.Theme = new Class({
         _.each(styles.special, function(style) {//i wish colours were this easy
             result = result.replace(style.keyregex, function(match, text) {
                 return templates.ircstyle({
-                    'style': style.style,
-                    'text': text
+                    "style": style.style,
+                    "text": text
                 });
             });
         });
@@ -119,7 +118,7 @@ ui.Theme = new Class({
 
     messageParsers: [],
 
-    highlightClasses: ['highlight1', 'highlight2'/*, 'highlight3'*/],
+    highlightClasses: ["highlight1", "highlight2"/*, "highlight3"*/],
 
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
@@ -130,7 +129,7 @@ ui.Theme = new Class({
 
         if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m) {
-                $ele.addClass('message');
+                $ele.addClass("message");
             }
             _.each( self.messageParsers , function(parser) {
                 //sorry little crazy :)
@@ -150,7 +149,7 @@ ui.Theme = new Class({
                         }
                         if(parser.pm) {
                             win.parentObject.showNotice({
-                                title: 'IRC ' + type + '!',
+                                title: "IRC " + type + "!",
                                 body: util.format("{nick}({channel}): {message}", data)
                             });
                         }

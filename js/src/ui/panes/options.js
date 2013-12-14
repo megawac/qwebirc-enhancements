@@ -1,32 +1,34 @@
-
+/* globals Slider */
 ui.OptionView = new Class({
     Extends: PanelView,
-    Binds: ['save', 'reset'],
+    Binds: ["save", "reset"],
     options: {
-        pane: 'options',
+        pane: "options",
         events: {
-            'change:relay(.options input)': 'inputChange',
-            'change:relay(.options .notice-group input)': 'noticeChange',
-            'click:relay(.options #add-notice)': 'addNotifier',
-            'click:relay(.options .remove-notice)': 'removeNotifier',
-            'click:relay(.options #dn_state)': 'dnToggle',
-            'click:relay(.options #notice-test)': 'noticeTest'
+            "change:relay(.options input)": "inputChange",
+            "change:relay(.options .notice-group input)": "noticeChange",
+            "click:relay(.options #add-notice)": "addNotifier",
+            "click:relay(.options .remove-notice)": "removeNotifier",
+            "click:relay(.options #dn_state)": "dnToggle",
+            "click:relay(.options #notice-test)": "noticeTest"
         },
         
         onDnToggle: function(e, target) {
             toggleNotifications(this.model);
-            target.val(this.model.get('dn_state') ? lang.DISABLE : lang.ENABLE);
+            target.val(this.model.get("dn_state") ? lang.DISABLE : lang.ENABLE);
         }
     },
 
     /*********LISTENERS**************/
 
     inputChange: function(e, target) {//set model values when inputs are clicked
-        var id = target.get('id');
+        var id = target.get("id"),
+            item;
 
         //handle sub props
-        if(id && $defined(this.model.get(id))) {
-            this.model.set(id, target.val());
+        if(id && (id = id.splitMax(".", 2)) && (null != (item = this.model.get(id[0])))) {
+            if(id.length > 1) this.model.set(id[0], _.assign(_.clone(item), id[1], target.val()));
+            else this.model.set(id[0], target.val());
         }
     },
 
@@ -38,32 +40,32 @@ ui.OptionView = new Class({
             this.model.set("custom_notices", n);
         }
 
-        var $addbtn = this.element.getElement('#add-notice'/*'#custom_notices .panel-body'*/);
+        var $addbtn = this.element.getElement("#add-notice"/*"#custom_notices .panel-body"*/);
 
         var _data = _.clone(data);
         _data.lang = lang;
 
         var temp = templates.customNotice(_data);
 
-        $addbtn.insertAdjacentHTML('beforebegin', temp);//insert before btn
+        $addbtn.insertAdjacentHTML("beforebegin", temp);//insert before btn
     },
 
     removeNotifier: function(e, target) {
         e.stop();
-        var type = target.getParent('.notice-group').id;
-        var par = target.getParent('.controls').dispose();
+        var type = target.getParent(".notice-group").id;
+        var par = target.getParent(".controls").dispose();
         var id = par.get("data-id");
-        this.model.set('custom_notices', (_.reject(this.model.get(type), function(xs) {return xs.id === id})));
+        this.model.set("custom_notices", (_.reject(this.model.get(type), function(xs) {return xs.id === id})));
     },
 
     noticeChange: function(e, target) {
         e.stop();
-        var type = target.getParent('.notice-group').id;
+        var type = target.getParent(".notice-group").id;
         var notices = _.clone(this.model.get(type));
-        var par = target.getParent('.controls');
+        var par = target.getParent(".controls");
         var notice = _.findWhere(notices, {id: par.get("data-id")});
-        notice[target.get('data-id')] = target.val();
-        this.model.set('custom_notices', notices);
+        notice[target.get("data-id")] = target.val();
+        this.model.set("custom_notices", notices);
     },
     /*********LISTENERS**************/
 
@@ -77,21 +79,22 @@ ui.OptionView = new Class({
         // }, this);
 
         this.element.getElements(".slider").each(function(slider) {
-            var id = slider.get('id'),
-                knob = slider.getElement('.knob');
-                new Slider(slider, knob, {
-                    steps: 36,
-                    range: [0, 369],
-                    wheel: true
-                }).addEvent("change", function(val) {
-                    model.set(id, val);
-                })
-                .set(model.get(id));
+            var id = slider.get("id"),
+                knob = slider.getElement(".knob");
+            new Slider(slider, knob, {
+                steps: 36,
+                range: [0, 369],
+                wheel: true
+            })
+            .addEvent("change", function(val) {
+                model.set(id, val);
+            })
+            .set(model.get(id));
         });
 
-        this.element.getElement('.options').addEvents({ //default will fire before bubble
-            'submit': this.save,
-            'reset': this.reset
+        this.element.getElement(".options").addEvents({ //default will fire before bubble
+            "submit": this.save,
+            "reset": this.reset
         });
 
         if(_.isFunction(options.getUI)) {
@@ -122,7 +125,7 @@ ui.OptionView = new Class({
     },
 
     destroy: function() {
-        this.trigger('close');
+        this.trigger("close");
         return this.parent();
     }
 });

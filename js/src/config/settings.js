@@ -1,4 +1,3 @@
-
 config.Settings = new Class({
     Extends: Epitome.Model.Storage,
     options: {
@@ -26,7 +25,7 @@ config.Settings = new Class({
         return this;
     },
 
-    unset: function(key, data) {
+    unset: function(key) {
         this.parent(key);
         return this.save();
     }

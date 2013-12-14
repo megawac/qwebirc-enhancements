@@ -84,7 +84,9 @@
 			trigger: fireEvent,
 
 			addEvent: addEvent,
+			addEvents: addEvent,
 			removeEvent: removeEvent,
+			removeEvents: removeEvent,
 			fireEvent: fireEvent,
 
 			listenTo: function(obj, type, fn){

@@ -1,6 +1,5 @@
-
 //http://indiegamr.com/the-state-of-audio-in-html5-games/
-
+/* global sound */
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
@@ -21,7 +20,7 @@ sound.SoundPlayer = new Class({
             if (self.loadingSM !== false)
                 return;
             self.loadingSM = true;
-            if ($defined(self.sm)) {
+            if (self.sm != null) {
                 self.fireEvent("ready");
                 return;
             }
@@ -37,10 +36,10 @@ sound.SoundPlayer = new Class({
                             // self.register(sound.id, opts.soundsurl + sound.url + extension);
                             sound = _.clone(sound);
                             sound.url = _.map(sound.url, function(path) {
-                                return path.contains('/') ? path : opts.soundsurl + path;
+                                return path.contains("/") ? path : opts.soundsurl + path;
                             });
                             self.sm.createSound(sound);
-                        })
+                        });
                         self.loadingSM = false;
                         self.fireEvent("ready");
                     }
@@ -57,6 +56,7 @@ sound.SoundPlayer = new Class({
             }
         });
     },
+
     register: function(alias,src) {
         this.sm.createSound(alias, src);
     },

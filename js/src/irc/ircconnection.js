@@ -53,26 +53,25 @@
         connect: function() {
             var self = this;
             self.connected = true;
-            var request = self.newRequest("n");
 
-            request.addEvent("complete", function(stream) {
-                if (!stream) {
-                    self.lostConnection(lang.connectionFail);
-                    return;
-                } else if (!stream[0]) {
-                    self.disconnect();
-                    self.lostConnection(lang.connError, stream);
-                    return;
-                }
-                self.sessionid = stream[1];
-                self.recv();
-            });
-
-            var postdata = "nick=" + encodeURIComponent(self.options.nickname);
-            if (self.options.serverPassword != null) {
-                postdata += "&password=" + encodeURIComponent(self.options.serverPassword);
-            }
-            request.send(postdata);
+            self.newRequest("n")
+                .addEvent("complete", function(stream) {
+                    if (!stream) {
+                        self.lostConnection(lang.connectionFail);
+                        return;
+                    } else if (!stream[0]) {
+                        self.disconnect();
+                        self.lostConnection(lang.connError, stream);
+                        return;
+                    }
+                    self.sessionid = stream[1];
+                    self.recv();
+                }).send({
+                    data: {
+                        nick: self.options.nickname,
+                        password: self.options.serverPassword
+                    }
+                });
         },
 
         disconnect: function() {
@@ -81,7 +80,7 @@
             this.__cancelRequests();
         },
 
-        newRequest: function(url, floodProtection, synchronous) {
+        newRequest: function(url, floodProtection, synchronous, unmanaged) {
             var self = this;
             //check if request should proceed
             if (!self.connected) {
@@ -92,20 +91,24 @@
             }
             var request = new Request.JSON({
                 url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
-                async: !synchronous
+                async: !synchronous,
+                encoding: ""//let server assume utf-8
             });
 
             // try to minimise the amount of headers 
             request.headers = {};//{X-Requested-With: "XMLHttpRequest", Accept: "application/json", X-Request: "JSON"}
-            request.addEvent("request", function() {
-                Object.each(killHeaders, function(val, key) {
-                    try {
-                        request.xhr.setRequestHeader(key, val);
-                    } catch (o_O) {
-                        delete killHeaders[key];//cant set header on this browser
-                    }
+            
+            if(!unmanaged) {
+                request.addEvent("request", function() {
+                    Object.each(killHeaders, function(val, key) {
+                        try {
+                            request.xhr.setRequestHeader(key, val);
+                        } catch (o_O) {
+                            delete killHeaders[key];//cant set header on this browser
+                        }
+                    });
                 });
-            });
+            }
 
             if (Browser.ie && Browser.version < 8) {
                 request.setHeader("If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT");
@@ -114,8 +117,8 @@
         },
 
         recv: function() {
-            var self = this,
-                request = self.newRequest("s", true);
+            var self = this;
+            var request = self.newRequest("s", true);
             if (request == null) {
                 return;
             }
@@ -144,7 +147,7 @@
             };
             request.addEvent("complete", onComplete);
             self.__scheduleTimeout();
-            request.send("s=" + self.sessionid);
+            request.send("s=" + self.sessionid);//wish this could be omitted
         },
 
         send: function(data, synchronous) {
@@ -158,6 +161,17 @@
                 this.__processSendQueue();
             }
             return true;
+        },
+
+        //send without queueing or waiting for response
+        sendUnqueued: function(data, async) {
+            this.newRequest("p", false, !!async, true)
+                .send({
+                    data: {
+                        s: this.sessionid,
+                        c: data
+                    }
+                });
         },
 
         __processSendQueue: function() {
@@ -174,7 +188,12 @@
                 return;
             }
             request.addEvent("complete", this.__completeRequest.bind(this, async))
-                    .send("s=" + this.sessionid + "&c=" + encodeURIComponent(data));
+                .send({
+                    data: {
+                        s: this.sessionid,
+                        c: data
+                    }
+                });
         },
 
         __completeRequest: function(async, stream) {
@@ -184,7 +203,7 @@
             if (!stream || (!stream[0])) {
                 this.__sendQueue = [];
                 if (this.connected) {
-                    this.lostConnection(lang.connError, stream)
+                    this.lostConnection(lang.connError, stream);
                 }
                 return false;
             }

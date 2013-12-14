@@ -1,4 +1,3 @@
-
 ui["default options"] = {
     "auto_open_pm": false,
     "nick_ov_status": true,
@@ -37,10 +36,9 @@ ui["default options"] = {
     "standard_notices": [
         {
             type: "^(?!SERVER)+NOTICE+$",//notice not server notice
-            classes: '',
             beep: true,
             tabhl: ui.HIGHLIGHT.speech,
-            id: 'notice'
+            id: "notice"
         },
         {
             type: "PRIVMSG$",
@@ -48,58 +46,56 @@ ui["default options"] = {
             beep: true,
             pm: true,
             tabhl: ui.HIGHLIGHT.speech,
-            id: 'pm'
+            id: "pm"
         },
         {
             type: "^OUR",
-            classes: 'our-msg',
-            id: 'ourmsg'
+            classes: "our-msg",
+            id: "ourmsg"
         },
         {
             msg: "^\\!",
-            classes: 'command',
+            classes: "command",
             types: [ui.WINDOW.channel],
-            id: 'cmd'
+            id: "cmd"
         },
         {
             mentioned: true,
-            highlight: 'mentioned',
+            highlight: "mentioned",
             notus: true,
             tabhl: ui.HIGHLIGHT.us,
-            id: 'mention'
+            id: "mention"
         },
         {//match bots
             nick: "(serv|bot)$",
-            classes: 'bot',
+            classes: "bot",
             types: [ui.WINDOW.channel],
             "case": true,
-            id: 'bot'
+            id: "bot"
         },
         {
             nick: "^((?!((serv|bot)$)).)*$",
             mentioned: true,
-            classes: '',
             beep: true,
             pm: true,
             notus: true,
             "case": true,
-            id: 'onmention'
+            id: "onmention"
         },
         {
             nick: "^((?!((serv|bot)$)).)*$",
             msg: "^((?!(^\\!)).)*$", //dont hl commands
-            classes: '',
             highlight: true,
             notus: true,
             "case": true,
             tabhl: ui.HIGHLIGHT.activity,
             types: [ui.WINDOW.channel],
-            id: 'hl'
+            id: "hl"
         }
     ],
 
     "custom_notices": []
-}
+};
 
 config.OptionModel = new Class({
     Extends: Epitome.Model.Storage,
@@ -119,7 +115,7 @@ config.OptionModel = new Class({
                 // pm: false,
                 id: String.uniqueID(),
                 autoescape: true,
-                description: ''
+                description: ""
             };
     },
 

@@ -7,7 +7,7 @@ var defaults = {
 
     validators: {//test is a helper from ircutils
         nick: [{
-            test: test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
+            test: util.test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
             description: "Nick must be between 1 and 9 characters"
         }],
         password: [{
@@ -50,7 +50,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
         var parsed = query.slice(1).parseQueryString();
 
         if(parsed.channels) {//append query string channels to saved channels
-            parsed.channels = concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels));
+            parsed.channels = util.concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels));
         }
 
         var softextend = function(obj) {//only sets vals if they exist on the object
@@ -75,10 +75,10 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             if(settings.get("newb")) {
                 instance.welcome();
                 settings.set("newb", false);
-            } 
+            }
         },
         "login:once": function(loginopts) {
-            var ircopts = _.extend({settings: settings}, options.client, loginopts);
+            var ircopts = _.extend({settings: settings, uiOptions: instance.uiOptions}, options.client, loginopts);
 
             var client = new irc.IRCClient(ircopts);
             instance.newClient(client);
@@ -86,7 +86,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             client.connect();
             client.addEvent("auth", function(data) {
                 instance.showNotice({
-                    title: 'Authenticated with network!',
+                    title: "Authenticated with network!",
                     body: util.format("{nick}: {message}", data)
                 }, true);
             });

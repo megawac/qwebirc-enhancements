@@ -1,4 +1,3 @@
-
 auth.loggedin = false;
 auth.enabled = false;
 

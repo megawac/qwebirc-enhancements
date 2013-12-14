@@ -70,11 +70,12 @@ ui.IUIOptions = new Class({
 
     setModifiableStylesheet: function(vals) {
         this._styleSheet = new Element("style", {
-                                type: "text/css",
-                                media: "all"
-                            }).inject(document.head);
+            type: "text/css",
+            media: "all"
+        }).inject(document.head);
         this.updateStylesheet(vals);
     },
+
     updateStylesheet: function(values) {//todo calculate all the values and just sub in
         var self = this;
         getTemplate("modifiablecss", function(template) {

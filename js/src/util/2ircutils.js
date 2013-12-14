@@ -7,18 +7,6 @@ var join = function(by, xs) {
         return xs.join(by);
     },
 
-    split = function(by, str) {
-        return str.split(by);
-    },
-
-    // restRight = function(xs) {
-    //     return xs.slice(0, xs.length - 1);
-    // },
-
-    test = _.autoCurry(function(reg, str) {
-        return str.test(reg);
-    }),
-
     replace = _.autoCurry(function(reg, rep, str) {
         return str.replace(reg, rep);
     }),
@@ -26,8 +14,6 @@ var join = function(by, xs) {
     startsWith = function(what, str) {
         return str.startsWith(what);
     },
-
-    $identity = _.identity,
 
     // splitBang = _.partial(split, "!"),
 
@@ -39,23 +25,7 @@ var join = function(by, xs) {
     joinComma = util.joinChans = _.partial(join, ","),
 
     // splitComma = split(","),
-    concatUnique = _.compose(_.uniq, Array.concat),
-
-    concatSep = _.autoCurry(function(sep, s1, s2) {
-        if (_.isArray(s1)) {
-            s1 = s1.join(sep);
-        }
-        if (_.isArray(s2)) {
-            s2 = s2.join(sep);
-        }
-        if (s1 !== "" && s2 !== "") {
-            return s1 + sep + s2;
-        } else {
-            return s1 + s2;
-        }
-    }),
-
-    concatSpace = concatSep(" ");
+    concatUnique = util.concatUnique = _.compose(_.uniq, Array.concat);
 
 util.format = util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
@@ -63,10 +33,14 @@ util.format = util.formatter = function(message, data) {
 
 util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
     return String(str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
-        if (match.charAt(0) == '\\') return match.slice(1);
+        if (match.charAt(0) === "\\") return match.slice(1);
         return (object[name] != null) ? object[name] : match;
     });
-}
+};
+
+util.test = _.autoCurry(function(reg, str) {
+    return str.test(reg);
+});
 
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
@@ -75,11 +49,11 @@ util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if prop
 // util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = _.partial(startsWith, '#'),
+var isChannel = util.isChannel = _.partial(startsWith, "#"),
 
     formatChannel = util.formatChannel = function(chan) {
         if (!isChannel(chan)) {
-            chan = '#' + chan;
+            chan = "#" + chan;
         }
         return chan;
     },
@@ -115,7 +89,7 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChann
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
-    return '#!' + link;
+    return "#!" + link;
 }
 
 util.unformatURL = function(link) {
@@ -152,9 +126,9 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     NUMERICS = irc.Numerics;
 util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
-        'raw': line,
-        'prefix': '',
-        'commandType': 'normal'
+        "raw": line,
+        "prefix": "",
+        "commandType": "normal"
     };
     var match;
 
@@ -165,7 +139,7 @@ util.parseIRCData = function(line/*, stripColors*/) {
     // Parse prefix
     if (match = line.match(hasprefix_re)) {
         message.prefix = match[1];
-        line = line.replace(colonrem_re, '');
+        line = line.replace(colonrem_re, "");
         if (match = message.prefix.match(prefix_re)) {
             message.nick = match[1];
             message.user = match[3];
@@ -179,7 +153,7 @@ util.parseIRCData = function(line/*, stripColors*/) {
     match = line.match(command_re);
     message.command = match[1].toUpperCase();
     message.rawCommand = match[1];
-    line = line.replace(data_re, '');
+    line = line.replace(data_re, "");
 
     if (NUMERICS[message.rawCommand]) {
         message.command = NUMERICS[message.rawCommand].name;
@@ -206,7 +180,7 @@ util.parseIRCData = function(line/*, stripColors*/) {
 };
 util.processTwistedData = function(data) {
     var message = {
-        commandType: 'normal',
+        commandType: "normal",
         rawCommand: data[1],
         command: data[1],
         args: data[3],
@@ -240,7 +214,7 @@ util.nickChanComparitor = function(client, nickHash) {
     var _prefixes = client.prefixes,
         _prefixNone = _prefixes.length,
         prefixWeight = function(pre) {
-            return pre.length !== 0 ? _prefixes.indexOf(pre) : _prefixNone;
+            return pre ? _prefixes.indexOf(pre) : _prefixNone;//not undef/empty
         },
         toLower = client.toIRCLower;
     //compares two nick names by channel status > lexigraphy
@@ -272,10 +246,10 @@ util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
 
 util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = _.compose(_.lambda('x[1]'), util.prefixOnNick);
+util.stripPrefix = _.compose(_.lambda("x[1]"), util.prefixOnNick);
 
 util.createWordRegex = function(word) {
-    return new RegExp('\\b' + String.escapeRegExp(word) + '\\b', "i");//=> /\bmegawac\b/i
+    return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");//=> /\bmegawac\b/i
 };
 
 util.testForNick = _.autoCurry(function(nick, text) {
@@ -297,7 +271,7 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda('x.charCodeAt(0)'));
+var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda("x.charCodeAt(0)"));
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
@@ -348,8 +322,8 @@ var pad = util.pad = _.autoCurry(function(cond, padding, str) {
     return cond(str) ? padding + str : str;
 });
 
-util.padzero = pad(_.lambda('.length<=1'), "0");
-util.padspace = pad(_.lambda('.length!==0'), " ");
+util.padzero = pad(_.lambda(".length<=1"), "0");
+util.padspace = pad(_.lambda(".length!==0"), " ");
 
 util.getEnclosedWord = function(str, pos) {
     pos = pos >>> 0; //type safety coerce int

@@ -1,27 +1,26 @@
-
 ui.NavBar = new Class({
     Extends: Epitome.View,
-    Binds: ['adjust'],
+    Binds: ["adjust"],
     options: {
         template: util.loadTemplate("navbar"),
         events: {
-            'click:relay(.tabbar .tab)': 'selectTab',
-            'dblclick:relay(.tabbar .tab)': 'selectWindow',
-            'click:relay(.tabbar .tab .tab-close)': 'closeWindow',
-            'click:relay(.tabbar .tab .detach)': 'detachWindow',
-            'adopt:relay(.tabbar)': 'adjust',
-            'disown:relay(.tabbar)': 'adjust',
-            'mousewheel:relay(.tabbar)': 'scrollTabs',
+            "click:relay(.tabbar .tab)": "selectTab",
+            "dblclick:relay(.tabbar .tab)": "selectWindow",
+            "click:relay(.tabbar .tab .tab-close)": "closeWindow",
+            "click:relay(.tabbar .tab .detach)": "detachWindow",
+            "adopt:relay(.tabbar)": "adjust",
+            "disown:relay(.tabbar)": "adjust",
+            "mousewheel:relay(.tabbar)": "scrollTabs",
 
-            'click:relay(.main-menu a)': 'openMenu',
-            'click:relay(.buttons .to-left)': 'scrollLeft',
-            'click:relay(.buttons .to-right)': 'scrollRight',
-            'click:relay(.buttons .add-chan)': 'addChannel'
+            "click:relay(.main-menu a)": "openMenu",
+            "click:relay(.buttons .to-left)": "scrollLeft",
+            "click:relay(.buttons .to-right)": "scrollRight",
+            "click:relay(.buttons .add-chan)": "addChannel"
         },
         onReady: function() {
             this.render();
-            window.addEvent('resize', this.adjust);
-            this.tabs.addEvent('adopt', this.adjust);
+            window.addEvent("resize", this.adjust);
+            this.tabs.addEvent("adopt", this.adjust);
         },
         onScrollTabs: function(evt) {
             evt.stop();
@@ -35,7 +34,7 @@ ui.NavBar = new Class({
     render: function() {
         Elements.from(this.template({lang: lang})).filter(Type.isElement)//strip random text nodes
                                                 .inject(this.element);
-        this.tabs = this.element.getElement('.tabbar');
+        this.tabs = this.element.getElement(".tabbar");
         this.scroller = new Fx.Scroll(this.tabs);
         this.adjust();
 
@@ -44,7 +43,7 @@ ui.NavBar = new Class({
                 lang: lang
             })).inject(self.options.menuElement);
 
-        var dropdownbtn = this.element.getElement('.main-menu');
+        var dropdownbtn = this.element.getElement(".main-menu");
 
         ui.decorateDropdown(dropdownbtn, dropdownMenu, {
             onShow: function() {
@@ -61,35 +60,35 @@ ui.NavBar = new Class({
             property: "opacity",
             link: "chain"
         });
-        var dropdownhint = Element.from(templates.dropdownhint())
-                    .inject(this.element)
-                    .position({
-                        relativeTo: this.element,
-                        position: {'y': 'bottom'},
-                        offset: {y:10}
-                    });
+        var ddhint = Element.from(templates.dropdownhint());
+        ddhint.inject(this.element)
+            .position({
+                relativeTo: this.element,
+                position: {"y": "bottom"},
+                offset: {y:10}
+            });
 
         dropdownEffect.start(0.25)
                     .start(1)
                     .start(0.33)
                     .start(1);
 
-        new Fx.Morph(dropdownhint, {
+        new Fx.Morph(ddhint, {
             duration: "normal",
             transition: Fx.Transitions.Sine.easeOut
         }).start({
             left: [900, 5]
         });
 
-        (function() {
-            new Fx.Morph(dropdownhint, {
+        _.delay(function() {
+            new Fx.Morph(ddhint, {
                 duration: "long"
             }).start({
                 left: [5, -900]
             });
-        }).delay(4000);
+        }, 4000);
 
-        var hider2 = _.once(_.partial(Element.destroy, dropdownhint));
+        var hider2 = _.once(_.partial(Element.destroy, ddhint));
 
         _.delay(hider2, 4000);
 
@@ -102,7 +101,7 @@ ui.NavBar = new Class({
     adjust: function() {
         var wid = this.tabs.getWidth(),
             swid = this.tabs.getScrollWidth(),
-            scrollers = this.element.getElements('[name="tabscroll"]');
+            scrollers = this.element.getElements("[name='tabscroll']");
 
         if(swid > wid) {
             scrollers.show();
@@ -111,7 +110,7 @@ ui.NavBar = new Class({
             scrollers.hide();
         }
 
-        util.fillContainer(this.tabs, {style: 'max-width'});
+        util.fillContainer(this.tabs, {style: "max-width"});
     },
 
     addTab: function(tab) {
@@ -135,25 +134,27 @@ ui.NavBar = new Class({
         var pos = this.tabs.getScrollLeft(),
             $ele = util.elementAtScrollPos(this.tabs, pos);
 
-        this.scroller.toElement($ele, 'x');
+        this.scroller.toElement($ele, "x");
     },
+
     scrollRight: function(e) {
         e.stop();
         var pos = this.tabs.getScrollLeft() + this.tabs.getWidth(),
             $ele = util.elementAtScrollPos(this.tabs, pos);
 
-        this.scroller.toElementEdge($ele, 'x');
+        this.scroller.toElementEdge($ele, "x");
     },
+
     nextWindow: function() {
-        this.trigger('nextWindow');
+        this.trigger("nextWindow");
     },
+
     prevWindow: function() {
-        this.trigger('prevWindow');
+        this.trigger("prevWindow");
     },
+
     destroy: function() {
-        window.removeEvent('resize', this.adjust);
+        window.removeEvent("resize", this.adjust);
         return this.parent();
     }
-
 });
-

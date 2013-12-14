@@ -1,17 +1,18 @@
+/* globals notify */
 ui.WelcomePane = new Class({
     Extends: PanelView,
     options: {
-        pane: 'welcome-pane',
+        pane: "welcome-pane",
         events: {
-            'click:relay(.enable-notifications)': 'enableNotifications',
-            'click:relay(.controls)': 'controlClick'
+            "click:relay(.enable-notifications)": "enableNotifications",
+            "click:relay(.controls)": "controlClick"
         },
         onEnableNotifications: function() {
             toggleNotifications(this.ui.uiOptions, true, true);
         },
         onControlClick: function(e, controls) {
             controls.dispose();
-            if(!this.element.getElement('.controls')) this._close();
+            if(!this.element.getElement(".controls")) this._close();
         }
     },
     initialize: function(ui, options) {

@@ -5,9 +5,9 @@ ui.StandardUI = new Class({
             "nextWindow", "prevWindow",
             //custom windows
             /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/],
-    options: {
-        routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
-    },
+    // options: { -TODO
+    //     routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
+    // },
     initialize: function(parentElement, theme, uiName, options) {
         var self = this.setOptions(options);
         self.settings = options.settings;
@@ -34,8 +34,7 @@ ui.StandardUI = new Class({
     },
 
     postInitialize: function() {
-        var self = this,
-            rprefix = self.options.routerPrefix;
+        var self = this;
 
         self.nav = new ui.NavBar({
             element: self.outerTabs,

@@ -1,11 +1,11 @@
-// <% if(pkg.build['node server']) { %> only include this code if "node server" set in package.json
+// <% if(pkg.build["node server"]) { %> only include this code if "node server" set in package.json
 irc.NodeConnection = new Class({
     Implements: [Options, Events],
     Binds: ["_recv", "_error"],
     options: {
         socket_connect: document.location.hostname,
-        nickname: '',
-        password: '',
+        nickname: "",
+        password: "",
         serverPassword: null,
         autoConnect: true,
         debug: true,
@@ -13,8 +13,8 @@ irc.NodeConnection = new Class({
         /*server: xxx,
         nick: nick,
         password: null,
-        userName: 'nodebot',
-        realName: 'nodeJS IRC client',
+        userName: "nodebot",
+        realName: "nodeJS IRC client",
         port: 6667,
         debug: false,
         showErrors: false,
@@ -44,9 +44,9 @@ irc.NodeConnection = new Class({
         options = self.setOptions(options).options;
 
         var socket = self.socket = io.connect(options.socket_connect, {
-          'reconnect': options.autoretry,
-          'reconnection delay': options.retryInterval,
-          'max reconnection attempts': options.retryAttempts
+          "reconnect": options.autoretry,
+          "reconnection delay": options.retryInterval,
+          "max reconnection attempts": options.retryAttempts
         });
 
         var $evts = {
@@ -86,8 +86,8 @@ irc.NodeConnection = new Class({
 
             "max_connections": function() {
                 new ui.Alert({
-                    title: 'Maximum connections reached',
-                    text: 'Maximum synchronous connections for this server have been reached. If we let you in we may crash/get g-lined. Try again later...',
+                    title: "Maximum connections reached",
+                    text: "Maximum synchronous connections for this server have been reached. If we let you in we may crash/get g-lined. Try again later...",
                     onHide: function() {
                         location.reload();
                     }

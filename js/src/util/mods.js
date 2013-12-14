@@ -1,4 +1,3 @@
-
 Epitome.View.implement({
     template: function(data, template) {
         // refactored for handlebars
