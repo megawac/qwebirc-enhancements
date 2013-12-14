@@ -136,7 +136,7 @@ ui.ILogin = new Class({
         return win;
     },
     welcome: function() {
-        ui.WelcomePane.show(this.ui, _.extend({
+        ui.WelcomePane.show(this, _.extend({
             element: this.element,
             firstvisit: true
         }, this.options));
