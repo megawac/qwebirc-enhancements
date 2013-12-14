@@ -42,8 +42,8 @@ ui.QUI = new Class({
             .getSiblings(".selected:not(.detached,.brouhaha)").removeClass("selected");//remove last selection
     },
 
-    selectWindow: function(win) {
-        win = this.parent(win);
+    selectWindow: function(win, deselActive) {
+        win = this.parent(win, deselActive);
         this.selectTab(win.tab);
     },
 
@@ -54,14 +54,14 @@ ui.QUI = new Class({
                 'name': isBrouhaha ? '&nbsp;' : name,
                 closable: !isBaseWindow(name)
             }));
-        this.nav.addTab($tab);
+        self.nav.addTab($tab);
 
         if(isBrouhaha) {
             $tab.addClass('brouhaha');
             _.delay(function() {
                 _.some(self.windowArray, function(otherwin) {
                     if(util.isChannelType(otherwin.type) && !util.isBaseWindow(otherwin.name)) {
-                        win.properties.text(otherwin.name); //update current channel in brouhaha
+                        win.setProperties(otherwin.name); //update current channel in brouhaha
                         win.currentChannel = otherwin.name;
                         return true;
                     }
@@ -209,17 +209,30 @@ ui.QUI = new Class({
 
     newClient: function(client) {
         this.parentElement.swapClass('signed-out','signed-in');
-        var status = this.parent(client);
+        var self = this;
+        var status = self.parent(client);
         //load brouhaha window (b4 connecting)
-        this.windows.brouhaha = this.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+        var makeBrouhaha = function() {
+            if(self.uiOptions.get("brouhaha").enabled) {
+                self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+            } else {
+                if(self.windows.brouhaha) {
+                    self.windows.brouhaha.close();
+                    delete self.windows.brouhaha;
+                }
+            }
+        }
+
+        makeBrouhaha();
+        self.uiOptions.on("change:brouhaha", makeBrouhaha);
         return status;
     },
 
-    setWindow: function(win) {
+    setWindow: function(win, hideOld) {
         this.parent(win);
         win.element.show().addClass('active')
-                    .getSiblings('.active:not(.detached)')
-                    .hide().removeClass('active');
+                    .getSiblings('.active,:not(.hidden)').filter(':not(.detached)')
+                    .toggle(hideOld != null && !hideOld).removeClass('active');
     },
 
     nickChange: function(data, client) {
