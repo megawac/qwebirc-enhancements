@@ -17,7 +17,11 @@ irc.IRCTracker = new Class({
     },
 
     getOrCreateNick: function(nick) {
-        return this.getNick(nick) || (this.nicknames[nick] = {});
+        if(nick !== ""/* || !/^[\w\/`\-\[\] ]+$/.test(nick)*/) {//sometimes given "" as a nick
+            return this.getNick(nick) || (this.nicknames[nick] = {});
+        } else {
+            return {};
+        }
     },
 
     getChannel: function(channel) {
@@ -56,33 +60,36 @@ irc.IRCTracker = new Class({
     },
 
     removeNick: function(nick) {
-        var nickchan = this.getNick(nick);
+        var self = this;
+        var nickchan = self.nicknames[nick];
         if (nickchan){
             _.each(nickchan, function(data, chan) {
-                var lchannel = this.toIRCLower(chan),
-                    channel = this.channels[lchannel];
-
-                delete channel[nick];
-                if (_.isEmpty(channel)) {
-                    delete this.channels[lchannel];
+                var channel = self.getChannel(chan);
+                if(channel) {
+                    delete channel[nick];
+                    if (_.isEmpty(channel)) {
+                        delete self.channels[lchannel];
+                    }
                 }
-            }, this);
-            delete this.nicknames[nick];
+                
+            });
+            delete self.nicknames[nick];
         }
     },
 
     removeChannel: function(channel) {
-        var chan = this.getChannel(channel);
+        var self = this;
+        var chan = self.getChannel(channel);
         if (chan) {
-            var lchannel = this.toIRCLower(channel);
+            var lchannel = self.toIRCLower(channel);
             _.each(_.keys(chan), function(nick) {
-                var nc = this.nicknames[nick];
+                var nc = self.nicknames[nick];
                 delete nc[lchannel];
                 if (_.isEmpty(nc)) { //in no more channels
-                    delete this.nicknames[nick];
+                    delete self.nicknames[nick];
                 }
-            }, this);
-            delete this.channels[lchannel];
+            });
+            delete self.channels[lchannel];
         }
     },
 
@@ -119,10 +126,10 @@ irc.IRCTracker = new Class({
         delete this.nicknames[oldnick];
     },
 
-    updateLastSpoke: function(nick, channel, time) {
-        var nc = this.getNickOnChannel(nick, channel);
-        if ($defined(nc)) {
-            nc.lastSpoke = time;
+    updateLastSpoke: function(nick, time) {
+        var nc = this.getNick(nick);
+        if (nc != null) {
+            nc.lastSpoke = time || Date.now();
         }
     },
 
@@ -139,7 +146,7 @@ irc.IRCTracker = new Class({
     },
 
     getSortedNicksForChannel: function(channel, sorter) {
-        var nickHash = this.getChannel(channel);
+        var nickHash = channel ? this.getChannel(channel) : _.extend({}, this.nicknames, this.getChannel(BROUHAHA));//all - should I merge with getChanenl(BROUHAHA) to keep prefixes on brouhaha?
         if(_.isEmpty(nickHash)) return [];
         if(!sorter) {
             //sorts nicks by status > lexigraphy

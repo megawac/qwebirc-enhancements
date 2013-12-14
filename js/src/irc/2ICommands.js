@@ -49,7 +49,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 }
             }
 
-            allargs = cmdopts.fn.call(self, args, target);
+            allargs = cmdopts.fn.call(self, args || [], target);
         }
     },
 

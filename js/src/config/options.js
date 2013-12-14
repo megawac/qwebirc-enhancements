@@ -17,6 +17,11 @@ ui["default options"] = {
         "store": !Browser.isMobile
     },
 
+    "brouhaha": {
+        //"local": true,//don't join #brouhaha
+        "enabled": true
+    },
+
     "dn_state": false,
     "dn_duration": 4000,
 
@@ -26,6 +31,8 @@ ui["default options"] = {
     "style_hue": 210,
     "style_saturation": 0,
     "style_brightness": 0,
+
+    "quit_msg": lang.quit,
 
     "standard_notices": [
         {
