@@ -9,9 +9,6 @@
 
 
     //portions:
-    source.topPane = "<div class='toppanel outertabbar'></div>";
-    // source.detachedPane = "<div class='detached'></div>";
-    source.windowsPane = "<div class='windows'></div>";
     source.dropdownhint = "<div class='dropdownhint'>Click the icon for the main menu.</div>";
 
     source.tabbar = "<div class='tabbar'></div>";
@@ -69,14 +66,9 @@
 
     function compileAll(source,compiled) {
         _.each(source, function(item, key) {
-            try {
-                // compiled[key] = engine.compile(item);
-                compiled[key] = Function.from(item);
-            } catch(err) {
-                console.log(err);
-            }
+            // compiled[key] = engine.compile(item);
+            compiled[key] = Function.from(item);
         });
-
         return compiled;
     }
 

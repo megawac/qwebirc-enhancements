@@ -1,15 +1,14 @@
 <div class="window" data-id="{{id}}" data-name="{{name}}">
-    {{#if isChannel}}{{> topicBar}}{{/if}}
-    <div class="content">
+    {{#if isChannel}}
+        <div class='topic'>{{> topicText}}</div>
+    {{/if}}
+    <div class="content container-fluid">
         <div class="leftpanel lines"></div>
         {{#if isChannel}}
-            {{#if splitPane}}{{> verticalDivider}}{{/if}}
             <div class="rightpanel"></div>
         {{/if}}
     </div>
-    <div class="properties">
-        {{> channelName}}
-    </div>
+    <div class="properties">{{> channelName}}</div>
     <div class="bottompanel">
         {{#if needsInput}}{{> ircInput}}{{/if}}
     </div>

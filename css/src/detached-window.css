@@ -2,7 +2,7 @@
     border-radius: 5px; 
     -moz-border-radius: 5px; 
     -webkit-border-radius: 5px; 
-    border: 5px solid #800000;
+    border: 4px solid #800000;
     z-index: 2;
 
     -webkit-transform: translateZ(0);
@@ -10,6 +10,13 @@
     -ms-transform: translateZ(0);
     -o-transform: translateZ(0);
     transform: translateZ(0);
+}
+
+.detached .detached-window .body {
+    position: absolute;
+    top: 25px;
+    bottom: 0;
+    width: 100%;
 }
 
 .detached.active .detached-window {

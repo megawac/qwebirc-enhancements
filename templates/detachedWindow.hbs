@@ -1,9 +1,13 @@
-<div class='detached-window'>
-    <div class='header'>
-        <span class='title'>{{channel}}</span>
-        {{#unless base}}{{> tabClose}}{{/unless}}
-        {{> tabAttach}}
+<div class="detached-window">
+    <div>
+        <div class="header panel-heading">
+            <span class='title'>{{channel}}</span>
+            {{#unless base}}{{> tabClose}}{{/unless}}
+            {{> tabAttach}}
+        </div>
+        <div class="body">
+
+        </div>
+        <div><span class="resize-handle ui-icon ui-icon-grip-diagonal-se"></span></div>
     </div>
-    <div class="content"></div>
-    <div><span class="resize-handle ui-icon ui-icon-grip-diagonal-se"></span></div>
 </div>

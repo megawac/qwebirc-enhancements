@@ -9,6 +9,12 @@
     <div class="tab-content">
         <div class="ui-options control-group well active">
             <div class="controls">
+                <label class="checkbox" for="brouhaha.enabled">
+                    {{lang "ENABLE_BROUHAHA"}}
+                    <input type="checkbox" id="brouhaha.enabled" {{check brouhaha.enabled}}>
+                </label>
+            </div>
+            <div class="controls">
                 <label class="checkbox" for="auto_open_pm">
                     {{lang "AUTO_OPEN_PM"}}
                     <input type="checkbox" id="auto_open_pm" {{check auto_open_pm}}>
@@ -53,13 +59,13 @@
             <div class="controls">
                 <label for="font_size">
                     {{lang "FONT_SIZE"}}
-                    <input type="number" id="font_size" value={{font_size}}>
+                    <input type="number" id="font_size" value="{{font_size}}">
                 </label>
             </div>
             <div class="controls">
                 <label for="volume">
                     {{lang "VOLUME"}}
-                    <input type="number" id="volume" value={{volume}}>
+                    <input type="number" id="volume" value="{{volume}}">
                 </label>
             </div>
             <div class="controls">
@@ -80,6 +86,12 @@
                 <label class="checkbox" for="accept_service_invites">
                     {{lang "ACCEPT_SERVICE_INVITES"}}
                     <input type="checkbox" id="accept_service_invites" {{check accept_service_invites}}>
+                </label>
+            </div>
+            <div class="controls">
+                <label for="quit_msg" class="control-label">
+                    {{lang "QUIT_MSG"}}
+                    <input type="text" id="quit_msg" value="{{quit_msg}}">
                 </label>
             </div>
         </div>

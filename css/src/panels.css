@@ -1,8 +1,16 @@
+.qwebirc .faq .container, .qwebirc .about .container, .qwebirc .privacypolicy .container, .qwebirc .feedback .container, .qwebirc .embedded-wizard .container {
+    text-align: center;
+}
+
 /************* OPTIONS *****************/
 .qwebirc form.options {
     padding-left: 25px;
     padding-top: 25px;
     overflow-y: scroll;
+}
+
+.qwebirc .options .actions button {
+    margin-right: 5px;
 }
 
 /*********** colour slider ************/
@@ -44,16 +52,6 @@
 }
 
 /**************** ABOUT PANE *******************/
-.qwebirc .about {
-    font-size: 1em !important;
-}
-
-.qwebirc .about .mainbody {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
-
 .qwebirc .about table {
     display: inline-block;
 }
@@ -83,16 +81,6 @@
 }
 
 /**************** PRIVACY POLICY PANE *******************/
-.qwebirc .privacypolicy {
-    font-size: 1em !important;
-}
-
-.qwebirc .privacypolicy .mainbody {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
-
 .qwebirc .privacypolicy table {
     display: inline-block;
 }
@@ -122,16 +110,6 @@
 }
 
 /****** FEEDBACK ***********/
-.qwebirc .feedback {
-    font-size: 1em !important;
-}
-
-.qwebirc .feedback .mainbody {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
-
 .qwebirc .feedback table {
     display: inline-block;
 }
@@ -161,18 +139,6 @@
 }
 
 /************* FAQ *****************/
-.qwebirc .faq {
-    font-size: 1em !important;
-}
-
-.qwebirc .faq .mainbody {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-    margin-left: 20px;
-    margin-right: 20px;
-}
-
 .qwebirc .faq table {
     display: inline-block;
 }
