@@ -27,8 +27,10 @@
             "local min": "css/qwebirc-<%= pkg.version %>-min.css"
         },
         "bootstrap css": {
-            "local": "css/bootstrap-3.0.0.css",
-            "local min": "css/bootstrap-3.0.0-min.css"
+            "cdn": "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.css",
+            "cdn min": "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css",
+            "local": "css/bootstrap-3.0.3.css",
+            "local min": "css/bootstrap-3.0.3-min.css"
         },
         "mootools": {
             "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js",

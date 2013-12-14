@@ -23,6 +23,26 @@
     border: 1px solid black;
 }
 
+/**************** Channel list *****************/
+.qwebirc .channel-list .heading {
+    display: inline-block;
+    font-size: 18px;
+}
+
+.qwebirc .channel-list .filters {
+    display: inline-block;
+    font-size: 14px;
+    float: right;
+}
+
+.qwebirc .channel-list .filters label {
+    margin-right: 5px;
+}
+
+.qwebirc .channel-list table td {
+    vertical-align: middle;
+}
+
 /**************** ABOUT PANE *******************/
 .qwebirc .about {
     font-size: 1em !important;

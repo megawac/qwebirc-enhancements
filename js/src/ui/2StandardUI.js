@@ -4,12 +4,13 @@ ui.StandardUI = new Class({
     Binds: ["whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
-            "optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"],
+            /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/],
     options: {
         routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     },
     initialize: function(parentElement, theme, uiName, options) {
         var self = this.setOptions(options);
+        self.settings = options.settings;
 
         document.addEvent("domready", function() {
             self.theme = theme;
@@ -21,11 +22,10 @@ ui.StandardUI = new Class({
             });
             self.windows[ui.CUSTOM_CLIENT] = self.customWindows;
 
-            getTemplate("topPane", function(template) {
-                self.outerTabs = Element.from(template()).inject(parentElement);
-            });
-            getTemplate("windowsPane", function(template) {
-                self.windowsPanel = Element.from(template()).inject(parentElement);
+            getTemplate("qwebirc-layout", function(template) {
+                Elements.from(template()).inject(parentElement);
+                self.outerTabs = parentElement.getElement(".outertabbar");
+                self.windowsPanel = parentElement.getElement(".windows");
             });
 
             self.postInitialize();
@@ -44,11 +44,11 @@ ui.StandardUI = new Class({
         self.nav.on({
             "selectWindow": function(e, target) {
                 e.stop();
-                target.retrieve('window').select();
+                target.retrieve("window").select();
             },
             "closeWindow": function(e, target) {
                 e.stop();
-                target.getParent('.tab').retrieve('window').close();
+                target.getParent(".tab").retrieve("window").close();
             },
             "nextWindow": self.nextWindow,
             "prevWindow": self.prevWindow
@@ -59,7 +59,7 @@ ui.StandardUI = new Class({
             self.updateURI($tar.get("href"));
         });
 
-        function checkRoute(data) {
+        var checkRoute = _.partial(_.defer, function(data) {
             var request = util.unformatURL(data.request).toLowerCase();
             // if(self.options.debug) console.log("Route: %s Formatted: %s", data.request, request);
 
@@ -70,6 +70,10 @@ ui.StandardUI = new Class({
             switch(request) {
                 case "options":
                     self.optionsWindow();
+                    break;
+                case "channels":
+                case "channel list":
+                    self.channelWindow();
                     break;
                 case "privacy":
                     self.privacyWindow();
@@ -96,7 +100,7 @@ ui.StandardUI = new Class({
                         });
                     }
             }
-        }
+        });
 
         // hasher.initialized.add(checkRoute); // parse initial hash
         // hasher.changed.add(checkRoute); //parse hash changes
@@ -115,8 +119,8 @@ ui.StandardUI = new Class({
     },
 
     whoisURL: function(e, target) {
-        var client = target.getParent('.window').retrieve('window').client,
-            nick = target.get('data-user');
+        var client = target.getParent(".window").retrieve("window").client,
+            nick = target.get("data-user");
         /*if (this.uiOptions.get("query_on_nick_click")) {
             client.exec("/QUERY " + nick);
         } else {*/
@@ -130,13 +134,29 @@ ui.StandardUI = new Class({
             model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
-                self.login();
+                self.beep();
                 self.showNotice({}, true);
             },
             getUI: function() {
                 return self;
             }
         });
+    },
+    channelWindow: function() {
+        var self = this;
+        var win = self.addCustomWindow("Channel list", ui.ChannelList, "channel-list", {
+            onAddChannel: function(channel) {
+                var settings = self.options.settings;
+                if(_.isEmpty(self.clients)) {
+                    settings.set("channels", util.addChannel(settings.get("channels"), channel));
+                } else {
+                    self.clients[self.clientId -1].exec("/JOIN " + channel);
+                }
+            }
+        });
+        var sib = self.windows.brouhaha || self.getWindow("login");
+        if(sib) self.linkWindows(win, {cols: "col-xl-5 col-md-6 col-sm-12", sibs: [sib] });
+        return win;
     },
     embeddedWindow: function() {
         return this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embedded-wizard");

@@ -38,10 +38,69 @@ ui.IWindows = new Class({
                 this.commandhistory.addChannel(name);
             }
             var wId = this.getWindowIdentifier(name);
-            var $wrapper = new Element('div.hidden').inject(this.windowsPanel);//for delegation - this is not how i should do it
+            var $wrapper = Element.from(templates["window-container"]({})).inject(this.windowsPanel);//for delegation - this is not how i should do it
             win = this.windows[this.getClientId(client)][wId] = new this.Window(this, $wrapper, client, type, name, wId);
             this.windowArray.push(win);
         }
+
+        return win;
+    },
+
+    /* sets a window to take up a set number of cells on the grid - for now just supports 1 window */
+    linkWindows: function(win, gridset) {
+        gridset = _.extend({element: win.element, fill: false, cols: "", sibs: [this.windowArray[0]]}, gridset);
+        var self = this;
+        var makeO = function(win) {
+            self.selectWindow(win, false);
+            return {
+                cols: win.element.get("data-col"),
+                fill: win.element.get("data-col-fill") != null,
+                element: win.element
+            };
+        };
+        var winEvents = {
+            "destroy": function() {
+                gridset.sibs.each(function(sib) {
+                    util.createGrid([makeO(sib)]);
+                    sib.removeEvents(sib._gridEvents);
+                    delete sib._gridEvents;
+                });
+            },
+            "selected": function() {
+                gridset.sibs.each(function(sib) {
+                    self.selectWindow(sib, false);
+                });
+            },
+            "deselected": _.debounce(function() {
+                gridset.sibs.each(function(sib) {
+                    sib.deselect();
+                });
+            }, 5)
+        };
+
+        gridset.sibs.each(function(sibWin) {
+            util.createGrid([
+                gridset,
+                makeO(sibWin)
+            ]);
+
+            var events = {
+                "destroy": function() {
+                    util.createGrid([makeO(win)]);
+                    win.removeEvents(winEvents);
+                },
+                "selected": function() {
+                    self.selectWindow(win, false);
+                },
+                "deselected": _.debounce(function() {//hacky to prevent self call
+                    win.deselect();
+                }, 5)
+            };
+
+            sibWin.addEvents(events)._gridEvents = events;
+        });
+
+        win.addEvent(winEvents);
 
         return win;
     },
@@ -67,24 +126,24 @@ ui.IWindows = new Class({
             return this.active;
         }
     },
-    selectWindow: function(win) {
+    selectWindow: function(win, deselActive) {
         if(_.isNumber(win))
             win = this.windowArray[win];
         else if(_.isString(win))
             win = this.getWindow(win);
         if(win !== this.active) {
-            if (this.active) {
+            if (this.active && (deselActive == null || deselActive)) {
                 this.active.deselect();
             }
+            this.setWindow(win, deselActive);
             win.select();
-            this.setWindow(win);
             ui.setTitle(win.name + " - " + this.options.appTitle);
             this.updateURI();
         }
         return win;
     },
     updateURI: util.noop,
-    setWindow: function(win) {
+    setWindow: function(win, deselActive) {
         if(!this.active || (win !== this.active && !this.active.closed)) {
             this.last = this.active;
         }
