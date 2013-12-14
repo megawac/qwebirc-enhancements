@@ -3,6 +3,7 @@ index.html
 js/dist/*
 js/templates/*
 css/qwebirc*.css
+templates/modifiablecss.hbs
 
 #Standard stuff
 *.sublime*

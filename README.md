@@ -1,16 +1,16 @@
 qwebirc-mods  
 =============  
 
-![logo](https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png "QWebirc logo")
+<img align="right" height="125" src="https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png">
 Qwebirc is intended to be a simple, intuitive and feature rich IRC client that operates out of the browser. This spiritual *fork* of Chris Porter's [qwebirc](http://qwebirc.org/) is a complete rewrite of the project in order to introduce more customability, add features introduced with HTML5, improve the extensibility of the code and revamp the ui (still qui). I began this project when I became frustrated trying to create a plugin atop of Qwebirc; flexibility and extensibility are two of the main focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Here's a ([Screenshot](http://puu.sh/4ANPf.png)) of a live instance.  
 
  
 ## Installation:  
 
-- Install [node.js](nodejs.org)
+- Install [node.js](http://nodejs.org)
 - Configure the qwebirc instance settings as described in [configuration](#configuration)
 - Install development build dependencies using `npm install` in the base folder (reads in package.json)
-- Run grunt to build static files
+- Run `grunt` to build static files
 
 #### Making changes
 After making changes to source files run in the base directory and run `grunt` in the command line to recompile resources.
