@@ -40,9 +40,10 @@ function formatChans(data) {
     var chans = data.channels;
     return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
 }
-function addClientEvents(client, windows) { // mi gusta xD
-    if(! client instanceof irc.IRCClient) return;
+function addClientEvents(client, windows) {
+    if(! client instanceof irc.IRCClient) throw "wtf bud";
     var ui_ = this;
+    var uiOptions = ui_.uiOptions;
     function formatData(type, _data) {
         var data = _.extend({
             c: _data.channel || STATUS,
@@ -54,7 +55,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             "@": _data.prefix
         }, _data);
         data.channel = data.c;
-        if (!(ui_.uiOptions2.get("nick_ov_status"))){
+        if (!(uiOptions.get("nick_ov_status"))){
             delete data["@"];
         }
         return data;
@@ -111,7 +112,7 @@ function addClientEvents(client, windows) { // mi gusta xD
             }
             data2.linkedchannel = channel;
 
-            ui_.windows.brouhaha.addLine(data2.type, data2);
+            if(uiOptions.get("brouhaha").enabled) ui_.windows.brouhaha.addLine(data2.type, data2);
         }
     }
 
@@ -125,7 +126,7 @@ function addClientEvents(client, windows) { // mi gusta xD
 
     function joinPart(type, data) {
         if ((data.thisclient && data.type != "PART" && data.type != "QUIT") ||
-                !(ui_.uiOptions2.get("hide_joinparts"))) {
+                !(uiOptions.get("hide_joinparts"))) {
             data = _.clone(data);
             data.channels = _.reject(formatChans(data),  util.isBaseWindow);
             lineParser(type, data);
@@ -144,11 +145,17 @@ function addClientEvents(client, windows) { // mi gusta xD
     function queried(type, data) {//queries and private notices
         data = formatData(type, data);
         var win = ui_.newWindow(client, ui.WINDOW.query, data.channel); //get or create
-        if(data.nick === client.nickname || ui_.uiOptions2.get("auto_open_pm")) {
+        if(data.nick === client.nickname || uiOptions.get("auto_open_pm")) {
             ui_.selectWindow(win);
         }
         if(data.message) parser(type, data, win);
     }
+
+    var updateBrouhahaNicklist = _.throttle(function() {//prevent getting spammed
+        if(uiOptions.get("brouhaha").enabled) {//update brouhaha nicklist
+            ui_.windows.brouhaha.updateNickList(client.tracker.getSortedNicksForChannel());
+        }
+    }, 100);
 
     client.addEvents({
         "connect": lineParser,
@@ -194,6 +201,7 @@ function addClientEvents(client, windows) { // mi gusta xD
         "updateNicklist": function(type, data) {
             var win = ui_.getWindow(client, data.channel);
             if(win) win.updateNickList(data.nicks);
+            updateBrouhahaNicklist();
         },
 
         "away": lineParser,

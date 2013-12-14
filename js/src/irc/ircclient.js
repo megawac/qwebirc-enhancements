@@ -34,10 +34,10 @@ irc.IRCClient = new Class({
 
         //sorry ugly bit of templating :(
 
-        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
+        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
         if(options.node) {
         // <% } %>
-            //<% if(pkg.build['node server']) { %>
+            //<% if(pkg.build["node server"]) { %>
             var conn = self.connection = new irc.NodeConnection({
                 account: options.account,
                 nickname: self.nickname,
@@ -52,10 +52,10 @@ irc.IRCClient = new Class({
                 "lostConnection": self.lostConnection
             });
             // <% } %>
-        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
+        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
         } else {
         // <% } %>
-            //<% if(pkg.build['twisted server']) { %>
+            //<% if(pkg.build["twisted server"]) { %>
             self.connection = new irc.TwistedConnection({
                 nickname: self.nickname,
                 serverPassword: options.serverPassword,
@@ -66,13 +66,17 @@ irc.IRCClient = new Class({
                 "lostConnection": self.lostConnection
             });
             // <% } %>
-        // <% if(pkg.build['twisted server'] && pkg.build['node server']) { %>
+        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
         }
         // <% } %>
 
         // self.commandparser = new irc.Commands(self);
         // self.exec = self.commandparser.exec;
         self.tracker = new irc.IRCTracker(self);
+    },
+
+    getOption: function(opt) {
+        return this.options.uiOptions.get(opt);
     },
 
     //connection methods
@@ -103,7 +107,7 @@ irc.IRCClient = new Class({
 
     quit: function(message, notify) {
         if(this.isConnected()) {
-            this.send("QUIT :" + (message || lang.quit), false);//
+            this.connection.send("QUIT :" + (message || this.getOption("quit_msg")), true);//this.connection.sendUnqueued("QUIT :" + (message || this.getOption("quit_msg")), false);//
             if(notify) {//time to go
                 _.each(this.activeTimers, $clear);
                 this.activeTimers = {};
@@ -155,39 +159,37 @@ irc.IRCClient = new Class({
 
     storeChannels: function(channels) {
         this.channels = channels = channels || this.channels;
-        var store = util.removeChannel(channels, BROUHAHA);
-        this.options.settings.set("channels", store);
+        this.options.settings.set("channels", channels);
         return this;
     },
 
     getChannels: function() {
-        var chans = this.channels = util.prependChannel(this.options.settings.get("channels") || [], BROUHAHA);
+        var chans = this.channels = this.options.settings.get("channels") || [];
         return chans;
     },
 
     nickOnChanHasPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(entry)) return false; /* shouldn't happen */
+        if (entry == null) return false; /* shouldn"t happen */
 
         return (entry.prefixes).contains(prefix);
     },
 
     getNickStatus: function(channel, nick) {
         var nickchan = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(nickchan) || nickchan.prefixes.length === 0)
+        if (nickchan == null || nickchan.prefixes.length === 0) {
             return "";
-
-        return nickchan.prefixes.charAt(0);
+        }
+        return nickchan.prefixes.charAt(0);//prefix of highest order
     },
 
     nickOnChanHasAtLeastPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (!$defined(entry))
-            return false; /* shouldn't happen */
+        if (entry == null) return false; // shouldn"t happen 
 
         /* this array is sorted */
         var pos = this.prefixes.indexOf(prefix);
-        if (pos === -1) return false; /* shouldn't happen */
+        if (pos === -1) return false; // shouldn"t happen 
 
         var prefixes = this.prefixes.slice(0, pos + 1);
 
@@ -200,7 +202,7 @@ irc.IRCClient = new Class({
     //needs a rewrite with a proper list implementation
     getPopularChannels: function(cb, minUsers) {
         this.hidelistout = true;
-        this.exec('/list >' + (minUsers || 75)); //request chans with more than 75 users
+        this.exec("/list >" + (minUsers || 75)); //request chans with more than 75 users
         this.addEvent("listend:once", function() {
             var chans = _.chain(this.listedChans)
                         .clone()
@@ -257,7 +259,7 @@ irc.IRCClient = new Class({
         switch(message) {
             case "connect":
                 this.connected();
-            break;
+                break;
             case "disconnect":
                 if (data.length === 0) {
                     this.disconnected("No error!");
@@ -265,11 +267,11 @@ irc.IRCClient = new Class({
                     this.disconnected(data[1]);
                 }
                 this.disconnect();
-            break;
+                break;
             case "c":
                 var _data = util.processTwistedData(data);
                 this.dispatch(_data);
-            break;
+                break;
         }
     },
 
@@ -284,8 +286,7 @@ irc.IRCClient = new Class({
             message: []
         }, data);
         data.channels = data.channels === "ALL" ? [STATUS, BROUHAHA].concat(this.channels) : data.channels;
-        var client = this,
-            types = lang.TYPES;
+        var types = lang.TYPES;
 
         function write(message) {
             var msg = args ? util.formatter(message.message, args) :
@@ -311,65 +312,66 @@ irc.IRCClient = new Class({
     },
 
     genericError: function(data) {
-        var target = data.args[1],
-            message = _.last(data.args);
-        this.trigger("error", {
-            target: target,
-            channel: target,
-            message: message,
-            type: "genericError"
-        });
-        return true;
-    },
-    genericQueryError: function(data) {
-        var target = data.args[1],
-            message = _.last(data.args);
+        var message = _.last(data.args),
+            target = util.isChannel(data.args[1]) ? data.args[1] : STATUS;
 
         this.trigger("error", {
             target: target,
             channel: target,
             message: message,
-            type: "genericError"
+            type: "genericError",
+            colourClass: "warn"
         });
         return true;
     },
+    /*genericQueryError: function(data) {
+        var message = _.last(data.args),
+            target = util.isChannel(data.args[1]) ? data.args[1] : STATUS;
+
+        this.trigger("error", {
+            target: target,
+            channel: target,
+            message: message,
+            type: "genericError",
+            colourClass: "warn"
+        });
+        return true;
+    },*/
 
     /*************************************************
     *       private server event handlers             *
     **************************************************/
     _signOn: function(/*data*/) {
-        if(this.__signedOn) {//server/client crashed reconnect
-            console.log("REjoining " + util.formatChannelString(this.channels));
-            return this.send(format(cmd.JOIN, {
-                channel: util.formatChannelString(this.channels)
+        var self = this;
+        if(self.__signedOn) {//server/client crashed reconnect
+            //console.log("REjoining " + util.formatChannelString(self.channels));
+            return self.send(format(cmd.JOIN, {
+                channel: util.formatChannelString(self.channels)
             }));
         }
 
-        var options = this.options,
-            channels;
+        self.writeMessages(lang.signOn);
+        self.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
 
-        this.writeMessages(lang.signOn);
-        this.writeMessages(lang.loginMessages, {}, {channel: BROUHAHA});
-
-        if (!this.authed && auth.enabled) {
-            this.exec(util.format("/AUTH {username} {password}", this.options));
+        if (!self.authed && auth.enabled) {
+            self.exec(util.format("/AUTH {username} {password}", self.options));
 
             // if the user is authed they will be set to +x... however as most users arent authed...
             //wait a hundreth of a second to see if the auth server authed you
-            this.writeMessages.delay(100, this, lang.joinAfterAuth);
+            self.writeMessages.delay(100, self, lang.joinAfterAuth);
 
-            this.activeTimers.autojoin = (function() {
-                if (!this.authed) {
-                    this.writeMessages(lang.authFailed);
+            self.activeTimers.autojoin = _.delay(function() {
+                if (!self.authed) {
+                    self.writeMessages(lang.authFailed);
                 }
-            }).delay(5000, this);
+            }, 5000);
         } else {
-            this.exec("/AUTOJOIN");
+            self.exec("/AUTOJOIN");
         }
 
-        this.trigger("logon", {
-            'nickname': this.nickname,
-            'channels': channels
+        self.trigger("logon", {
+            "nickname": self.nickname,
+            "channels": self.channels
         });
     },
 
@@ -383,17 +385,17 @@ irc.IRCClient = new Class({
                     //default
                 } else if(DEBUG) {
                     // TODO: warn 
-                    console.log('unsupported codec');
+                    console.log("unsupported codec");
                 }
                 self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
-            break;
+                break;
             case "CHANMODES":
                 _.each(value.split(","), function(mode, inx) {
                     _.each(mode, function(letter) {
                         self.pmodes[letter] = inx;
                     });
                 });
-            break;
+                break;
             case "PREFIX":
                 var len = (value.length - 2) / 2,
                     modeprefixes = self.modeprefixes = value.substr(1, len);
@@ -401,7 +403,7 @@ irc.IRCClient = new Class({
                 _.each(modeprefixes, function(modeprefix) {
                     self.pmodes[modeprefix] = irc.PMODE_SET_UNSET;
                 });
-            break;
+                break;
         }
     },
 
@@ -445,9 +447,9 @@ irc.IRCClient = new Class({
 
     _initChanTopic: function(channel, topic) {
         this.trigger("chanTopic", {
-            'channel': channel,
-            'topic': topic,
-            'initial': true
+            "channel": channel,
+            "topic": topic,
+            "initial": true
         });
     },
 
@@ -462,9 +464,6 @@ irc.IRCClient = new Class({
                 prefixes = prefixNick[0],
                 nick = prefixNick[1];
 
-            if (channel !== BROUHAHA) {
-                this.tracker.addNickToChannel(nick, BROUHAHA);
-            }
             var nc = this.tracker.addNickToChannel(nick, channel);
 
             _.each(prefixes, function(p) {
@@ -495,7 +494,6 @@ irc.IRCClient = new Class({
             channel: ACTIVE,
             msgs: []
         };
-        var mtype = type.toUpperCase();
         var msgs = ndata.msgs;
 
         switch(type.toLowerCase()) {
@@ -509,51 +507,51 @@ irc.IRCClient = new Class({
                     type: "whoisRealname",
                     m: data.realname
                 });
-            break;
+                break;
             case "server":
                 msgs.push({
                     x: data.server,
                     message: data.serverdesc,
                     type: "whoisServer"
                 });
-            break;
+                break;
             case "channels":
                 msgs.push({
                     message: data.channels,
                     type: "whoisChannels"
                 });
-            break;
+                break;
             case "account":
                 msgs.push({
                     message: data.account,
                     type: "whoisAccount"
                 });
-            break;
+                break;
             case "away":
                 msgs.push({
                     message: data.away,
                     type: "whoisAway"
                 });
-            break;
+                break;
             case "opername":
                 msgs.push({
                     message: data.opername,
                     type: "whoisOpername"
                 });
-            break;
+                break;
             case "actually":
                 msgs.push({
                     message: data.hostname,
                     x: data.ip,
                     type: "whoisActually"
                 });
-            break;
+                break;
             case "generictext":
                 msgs.push({
                     message: data.text,
                     type: "whoisGenericText"
                 });
-            break;
+                break;
             default:
                 msgs.push({
                     type: "whois" + type.toLowerCase().capitalize()
@@ -587,7 +585,7 @@ irc.IRCClient = new Class({
         "ERR_CANNOTSENDTOCHAN": "genericError",
         "ERR_CHANOPPRIVSNEEDED": "genericError",
         // "ERR_NICKNAMEINUSE": "",
-        "ERR_NOSUCHNICK": "genericQueryError"//,
+        "ERR_NOSUCHNICK": "genericError"//,
 
         // "RPL_AWAY": "",
         // "RPL_CHANNELMODEIS": "",
@@ -660,24 +658,23 @@ irc.IRCClient = new Class({
         });
 
         self.trigger("nickChange", {
-            'nick': oldnick,
-            'newnick': newnick,
-            'channels': channels,
-            'thisclient': wasus,
-            'type': 'nick'
+            "nick": oldnick,
+            "newnick": newnick,
+            "channels": channels,
+            "thisclient": wasus,
+            "type": "nick"
         });
 
         return true;
     },
 
     irc_JOIN: function(data) {
-        var channel = data.args[0],
-            nick = data.nick,
-            wasus = (nick === this.nickname),
-            type = wasus ? "OURJOIN" : "JOIN"
+        var channel = data.args[0];
+        var nick = data.nick;
+        var wasus = (nick === this.nickname);
 
         if(wasus) {
-            if(!isBaseWindow(channel)) {
+            if(!util.isBaseWindow(channel)) {
                 this.storeChannels(util.addChannel(this.getChannels(), channel));
             }
             if(this.__signedOn) {
@@ -686,19 +683,15 @@ irc.IRCClient = new Class({
         }
         var windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
 
-
-
-        this.tracker.addNickToChannel(nick, BROUHAHA);
         this.tracker.addNickToChannel(nick, channel);
-        this.updateNickList(BROUHAHA);
         this.updateNickList(channel);
 
         this.trigger("userJoined", {
-            'nick': nick,
-            'host': data.host,
-            'channel': channel,
-            'thisclient': wasus,
-            'select': windowSelected
+            "nick": nick,
+            "host": data.host,
+            "channel": channel,
+            "thisclient": wasus,
+            "select": windowSelected
         });
 
         return true;
@@ -716,10 +709,10 @@ irc.IRCClient = new Class({
         });
 
         self.trigger("quit", {
-            'host': data.host,
-            'nick': nick,
-            'channels': channels,
-            'message': message
+            "host": data.host,
+            "nick": nick,
+            "channels": channels,
+            "message": message
         });
 
         return true;
@@ -736,18 +729,16 @@ irc.IRCClient = new Class({
         if (wasus) {
             this.tracker.removeChannel(channel);
         } else {
-            this.tracker.removeNickFromChannel(nick, BROUHAHA);
             this.tracker.removeNickFromChannel(nick, channel);
-            this.updateNickList(BROUHAHA);
             this.updateNickList(channel);
         }
 
         this.trigger("part", {
-            'nick': nick,
-            'host': data.host,
-            'channel': channel,
-            'message': message,
-            'thisclient': wasus
+            "nick": nick,
+            "host": data.host,
+            "channel": channel,
+            "message": message,
+            "thisclient": wasus
         });
 
         return true;
@@ -769,11 +760,11 @@ irc.IRCClient = new Class({
         }
 
         this.trigger("kick", {
-            'kicker': kicker,
-            'channel': channel,
-            'kickee': kickee,
-            'message': message,
-            'thisclient': wasus
+            "kicker": kicker,
+            "channel": channel,
+            "kickee": kickee,
+            "message": message,
+            "thisclient": wasus
         });
 
         return true;
@@ -792,9 +783,9 @@ irc.IRCClient = new Class({
             topic = _.last(data.args);
 
         this.trigger("chanTopic", {
-            'nick': data.nick,
-            'channel': channel,
-            'topic': topic
+            "nick": data.nick,
+            "channel": channel,
+            "topic": topic
         });
 
         return true;
@@ -825,20 +816,20 @@ irc.IRCClient = new Class({
             if (target === this.nickname) {
                 var ctcptype = type == "ACTION" ? "privAction" : "privCTCP";
                 this.trigger(ctcptype, {
-                    'nick': nick,
-                    'host': data.host,
-                    'message': ctcp[1] || "",
-                    'data': type
+                    "nick": nick,
+                    "host": data.host,
+                    "message": ctcp[1] || "",
+                    "data": type
                 });
             } else {
                 var context = {
-                        'nick': nick,
-                        'channel': target,
-                        'message': ctcp[1] || "",
-                        "prefix": this.getNickStatus(target, nick)
-                    };
+                    "nick": nick,
+                    "channel": target,
+                    "message": ctcp[1] || "",
+                    "prefix": this.getNickStatus(target, nick)
+                };
                 if (type == "ACTION") {
-                    this.tracker.updateLastSpoke(nick, target, Date.now());
+                    this.tracker.updateLastSpoke(nick);
                     this.trigger("chanAction", context);
                 }
                 else {
@@ -846,22 +837,21 @@ irc.IRCClient = new Class({
                 }
             }
         } else {
-            if (target === this.nickname) {
-                this._pushLastNick(nick);
+            this.tracker.updateLastSpoke(nick);
+            if (target === this.nickname) {//private messages
                 this.trigger("query", {
-                    'nick': nick,
-                    'host': data.host,
-                    'channel': nick,
-                    'message': message,
-                    'type': 'privmsg'
+                    "nick": nick,
+                    "host": data.host,
+                    "channel": nick,
+                    "message": message,
+                    "type": "privmsg"
                 });
             } else {
-                this.tracker.updateLastSpoke(nick, target, Date.now());
                 this.trigger("chanMessage", {
-                    'nick': nick,
-                    'channel': target,
-                    'message': message,
-                    'type': 'chanmsg',
+                    "nick": nick,
+                    "channel": target,
+                    "message": message,
+                    "type": "chanmsg",
                     "prefix": this.getNickStatus(target, nick)
                 });
             }
@@ -872,41 +862,43 @@ irc.IRCClient = new Class({
     irc_NOTICE: function(data) {
         var target = data.args[0],
             message = _.last(data.args),
+	    nick = data.nick,
             options = this.options;
 
 
-        if (this.isNetworkService(data.host) || !$chk(data.nick)) {
+        if (this.isNetworkService(data.host) || !$chk(nick)) {
             if(options.loginRegex.test(message)){
                 this.onAuthenticated(data);
             }
             this.trigger("serverNotice", {
-                'nick': data.nick,
-                'message': message,
-                'channel': STATUS
+                "nick": nick,
+                "message": message,
+                "channel": STATUS
             });
         } else if (target === this.nickname) {
             var ctcp = this.processCTCP(message);
             if (ctcp) {
                 this.trigger("ctcpReply", {
-                    'nick': data.nick,
-                    'host': data.host,
-                    'ctcptype': ctcp[0],
-                    'args': ctcp[1] || ""
+                    "nick": data.nick,
+                    "host": data.host,
+                    "ctcptype": ctcp[0],
+                    "args": ctcp[1] || ""
                 });
             } else {
                 this.trigger("privNotice", {
-                    'message': message,
-                    'host': data.host,
-                    'nick': data.nick,
-                    'channel': data.nick
+                    "message": message,
+                    "host": data.host,
+                    "nick": nick,
+                    "channel": nick
                 });
             }
         } else {
+	        this.tracker.updateLastSpoke(nick);
             this.trigger("chanNotice", {
-                'nick': data.nick,
-                'channel': target,
-                'message': message,
-                "prefix": this.getNickStatus(target, data.nick)
+                "nick": nick,
+                "channel": target,
+                "message": message,
+                "prefix": this.getNickStatus(target, nick)
             });
         }
 
@@ -915,7 +907,7 @@ irc.IRCClient = new Class({
 
     irc_INVITE: function(data) {
         var channel = _.last(data.args);
-        var accept = this.ui.uiOptions2.get("accept_service_invites") && this.isNetworkService(host);
+        var accept = this.getOption("accept_service_invites") && this.isNetworkService(data.host);
 
         if (accept) {
             if (this.activeTimers.serviceInvite) {
@@ -927,10 +919,10 @@ irc.IRCClient = new Class({
         }
 
         this.trigger("invite", {
-            'channel': channel,
-            'accept': accept,
-            'nick': data.nick,
-            'host': data.host
+            "channel": channel,
+            "accept": accept,
+            "nick": data.nick,
+            "host": data.host
         });
 
         return true;
@@ -938,14 +930,16 @@ irc.IRCClient = new Class({
 
 
     irc_ERR_NICKNAMEINUSE: function(data) {//add some number to the nick and resend
-        this.genericError(data);
-
-        if (this.__signedOn) {
+        if(this.__signedOn) {
             return true;
         }
 
-        var nick = data.args[1],
-            newnick = nick + Number.random(0, 9);
+        var nick = data.args[1];
+        var newnick = nick + Array.getRandom("_`-");
+
+
+        data.args[data.args.length-1] = _.last(data.args) + " Retrying with nick: " + newnick;
+        this.genericError(data);
 
         this.send(format(cmd.NICK, {nick: newnick}));
         this.lastnick = newnick;
@@ -970,10 +964,10 @@ irc.IRCClient = new Class({
 
         if (target == this.nickname) {
             this.trigger("userMode", {
-                'modes': args,
-                'message': args.join(""),
-                'type': "UMODE",
-                'n': this.nickname
+                "modes": args,
+                "message": args.join(""),
+                "type": "UMODE",
+                "n": this.nickname
             });
         } else {//target is channel
             var modes = args[0].split(""),
@@ -1023,7 +1017,7 @@ irc.IRCClient = new Class({
         var supported = data.args.slice(1, -1); //everything but nick and server msg
         var ms;
 
-        if(supported.contains("CHANMODES") && supported.contains("PREFIX")) { //nasty hack - don't understand purpose 
+        if(supported.contains("CHANMODES") && supported.contains("PREFIX")) { //nasty hack - don"t understand purpose 
             this.pmodes = {}; //might invalidate things
         }
 
@@ -1082,9 +1076,7 @@ irc.IRCClient = new Class({
     },
 
     irc_RPL_WHOISSERVER: function(data) {
-        var nick = data.args[1],
-            server = data.args[2],
-            serverdesc = _.last(data.args);
+        var nick = data.args[1];
 
         return this._whois(nick, "server", {
             server: data.args[2],
@@ -1093,8 +1085,7 @@ irc.IRCClient = new Class({
     },
 
     irc_RPL_WHOISOPERATOR: function(data) {
-        var nick = data.args[1],
-            text = _.last(data.args);
+        var nick = data.args[1];
 
         return this._whois(nick, "oper", {
             opertext: _.last(data.args)
@@ -1136,8 +1127,7 @@ irc.IRCClient = new Class({
     },
 
     irc_RPL_WHOISOPERNAME: function(data) {
-        var nick = data.args[1],
-            opername = data.args[2];
+        var nick = data.args[1];
 
         return this._whois(nick, "opername", {
             opername: data.args[2]
@@ -1163,17 +1153,15 @@ irc.IRCClient = new Class({
     },
 
     irc_RPL_WHOISSECURE: function(data) {
-        var nick = data.args[1],
-            text = _.last(data.args);
+        var nick = data.args[1];
 
         return this._whois(nick, "generictext", {
-            text: text
+            text: _.last(data.args)
         });
     },
 
     irc_RPL_ENDOFWHOIS: function(data) {
-        var nick = data.args[1],
-            text = _.last(data.args);
+        var nick = data.args[1];
         delete this._whoisNick;
 
         return this._whois(nick, "end", {});
@@ -1209,13 +1197,13 @@ irc.IRCClient = new Class({
             state: false,
             message: _.last(data.args),
             type: "genericError"
-        })
+        });
         return true;
     },
 
     irc_WALLOPS: function(data) {
         this.trigger("wallops", {
-            message: message,
+            message: data.message,
             nick: data.nick,
             host: data.host
         });
