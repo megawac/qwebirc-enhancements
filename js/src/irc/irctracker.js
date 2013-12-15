@@ -49,11 +49,13 @@ irc.IRCTracker = new Class({
     addNickToChannel: function(nick, channel) {
         var nc = irc.nickChanEntry();
 
-        var nickchan = this.getOrCreateNick(nick);
-        nickchan[this.toIRCLower(channel)] = nc;
+        if(nick !== "") {
+            var nickchan = this.getOrCreateNick(nick);
+            nickchan[this.toIRCLower(channel)] = nc;
 
-        var chan = this.getOrCreateChannel(channel);
-        chan[nick] = nc;
+            var chan = this.getOrCreateChannel(channel);
+            chan[nick] = nc;
+        }
 
         return nc;
     },
@@ -79,9 +81,9 @@ irc.IRCTracker = new Class({
 
     removeChannel: function(channel) {
         var self = this;
-        var chan = self.getChannel(channel);
+        var lchannel = self.toIRCLower(channel);
+        var chan = self.channels[lchannel];
         if (chan) {
-            var lchannel = self.toIRCLower(channel);
             _.each(_.keys(chan), function(nick) {
                 var nc = self.nicknames[nick];
                 delete nc[lchannel];
@@ -112,18 +114,22 @@ irc.IRCTracker = new Class({
     },
 
     renameNick: function(oldnick, newnick) {
-        var nickchans = this.getNick(oldnick);
-        if (!nickchans)
+        var self = this;
+        var nickchans = self.nicknames[oldnick];
+        if (!nickchans){
             return;
+        }
 
-        _.each(_.keys(nickchans), function(channel) {
-            var lchannel = this.toIRCLower(channel);
-            this.channels[lchannel][newnick] = this.channels[lchannel][oldnick];
-            delete this.channels[lchannel][oldnick];
-        }, this);
+        _.each(_.keys(nickchans), function(chan) {
+            var channel = self.getChannel(chan);
+            if(channel) {
+                channel[newnick] = channel[oldnick];
+                delete channel[oldnick];
+            }
+        });
 
-        this.nicknames[newnick] = this.nicknames[oldnick];
-        delete this.nicknames[oldnick];
+        self.nicknames[newnick] = self.nicknames[oldnick];
+        delete self.nicknames[oldnick];
     },
 
     updateLastSpoke: function(nick, time) {
