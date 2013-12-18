@@ -12,7 +12,7 @@ irc.atheme = {
     newRequest: function(command, data) {
         /* New login request. */
         var req = new Request.JSON({
-            url: "/a/" + command + "?req=" + irc.atheme.cacheAvoidance,
+            url: qwebirc.global.dynamicBaseURL + "a/" + command + "?req=" + irc.atheme.cacheAvoidance,
             async: true,
             data: data
         });
