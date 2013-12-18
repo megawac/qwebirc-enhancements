@@ -215,7 +215,10 @@ ui.QUI = new Class({
         //load brouhaha window (b4 connecting)
         var makeBrouhaha = function() {
             if(self.uiOptions.get("brouhaha").enabled) {
-                self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+                if(!client.isConnected()) {
+                    client.addEvent("userJoined:once", brouhaha.select.bind(brouhaha));//no need to wait see IRCClient.__signedOn
+                }
             } else {
                 if(self.windows.brouhaha) {
                     self.windows.brouhaha.close();

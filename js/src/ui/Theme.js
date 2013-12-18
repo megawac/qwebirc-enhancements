@@ -153,7 +153,7 @@ ui.Theme = new Class({
                                 body: util.format("{nick}({channel}): {message}", data)
                             });
                         }
-                    }   
+                    }
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
                         $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);

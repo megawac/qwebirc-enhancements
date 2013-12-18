@@ -393,7 +393,6 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         fn: function(args) {
             if(!this.__autojoined) {
                 this.__autojoined = true;
-                this.currentChannel = BROUHAHA;
                 return ["JOIN", this.getChannels()];
             }
         }

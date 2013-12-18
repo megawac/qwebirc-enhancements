@@ -674,14 +674,8 @@ irc.IRCClient = new Class({
         var wasus = (nick === this.nickname);
 
         if(wasus) {
-            if(!util.isBaseWindow(channel)) {
-                this.storeChannels(util.addChannel(this.getChannels(), channel));
-            }
-            if(this.__signedOn) {
-                this.currentChannel = channel;
-            }
+            this.storeChannels(util.addChannel(this.getChannels(), channel));
         }
-        var windowSelected = (channel === this.currentChannel || channel === BROUHAHA);
 
         this.tracker.addNickToChannel(nick, channel);
         this.updateNickList(channel);
@@ -691,7 +685,7 @@ irc.IRCClient = new Class({
             "host": data.host,
             "channel": channel,
             "thisclient": wasus,
-            "select": windowSelected
+            "select": wasus && this.__signedOn
         });
 
         return true;
