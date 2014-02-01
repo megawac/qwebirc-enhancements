@@ -11,7 +11,7 @@ irc.IRCClient = new Class({
     inviteChanList: [],
     channels: [],
     activeTimers: {},
-    prefixes: "@+",//heirarchy of prefixes - "@"(operator), "+"(voice) - will be overriden by server
+    prefixes: "~&@%+",//heirarchy of prefixes - ~owner @(operator), % half op +(voice) - will be overriden by server
     modeprefixes: "ov",
     __signedOn: false,
     authed: false,

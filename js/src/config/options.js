@@ -35,7 +35,7 @@ ui["default options"] = {
 
     "standard_notices": [
         {
-            type: "^(?!SERVER)+NOTICE+$",//notice not server notice
+            type: "(?!SERVER)NOTICE$",//notice not server notice
             beep: true,
             tabhl: ui.HIGHLIGHT.speech,
             id: "notice"
