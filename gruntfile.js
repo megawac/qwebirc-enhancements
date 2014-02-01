@@ -192,22 +192,23 @@ module.exports = function(grunt) {
                     }
                 }
             }
+        },
+
+        bumpup: {
+            file: "package.json"
+        },
+        tagrelease: {
+            file: "package.json",
+            commit:  true,
+            message: "v-%version%"
         }
     });
 
 
-    // Load the plugin that provides the "uglify" task.
-    //grunt.loadNpmTasks("grunt-contrib-uglify");
-    // Default task(s).
-    //grunt.registerTask("default", ["uglify"]);
-    grunt.loadNpmTasks("grunt-contrib-handlebars");
-    grunt.loadNpmTasks("grunt-contrib-concat");
-    grunt.loadNpmTasks("grunt-contrib-uglify");
-    grunt.loadNpmTasks("grunt-contrib-cssmin");
-    grunt.loadNpmTasks("grunt-html-build");
-    grunt.loadNpmTasks("grunt-template");
+    // load all grunt tasks
+    require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
-    grunt.registerTask("default", [
+    grunt.registerTask("build", [
         "concat:modifiablecss",
 
         "handlebars",
@@ -229,4 +230,13 @@ module.exports = function(grunt) {
 
         "htmlbuild:qweb"
     ]);
+
+    grunt.registerTask("default", ["build"]);
+
+    grunt.registerTask("release", function (type) {
+        type = type ? type : "patch";
+        grunt.task.run("build");
+        grunt.task.run("bumpup:" + type); // Bump up the package version
+        grunt.task.run("tagrelease");     // Commit & tag the changes from above
+    });
 };
