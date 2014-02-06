@@ -48,6 +48,7 @@ ui.IWindows = new Class({
     /* sets a window to take up a set number of cells on the grid - for now just supports 1 window */
     linkWindows: function(win, gridset) {
         gridset = _.extend({element: win.element, fill: false, cols: "", sibs: [this.windowArray[0]]}, gridset);
+        var sibs = gridset.sibs;
         var self = this;
         var makeO = function(win) {
             self.selectWindow(win, false);
@@ -57,24 +58,36 @@ ui.IWindows = new Class({
                 element: win.element
             };
         };
+        var makeGrid = function(win) {//for one ele
+            util.createGrid([makeO(win)]);
+        };
         var winEvents = {
             "destroy": function() {
-                gridset.sibs.each(function(sib) {
-                    util.createGrid([makeO(sib)]);
+                sibs.each(function(sib) {
+                    makeGrid(sib);
                     sib.removeEvents(sib._gridEvents);
                     delete sib._gridEvents;
                 });
             },
             "selected": function() {
-                gridset.sibs.each(function(sib) {
+                sibs.each(function(sib) {
                     self.selectWindow(sib, false);
                 });
             },
             "deselected": _.debounce(function() {
-                gridset.sibs.each(function(sib) {
-                    sib.deselect();
+                _.invoke(sibs, "deselect");
+            }, 5),
+            "detached": function() {
+                sibs.each(makeGrid);
+            },
+            "attached": function() {
+                sibs.each(function(sibWin) {
+                    util.createGrid([
+                        gridset,
+                        makeO(sibWin)
+                    ]);
                 });
-            }, 5)
+            }
         };
 
         gridset.sibs.each(function(sibWin) {
@@ -93,7 +106,16 @@ ui.IWindows = new Class({
                 },
                 "deselected": _.debounce(function() {//hacky to prevent self call
                     win.deselect();
-                }, 5)
+                }, 5),
+                "detached": function() {
+                    makeGrid(win);
+                },
+                "attached": function() {
+                    util.createGrid([
+                        gridset,
+                        makeO(sibWin)
+                    ]);
+                }
             };
 
             sibWin.addEvents(events)._gridEvents = events;
@@ -133,7 +155,7 @@ ui.IWindows = new Class({
             win = this.getWindow(win);
         if(win !== this.active) {
             if (this.active && (deselActive == null || deselActive)) {
-                this.active.deselect();
+                _.invoke(this.windowArray, "deselect"); //ensure all windows selections are removed
             }
             this.setWindow(win, deselActive);
             win.select();

@@ -94,7 +94,8 @@ ui.QUI.Window = new Class({
 
     attach: function(e) {
         this.detached = false;
-        this.element.removeClass("detached");
+
+        util.resetGrid(this.element).removeClass("detached");
 
         this.window.replaces(this.wrapper);
         this.wrapper.destroy();
@@ -115,15 +116,17 @@ ui.QUI.Window = new Class({
             po = self.parentObject,
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                "channel": this.name,
-                "base": util.isBaseWindow(this.name)
+                "channel": self.name,
+                "base": util.isBaseWindow(self.name)
             })),
             //header = wrapper.getElement(".header"),
 
             // resizeWrapper = Element.from(templates.resizeHandle()),
             // resizeHandle = resizeWrapper.getElement(".resize-handle");
             resizeHandle = wrapper.getElement(".resize-handle");
-        self.element.addClass("detached");
+        
+        //as to not mess with other window remove grid
+        util.removeGrid(self.element).addClass("detached");
 
         var size = util.percentToPixel({x:40, y:60}, win.getParent("qwebirc"));
         wrapper.setStyles({
@@ -131,6 +134,7 @@ ui.QUI.Window = new Class({
                 "height": size.y
             })
             .replaces(win); //*** adds wrapper to dom;
+
         win.show()
             .addEvent("mousedown", function(e) {
                 var tag = e.target.tagName.toLowerCase();

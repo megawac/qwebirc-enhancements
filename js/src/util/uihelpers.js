@@ -240,9 +240,9 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
     util.createGrid = function(items) {
         var cols = {};
         var expando;
+
         items.each(function(item) {
-            var $e = item.element;
-            $e.set("class", $e.get("class").replace(grid_re, ""));//remove old classes
+            var $e = util.removeGrid(item.element);
             
             if(item.fill) {
                 expando = item;//dont set grid cols for this ele
@@ -263,5 +263,13 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
                 }
             });
         }
+    };
+
+    util.resetGrid = function($e) {
+        return $e.addClass($e.get("data-col")); //set default grid again
+    };
+
+    util.removeGrid = function($e) {
+        return $e.set("class", $e.get("class").replace(grid_re, ""));//remove old classes
     };
 })();
