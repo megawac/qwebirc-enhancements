@@ -4,20 +4,23 @@
     //https://github.com/mootools/mootools-core/issues/2526
     var mergeOne = function(source, key, current){
         switch (typeOf(current)){
-            case 'object':
+            case "object":
                 if(current.$constructor && "$caller" in current) source[key] = current;//class instance check (only change)
-                else if (typeOf(source[key]) == 'object') Object.merge(source[key], current);
+                else if (typeOf(source[key]) == "object") Object.merge(source[key], current);
                 else source[key] = Object.clone(current);
-            break;
-            case 'array': source[key] = current.clone(); break;
-            default: source[key] = current;
+                break;
+            case "array":
+                source[key] = current.clone();
+                break;
+            default:
+                source[key] = current;
         }
         return source;
     };
 
     Object.extend({
         merge: function(source, k, v){
-            if (typeOf(k) == 'string') return mergeOne(source, k, v);
+            if (typeOf(k) == "string") return mergeOne(source, k, v);
             for (var i = 1, l = arguments.length; i < l; i++){
                 var object = arguments[i];
                 for (var key in object) mergeOne(source, key, object[key]);
@@ -29,7 +32,9 @@
 
     var strp = String.prototype;
     ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
-        try{strp[method] && strp[method].protect();}catch(o_O){}
+        try{
+            if(strp[method]) strp[method].protect();
+        }catch(o_O){}
     });
 
     String.implement({
@@ -47,9 +52,9 @@
 
         //splits string into array of with a max length of max
         // useful for seperating names from messages
-        // "test!willsplit!into!1".splitMax('!', 1) => ["test!willsplit!into!1"]
-        // "test!willsplit!into!3".splitMax('!', 3) => ["test", "willsplit", "into!3"]
-        // "testwillsplitinto1".splitMax('!', 3) => ["testwillsplitinto1"]"
+        // "test!willsplit!into!1".splitMax("!", 1) => ["test!willsplit!into!1"]
+        // "test!willsplit!into!3".splitMax("!", 3) => ["test", "willsplit", "into!3"]
+        // "testwillsplitinto1".splitMax("!", 3) => ["testwillsplitinto1"]"
         //http://jsperf.com/string-splitmax-implementations
         splitMax: function(by, max) {
             max = max || 1;
@@ -77,26 +82,26 @@
         },
 
         trimRight: function (){
-            return String(this).replace(/~+$/, '');
+            return String(this).replace(/~+$/, "");
         },
 
         trimLeft: function() {
-            return String(this).replace(/^\s+/, '');
+            return String(this).replace(/^\s+/, "");
         }
     });
 
     Element.Properties.val = Element.Properties.value = {
         get: function() {
-            return this[(this.get('type') == 'checkbox') ? 'checked' : 'value'];
+            return this[(this.get("type") == "checkbox") ? "checked" : "value"];
         },
         set: function(val) {
-            this[(this.get('type') == 'checkbox') ? 'checked' : 'value'] = val;
+            this[(this.get("type") == "checkbox") ? "checked" : "value"] = val;
         }
     };
 
     ["html", "text", "val"].each(function(fn) {
             Element.implement(fn, function(data) {
-                if (typeof data !== 'undefined') return this.set(fn, data);
+                if (typeof data !== "undefined") return this.set(fn, data);
                 return this.get(fn);
             });
         });
@@ -142,21 +147,21 @@
         },
 
         isDisplayed: function() {
-            return !this.hasClass('hidden');
+            return !this.hasClass("hidden");
         },
 
         // normal mootool version uses display property - this way helps with selectors
         show: function() {
-            return this.removeClass('hidden');
+            return this.removeClass("hidden");
         },
 
         hide: function() {
-            return this.addClass('hidden');
+            return this.addClass("hidden");
         },
 
         toggle: function(state) {
             if (state == null) state = !this.isDisplayed();
-            return this[state ? 'show' : 'hide']();
+            return this[state ? "show" : "hide"]();
         },
 
         swapParent: function(parent) {

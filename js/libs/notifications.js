@@ -29,7 +29,7 @@
         },
         emptyString = "",
         // external = win.external,
-        isSupported = Browser.Features.notifications = (function() {
+        isSupported = Browser.Features.notifications = function() {
             /*
              * Use try {} catch() {} because the check for IE may throws an exception
              * if the code is run on browser that is not Safar/Chrome/IE or
@@ -41,8 +41,8 @@
              * successfully - then it is IE9+, if not - an exceptions is thrown.
              */
             return!!(/* Safari, Chrome */win.Notification || /* Chrome & ff-html5notifications plugin */win.webkitNotifications || /* Firefox Mobile */navigator.mozNotification /* || IE9+ (external && external.msIsSiteMode() !== undefined)*/);
-        }).attempt() || false,
-        ieVerification = Math.floor((Math.random() * 10) + 1),
+        }.attempt() || false,
+        // ieVerification = Math.floor((Math.random() * 10) + 1),
         noop = function () {};
     function getNotification(title, options) {
         var notification;
@@ -153,7 +153,7 @@
         }
         notificationWrapper = getWrapper(notification);
         //Auto-close notification
-        if (settings.autoClose && notification && !notification.ieVerification && notification.addEventListener) {
+        if (settings.autoClose && notification && /*!notification.ieVerification &&*/ notification.addEventListener) {
             notification.addEventListener("show", function () {
                 var notification = notificationWrapper;
                 _.delay(function () {

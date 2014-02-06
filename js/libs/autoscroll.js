@@ -9,12 +9,12 @@
 //     Extends: Fx.Scroll,
 //     Binds: ["updatePosition"],
 //     options: {
-//         // direction: 'Bottom',
+//         // direction: "Bottom",
 //         interval: 100,//time to debounce scroll event checks to save some processing
 //         duration: 0, //ms to execute effect
 //         threshold: 5,//px - how close to bottom to start scrolling
 //         wheelStops: true,
-//         link: 'cancel',
+//         link: "cancel",
 //         start: true
 //     },
 
@@ -114,12 +114,12 @@ Fx.AutoScroll = new Class({
     Extends: Fx.Scroll,
     Binds: ["updatePosition"],
     options: {
-        // direction: 'Bottom',
+        // direction: "Bottom",
         interval: 100,//time to debounce scroll event checks to save some processing
         duration: 0, //ms to execute effect
         threshold: 5,//px - how close to bottom to start scrolling
         wheelStops: true,
-        link: 'cancel',
+        link: "cancel",
         start: true
     },
 
@@ -127,8 +127,7 @@ Fx.AutoScroll = new Class({
         this.parent(ele, options);
 
         var self = this,
-            opts = self.options,
-            timer;
+            opts = self.options;
         self.threshold = this.options.threshold;
 
         this.$events = {

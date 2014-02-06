@@ -48,7 +48,7 @@
             ['&lt;', '&gt;'],
             ['“', '”'],
             ['‘', '’'],
-            ["'", "'"],
+            ['\'', '\''],
             ['[', ']']
         ],
 
@@ -69,7 +69,7 @@
                             var middle = parsed.mid;
 
                             // Make URL we want to point to.
-                            var url = undefined;
+                            var url;
                             var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
                             var target_attr = options.target ? ' target="' + options.target + '"' : '';
 
@@ -108,7 +108,7 @@
 
         parse: function(text) {
             var self = this,
-                result = (self.options.autoescape ? _.escape(text) : text).split(" "),
+                result = (self.options.autoescape ? _.escape(text) : text).split(' '),
                 funcs = _.filter(self.patterns, function(pat) {
                     return !pat.entireStr;
                 }),
@@ -125,13 +125,13 @@
 
             for (; i >= 0; i--) {
                 funcs.some(parseWord);//one pattern per word or it gets too complicated
-            };
-            result = result.join(" ")
+            }
+            result = result.join(' ');
             self.patterns.each(function(pattern) {
                 if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
                 }
-            })
+            });
             return result;
         },
 
@@ -168,11 +168,11 @@
             }
 
             //destructive calls
-            while(this.leading_punctuation.some(leader)) {};
+            while(this.leading_punctuation.some(leader)) {}
 
-            while(this.trailing_punctuation.some(trailer)) {};
+            while(this.trailing_punctuation.some(trailer)) {}
 
-            while(this.wrapping_punctuation.some(wrapper)) {};
+            while(this.wrapping_punctuation.some(wrapper)) {}
 
             return {
                 lead: lead,
@@ -199,6 +199,6 @@
         simple_email: /^\S+@\S+\.\S+$/,
         unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
         server: /(\:(\d{2}))|(qwebirc\:\/)/
-    }
+    };
 
 })(this);

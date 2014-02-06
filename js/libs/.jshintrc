@@ -1,0 +1,57 @@
+{
+  // JSHint linting config
+  // Example: https://github.com/jshint/jshint/blob/master/examples/.jshintrc
+  // Documentation: http://www.jshint.com/docs/options/
+  "globals": {
+
+    //Mootools
+    "Browser": true,
+    "Elements": true,
+    "Class": true,
+    "Options": true,
+    "Events": true,
+    "Request": true,
+    "Type": true,
+    "typeOf": true,
+    "Fx": true,
+    "$": true,
+    "$$": true,
+
+    //libs
+    "_": true,
+    "Epitome": true,
+    "Bootstrap": true,
+
+    //Qwebirc
+    "qwebirc": true,
+    "ui": true,
+    "irc": true,
+    "util": true,
+    "lang": true,
+    "templates": true,
+    "config": true,
+    "cookies": true
+  },
+
+  "browser": true,
+  "esnext": true,
+  "globalstrict": false,
+  "strict": false,//strict declared at top
+
+  "smarttabs": true,
+  "trailing": true,
+  "indent": 4,
+
+  "unused": true,
+  "undef": true,
+  "eqnull": true,
+  "immed": true,
+  "noarg": true,
+  "freeze": false,
+
+  "lastsemic": true,
+  "laxcomma": false,
+
+  "newcap": true,
+  "nonew": false
+}

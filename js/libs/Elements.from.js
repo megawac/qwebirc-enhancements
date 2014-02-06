@@ -22,9 +22,9 @@ provides: [Elements.from, Elements.From]
 
 ...
 */
-window.addEvent("domready", function(){
-    "use strict";
-    function $filter($e) {return $e.nodeType !== 3 || $e.nodeValue !== ""}//filter empty text nodes
+window.addEvent('domready', function(){
+    'use strict';
+    function $filter($e) {return $e.nodeType !== 3 || $e.nodeValue}//filter empty text nodes
     function getChildren($ele) {//fix for #2527
         return new Elements($ele.childNodes).filter($filter);
     }
@@ -40,7 +40,7 @@ window.addEvent("domready", function(){
     var table_re = /^\s*<(t[dhr]|tbody|tfoot|thead)/i;
     var range = document.createRange && document.createRange();
     if(range && range.createContextualFragment) {
-        var reference = document.getElement("div");
+        var reference = document.getElement('div');
         range.selectNode(reference);
 
         Elements.from = function(text, excludeScripts) {

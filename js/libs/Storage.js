@@ -18,8 +18,8 @@ provides: [Storage]
 Copyright (c) 2010 Arieh Glazer
 */
 (function(window) {
-    "use strict";
-
+    'use strict';
+    /* global globalStorage, Cookie */
     window.Storage = new Class({
         Implements: [Options],
         options: { //see Cookie options
@@ -38,13 +38,11 @@ Copyright (c) 2010 Arieh Glazer
                 fallback = this.options.fallback;
 
             if (window[storageType]) { //HTML5 storage
-                if (this.options.debug) console.log('using ' + storageType);
                 this.storage = window[storageType];
             } else if (Browser.ie && Browser.version < 8) { //IE < 8
-                if (this.options.debug) console.log('using behavior Storage');
                 this.storage = (function() {
-                    var storage = document.createElement("span");
-                    storage.style.behavior = "url(#default#userData)";
+                    var storage = document.createElement('span');
+                    storage.style.behavior = 'url(#default#userData)';
                     document.body.adopt(storage);
                     storage.load($this.options.name);
 
@@ -63,9 +61,8 @@ Copyright (c) 2010 Arieh Glazer
                     };
                 })();
             } else if (window.globalStorage) { //FF<3.5
-                if (this.options.debug) console.log('using globalStorage');
                 this.storage = (function() {
-                    storage = globalStorage[$this.options.name];
+                    var storage = globalStorage[$this.options.name];
                     return {
                         setItem: function(name, value) {
                             storage[name] = value;
@@ -79,7 +76,6 @@ Copyright (c) 2010 Arieh Glazer
                     };
                 })();
             } else if(fallback) { //All others
-                if (this.options.debug) console.log('using cookies');
                 this.usingCookies = true;
                 this.storage = (function() {
                     var options = {
