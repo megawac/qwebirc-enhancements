@@ -16,6 +16,8 @@
     "Fx": true,
     "$": true,
     "$$": true,
+    "Asset": true,
+    "Storage": true,
 
     //libs
     "_": true,

@@ -20,7 +20,7 @@ sound.SoundPlayer = new Class({
             if (self.loadingSM !== false)
                 return;
             self.loadingSM = true;
-            if (self.sm != null) {
+            if (self.sm) {
                 self.fireEvent("ready");
                 return;
             }
