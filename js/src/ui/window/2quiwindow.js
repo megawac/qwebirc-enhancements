@@ -126,7 +126,7 @@ ui.QUI.Window = new Class({
             resizeHandle = wrapper.getElement(".resize-handle");
         
         //as to not mess with other window remove grid
-        util.removeGrid(self.element).addClass("detached");
+        util.removeGrid(self.element).addClass("detached").show();
 
         var size = util.percentToPixel({x:40, y:60}, win.getParent("qwebirc"));
         wrapper.setStyles({
@@ -135,8 +135,7 @@ ui.QUI.Window = new Class({
             })
             .replaces(win); //*** adds wrapper to dom;
 
-        win.show()
-            .addEvent("mousedown", function(e) {
+        win.addEvent("mousedown", function(e) {
                 var tag = e.target.tagName.toLowerCase();
                 if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
                     e.stopPropagation();
