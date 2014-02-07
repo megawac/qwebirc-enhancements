@@ -33,12 +33,5 @@
     "grunt-bumpup": "~0.5.0",
     "matchdep": "~0.3.0",
     "grunt-tagrelease": "~0.3.1"
-  },
-  "build": {
-    "minify": false,
-    "concat": false,
-    "use cdn": true,
-    "node server": true,
-    "twisted server": true
   }
 }

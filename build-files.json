@@ -27,8 +27,6 @@
             "local min": "css/qwebirc-<%= pkg.version %>-min.css"
         },
         "bootstrap css": {
-            "cdn": "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.css",
-            "cdn min": "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css",
             "local": "css/bootstrap-3.0.3.css",
             "local min": "css/bootstrap-3.0.3-min.css"
         },
@@ -49,6 +47,12 @@
             "cdn min": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
             "local": "/js/modules/socket.io.js",
             "local min": "/js/modules/socket.io.js"
+        },
+        "respond": {
+            "cdn": "//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js",
+            "cdn min": "//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js",
+            "local": "/js/modules/respond.js",
+            "local min": "/js/modules/respond.js"
         }
     }
 }

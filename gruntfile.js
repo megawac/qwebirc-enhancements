@@ -1,5 +1,5 @@
 /*****************************
-Build step. See settings under build in package.json
+Build step. See settings under build in build.json
 
 Flags:
 -"minify": use uglify to minimize js size
@@ -11,23 +11,28 @@ Flags:
 /* jshint node:true */
 module.exports = function(grunt) {
     var package = grunt.file.readJSON("./package.json");
+    var build = grunt.file.readJSON("./build.json");
     var files = grunt.file.readJSON("./build-files.json");
     var templateContext = {
         package: package,
         pkg: package,
+        build: build,
         files: files,
         getFileURL: function(resource) {//load path to resource
             var resc = files.resources[resource];
-            if(package.build["use cdn"] && resc.cdn) {
-                return package.build.minify ? resc["cdn min"] : resc.cdn;
+            if(build["use cdn"] && resc.cdn) {
+                return build.minify ? resc["cdn min"] : resc.cdn;
             } else {
-                return package.build.minify ? resc["local min"] : resc.local;
+                return build.minify ? resc["local min"] : resc.local;
             }
         }
     };
 
+    package.build = build;
+
     grunt.initConfig({
         pkg: package,
+        build: build,
         meta: {},
 
         handlebars: {
@@ -42,7 +47,7 @@ module.exports = function(grunt) {
                             "$link": true,
                             "format": true,
                             "lang": true
-                        },//,
+                        },
                         knownHelpersOnly: true,
                     },
                     wrapped: true,
@@ -110,12 +115,12 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                mangle: package.build.minify,
+                mangle: build.minify,
                 compress: {
                     dead_code: true
                 },
                 preserveComments: "none",
-                beautify: !package.build.minify,
+                beautify: !build.minify,
                 ast_lift_variables: true,
                 banner: [
                     "/*!",
@@ -184,11 +189,11 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        bundle: package.build.concat ? ["js/dist/qwebirc-full-<%= pkg.version %>.js"] : files.full,
+                        bundle: build.concat ? ["js/dist/qwebirc-full-<%= pkg.version %>.js"] : files.full,
                         config: ["js/dist/app-<%= pkg.version %>.js"]
                     },
                     styles: {
-                        bundle: package.build.minify ? ["css/qwebirc-<%= pkg.version %>-min.css"] : ["css/qwebirc.css"]
+                        bundle: build.minify ? ["css/qwebirc-<%= pkg.version %>-min.css"] : ["css/qwebirc.css"]
                     }
                 }
             }
@@ -208,27 +213,42 @@ module.exports = function(grunt) {
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
-    grunt.registerTask("build", [
+    grunt.registerTask("build-templates", [
         "concat:modifiablecss",
+        "handlebars"
+    ]);
 
-        "handlebars",
-
-        "concat:qweb",//has to be concatted first for the iffe
-        // "concat:plugins",
-
-        "template:qweb",//remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
+    grunt.registerTask("build-js", [
+        "concat:qweb", //has to be concatted first for the iffe
+        "template:qweb", //remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
 
         "uglify:plugins",
-        "uglify:qweb",
+        "uglify:qweb"
+    ]);
 
-        "uglify:config",
+    grunt.registerTask("build-css", function() {
+        grunt.task.run("concat:css");
 
-        "concat:full",
+        if(build.minify) {
+            grunt.task.run("cssmin");
+        }
+    });
 
-        "concat:css",//set version on css
-        "cssmin",
+    grunt.registerTask("build-html", function() {
+        if(package.concat) {
+            grunt.task.run("concat:full");
+        }
+        grunt.task.run("htmlbuild:qweb");
+    });
 
-        "htmlbuild:qweb"
+    grunt.registerTask("build", [
+        "build-templates",
+
+        "build-js",
+
+        "build-css",
+
+        "build-html"
     ]);
 
     grunt.registerTask("default", ["build"]);
