@@ -30,7 +30,7 @@ var Asset = {
         var script = new Element('script', {
                 src: source,
                 type: 'text/javascript',
-                async: true
+                async: ''
             }),
             doc = properties.document || document,
             load = properties.onload || properties.onLoad;

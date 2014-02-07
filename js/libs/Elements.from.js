@@ -22,47 +22,36 @@ provides: [Elements.from, Elements.From]
 
 ...
 */
-window.addEvent('domready', function(){
-    'use strict';
-    function $filter($e) {return $e.nodeType !== 3 || $e.nodeValue}//filter empty text nodes
-    function getChildren($ele) {//fix for #2527
-        return new Elements($ele.childNodes).filter($filter);
-    }
-    function tableFix(match, text) {
-        var container = new Element('table');
-        var tag = match[1].toLowerCase();
-        if (['td', 'th', 'tr'].contains(tag)){
-            container = new Element('tbody').inject(container);
-            if (tag != 'tr') container = new Element('tr').inject(container);
+(function() {
+    var range;
+
+    window.addEvent('domready', function(){
+        range = document.createRange && document.createRange();
+        if(range.createContextualFragment) { //ie >= 9
+            range.selectNode(document.getElement('div'));
+        } else {
+            range = null;
         }
-        return getChildren(container.set('html', text));
-    }
-    var table_re = /^\s*<(t[dhr]|tbody|tfoot|thead)/i;
-    var range = document.createRange && document.createRange();
-    if(range && range.createContextualFragment) {
-        var reference = document.getElement('div');
-        range.selectNode(reference);
+    });
 
-        Elements.from = function(text, excludeScripts) {
-            if (excludeScripts || excludeScripts == null) text = text.stripScripts();
+    Elements.from = function(text, excludeScripts){
+        if (excludeScripts || excludeScripts == null) text = text.stripScripts();
 
-            var match = text.match(table_re);
-            if(match) return tableFix(match,text);
+        var match = text.match(/^\s*<(t[dhr]|tbody|tfoot|thead)/i);
+        if(match) {//table fix
+            var container = new Element('table');
+            var tag = match[1].toLowerCase();
+            if (['td', 'th', 'tr'].contains(tag)){
+                container = new Element('tbody').inject(container);
+                if (tag != 'tr') container = new Element('tr').inject(container);
+            }
+            return new Elements(container.set('html', text).childNodes);
+        }
 
-            return getChildren(range.createContextualFragment(text));
-        };
-
-    } else { //fall back for ie<9
-        Elements.from = function(text, excludeScripts){
-            if (excludeScripts || excludeScripts == null) text = text.stripScripts();
-
-            var match = text.match(table_re);
-            if(match) return tableFix(match,text);
-
-            return getChildren(new Element('div').set('html', text));
-        };
-    }
-});
+        return new Elements((range ? range.createContextualFragment(text) : //use faster range if available
+                                     new Element('div').set('html', text)).childNodes);
+    };
+})();
 
 Element.extend({
     from: function(text, es) {
