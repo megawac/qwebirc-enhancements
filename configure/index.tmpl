@@ -14,7 +14,7 @@
     <link href="<%= getFileURL('bootstrap css') %>" rel="stylesheet">
     <link href="<%= getFileURL('qwebirc css') %>" rel="stylesheet">
 
-    <script src="<%= getFileURL('respond') %>"></script>
+    <script src="<%= getFileURL('respond') %>" async></script>
 
     <script src='<%= getFileURL('mootools') %>'></script>
     <% if(pkg.build['node server']) { %> <script src="<%= getFileURL('socketio') %>" async></script> <% } %>

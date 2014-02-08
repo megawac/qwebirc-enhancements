@@ -223,7 +223,8 @@ module.exports = function(grunt) {
         "template:qweb", //remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
 
         "uglify:plugins",
-        "uglify:qweb"
+        "uglify:qweb",
+        "uglify:config"
     ]);
 
     grunt.registerTask("build-css", function() {
