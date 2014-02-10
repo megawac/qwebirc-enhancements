@@ -1,3 +1,11 @@
+function formatMessage(cmdline) {
+    if (cmdline.startsWith("/")) {
+        cmdline = (cmdline.startsWith("//") ? "SAY " : "") + cmdline.slice(1); //qweb issue #349
+    } else {
+        cmdline = "SAY " + cmdline; //default just say the msg
+    }
+    return cmdline.splitMax(" ", 2); //split command from the params
+}
 
 irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClient so not really
     // Binds: ["exec"],
@@ -8,10 +16,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     // this method will call functions in: Commands based on the this scope
     exec: function(line, chan) {
         var self = this,
-            allargs = util.formatCommand(line);
-
-        //is it clearer to use a do-while? - anyway allargs var will change each loop
-        for (var command, args, cmdopts, activewin, splitargs, minargs, fn, win, target; $defined(allargs); ) {
+            allargs = formatMessage(line),
+            command, args, cmdopts, target;
+        //allargs var will change each loop over
+        while (allargs != null) {
             command = allargs[0].toUpperCase();
             command = config.COMMAND_ALIAS[command] || command;
             args = allargs[1];
@@ -24,19 +32,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 break;
             }
 
-            //props from on of the command arrays
-            // activewin = cmdopts[0];
-            // splitargs = cmdopts[1];
-            // minargs = cmdopts[2];
-            // fn = cmdopts[3];
-
-           /* //errors in command
-            win = chan ? self.windows[chan] : self.getActiveWindow();
-            if (activewin && win && !util.isChannelType(win.type)) { //win.type !== ui.WINDOW_CHANNEL) && (win.type !== ui.WINDOW_QUERY) 
-                self.writeMessages(lang.invalidCommand);
-                break;
-            }
-            else */if (cmdopts.minargs && cmdopts.minargs > _.size(args)) {
+            if (cmdopts.minargs && cmdopts.minargs > _.size(args)) {
                 self.writeMessages(lang.insufficentArgs, {}, {
                     channel: chan
                 });
@@ -44,7 +40,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
             }
             if (_.isNumber(cmdopts.splitargs) && _.isString(args)) {
                 args = args.splitMax(" ", cmdopts.splitargs);
-                if(cmdopts.target/* && util.isChannel(args[0])*/) {
+                //only guess target if cmdopts.target less than eq length
+                if(cmdopts.target && cmdopts.target <= args.length) {
                     target = args.shift();//so you can avoid checks for correct syntax
                 }
             }
@@ -53,14 +50,13 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         }
     },
 
-
-    automode: function(modes, mode, args, channel) {
-        args.length.times(function() {
-            modes += mode;
-        });
-        this.send(format(cmd.MODE, {
+    //ta7.de/txt/computer/computer001.htm
+    automode: function(dir, modes, args, channel) {
+        this.send(util.formatCommand("MODE", {
             target: channel,
-            mode: modes,
+            mode: _.reduce(modes, function(memo, mode) {
+                return memo + mode;
+            }, dir),
             args: args.join(" ")
         }));
     },
@@ -72,7 +68,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         fn: function(args, target) {
             args = args || "";
 
-            var msg = format(cmd.ACTION, {
+            var msg = util.formatCommand("ACTION", {
                 target: target,
                 text: args
             });
@@ -80,10 +76,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
             if (this.send(msg)) {
                 var nick = this.nickname;
                 this.trigger("privAction", {
-                    'nick': nick,
-                    'message': args,
-                    'target': target,
-                    'channel': target,
+                    "nick": nick,
+                    "message": args,
+                    "target": target,
+                    "channel": target,
                     "prefix": this.getNickStatus(target, nick)
                 });
             }
@@ -99,7 +95,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
             var type = args[0].toUpperCase(),
                 message = args[1] || "";
 
-            var msg = format(cmd.CTCP, {
+            var msg = util.formatCommand("CTCP", {
                 target: target,
                 type: type,
                 text: message
@@ -107,11 +103,11 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
 
             if (this.send(msg)) {
                 this.trigger("privCTCP", {
-                    'nick': this.nickname,
-                    '_type': type,
-                    'message': message,
-                    'args': args,
-                    'type': 'CTCPReply'
+                    "nick": this.nickname,
+                    "_type": type,
+                    "message": message,
+                    "args": args,
+                    "type": "CTCPReply"
                 });
             }
         }
@@ -131,7 +127,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         fn: function(args, target) {
             var message = args[0];
             var nick = this.nickname;
-            var msg = format(cmd.PRIVMSG, {
+            var msg = util.formatCommand("PRIVMSG", {
                 target: target,
                 message: message
             });
@@ -139,10 +135,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
             if (util.isChannel(target)) {
                 if (this.send(msg)) {
                     this.trigger("chanMessage", {
-                        'nick': nick,
-                        'channel': target,
-                        'message': message,
-                        'type': 'chanmsg',
+                        "nick": nick,
+                        "channel": target,
+                        "message": message,
+                        "type": "chanmsg",
                         "prefix": this.getNickStatus(target, nick)
                     });
                 }
@@ -158,7 +154,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 1,
         fn: function(args, target) {
             var message = args[0];
-            var msg = format(cmd.NOTICE, {
+            var msg = util.formatCommand("NOTICE", {
                 target: target,
                 message: message
             });
@@ -166,10 +162,10 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
 
             if (this.send(msg)) {
                 this.trigger(noticeType, {
-                    'nick': this.nickname,
-                    'channel': target,
-                    'target': target,
-                    'message': message
+                    "nick": this.nickname,
+                    "channel": target,
+                    "target": target,
+                    "message": message
                 });
             }
         }
@@ -185,7 +181,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 return this.writeMessages(lang.invalidChanTarget);
             }
             if(_.size(message) > 1) {
-                var msg = format(cmd.PRIVMSG, {
+                var msg = util.formatCommand("PRIVMSG", {
                     target: target,
                     message: message
                 });
@@ -193,11 +189,11 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
             }
 
             this.trigger("query", {
-                'nick': this.nickname,
-                'channel': target,
-                'message': message,
-                'type': 'privmsg'/*,
-                'open': true*/
+                "nick": this.nickname,
+                "channel": target,
+                "message": message,
+                "type": "privmsg"/*,
+                "open": true*/
             });
         }
     },
@@ -205,8 +201,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     // cmd_OPTIONS: {
     //     fn: function(args) {
     //         this.trigger("openWindow", {
-    //             'window': "optionsWindow",
-    //             'type': ui.WINDOW.custom
+    //             "window": "optionsWindow",
+    //             "type": ui.WINDOW.custom
     //         });
     //     }
     // },
@@ -214,8 +210,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     // cmd_EMBED: {
     //     fn: function(args) {
     //         this.trigger("openWindow", {
-    //             'window': "embeddedWindow",
-    //             'type': ui.WINDOW.custom
+    //             "window": "embeddedWindow",
+    //             "type": ui.WINDOW.custom
     //         });
     //     }
     // },
@@ -223,8 +219,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     // cmd_PRIVACYPOLICY: {
     //     fn: function(args) {
     //         this.trigger("openWindow", {
-    //             'window': "privacyWindow",
-    //             'type': ui.WINDOW.custom
+    //             "window": "privacyWindow",
+    //             "type": ui.WINDOW.custom
     //         });
     //     }
     // },
@@ -232,8 +228,8 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     // cmd_ABOUT: {
     //     fn: function(args) {
     //         this.trigger("openWindow", {
-    //             'window': "aboutWindow",
-    //             'type': ui.WINDOW.custom
+    //             "window": "aboutWindow",
+    //             "type": ui.WINDOW.custom
     //         });
     //     }
     // },
@@ -245,12 +241,24 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         }
     },
 
+    cmd_AUTH: {//must be configured per server in config.irc_commands
+        splitargs: 2,
+        minargs: 2,
+        fn: function(args) {
+            var msg = util.formatCommand("AUTH", {
+                username: args[0],
+                password: args[1]
+            });
+            this.send(msg);
+        }
+    },
+
     cmd_KICK: {
-        target: true,
+        target: 2,
         splitargs: 3,
         minargs: 1,
         fn: function(args, target) {
-            this.send(format(cmd.KICK, {
+            this.send(util.formatCommand("KICK", {
                 channel: target,
                 kickee: args[0],
                 message: args[1] || ""
@@ -259,46 +267,35 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     },
 
     cmd_OP: {
-        target: true,
-        splitargs: 6,
-        minargs: 1, 
+        target: 2,
+        splitargs: 3,
+        minargs: 1,
         fn: function(args, target) {
-            this.automode("+", "o", args, target);
+            this.automode(constants.op, "o", args, target);
         }
     },
     cmd_DEOP: {
-        target: true,
-        splitargs: 6,
+        target: 2,
+        splitargs: 3,
         minargs: 1,
         fn: function(args, target) {
-            this.automode("-", "o", args, target);
-        }
-    },
-    cmd_AUTH: {//must be configured per server in config.irc_commands
-        splitargs: 2,
-        minargs: 2,
-        fn: function(args) {
-            var msg = format(cmd.AUTH, {
-                username: args[0],
-                password: args[1]
-            });
-            this.send(msg);
+            this.automode(constants.deop, "o", args, target);
         }
     },
     cmd_VOICE: {
-        target: true,
-        splitargs: 6,
+        target: 2,
+        splitargs: 3,
         minargs: 1,
         fn: function(args, target) {
-            this.automode("+", "v", args, target);
+            this.automode(constants.op, "v", args, target);
         }
     },
     cmd_DEVOICE: {
-        target: true,
-        splitargs: 6,
+        target: 2,
+        splitargs: 3,
         minargs: 1,
         fn: function(args, target) {
-            this.automode("-", "v", args, target);
+            this.automode(constants.deop, "v", args, target);
         }
     },
     cmd_TOPIC: {
@@ -306,7 +303,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 2,
         minargs: 1,
         fn: function(args, channel) {
-            var msg = format(cmd.TOPIC, {
+            var msg = util.formatCommand("TOPIC", {
                 channel: channel,
                 topic: args[0]
             });
@@ -317,9 +314,9 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 1,
         minargs: 0,
         fn: function(args) {
-            var msg = format(cmd.AWAY, {
+            var msg = util.formatCommand("AWAY", {
                 message: args[0] || ""
-            })
+            });
             this.send(msg);
         }
     },
@@ -352,7 +349,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 this.writeMessages(lang.poorJoinFormat);
             }
             if(formatted) {
-                this.send(format(cmd.JOIN, {
+                this.send(util.formatCommand("JOIN", {
                     channel: formatted/*,
                     args : args.join(" ")*/
                 }));
@@ -373,7 +370,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 0,
         fn: function(args, channel) {
             this.storeChannels(util.removeChannel(this.channels, channel));
-            this.send(format(cmd.PART, {
+            this.send(util.formatCommand("PART", {
                 channel: args[0] || channel,
                 message: args[1] || lang.partChan
             }));
@@ -383,14 +380,14 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 1,
         minargs: 0,
         fn: function(args) {
-            this.send(format(cmd.MODE, {
+            this.send(util.formatCommand("MODE", {
                 target: this.nickname,
                 mode: args[0] || ""
             }));
         }
     },
     cmd_AUTOJOIN: {
-        fn: function(args) {
+        fn: function() {
             if(!this.__autojoined) {
                 this.__autojoined = true;
                 return ["JOIN", this.getChannels()];
