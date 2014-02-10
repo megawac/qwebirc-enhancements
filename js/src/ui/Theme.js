@@ -6,7 +6,7 @@ ui.Theme = new Class({
         var thememap = _.map(config.ThemeControlCodeMap, function(str) {
             return util.formatSafe(str, config.ThemeControlCodeMap);
         });
-        self.__theme = _.map(defaults, function(str) {
+        self._theme = _.map(defaults, function(str) {
             return util.formatSafe(str, thememap);
         });
 
@@ -27,7 +27,7 @@ ui.Theme = new Class({
                 data.nicktmpl = templates.ircnick(data);
             }
             //now all we have to do is format the data as desired and pass to theme
-            _.each(["m", "c"], function(key) {//urlerize message and nick
+            ["m", "c"].each(function(key) {//urlerize message and nick
                 var val = data[key];
                 if(val) {
                     if(_.isArray(val)) { //modes are given as an array so we need to fold
@@ -58,7 +58,7 @@ ui.Theme = new Class({
     },
 
     formatText: function(type, data, highlight) {
-        return util.formatter(this.__theme[type], data);//most formatting done on init
+        return util.formatter(this._theme[type], data);//most formatting done on init
     },
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
@@ -68,21 +68,29 @@ ui.Theme = new Class({
 
         var styles = irc.styles;
 
-        var parseArr = result.split(styles.colour.key).filter( $chk );
+        var parseArr = _.compact(result.split(styles.colour.key));
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
-        var colouredarr = [[]]; //will be an array of subarrays for each coloured string
-
-        _.each(parseArr, function(str) {//help
-            if( isNaN(str.slice(0, 2).toInt()) ) { //^C...
-                colouredarr.push([]);
+        //will be an array of subarrays for each coloured string
+        var colouredarr = parseArr.reduce(function(memo, str) {
+            if( /^\d/.test(str) ) { //^C...
+                _.last(memo).push(str);
             } else { //^C1***
+                memo.push([]);
+            }
+            return memo;
+        }, [[]]);
+
+        parseArr.each(function(str) {//help
+            if( /^\d/.test(str) ) { //^C...
                 _.last(colouredarr).push(str);
+            } else { //^C1***
+                colouredarr.push([]);
             }
         });
 
-        _.each(colouredarr, function(colourarr) {
-            _.each(colourarr, function(str) {
+        colouredarr.each(function(colourarr) {
+            colourarr.each(function(str) {
                 var colourMatch = str.match(styles.colour.fore_re),
                     backgroundMatch = str.match(styles.colour.back_re),
                     colour = util.getColourByKey(_.item(colourMatch, 0)),
@@ -94,7 +102,8 @@ ui.Theme = new Class({
                     "text": str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
                 });
 
-
+                //would not be difficult to support nesting... just wouldnt be able to use templates but build in place (open when arr.length close on empty). The irc
+                // colour "spec" is too whack to be bothered for now...
                 result = result.replace(styles.colour.key + str, html);
             });
         });
@@ -131,7 +140,8 @@ ui.Theme = new Class({
             if(data.m) {
                 $ele.addClass("message");
             }
-            _.each( self.messageParsers , function(parser) {
+            /* jshint maxcomplexity:false */
+            self.messageParsers.each(function(parser) {
                 //sorry little crazy :)
                 if( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
@@ -140,7 +150,7 @@ ui.Theme = new Class({
                     (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(nick, data.m)) )
                 {
-                    if((!win.active && win.name !== BROUHAHA) || (!document.hasFocus()) ) {
+                    if((!win.active && win.name !== constants.brouhaha) || (!document.hasFocus()) ) {
                         if(parser.flash) {
                             win.parentObject.flash();
                         }
@@ -158,7 +168,7 @@ ui.Theme = new Class({
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
                         $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
                     }
-                    if($chk(parser.classes)) {
+                    if(parser.classes) {
                         $ele.addClass(parser.classes);
                     }
                     tabHighlight = Math.max(tabHighlight, parser.tabhl);

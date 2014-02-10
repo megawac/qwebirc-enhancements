@@ -27,6 +27,7 @@ sound.SoundPlayer = new Class({
 
             var soundinit = function() {
                 var sm = self.sm = window.soundManager;
+                self.play = sm.play;
                 //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
                 sm.setup({
                     url: opts.swfurl,
@@ -38,13 +39,12 @@ sound.SoundPlayer = new Class({
                             sound.url = _.map(sound.url, function(path) {
                                 return path.contains("/") ? path : opts.soundsurl + path;
                             });
-                            self.sm.createSound(sound);
+                            sm.createSound(sound);
                         });
                         self.loadingSM = false;
                         self.fireEvent("ready");
                     }
                 }).beginDelayedInit();
-                self.play = sm.play;
             };
 
             //load sound manager

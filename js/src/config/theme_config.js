@@ -1,13 +1,13 @@
 config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
+    "O": irc.styles.colour.key,
     "B": util.getStyleByName("bold").key,
     "U": util.getStyleByName("underline").key,
-    "O": irc.styles.colour.key,
     "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
     "NN": templates.userlink({"nick":"{N}"}),//nick name
     "CN": templates.userlink({"nick":"{newnick}"}),// change nick
-    "P": "{C}4=={O} "
+    "P": "{C}4=={O} " //prefix
 };
 
 config.ThemeIRCTemplates = {
@@ -52,7 +52,7 @@ config.ThemeIRCTemplates = {
     "CHANACTION": " * {D}{(}{N}{)}{D} {m}",
     "PRIVACTION": " * {(}{N}{)} {m}",
     "CHANCTCP": "{N} [{h}] requested CTCP {data} from {c}: {m}",
-    "PRIVCTCP": "{N} [{h}] requested CTCP {data} from {-}: {m}",
+    "PRIVCTCP": "{N} [{h}] requested CTCP {data} from {n}: {m}",
     "CTCPREPLY": "CTCP {x} reply from {N}: {m}",
 
     "OURCHANCTCP": "[ctcp({t})] {x} {m}",

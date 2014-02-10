@@ -12,7 +12,7 @@
 
             var windows = this.windows[client.id] = {};
             this.clients[client.id] = client;
-            var win = this.newWindow(client, ui.WINDOW.status, STATUS);
+            var win = this.newWindow(client, ui.WINDOW.status, constants.status);
             this.selectWindow(win);
 
             addClientEvents.call(this, client, windows);
@@ -40,12 +40,11 @@
         return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
     }
     function addClientEvents(client, windows) {
-        if(! client instanceof irc.IRCClient) throw "wtf bud";
         var ui_ = this;
         var uiOptions = ui_.uiOptions;
         function formatData(type, _data) {
             var data = _.extend({
-                c: _data.channel || STATUS,
+                c: _data.channel || constants.status,
                 n: _data.nick,
                 m: _data.message,
                 h: _data.host,
@@ -65,10 +64,10 @@
             
             _.each(formatChans(data), function(channel) {
                 data.channel = data.c = channel;
-                var win = (data.c === ACTIVE) ? ui_.getActiveWindow() : ui_.getWindow(client, channel);
+                var win = (data.c === ui.WINDOW.active) ? ui_.getActiveWindow() : ui_.getWindow(client, channel);
                 if(!win) return;
                 if(_.isArray(data.message)) {
-                    _.each(data.message, function(msg) {
+                    data.message.each(function(msg) {
                         data.message = data.m = msg;
                         parser(type, data, win);
                     });
@@ -81,7 +80,7 @@
 
         function parser(type, data, win, channel) {
             type = data.type || data.t || type;
-            channel = data.channel || STATUS;
+            channel = data.channel || constants.status;
 
             win.addLine(data.type, data);
 

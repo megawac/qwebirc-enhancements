@@ -34,7 +34,7 @@
         },
 
         postRender: function() {
-            ui.Behaviour.apply(this.element);
+            ui.Behaviour.apply(this.element); //note not native apply (gotcha)
             return this;
         },
 

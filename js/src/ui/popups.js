@@ -10,7 +10,7 @@
         return ret;
     }
 
-    //http://anutron.github.io/mootools-bootstrap/#modals - changed closeOnEsc to closeOnKeys using Element.psuedo.keys
+    //anutron.github.io/mootools-bootstrap/#modals - changed closeOnEsc to closeOnKeys using Element.psuedo.keys
     ui.Dialog = new Class({
         Extends: Bootstrap.Popup,
         options: {//mainly defaults
@@ -47,8 +47,8 @@
                 };
                 self.$input = $pop.getElements(options.inputType);
                 $pop.addEvent("click:relay(.submit)", self.bound.submit);
-                var listen = self.$listeners = checkKeys(self.bound.submit, ["enter"]);
-                document.addEvents(listen);
+                self.$listeners = checkKeys(self.bound.submit, ["enter"]);
+                document.addEvents(self.$listeners);
                 ui.Behaviour.apply($pop);
             });
         },

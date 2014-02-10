@@ -1,4 +1,3 @@
-/* globals notify */
 ui.WelcomePane = new Class({
     Extends: PanelView,
     options: {

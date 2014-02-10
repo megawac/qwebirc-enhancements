@@ -66,8 +66,7 @@
         function parsebb(_text) {//see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
             var stac = [],//for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
                 tag_re = /\[.+?\]/i,
-                tag_m, col_m,
-                tag,
+                tag_m, tag,
                 text = _text,
 
                 bb, style, endTag_re, end_indx, inner;

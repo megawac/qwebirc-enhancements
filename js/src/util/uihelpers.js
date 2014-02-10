@@ -1,4 +1,5 @@
 ui.Behaviour = (function() {
+    /* global Behavior, Delegator */
     var behaviour = new Behavior();
     var delegator = new Delegator({
         getBehavior: function(){ return behaviour; }
@@ -138,7 +139,7 @@ util.fillContainer = function ($ele, options) {
         });
     };
   
-    _.delay(filler, 20);
+    _.defer(filler);
     return $ele;
 };
 
@@ -183,28 +184,28 @@ util.calc = function($ele, style, val) {
 		$ele.setStyle(style, Browser.Features.calc + "(" + val + ")");
 	} else {
         var old = $ele.retrieve("calc");
-        if(old) {window.removeEvent("resize", old);}
+        if(old) window.removeEvent("resize", old);
 		var split = val.split(" ");
 		split.splice(1, 1); //first operator
         var resize = function() {
             var expr = val.replace(/(\d+)(\S+)/g, function(match, size, unit) {
                 size = size.toFloat();
                 switch (unit) {//unit
-                case "%":
-                    var data = {};
-                    var dir = style.contains("width") ? "x" : "y";
-                    data[dir] = size;
-                    return util.percentToPixel(data, $ele.getParent())[dir].round(3);
-                case "em":
-                    var fsize = $ele.getStyle("font-size").toFloat();
-                    return fsize * size;
-                // case "px":
-                default:
-                    return size;
+                    case "%":
+                        var data = {};
+                        var dir = style.contains("width") ? "x" : "y";
+                        data[dir] = size;
+                        return util.percentToPixel(data, $ele.getParent())[dir].round(3);
+                    case "em":
+                        var fsize = $ele.getStyle("font-size").toFloat();
+                        return fsize * size;
+                    // case "px":
+                    default:
+                        return size;
                 }
             });
             /* jshint evil:true */
-            var size = eval(expr);//safe usage - evals "500-20+12" for example
+            var size = eval(expr); //safe usage - evals "500-20+12" for example
             $ele.setStyle(style, size);
             return resize;
         };

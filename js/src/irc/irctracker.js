@@ -49,7 +49,7 @@ irc.IRCTracker = new Class({
     addNickToChannel: function(nick, channel) {
         var nc = irc.nickChanEntry();
 
-        if(nick !== "") {
+        if(nick) {
             var nickchan = this.getOrCreateNick(nick);
             nickchan[this.toIRCLower(channel)] = nc;
 

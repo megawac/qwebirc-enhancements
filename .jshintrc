@@ -23,6 +23,8 @@
     "_": true,
     "Epitome": true,
     "Bootstrap": true,
+    "Base64": true,
+    "notify": true,
 
     //Qwebirc
     "qwebirc": true,
@@ -32,13 +34,18 @@
     "lang": true,
     "templates": true,
     "config": true,
-    "cookies": true
+    "cookies": true,
+    "constants": true,
+
+    //Locals
+    "DEBUG": true
   },
 
   "browser": true,
   "esnext": true,
   "globalstrict": false,
   "strict": false,//strict declared at top
+  "devel": true,
 
   "smarttabs": true,
   "trailing": true,

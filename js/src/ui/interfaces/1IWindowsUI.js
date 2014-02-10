@@ -1,18 +1,3 @@
-ui.WINDOW_ID_MAP = [
-    {
-        id: "privacy",
-        keys: ["privacy policy"]
-    },
-    {
-        id: "embedded",
-        keys: ["add webchat to your site"]
-    },
-    {
-        id: "login",
-        keys: ["connection details"]
-    }
-];
-
 ui.IWindows = new Class({
     windows: {},
     customWindows: {},
@@ -22,17 +7,17 @@ ui.IWindows = new Class({
 
     getWindowIdentifier: function(name) {
         var id = name.toLowerCase();
-        var wid = _.find(qwebirc.ui.WINDOW_ID_MAP, function(val) {return val.keys.contains(id);});
+        var wid = _.find(ui.WINDOW_ID_MAP, function(val) {return val.keys.contains(id);});
         return wid && wid.id || id;
     },
 
     getClientId: function(client) {
-        return client === ui.CUSTOM_CLIENT || !client ? ui.CUSTOM_CLIENT : client.id;
+        return client === ui.WINDOW.custom || !client ? ui.WINDOW.custom : client.id;
     },
 
     newWindow: function(client, type, name) {
         var win = this.getWindow(client, name);
-        if (win == null) {
+        if (!win) {
             if(util.windowNeedsInput(type)) {
                 this.commandhistory.addChannel(name);
             }
@@ -205,7 +190,7 @@ ui.IWindows = new Class({
     newCustomWindow: function(name, select, type) {
         type = type || ui.WINDOW.custom;
 
-        var win = this.newWindow(ui.CUSTOM_CLIENT, type, name);
+        var win = this.newWindow(ui.WINDOW.custom, type, name);
 
         if (select) this.selectWindow(win);
 
@@ -229,9 +214,7 @@ ui.IWindows = new Class({
             win.lines.addClass(cssClass);
         }
 
-        options = _.extend({
-            element: win.lines
-        }, options);
+        options.element = win.lines;
         new CustomView(options)
             .addEvent("close", win.close);
 

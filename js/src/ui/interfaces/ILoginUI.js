@@ -53,8 +53,8 @@
             });
             $chans.addEvent("dblclick", function() {
                 new ui.Dialog({
-                    title: "Set Channels",
-                    text: "Set initial channels (comma seperated)",
+                    title: lang.setChanTitle,
+                    text: lang.setChanDialog,
                     value: $chans.text(),
                     onSubmit: function(data) {
                         if(_.isString(data.value)) {
@@ -136,7 +136,7 @@
         LoginBox: LoginBox,
         loginBox: function() {
             var self = this;
-            var win = this.newCustomWindow(CONNECTION_DETAILS, true, ui.WINDOW.connect);
+            var win = this.newCustomWindow(constants.login, true, ui.WINDOW.connect);
             var callback = function(data) {
                 win.close();
                 self.fireEvent("login", data);

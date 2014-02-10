@@ -75,11 +75,7 @@ irc.atheme = {
                 callback(null);
             },
             "success": function(json, string) {
-                if (json) {
-                    callback(true);
-                } else {
-                    callback(null);
-                }
+                callback(json ? true : null);
             }
         })
         .send();
@@ -109,11 +105,7 @@ irc.atheme = {
                 callback(null);
             },
             "success": function(json, string) {
-                if (json) {
-                    callback(json.success);
-                } else {
-                    callback(null);
-                }
+                callback(json ? json.success : null);
             }
         })
         .send();

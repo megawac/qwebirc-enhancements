@@ -64,10 +64,12 @@
         closeTab: "Close tab",
         detachWindow: "Detach Window",
 
-        invalidNick: "Your nickname was invalid and has been corrected; please check your altered nickname and press Connect again.",
         missingNick: "You must supply a nickname",
         missingPass: "You must supply a password.",
-        missingAuthInfo: "You must supply your username and password in auth mode.",
+        nickWrongLen: "Nick must be between {min} and {max} characters",
+
+        setChanTitle: "Set Channels",
+        setChanDialog: "Set initial channels (comma seperated)",
 
 
         //options

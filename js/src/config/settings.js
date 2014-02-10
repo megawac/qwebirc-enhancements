@@ -7,7 +7,7 @@ config.Settings = new Class({
             "username": "",
             "password": "",
             "auth": false,
-            "newb": true
+            "newb": true //first visit
         },
         key: cookies.settings,
         minimize: false,

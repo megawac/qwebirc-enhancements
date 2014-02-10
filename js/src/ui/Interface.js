@@ -1,26 +1,23 @@
-
 var defaults = {
-    debug: false,
-
     appTitle: ""/*Quake Net Web IRC*/,
     networkName: "" /* Quake Net */,
 
     validators: {//test is a helper from ircutils
         nick: [{
             test: util.test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
-            description: "Nick must be between 1 and 9 characters"
+            description: format(lang.nickWrongLen, {min: 1, max: 9})
         }],
         password: [{
             test: function(pass, $ele) {
-                return pass.length > 0 || !$ele.isVisible();
+                return pass || !$ele.isVisible();
             },
-            description: "Missing password"
+            description: lang.missingNick
         }],
         username: [{
-            test: function(pass, $ele) {
-                return pass.length > 0 || !$ele.isVisible();
+            test: function(user, $ele) {
+                return user || !$ele.isVisible();
             },
-            description: "Missing username"
+            description: lang.missingPass
         }]
     },
     theme: undefined,
@@ -34,6 +31,14 @@ var defaults = {
         loginRegex: /I recogni[sz]e you\./,//network service response when auth successful
         node: false
     }
+};
+
+var softextend = function(origin, obj) {//only sets vals if they exist on the object
+    _.each(origin, function(val, key) {
+        if(_.has(obj, key)) {
+            obj[key] = +val == val ? +val : val;//coerce nums
+        }
+    });
 };
 
 qwebirc.createInstance = function(element_id, UIclass, options) {
@@ -53,17 +58,9 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             parsed.channels = util.concatUnique(settings.get("channels"), util.unformatChannelString(parsed.channels));
         }
 
-        var softextend = function(obj) {//only sets vals if they exist on the object
-            _.each(parsed, function(val, key) {
-                if(_.has(obj, key)) {
-                    obj[key] = +val == val ? +val : val;//coerce nums
-                }
-            });
-        };
-
-        softextend(options.uiOptions = _.merge({}, ui["default options"], options.uiOptions));
-        softextend(options.client);
-        softextend(options.settings._attributes);//poor practice
+        softextend(parsed, options.uiOptions = _.merge({}, ui["default options"], options.uiOptions));
+        softextend(parsed, options.client);
+        softextend(parsed, options.settings._attributes);//poor practice
     }
 
     //create instance

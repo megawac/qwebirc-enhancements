@@ -1,26 +1,14 @@
 /**
  * quick console shim https://gist.github.com/bgrins/5108712
  */
-
-
-(function() {
-    var method;
-    var noop = function() {};
-    var methods = [
+(function(console, noop) {
+    [
         'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
         'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
         'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
         'timeStamp', 'trace', 'warn'
-    ];
-    var length = methods.length;
-    var console = (window.console = window.console || {});
-
-    while (length--) {
-        method = methods[length];
-
+    ].forEach(function(method) {
         // Only stub undefined methods.
-        if (!console[method]) {
-            console[method] = noop;
-        }
-    }
-})();
+        if(!console[method]) console[method] = noop;
+    });
+})(window.console = window.console || {}, function() {});

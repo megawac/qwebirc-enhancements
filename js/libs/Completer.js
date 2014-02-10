@@ -16,7 +16,7 @@
     function hinter() {
         if(this.options.autocomplete) {
             var text = this.$input.get("value");
-            var full = "";
+            var full;
             if(text.length >= this.options.minlen) {
                 full = _.find(this.data, function(txt) {
                     return txt.startsWith(text);
@@ -36,8 +36,8 @@
             autoPosition: true,//autopositon hint
             autocomplete: true,
             selectors: {
-                hint: '.tt-hint',
-                input: '.tt-query'
+                hint: ".tt-hint",
+                input: ".tt-query"
             },
             minlen: 1,
             delay: 400 //throttle time

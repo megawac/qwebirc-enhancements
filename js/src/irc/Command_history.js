@@ -30,7 +30,7 @@ irc.CommandHistory = new Class({
     removeChannel: function(name) {
         this.unset(name);
         if(this.options.store) this.save();
-    },
+    }
 
-    _filter: _.not(_.isEmpty)
+    // _filter: _.not(_.isEmpty)
 });

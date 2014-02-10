@@ -10,7 +10,7 @@ ui.IUIOptions = new Class({
         });
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
-            var notifiers = _.chain(notices)
+            var notifiers = notices
                 .filter(uiOptions.notice_filter)
                 .map(function(notice) {
                     var onotice = {
@@ -25,16 +25,15 @@ ui.IUIOptions = new Class({
                         classes: notice.classes,
                         types: notice.types
                     };
-                    _.each(["msg", "nick", "type"], function(type) {
+                    ["msg", "nick", "type"].each(function(type) {
                         if(notice[type]) {
                             onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type],//format regex
-                                        notice.case ? "i" : "");//set flag
+                                                                           notice.case ? "i" : "");//set flag
                         }
                     });
 
-                    return _.clean(onotice);
-                })
-                .value();
+                    return Object.cleanValues(onotice);
+                });
             
             self.theme.messageParsers.empty().combine(notifiers);
             self.theme.config = uiOptions;

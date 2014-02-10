@@ -1,4 +1,3 @@
-
 ui.Window = new Class({
     Extends: Epitome.View,
     Binds: ["sendInput"],
@@ -81,7 +80,7 @@ ui.Window = new Class({
             self.highlightTab(highlight);
         }
 
-        var formatted = parent.theme.formatMessage($ele, type, data, hl_line);
+        parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
                 .maxChildren(this.options.maxLines);//remove lines if > maxLines
 

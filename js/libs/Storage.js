@@ -26,7 +26,6 @@ Copyright (c) 2010 Arieh Glazer
             path: '/',
             name: window.location.hostname,
             duration: 100, //days
-            debug: false,
             storageType: 'localStorage',
             fallback: true
         },

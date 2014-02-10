@@ -75,7 +75,7 @@
 
             self.flashing = true;
             // flashA();
-            self.__flasher = _.periodical(flash, 750);
+            self._flasher = _.periodical(flash, 750);
             window.addEvents({//whatever comes first
                 "mousedown:once": self.cancelFlash,
                 "keydown:once": self.cancelFlash,
@@ -101,10 +101,8 @@
         cancelFlash: function() {
             this.flashing = false;
 
-            if(this.__flasher){
-                clearInterval(this.__flasher);
-                this.__flasher = null;
-            }
+            clearInterval(this._flasher);
+            this._flasher = null;
 
             this._notices.each(function(notice) {
                 clearTimeout(notice.waiter);

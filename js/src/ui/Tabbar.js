@@ -32,8 +32,9 @@ ui.NavBar = new Class({
         }
     },
     render: function() {
-        Elements.from(this.template({lang: lang})).filter(Type.isElement)//strip random text nodes
-                                                .inject(this.element);
+        Elements.from(this.template())
+                .filter(Type.isElement)//strip random text nodes
+                .inject(this.element);
         this.tabs = this.element.getElement(".tabbar");
         this.scroller = new Fx.Scroll(this.tabs);
         this.adjust();
@@ -68,10 +69,11 @@ ui.NavBar = new Class({
                 offset: {y:10}
             });
 
-        dropdownEffect.start(0.25)
-                    .start(1)
-                    .start(0.33)
-                    .start(1);
+        dropdownEffect
+            .start(0.25)
+            .start(1)
+            .start(0.33)
+            .start(1);
 
         new Fx.Morph(ddhint, {
             duration: "normal",
