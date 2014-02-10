@@ -1,3 +1,4 @@
+//to do add support for exiting all open styles ^O (\x0D)
 irc.styles = [
     {
         name: "normal",
@@ -21,8 +22,8 @@ irc.styles = [
     {
         name: "italic",
         style: "italic",
-        key: "\x16",
-        keyregex: /\x16(.*?)\x16/,
+        key: "\x1D",
+        keyregex: /\x1D(.*?)\x1D/,
         bbcode: ["[i]", "[/i]"]
     },
     {
@@ -30,7 +31,7 @@ irc.styles = [
         style: "",//see below
         key: "\x03",
         fore_re: /^(\d{1,2})/,
-        back_re: /^((\d{1,2})+,+(\d{1,2}))/,
+        back_re: /^((\d{1,2}),(\d{1,2}))/,
         format: "\x03{f},{b}{t}\x03",
         bbcode: ["[colour fore={f} back={b}]", "[/colour]"]
     }
