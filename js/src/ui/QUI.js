@@ -8,33 +8,36 @@ ui.QUI = new Class({
     postInitialize: function() {
         var self = this.parent();
         self.element.addClasses("qui", "signed-out")
-            .addEvent("click:relay(.lines .hyperlink-whois)", this.whoisURL);
+            .addEvent("click:relay(.lines .hyperlink-whois)", self.whoisURL);
         self.setHotKeys();
         self.nav.on({
-            "selectTab": function(e,tab) {
+            "selectTab": function(e, tab) {
                 self.selectTab(tab);
             },
             "detachWindow": function(e, target) {
                 e.stop();
                 target.getParent(".tab").retrieve("window").detach();
-            }/*,
-            "addChannel": self.__createChannelMenu*/
+            }
         });
 
         return self;
+    },
+
+    setBrouhahaChan: function(name) {
+        var brouhaha = this.windows.brouhaha;
+        brouhaha.currentChannel = name;
+        brouhaha.setProperties(name);
     },
 
     selectTab: function(tab) {
         var active = this.active;
         var win = tab.retrieve("window");
         var isChannel = util.isChannelType(win.type);
-        if(!active || !isChannel || (isChannel && active.name !== BROUHAHA)) {
+        if(!active || !isChannel || (isChannel && active.name !== constants.brouhaha)) {
             win.select();
         }
         if(!util.isBaseWindow(win.name) && isChannel) {//update brouhaha window attrs
-            var brouhaha = this.windows.brouhaha;
-            brouhaha.currentChannel = win.name;
-            brouhaha.window.getElement(".channel-name").text(win.name);
+            this.setBrouhahaChan(win.name);
             tab.addClass("selected");
         }
         tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
@@ -48,26 +51,13 @@ ui.QUI = new Class({
 
     newTab: function(win, name) {
         var self = this;
-        var isBrouhaha = (name === BROUHAHA);
+        var isBrouhaha = (name === constants.brouhaha);
         var $tab = Element.from(templates.ircTab({
-                "name": isBrouhaha ? "&nbsp;" : name,
-                closable: !util.isBaseWindow(name)
-            }));
+            "name": isBrouhaha ? "" : name,
+            closable: !util.isBaseWindow(name)
+        }));
         self.nav.addTab($tab);
-
-        if(isBrouhaha) {
-            $tab.addClass("brouhaha");
-            _.delay(function() {
-                _.some(self.windowArray, function(otherwin) {
-                    if(util.isChannelType(otherwin.type) && !util.isBaseWindow(otherwin.name)) {
-                        win.setProperties(otherwin.name); //update current channel in brouhaha
-                        win.currentChannel = otherwin.name;
-                        return true;
-                    }
-                });
-            }, 1000);
-        }
-
+        if(isBrouhaha) $tab.addClass("brouhaha");
         $tab.store("window", win);
 
         return $tab;
@@ -164,50 +154,6 @@ ui.QUI = new Class({
         });
     },
 
-    //todo use other dropdown menu code
-    // __createChannelMenu: function(e) {
-    //     if(e) e.stop();
-    //     var self = this,
-    //         client = self.getActiveIRCWindow().client,
-
-    //         $btn = self.outerTabs.getElement(".add-chan"),
-    //         $oldmen = self.parentElement.getElement(".chanmenu.dropdownmenu");
-    //     $oldmen = $oldmen && $oldmen.getParent();
-
-    //     if(!$oldmen || Date.now() - $btn.retrieve("time") > 60000) {//getting pop channels is expensive dontif unnecc
-    //         client.getPopularChannels(function(chans) {
-    //             chans = _.chain(chans).take(self.options.maxChansMenu || 10)
-    //                         .map(function(chan) {
-    //                             return {
-    //                                 text: chan.channel,
-    //                                 value: chan.channel,
-    //                                 hint: chan.users
-    //                             };
-    //                         })
-    //                         .value();
-    //             var $menu = Element.from(templates.chanmenu({
-    //                     channels: chans
-    //                 }));
-
-    //             var wrapper = new Element("div").inject(self.parentElement)
-    //                                             .adopt($menu);
-    //             ui.decorateDropdown($btn, wrapper);
-    //             wrapper.addEvent("click:relay(a)", function(e, target) {
-    //                 var chan = target.get("data-value");
-    //                 client.exec("/JOIN " + chan);
-    //             });
-    //             $btn.store("time", Date.now());//so we dont have to refresh maybe
-    //         });
-    //     } else if (!$oldmen.isDisplayed()) { //show old menu
-    //         $oldmen.retrieve("toggle")();
-    //         $oldmen.position({
-    //                 relativeTo: $btn,
-    //                 position: {x: "left", y: "bottom"},
-    //                 edge: {x: "left", y: "top"}
-    //             });
-    //     }
-    // },
-
     newClient: function(client) {
         this.parentElement.swapClass("signed-out","signed-in");
         var self = this;
@@ -215,15 +161,16 @@ ui.QUI = new Class({
         //load brouhaha window (b4 connecting)
         var makeBrouhaha = function() {
             if(self.uiOptions.get("brouhaha").enabled) {
-                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, BROUHAHA);
+                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, constants.brouhaha);
                 if(!client.isConnected()) {
-                    client.addEvent("userJoined:once", brouhaha.select.bind(brouhaha));//no need to wait see IRCClient.__signedOn
+                    client.addEvent("userJoined:once", function(type, data) {
+                        self.setBrouhahaChan(data.channel);
+                        brouhaha.select();
+                    });//no need to wait see IRCClient.__signedOn
                 }
-            } else {
-                if(self.windows.brouhaha) {
-                    self.windows.brouhaha.close();
-                    delete self.windows.brouhaha;
-                }
+            } else if(self.windows.brouhaha) {
+                self.windows.brouhaha.close();
+                delete self.windows.brouhaha;
             }
         };
 
@@ -241,9 +188,10 @@ ui.QUI = new Class({
 
     nickChange: function(data, client) {
         if(data.thisclient) {
-            _.each(this.getWindows(client), function(win) {
-                win.setNickname(data.newnick);
-            });
+            // this.getWindows(client).each(function(win) {
+            //     win.setNickname(data.newnick);
+            // });
+            _.invoke(this.getWindows(client), "setNickname", data.newnick);
         }
     }
 });

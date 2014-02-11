@@ -1,5 +1,5 @@
-var whitespace = /\s/,
-    notwhitespace = /\S+$/;
+/* jshint boss:true */
+/* jshint unused:true */
 
 //my helper functions
 //returns itself
@@ -7,9 +7,9 @@ var join = function(by, xs) {
         return xs.join(by);
     },
 
-    replace = _.autoCurry(function(reg, rep, str) {
-        return str.replace(reg, rep);
-    }),
+    // replace = _.autoCurry(function(reg, rep, str) {
+    //     return str.replace(reg, rep);
+    // }),
 
     startsWith = function(what, str) {
         return str.startsWith(what);
@@ -27,8 +27,12 @@ var join = function(by, xs) {
     // splitComma = split(","),
     concatUnique = util.concatUnique = _.compose(_.uniq, Array.concat);
 
-util.format = util.formatter = function(message, data) {
+var format = util.format = util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
+};
+util.formatCommand = function(command, data) {
+    if (_.isString(command)) command = config.IRC_COMMANDS[command];
+    return format(command.command, data);
 };
 
 util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
@@ -58,29 +62,30 @@ var isChannel = util.isChannel = _.partial(startsWith, "#"),
         return chan;
     },
 
-    unformatChannel = util.unformatChannel = function(chan) {
-        if (isChannel(chan)) {
-            chan = chan.slice(1);
-        }
-        return chan;
-    },
 
     appendChannel = function(chans, chan) {
-        return $A(chans).concat(chan).map(formatChannel);
+        return Array.from(chans).concat(chan).map(formatChannel);
     },
 
     splitChan = util.splitChans = function(xs) {
         if (_.isString(xs)) xs = xs.split(",");
         return xs.map(String.clean);
-    },
+    };
 
-    //function to determine if a string is one of the stock windows
-    isBaseWindow = util.isBaseWindow = _.partial(_.contains, BASE_WINDOWS),
+//function to determine if a string is one of the stock windows
+util.isBaseWindow = _.partial(_.contains, constants.BASE_WINDOWS);
 
-    isChannelType = util.isChannelType = _.partial(_.contains, CHANNEL_TYPES);
+util.isChannelType = _.partial(_.contains, constants.CHANNEL_TYPES);
 
 
-util.windowNeedsInput = _.partial(_.contains, INPUT_TYPES);
+util.unformatChannel = function(chan) {
+    if (isChannel(chan)) {
+        chan = chan.slice(1);
+    }
+    return chan;
+};
+
+util.windowNeedsInput = _.partial(_.contains, constants.INPUT_TYPES);
 
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
@@ -90,7 +95,7 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChann
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
     return "#!" + link;
-}
+};
 
 util.unformatURL = function(link) {
     return link.replace(/^!/, "").replace(/^@/, "#");
@@ -189,7 +194,7 @@ util.processTwistedData = function(data) {
     match;
     if(NUMERICS[data[1]]) {
         message.command = NUMERICS[data[1]].name;
-        message.commandType = NUMERICS[data[1]].type
+        message.commandType = NUMERICS[data[1]].type;
     }
     if (match = message.prefix.match(prefix_re)) {
         message.nick = match[1];
@@ -199,15 +204,6 @@ util.processTwistedData = function(data) {
         message.server = message.prefix;
     }
     return message;
-}
-
-util.formatCommand = function(cmdline) {
-    if (cmdline.startsWith("/")) {
-        cmdline = (cmdline.startsWith("//") ? "SAY " : "") + cmdline.slice(1); //qweb issue #349
-    } else {
-        cmdline = "SAY " + cmdline; //default just say the msg
-    }
-    return cmdline.splitMax(" ", 2); //split command from the params
 };
 
 util.nickChanComparitor = function(client, nickHash) {
@@ -261,9 +257,9 @@ util.toHSBColour = function(nick, client) {
     if (lower == client.lowerNickname) return null;
 
     var hash = 0;
-    for (var i = 0; i < lower.length; i++)
-    hash = 31 * hash + lower.charCodeAt(i);
-
+    for (var i = 0; i < lower.length; i++){
+        hash = 31 * hash + lower.charCodeAt(i);
+    }
     var hue = Math.abs(hash) % 360;
 
     return new Color([hue, 70, 60], "hsb");
@@ -271,15 +267,11 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = _.compose(_.partial(_.item, irc.IRCLowercaseTable), _.lambda("x.charCodeAt(0)"));
+var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), _.lambda("x.charCodeAt(0)"));
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
 irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_.func.map, charIRCLower)));
-
-//not really sure
-//takes a irc client object and string and returns something
-irc.toIRCCompletion = _.compose(replace(/[^\w]+/g, ""), _.partial(_.func.invoke, "toIRCLower"));
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
@@ -317,26 +309,13 @@ util.longtoduration = function(l) {
 };
 
 //pads based on the ret of a condition
-var pad = util.pad = _.autoCurry(function(cond, padding, str) {
+util.pad = _.autoCurry(function(cond, padding, str) {
     str = String(str);
     return cond(str) ? padding + str : str;
 });
 
-util.padzero = pad(_.lambda(".length<=1"), "0");
-util.padspace = pad(_.lambda(".length!==0"), " ");
-
-util.getEnclosedWord = function(str, pos) {
-    pos = pos >>> 0; //type safety coerce int
-    // Search for the word's beginning and end.
-    var left = str.slice(0, pos + 1).search(notwhitespace),
-        right = str.slice(pos).search(whitespace),
-
-        // The last word in the string is a special case.
-        // Return the word, using the located bounds to extract it from the string.
-        word = right < 0 ? str.slice(left) : str.slice(left, right + pos);
-
-    return [left, word];
-};
+// util.padzero = pad(_.lambda(".length<=1"), "0");
+util.padspace = util.pad(_.lambda(".length!==0"), " ");
 
 // NOT cryptographically secure! 
 //http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -347,7 +326,6 @@ util.randHexString = function(numBytes) {
     }
     return id;
 };
-
 
 util.IRCTimestamp = function(date) {
     // return "[" + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + "]";
@@ -370,10 +348,3 @@ util.noop = function() {};
 Browser.isMobile = !(Browser.Platform.win || Browser.Platform.mac || Browser.Platform.linux);
 
 Browser.isDecent = !Browser.isMobile || !(!Browser.ie || Browser.version < 9);
-
-util.generateID = (function() {
-    var id = 0;
-    return function() {
-        return "qqa-" + id++;
-    };
-})();

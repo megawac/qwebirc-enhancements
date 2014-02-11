@@ -5,10 +5,10 @@ ui.WINDOW = {
     channel: 4,
     custom: 8,
     connect: 16,
-    messages: 32
-};
+    messages: 32,
 
-ui.CUSTOM_CLIENT = "custom";
+    active: 9 //currently selected window
+};
 
 ui.HIGHLIGHT = {
     none: 0,
@@ -17,30 +17,40 @@ ui.HIGHLIGHT = {
     us: 3
 };
 
-
-irc.PMODE_LIST = 0;
-irc.PMODE_SET_UNSET = 1;
-irc.PMODE_SET_ONLY = 2;
-irc.PMODE_REGULAR_MODE = 3;
-
-
-var BROUHAHA = "#brouhaha",
-    CONNECTION_DETAILS = "Connection details",
-    STATUS = "Status",
-    OPTIONS = "Options",
-    ACTIVE = "\x09ACTIVE",
+irc.pmodes = {
+    LIST: 0,
+    SET_UNSET: 1,
+    SET_ONLY: 2,
+    regular: 3
+};
 
 
-    BASE_WINDOWS = [BROUHAHA, CONNECTION_DETAILS, STATUS],
-    CHANNEL_TYPES = [ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages],
-    INPUT_TYPES = [ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages];
+//window names
+var BROUHAHA = constants.brouhaha = "#brouhaha";
+var STATUS = constants.status = "Status";
+constants.login = "login";
 
-var OPED = "+",
-    DEOPED = "-",
-    OPSTATUS = "@",
-    VOICESTATUS = "+";
 
-irc.IRCLowercaseTable = [ /* x00-x07 */ "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
+// constants.window = {
+//     brouhaha: "#brouhaha",
+//     connect: "Connection details",
+//     status: "Status"
+// };
+
+constants.BASE_WINDOWS = [constants.brouhaha, constants.login, constants.status];
+constants.CHANNEL_TYPES = [ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages];
+constants.INPUT_TYPES = [ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages];
+
+constants.op = "+",
+constants.deop = "-",
+constants.prefixes = {
+    op: "@",
+    voice: "+"
+};
+
+constants.IRCLowerTable = [
+    /* x00-x07 */
+    "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
     /* x08-x0f */
     "\x08", "\x09", "\x0a", "\x0b", "\x0c", "\x0d", "\x0e", "\x0f",
     /* x10-x17 */
@@ -632,4 +642,4 @@ irc.Numerics = { // from node-irc
         "name": "ERR_USERSDONTMATCH",
         "type": "error"
     }
-}
+};

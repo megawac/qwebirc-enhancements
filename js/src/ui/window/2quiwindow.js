@@ -124,23 +124,23 @@ ui.QUI.Window = new Class({
             // resizeWrapper = Element.from(templates.resizeHandle()),
             // resizeHandle = resizeWrapper.getElement(".resize-handle");
             resizeHandle = wrapper.getElement(".resize-handle");
+
+        var size = util.percentToPixel({x:40, y:60}, win.getParent(".qwebirc"));
         
         //as to not mess with other window remove grid
         util.removeGrid(self.element).addClass("detached").show();
-
-        var size = util.percentToPixel({x:40, y:60}, win.getParent("qwebirc"));
+        
+        //set size and add detach wrapper to dom
         wrapper.setStyles({
-                "width": size.x,
-                "height": size.y
-            })
-            .replaces(win); //*** adds wrapper to dom;
+            "width": size.x,
+            "height": size.y
+        }).replaces(win);
 
         win.addEvent("mousedown", function(e) {
-                var tag = e.target.tagName.toLowerCase();
-                if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
-                    e.stopPropagation();
-            })
-            .inject(wrapper.getElement(".body"));
+            var tag = e.target.tagName.toLowerCase();
+            if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
+                e.stopPropagation();
+        }).inject(wrapper.getElement(".body"));
 
         self.resizable = wrapper.makeResizable({
             limit: {//min/max
@@ -238,7 +238,7 @@ ui.QUI.Window = new Class({
 
     editTopic: function() {
         var self = this;
-        if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, OPSTATUS)) {
+        if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, constants.prefixes.op)) {
             new ui.Alert({
                 text: lang.changeTopicNeedsOp
             });
@@ -281,7 +281,7 @@ ui.QUI.Window = new Class({
         var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
         this.window.getElements(".input .user .status")
                     .removeClasses("op", "voice")
-                    .addClass((prefix === OPSTATUS) ? "op" : (prefix === VOICESTATUS) ? "voice" : "");
+                    .addClass((prefix === constants.prefixes.op) ? "op" : (prefix === constants.prefixes.voice) ? "voice" : "");
         this.__dirtyFixes();
     },
 
@@ -297,15 +297,14 @@ ui.QUI.Window = new Class({
             $menu = Element.from(templates.nickMenu(_.extend({
                 nick: nick,
                 channel: _chan,
-                weOped: self.client.nickOnChanHasAtLeastPrefix(_nick, _chan, OPSTATUS),
-                // weVoiced: self.client.nickOnChanHasPrefix(_nick, _chan, VOICESTATUS),
+                weOped: self.client.nickOnChanHasAtLeastPrefix(_nick, _chan, constants.prefixes.op),
                 notus: _nick !== nick,
-                theyOped: self.client.nickOnChanHasPrefix(nick, _chan, OPSTATUS),
-                theyVoiced: self.client.nickOnChanHasPrefix(nick, _chan, VOICESTATUS),
+                theyOped: self.client.nickOnChanHasPrefix(nick, _chan, constants.prefixes.op),
+                theyVoiced: self.client.nickOnChanHasPrefix(nick, _chan, constants.prefixes.voice),
 
                 lang: lang
             }, options))).inject($par);
-            _.defer(function() {
+            _.defer(function() { //prevent closing immediately
                 document.addEvent("click:once", function() {
                     $menu.dispose();
                     if(options.close) options.close();
@@ -410,24 +409,24 @@ ui.QUI.Window = new Class({
     //holy shit i got this to actually make sense
     // takes nicks (sorted array)
     updateNickList: function(nicklist) {
+        if(!this.nicklist) return false;
         var self = this;
-        if(!self.nicklist) return false;
-        var lnh = self.lastNickHash,
-            nicks = []; //users who left
+        var lnh = self.lastNickHash;
 
+        //get users who left
         //used to just take the difference and then do an each on that but changes to the array made it nec to do it like this for efficency
-        nicklist.each(function(nickobj, index) {
+        var nicks = nicklist.map(function(nickobj, index) {
             var nick = nickobj.nick;
             var old = lnh[nick];
-            nicks.push(nick);
 
             if(!old || old.prefix !== nickobj.prefix) {
                 if(old && old.element) old.element.dispose();//or update it jeez
                 lnh[nick] = self.nickListAdd(nickobj, index);
             }
+            return nick;
         });
 
-        _.each(_.difference(_.keys(lnh), nicks), function(nick) {
+        _.difference(_.keys(lnh), nicks).each(function(nick) {
             lnh[nick].element.dispose();
             delete lnh[nick];
         });
@@ -439,8 +438,9 @@ ui.QUI.Window = new Class({
 
         if (this.getOption("nick_colours")) {
             var colour = util.toHSBColour(nickobj.nick, this.client);
-            if ($defined(colour))
+            if (colour != null) {
                 span.setStyle("color", colour.rgbToHex());
+            }
         }
 
         this.nicklist.insertAt(nickele, position);
@@ -451,7 +451,7 @@ ui.QUI.Window = new Class({
     },
 
     setProperties: function(name) {
-        this.window.getElement(".properties").html(templates.channelName({channel: name}));
+        this.window.getElement(".channel-name").text(name);
         return this;
     }
 });

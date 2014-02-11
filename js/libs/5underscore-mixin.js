@@ -158,12 +158,6 @@
 
         toInt: Number.toInt,
 
-        clean: function(xs) {
-            return _.reject(xs, function(val) {
-                return val == null;
-            });
-        },
-
         log: function() {console.log(arguments)},
 
         //returns next item in array with overflow

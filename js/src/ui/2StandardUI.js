@@ -4,7 +4,8 @@ ui.StandardUI = new Class({
     Binds: ["whoisURL", "updateStylesheet",
             "nextWindow", "prevWindow",
             //custom windows
-            /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/],
+            /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/
+            ],
     // options: { -TODO
     //     routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     // },
@@ -20,7 +21,7 @@ ui.StandardUI = new Class({
             self.commandhistory = new irc.CommandHistory({
                 store: self.uiOptions.get("completer").store
             });
-            self.windows[ui.CUSTOM_CLIENT] = self.customWindows;
+            self.windows[ui.WINDOW.custom] = self.customWindows;
 
             getTemplate("qwebirc-layout", function(template) {
                 Elements.from(template()).inject(parentElement);
@@ -58,9 +59,10 @@ ui.StandardUI = new Class({
             self.updateURI($tar.get("href"));
         });
 
+        /* jshint maxcomplexity:false */
         var checkRoute = _.partial(_.defer, function(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            // if(self.options.debug) console.log("Route: %s Formatted: %s", data.request, request);
+            if(DEBUG) console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.identifier) {
                 return;
@@ -71,7 +73,6 @@ ui.StandardUI = new Class({
                     self.optionsWindow();
                     break;
                 case "channels":
-                case "channel list":
                     self.channelWindow();
                     break;
                 case "privacy":
@@ -114,7 +115,7 @@ ui.StandardUI = new Class({
 
     updateURI: function(url) {
         url = url || this.active.identifier;
-        if(this.router && (url != "login" || location.hash)) this.router.navigate(util.formatURL(url));
+        if(this.router && (url != constants.login || location.hash)) this.router.navigate(util.formatURL(url));
     },
 
     whoisURL: function(e, target) {
@@ -129,7 +130,7 @@ ui.StandardUI = new Class({
 
     optionsWindow: function() {
         var self = this;
-        return self.addCustomWindow("Options", ui.OptionView, "options", {
+        return self.addCustomWindow("options", ui.OptionView, "options", {
             model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
@@ -143,7 +144,7 @@ ui.StandardUI = new Class({
     },
     channelWindow: function() {
         var self = this;
-        var win = self.addCustomWindow("Channel list", ui.ChannelList, "channel-list", {
+        var win = self.addCustomWindow("channels", ui.ChannelList, "channel-list", {
             onAddChannel: function(channel) {
                 var settings = self.options.settings;
                 if(_.isEmpty(self.clients)) {
@@ -153,23 +154,23 @@ ui.StandardUI = new Class({
                 }
             }
         });
-        var sib = self.windows.brouhaha || self.getWindow("login");
+        var sib = self.windows.brouhaha || self.getWindow(constants.login);
         if(sib) self.linkWindows(win, {cols: "col-xl-5 col-md-6 col-sm-12", sibs: [sib] });
         return win;
     },
     embeddedWindow: function() {
-        return this.addCustomWindow("Add webchat to your site", ui.EmbedWizard, "embedded-wizard");
+        return this.addCustomWindow("embedded", ui.EmbedWizard, "embedded-wizard");
     },
     aboutWindow: function() {
-        return this.addCustomWindow("About", ui.AboutPane, "about");
+        return this.addCustomWindow("about", ui.AboutPane, "about");
     },
     privacyWindow: function() {
-        return this.addCustomWindow("Privacy policy", ui.PrivacyPolicyPane, "privacypolicy");
+        return this.addCustomWindow("privacy", ui.PrivacyPolicyPane, "privacypolicy");
     },
     feedbackWindow: function() {
-        return this.addCustomWindow("Feedback", ui.FeedbackPane, "feedback");
+        return this.addCustomWindow("feedback", ui.FeedbackPane, "feedback");
     },
     faqWindow: function() {
-        return this.addCustomWindow("FAQ", ui.FAQPane, "faq");
+        return this.addCustomWindow("faq", ui.FAQPane, "faq");
     }
 });
