@@ -1,4 +1,4 @@
-(function() {
+(function(window) {
 
     //okay this is mainly just for preference - didnt like merges behaviour with classes particularly with Options.setOptions and this was the easiest way to reimplemnt it
     //https://github.com/mootools/mootools-core/issues/2526
@@ -41,13 +41,13 @@
 
         //replaces all occurences of the tofind string in this string with
         //alternatively call replace with a regex global
-        //http://jsperf.com/replaceall-escape
+        //http://jsperf.com/replaceall-escape/3
         replaceAll: function(tofind, torep) {
-            var ns = this;
-            while (ns.indexOf(tofind) > -1) {
-                ns = ns.replace(tofind, torep); //using regex you end up having todo a bunch of escaping
+            var temp, str = this;
+            while ((temp = str.replace(tofind, torep)) !== str) { //using regex you end up having todo a bunch of escaping) {
+                str = temp;
             }
-            return ns;
+            return str;
         },
 
         //splits string into array of with a max length of max
@@ -100,11 +100,11 @@
     };
 
     ["html", "text", "val"].each(function(fn) {
-            Element.implement(fn, function(data) {
-                if (typeof data !== "undefined") return this.set(fn, data);
-                return this.get(fn);
-            });
+        Element.implement(fn, function(data) {
+            if (typeof data !== "undefined") return this.set(fn, data);
+            return this.get(fn);
         });
+    });
 
     _.extend(Element.NativeEvents, {
         adopt: 2,
@@ -177,15 +177,10 @@
         removeClasses: function() {
             Array.each(arguments, this.removeClass, this);
             return this;
-        },
-
-        hasClasses: function() {
-            Array.every(arguments, this.hasClass, this);
         }
-
     });
 
-    if (this.document) {
+    if (window.document) {
         if(!(Type.isFunction(document.hasFocus))) {//crude focus polyfill
             var focus = true;
             window.addEvents({
@@ -198,22 +193,12 @@
         }
     }
 
-    this.$lambda = Function.from;
+    window.$lambda = Function.from;
 
-    this.$chk = function(obj) {
-        return !!(obj || obj === 0);
-    };
-
-    this.$clear = function(timer) {
+    window.$clear = function(timer) {
         clearTimeout(timer);
         clearInterval(timer);
         return null;
     };
 
-    this.$defined = function(obj) {
-        return (obj != null);
-    };
-
-    this.$A = Array.from;
-
-})();
+})(this);

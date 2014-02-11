@@ -2,10 +2,6 @@ ui.Window = new Class({
     Extends: Epitome.View,
     Binds: ["sendInput"],
     options: {
-        events: {
-
-        },
-
         onReady: function() {
             this.render();
         },

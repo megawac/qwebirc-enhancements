@@ -75,7 +75,7 @@ window.Base64 = (function() {
     };
 
     var _hexEncode = function(input) {
-        var output = '', i;
+        var output = "", i;
 
         for(i = 0; i < input.length; i++) {
             output += input.charCodeAt(i).toString(16);
@@ -85,10 +85,10 @@ window.Base64 = (function() {
     };
 
     var _hexDecode = function(input) {
-        var output = '', i;
+        var output = "", i;
 
         if(input.length % 2 > 0) {
-            input = '0' + input;
+            input = "0" + input;
         }
 
         for(i = 0; i < input.length; i = i + 2) {
@@ -99,8 +99,7 @@ window.Base64 = (function() {
     };
 
     var encode = function (input) {
-        if(!$defined(input))
-            return null;
+        if(input == null) return null;
 
         var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
 
@@ -134,8 +133,7 @@ window.Base64 = (function() {
     };
 
     var decode = function (input) {
-        if(!$defined(input))
-            return null;
+        if(input == null) return null;
 
         var output = "", chr1, chr2, chr3, enc1, enc2, enc3, enc4, i = 0;
 
@@ -175,9 +173,9 @@ window.Base64 = (function() {
     };
 
     return {
-        'encode': encode,
-        'decode': decode,
-        'decodeToHex': decodeToHex,
-        'encodeFromHex': encodeFromHex
+        "encode": encode,
+        "decode": decode,
+        "decodeToHex": decodeToHex,
+        "encodeFromHex": encodeFromHex
     };
 }());
