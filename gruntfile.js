@@ -11,8 +11,8 @@ Flags:
 /* jshint node:true */
 module.exports = function(grunt) {
     var package = grunt.file.readJSON("./package.json");
-    var build = grunt.file.readJSON("./build.json");
-    var files = grunt.file.readJSON("./build-files.json");
+    var build = grunt.file.readYAML("./build.yml");
+    var files = grunt.file.readYAML("./build-files.yml");
     var templateContext = {
         package: package,
         pkg: package,
@@ -36,47 +36,39 @@ module.exports = function(grunt) {
         meta: {},
 
         handlebars: {
-            dist: {
-                options: {
-                    namespace: "qwebirc.templates",
-                    compilerOptions: {
-                        knownHelpers: {
-                            "check": true,
-                            "$css": true,
-                            "enableDisable": true,
-                            "$link": true,
-                            "format": true,
-                            "lang": true
-                        },
-                        knownHelpersOnly: true,
+            options: {
+                namespace: "qwebirc.templates",
+                compilerOptions: {
+                    knownHelpers: {
+                        "check": true,
+                        "$css": true,
+                        "enableDisable": true,
+                        "$link": true,
+                        "format": true,
+                        "lang": true
                     },
-                    wrapped: true,
-                    node: false,
-                    // amd: true,
-                    processContent: function(content) {//remove whitespace
-                        content = content.replace(/^[\x20\t]+/mg, "")
-                                        .replace(/[\x20\t]+$/mg, "")
-                                        .replace(/\r\n/g, "");//remove line breaks (for min)
-                        return content;
-                    },
-
-                    processName: function(filename) {
-                        return filename.substring(filename.lastIndexOf("/") + 1, filename.length-4);//last dash to the end of string (sub .hbs)
-                    }
+                    knownHelpersOnly: true
                 },
-                files: {
-                    "js/templates/qwebirc.js": [/*"css/src/*.hbs", */"templates/**.hbs"],
-                    "js/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
-                    "js/templates/channel-list.js": ["panes/channel-list.hbs", "panes/partials/channel-list-content.hbs"],
-                    "js/templates/wizard.js": ["panes/wizard.hbs"],
-                    "js/templates/feedback.js": ["panes/feedback.hbs"],
-                    "js/templates/about.js": ["panes/about.hbs"],
-                    "js/templates/faq.js": ["panes/faq.hbs"],
-                    "js/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
-                    "js/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
-                    "js/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
-                    "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
+                wrapped: true,
+                node: false,
+                // amd: true,
+                processContent: function(content) {//remove whitespace
+                    content = content.replace(/^[\x20\t]+/mg, "")
+                                    .replace(/[\x20\t]+$/mg, "")
+                                    .replace(/\r\n/g, "");//remove line breaks (for min)
+                    return content;
+                },
+
+                processName: function(filename) {
+                    return filename.substring(filename.lastIndexOf("/") + 1, filename.length-4);//last dash to the end of string (sub .hbs)
                 }
+            },
+
+            main: {
+                files: files.templates.main
+            },
+            panes: {
+                files: files.templates.panes
             }
         },
 
@@ -86,6 +78,10 @@ module.exports = function(grunt) {
                 separator: "\n"
             },
             qweb: {
+                options: {
+                    banner: "(function(window, document, undefined) {",
+                    footer: "})(window, document);"
+                },
                 // the files to concatenate
                 src: files.qwebirc,
                 // the location of the resulting JS file
@@ -122,6 +118,7 @@ module.exports = function(grunt) {
                 preserveComments: "none",
                 beautify: !build.minify,
                 ast_lift_variables: true,
+
                 banner: [
                     "/*!",
                     "<%= pkg.name %> ::: Version <%= pkg.version %> :::",
@@ -135,6 +132,19 @@ module.exports = function(grunt) {
                     "*/\n"
                 ].join("\n")
             },
+            templates: {
+                options: {
+                    mangle: true,
+                    beautify: false,
+                    enclose: undefined,
+
+                    banner: "//qwebirc v<%= pkg.version %> templates\n"
+                },
+                files: {
+                    "js/dist/templates-<%= pkg.version %>.js": files.templates.qwebirc
+                }
+            },
+
             plugins: {
                 options: {
                     banner: "/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n"
@@ -215,7 +225,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask("build-templates", [
         "concat:modifiablecss",
-        "handlebars"
+        "handlebars",
+        "uglify:templates"
     ]);
 
     grunt.registerTask("build-js", [

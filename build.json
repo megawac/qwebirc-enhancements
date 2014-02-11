@@ -1,7 +1,0 @@
-{
-    "minify": false,
-    "concat": false,
-    "use cdn": true,
-    "node server": true,
-    "twisted server": true
-}

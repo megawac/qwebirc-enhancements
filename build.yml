@@ -1,0 +1,20 @@
+{
+    #minify source files?
+    "minify": false,
+    # compile all local source files into a large file
+    # see https://hacks.mozilla.org/2012/12/fantastic-front-end-performance-part-1-concatenate-compress-cache-a-node-js-holiday-season-part-4/
+    "concat": false,
+    # Load resources off of a top-tier CDN where possible
+    # see http://www.sitepoint.com/7-reasons-to-use-a-cdn/
+    "use cdn": true,
+
+    # Does your server support Atheme RPC services (currently only using channel lists)
+    "atheme": false,
+
+    # deprecated
+    "node server": true,
+    "twisted server": true,
+
+    # In debug mode? console debug statements may be outputted
+    "debug": false
+}

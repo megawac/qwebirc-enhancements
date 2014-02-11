@@ -1,56 +1,67 @@
 /* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
-; (function(window, Epitome, undefined) {
-    "use strict";
-    var DEBUG = false;
+// ; (function(window, Epitome, undefined) {
 
-    //common globals
-    var document = window.document,
-        $ = document.id,
-        $$ = document.getElements;
+//wrapped by uglify iffe
+/* jshint globalstrict:true */
+"use strict";
+
+var DEBUG = <%= build.debug %>; //will be removed as dead code if false
+
+//common globals
+var $ = document.id,
+    $$ = document.getElements;
 
 
-    //global object
-    var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
-        irc: {},
-        ui: {
-            themes: {}
-        },
-        util: {
-            crypto: {}
-        },
-        global: {
-            dynamicBaseURL: "/",
-            staticBaseURL: "/"
-        },
-        config: {},
-        auth: {},
-        sound: {},
-        lang: {},
-        templates: {},
-        cookies: {
-            "options": "qweb-options",
-            "history": "qweb-hist",
-            "settings": "qweb-settings"
-        },
-        VERSION: "<%= pkg.version %>"
-    });
+//global object
+var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
+    irc: {},
+    ui: {
+        themes: {}
+    },
+    util: {
+        crypto: {}
+    },
+    global: {
+        dynamicBaseURL: "/",
+        staticBaseURL: "/"
+    },
+    config: {},
+    auth: {
+        loggedin: false,
+        enabled: false,
 
-    var irc = qwebirc.irc,
+        passAuth: Function.from(true),
+        bouncerAuth: Function.from(false)
+    },
+    sound: {},
+    lang: {},
+    constants: {},
+    templates: {},
+    cookies: {
+        "options": "qweb-options",
+        "history": "qweb-hist",
+        "settings": "qweb-settings"
+    },
+    VERSION: "<%= pkg.version %>"
+});
 
-        util = qwebirc.util,
-        crypto = util.crypto,
+var irc = qwebirc.irc,
 
-        config = qwebirc.config,
-        auth = qwebirc.auth,
+    util = qwebirc.util,
+    crypto = util.crypto,
 
-        ui = qwebirc.ui,
-        themes = ui.themes,
-        style = ui.style,
+    config = qwebirc.config,
+    auth = qwebirc.auth,
 
-        cookies = qwebirc.cookies,
+    ui = qwebirc.ui,
+    themes = ui.themes,
 
-        sound = qwebirc.sound,
+    cookies = qwebirc.cookies,
 
-        lang = qwebirc.lang,
+    sound = qwebirc.sound,
 
-        templates = qwebirc.templates;
+    lang = qwebirc.lang,
+
+    templates = qwebirc.templates,
+
+    constants = qwebirc.constants;

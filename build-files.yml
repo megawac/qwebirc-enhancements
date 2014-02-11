@@ -1,6 +1,5 @@
 {
     "qwebirc": [
-        "js/templates/qwebirc.js",
         "js/src/qwebirc_start.js",
         "js/src/util/*.js",
         "templates/Templates.js",
@@ -12,16 +11,40 @@
         "js/src/ui/panes/*.js",
         "js/src/qwebirc_end.js"
     ],
+    "templates": {
+        "qwebirc": "js/templates/qwebirc.js",
+        "main": {
+            "js/templates/qwebirc.js": "templates/**.hbs"
+        },
+        "panes": {
+            "js/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
+            "js/templates/channel-list.js": ["panes/channel-list.hbs", "panes/partials/channel-list-content.hbs"],
+            "js/templates/wizard.js": ["panes/wizard.hbs"],
+            "js/templates/feedback.js": ["panes/feedback.hbs"],
+            "js/templates/about.js": ["panes/about.hbs"],
+            "js/templates/faq.js": ["panes/faq.hbs"],
+            "js/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
+            "js/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
+            "js/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
+            "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
+        }
+    },
     "plugins": [
         "js/libs/*.js",
         "js/libs/Epitome/*.js"
     ],
     "full": [
         "js/dist/plugins-<%= pkg.version %>.js",
+        "js/dist/templates-<%= pkg.version %>.js",
         "js/dist/qwebirc-<%= pkg.version %>.js"
     ],
 
     "resources": {
+        "qwebirc templates": {
+            "local": "js/dist/templates-<%= pkg.version %>.js",
+            "local min": "js/dist/templates-<%= pkg.version %>.js"
+        },
+
         "qwebirc css": {
             "local": "css/qwebirc-<%= pkg.version %>.css",
             "local min": "css/qwebirc-<%= pkg.version %>-min.css"
