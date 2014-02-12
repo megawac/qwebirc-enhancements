@@ -4,6 +4,7 @@ qwebirc-mods
 <img align="right" height="125" src="https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png">
 Qwebirc is intended to be a simple, intuitive and feature rich IRC client that operates out of the browser. This spiritual *fork* of Chris Porter's [qwebirc](http://qwebirc.org/) is a complete rewrite of the project in order to introduce more customability, add features introduced with HTML5, improve the extensibility of the code and revamp the ui (still qui). I began this project when I became frustrated trying to create a plugin atop of Qwebirc; flexibility and extensibility are two of the main focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Here's a ([Screenshot](http://puu.sh/4ANPf.png)) of a live instance.  
 
+** This is undergoing active development and I have plans on releasing staging a RC build **
  
 ## Installation:  
 
@@ -45,13 +46,12 @@ You can set compile settings either in the gruntfile manually or using some of t
  * concat: concatenate files into large files where applicable
   
 ##Status
-Project is currently at `v0.95.0` until localization and channel lists are supported see [todos](#todos).
+Project is currently at `v-0.96.x` until localization and channel lists are supported see [todos](#todos).
   
 ####Done:  
 * improved extendibility through modularization and refactoring
 * ui client relationship event driven and moving important functions to utils. Makes implementing extensions much simpler
- * redid url parser to be easier to add patterns
- * reduced network bandwidth load
+ * redid url parser to be easier to add patterns and more complete
 * various new ui features and fixes (some mentioned below)
  * detachable windows and resizable components
  * fixed tab overflow not showing
@@ -67,23 +67,18 @@ Project is currently at `v0.95.0` until localization and channel lists are suppo
 * mocked up new input bar see screenshot above
   
 ####TODOs: 
-* (major) Add channel list support
-* (mid) Complete localization
-* Add options for:
- * configure notification type per option (in works)
- * (major) configure hotkeys
-* (minor) Process lines for brouhaha and the proper window once
 * (minor) Finish Drag.SplitPane module (issues with keeping relative pos with window resizes) {{link to repo}}
+* (minor) Move `ui.Theme` methods to utils and `ui.IWindow`
+* (minor) Refactor `ui.Window` to `ui.IWindow`
+* (major) Proper dependency management system either through a JSDoc `@depend` tool or `require/export` tool
+* Add options for:
+ * (mid) configure hotkeys
+* (major) Refactor python compile code to call appropriate Grunt build and set app options
+* (major) Complete localization
   
   
 ####KNOWN BUGS:  
-* Opera ui is bugged due to https://github.com/mootools/mootools-core/issues/2325
 * __ie7 isnt rendering__ the site according to webpagetest.org. please send help or maple syrup  
-
-####Future Goals 
-* multi-server support
-* amd support  
-
 
 ##DEMO:  
 
