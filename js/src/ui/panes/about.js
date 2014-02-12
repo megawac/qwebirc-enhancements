@@ -1,7 +1,7 @@
 ui.AboutPane = new Class({
     Extends: PanelView,
     options: {
-        pane: 'about',
+        pane: "about",
         data: {
             version: qwebirc.VERSION
         }

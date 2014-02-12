@@ -116,7 +116,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
     cmd_SAY: {
         minargs: 1,
         fn: function(args, target) { //direct
-            return ["PRIVMSG", target + " " + args || ""];//purpose is different split args
+            return ["PRIVMSG", target + ((" " + args) || "")];//purpose is different split args
         }
     },
 
@@ -342,7 +342,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         minargs: 1,
         fn: function(args) {
             if(_.isEmpty(args)) return;
-            var channels = Array.from(args).flatten();
+            var channels = args.flatten();
             var formatted = util.formatChannelString(channels);
 
             if (!_.isEqual(channels, util.splitChans(formatted) )) {
@@ -360,7 +360,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
         splitargs: 1,
         minargs: 1,
         fn: function(args) {//accepts string or array
-            var channels = Array.from(args).map(util.splitChans).flatten().filter(this.canJoinChannel, this);
+            var channels = args.map(util.splitChans).flatten().filter(this.canJoinChannel, this);
             this.cmd_FJOIN.fn.call(this, channels);//join channels into a single comma sep string then join
         }
     },

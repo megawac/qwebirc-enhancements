@@ -53,13 +53,13 @@ ui.setTitle = function(title, options) {
     document.title = title;
 };
   
-util.setCaretPos = Element.setCaretPosition;
+// util.setCaretPos = Element.setCaretPosition;
   
-util.setAtEnd = function($el) {
-    $el.setCaretPosition($el.value.length);
-};
+// util.setAtEnd = function($el) {
+//     $el.setCaretPosition($el.value.length);
+// };
   
-util.getCaretPos = Element.getCaretPosition;
+// util.getCaretPos = Element.getCaretPosition;
   
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);

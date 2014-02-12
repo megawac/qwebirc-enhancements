@@ -57,12 +57,11 @@
         // "testwillsplitinto1".splitMax("!", 3) => ["testwillsplitinto1"]"
         //http://jsperf.com/string-splitmax-implementations
         splitMax: function(by, max) {
-            max = max || 1;
+            max = (max || 1) - 1;
             var items = this.split(by),
-                len = max - 1,
-                newitems = items.slice(0, len);
-            if (items.length >= max) {
-                newitems.push(items.slice(len).join(by));
+                newitems = items.slice(0, max);
+            if (items.length > max) {
+                newitems.push(items.slice(max).join(by));
             }
             return newitems;
         },

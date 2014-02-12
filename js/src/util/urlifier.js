@@ -1,6 +1,4 @@
-
 (function() {
-
     //welcome to my dirty corner. Here we welcome regexs and confusing loops
 
     //Parses messages for url strings and creates hyperlinks
@@ -14,46 +12,40 @@
     urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
 
     urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
-                //given "qwebirc://whois/rushey#tf2mix/"
-                if(word.contains("qwebirc://")) {
-                    var parsed = this.parsePunctuation(word),
-                        mid = parsed.mid;
+        //given "qwebirc://whois/rushey#tf2mix/"
+        if(word.contains("qwebirc://")) {
+            var parsed = this.parsePunctuation(word),
+                mid = parsed.mid;
 
-                    if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
-                        var cmd = mid.slice(10);//remove qwebirc://
-                        /*if(cmd.startsWith("whois/")) {
-                            var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
-                            var chan = chan_match ? chan_match[0] : "";
-                            var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
-                            var user = cmd.slice(6, chanlen);//whois to channel
-                            cmd = templates.userlink({"userid": user, "username": user + chan});
-                        }*/
-                        if(["options", "embedded", "privacy", "channels"].some(cmd.startsWith.bind(cmd))) {
-                            cmd = templates.customlink({
-                                val: cmd.match(/\w+\w/),
-                                internal: true
-                            });
-                        }
-                        word = parsed.lead + cmd + parsed.end;
-                    }
-                }
-                return word;
+            if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
+                var cmd = mid.slice(10);//remove qwebirc://
+                /*if(cmd.startsWith("whois/")) {
+                    var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
+                    var chan = chan_match ? chan_match[0] : "";
+                    var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
+                    var user = cmd.slice(6, chanlen);//whois to channel
+                    cmd = templates.userlink({"userid": user, "username": user + chan});
+                }*/
+                word = parsed.lead + cmd + parsed.end;
+            }
+        }
+        return word;
 
-                //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
-            })
-            .addPattern(/\B#+(?![\._#-+])/, function(word) {
-                var parsed = this.parsePunctuation(word),
-                    res = parsed.mid;
+        //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
+    })
+    .addPattern(/\B#+(?![\._#-+])/, function(word) {
+        var parsed = this.parsePunctuation(word),
+            res = parsed.mid;
 
-                if(util.isChannel(res)) {
-                    res = templates.customlink({
-                        val: res,
-                        internal: true
-                    });
-                }
-
-                return parsed.lead + res + parsed.end;
+        if(util.isChannel(res)) {
+            res = templates.customlink({
+                val: res,
+                internal: true
             });
+        }
+
+        return parsed.lead + res + parsed.end;
+    });
 
     var inputurl = util.inputParser = new Urlerizer({
         default_parser: false,

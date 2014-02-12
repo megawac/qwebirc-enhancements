@@ -6,9 +6,10 @@ ui.IWindows = new Class({
     nav: null,
 
     getWindowIdentifier: function(name) {
-        var id = name.toLowerCase();
-        var wid = _.find(ui.WINDOW_ID_MAP, function(val) {return val.keys.contains(id);});
-        return wid && wid.id || id;
+        for(var wid in windowNames) { //check if base window
+            if(windowNames[wid] === name) return wid;
+        }
+        return name.toLowerCase();
     },
 
     getClientId: function(client) {
@@ -128,7 +129,7 @@ ui.IWindows = new Class({
     },
     getActiveIRCWindow: function(client) {
         if (!this.active || this.active.type == ui.WINDOW.custom) {
-            return this.windows[this.getClientId(client)][this.getWindowIdentifier(STATUS)];
+            return this.windows[this.getClientId(client)][this.getWindowIdentifier(constants.status)];
         } else {
             return this.active;
         }
@@ -164,7 +165,7 @@ ui.IWindows = new Class({
         this.nav.removeTab(win.tab);
         var index = winarr.indexOf(win);
         winarr = this.windowArray.erase(win);
-        delete this.windows[this.getClientId(win.client)][win.identifier];
+        delete this.windows[this.getClientId(win.client)][win.id];
 
         if (isActive) {
             delete this.active;
@@ -214,7 +215,9 @@ ui.IWindows = new Class({
             win.lines.addClass(cssClass);
         }
 
-        options.element = win.lines;
+        options = _.extend({
+            element: win.lines
+        }, options);
         new CustomView(options)
             .addEvent("close", win.close);
 
