@@ -4,7 +4,7 @@ qwebirc-mods
 <img align="right" height="125" src="https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png">
 Qwebirc is intended to be a simple, intuitive and feature rich IRC client that operates out of the browser. This spiritual *fork* of Chris Porter's [qwebirc](http://qwebirc.org/) is a complete rewrite of the project in order to introduce more customability, add features introduced with HTML5, improve the extensibility of the code and revamp the ui (still qui). I began this project when I became frustrated trying to create a plugin atop of Qwebirc; flexibility and extensibility are two of the main focuses of the changes. I have also added multiple features, made code quality improvements, bug fixes, etc. Here's a ([Screenshot](http://puu.sh/4ANPf.png)) of a live instance.  
 
-** This is undergoing active development and I have plans on releasing staging a RC build **
+**This is undergoing active development - a RC build is being staged**
  
 ## Installation:  
 
