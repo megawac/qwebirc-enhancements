@@ -198,23 +198,20 @@ irc.IRCClient = new Class({
         });
     },
 
-    //needs a rewrite with a proper list implementation
-    getPopularChannels: function(cb, minUsers) {
-        this.hidelistout = true;
-        this.exec("/list >" + (minUsers || 75)); //request chans with more than 75 users
-        this.addEvent("listend:once", function() {
-            var chans = _.chain(this.listedChans)
-                        .clone()
-                        .sortBy(function(chan) {return -chan.users}) //neg to sort descending
-                        .value();
-            cb(chans);
-            this.hidelistout = false;
-        });
-    },
+    // //needs a rewrite with a proper list implementation
+    // getPopularChannels: function(cb, minUsers) {
+    //     this.hidelistout = true;
+    //     this.exec("/list >" + (minUsers || 75)); //request chans with more than 75 users
+    //     this.addEvent("listend:once", function() {
+    //         var chans = _.sortBy(this.listedChans.clone(), function(chan) {return -chan.users}); //neg to sort descending
+    //         cb(chans);
+    //         this.hidelistout = false;
+    //     });
+    // },
 
     canJoinChannel: function(chan) {//currently not implemented due to comments. Uncomment if desired
         //check if already on channel
-        // if(chan === constants.brouhaha) return true;
+        // if(chan === "brouhaha") return true;
         // else if(this.tracker.getChannel(chan)) return false;
 
         // var chansets = session.get(chan) || [], //oldest -> newest
@@ -239,7 +236,7 @@ irc.IRCClient = new Class({
         // }
 
         // return broken.length === 0;
-        return chan === constants.brouhaha || !this.tracker.getChannel(chan);
+        return chan === "brouhaha" || !this.tracker.getChannel(chan);
     },
 
     /*************************************************
@@ -284,7 +281,7 @@ irc.IRCClient = new Class({
             channel: constants.status,
             message: []
         }, data);
-        data.channels = data.channels === "ALL" ? [constants.status, constants.brouhaha].concat(this.channels) : data.channels;
+        data.channels = data.channels === "ALL" ? [constants.status, "brouhaha"].concat(this.channels) : data.channels;
         var types = lang.TYPES;
 
         function write(message) {
@@ -350,7 +347,7 @@ irc.IRCClient = new Class({
         }
 
         self.writeMessages(lang.signOn);
-        self.writeMessages(lang.loginMessages, {}, {channel: constants.brouhaha});
+        self.writeMessages(lang.loginMessages, {}, {channel: "brouhaha"});
 
         if (!self.authed && auth.enabled) {
             self.send(util.formatCommand("AUTH", self.options));
@@ -1218,27 +1215,26 @@ irc.IRCClient = new Class({
             type: "channelModeIs"
         });
         return true;
-    },
-
-
-    irc_RPL_LISTSTART: function() {
-        this.listedChans = [];//should have a make list command in command utils
-        return !this.hidelistout;
-    },
-
-    irc_RPL_LIST: function(data) {
-        this.listedChans.push({
-            channel: data.args[1],
-            users: _.toInt(data.args[2]),
-            topic: data.args[3]
-        });
-        return !this.hidelistout;
-    },
-
-    irc_RPL_LISTEND: function() {
-        this.trigger("listend", this.listedChans);
-        return !this.hidelistout;
     }
+
+    // irc_RPL_LISTSTART: function() {
+    //     this.listedChans = [];//should have a make list command in command utils
+    //     return !this.hidelistout;
+    // },
+
+    // irc_RPL_LIST: function(data) {
+    //     this.listedChans.push({
+    //         channel: data.args[1],
+    //         users: _.toInt(data.args[2]),
+    //         topic: data.args[3]
+    //     });
+    //     return !this.hidelistout;
+    // },
+
+    // irc_RPL_LISTEND: function() {
+    //     this.trigger("listend", this.listedChans);
+    //     return !this.hidelistout;
+    // }
 });
 /*************************
    Whewh.. end irc client
