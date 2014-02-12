@@ -16,9 +16,22 @@
 
     //language specific stuff. right now just an object
     // can either be a message or array of messages
-    _.extend(lang, {
+    _.merge(lang, {
         TYPES: types,
         message: message,
+
+        windowNames: {
+            "brouhaha": " ", //empty string so no channel name but custom icon
+            "login":    "Connection Details",
+            "status":   "Status",
+            "options":  "Options",
+            "faq":      "FAQ",
+            "privacy":  "Privacy Policy",
+            "embed":    "Add qwebirc to your site",
+            "feedback": "Feedback",
+            "about":    "About",
+            "channels": "Channel List"
+        },
 
         loginMessages: [message("Hint #1! When you close a channel this one will be deleted from your favorites and won't come back on the next connection.", types.INFO),
                         message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],

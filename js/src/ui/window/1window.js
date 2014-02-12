@@ -19,7 +19,7 @@ ui.Window = new Class({
         this.type = type;
         this.currentChannel = this.name = name;
         this.client = client;
-        this.identifier = identifier;
+        this.id = identifier;
         this.history = this.parentObject.commandhistory;
         this.parent({
             element: $par
@@ -45,8 +45,7 @@ ui.Window = new Class({
         if(this.active || this.closed) return;
         this.active = true;
         this.parentObject.selectWindow(this);
-        if (this.highlight)
-            this.highlightTab(ui.HIGHLIGHT.none);
+        if (this.highlight) this.highlightTab(ui.HIGHLIGHT.none);
 
         this.fireEvent("selected");
     },
@@ -69,7 +68,7 @@ ui.Window = new Class({
     addLine: function(type, data, colour, $ele) {
         var self = this,
             parent = self.parentObject;
-        var highlight =  this.name !== BROUHAHA ? parent.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
+        var highlight =  self.id !== "brouhaha" ? parent.theme.highlightAndNotice(data, type, self, $ele) : ui.HIGHLIGHT.none,
             hl_line = false;
 
         if (!self.active && (highlight !== ui.HIGHLIGHT.none)) {
@@ -78,10 +77,10 @@ ui.Window = new Class({
 
         parent.theme.formatMessage($ele, type, data, hl_line);
         self.lines.adopt($ele)
-                .maxChildren(this.options.maxLines);//remove lines if > maxLines
+                .maxChildren(self.options.maxLines);//remove lines if > maxLines
 
         if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
-            this.lastLine = (this.lastLine || Element.from(templates.messageLine())).inject(this.lines);
+            self.lastLine = (self.lastLine || Element.from(templates.messageLine())).inject(self.lines);
         }
     },
     errorMessage: function(message) {
@@ -103,7 +102,7 @@ ui.Window = new Class({
         //}
         var unparsed = $tar.val(),
             parsed = util.inputParser.parse(unparsed);
-        if (parsed !== "") {
+        if (parsed) {
             this.history.addLine(this.name, unparsed || parsed);
             this.client.exec(parsed, this.currentChannel);
             $tar.val("");

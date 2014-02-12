@@ -36,6 +36,7 @@
     "config": true,
     "cookies": true,
     "constants": true,
+    "windowNames": true,
 
     //Locals
     "DEBUG": true

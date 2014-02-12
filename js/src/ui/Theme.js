@@ -150,7 +150,7 @@ ui.Theme = new Class({
                     (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.testForNick(nick, data.m)) )
                 {
-                    if((!win.active && win.name !== constants.brouhaha) || (!document.hasFocus()) ) {
+                    if((!win.active && win.id !== constants.brouhaha) || (!document.hasFocus()) ) {
                         if(parser.flash) {
                             win.parentObject.flash();
                         }

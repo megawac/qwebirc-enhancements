@@ -26,17 +26,17 @@ ui.QUI = new Class({
     setBrouhahaChan: function(name) {
         var brouhaha = this.windows.brouhaha;
         brouhaha.currentChannel = name;
-        brouhaha.setProperties(name);
+        brouhaha.window.getElement(".channel-name").text(name);
     },
 
     selectTab: function(tab) {
         var active = this.active;
         var win = tab.retrieve("window");
         var isChannel = util.isChannelType(win.type);
-        if(!active || !isChannel || (isChannel && active.name !== constants.brouhaha)) {
+        if(!active || !isChannel || (isChannel && active.name !== windowNames.brouhaha)) {
             win.select();
         }
-        if(!util.isBaseWindow(win.name) && isChannel) {//update brouhaha window attrs
+        if(this.windows.brouhaha && isChannel && !util.isBaseWindow(win.id)) {//update brouhaha window attrs
             this.setBrouhahaChan(win.name);
             tab.addClass("selected");
         }
@@ -51,13 +51,12 @@ ui.QUI = new Class({
 
     newTab: function(win, name) {
         var self = this;
-        var isBrouhaha = (name === constants.brouhaha);
         var $tab = Element.from(templates.ircTab({
-            "name": isBrouhaha ? "" : name,
-            closable: !util.isBaseWindow(name)
+            "name": name,
+            closable: !util.isBaseWindow(win.id)
         }));
         self.nav.addTab($tab);
-        if(isBrouhaha) $tab.addClass("brouhaha");
+        if(win.id === "brouhaha") $tab.addClass("brouhaha");
         $tab.store("window", win);
 
         return $tab;
@@ -161,7 +160,7 @@ ui.QUI = new Class({
         //load brouhaha window (b4 connecting)
         var makeBrouhaha = function() {
             if(self.uiOptions.get("brouhaha").enabled) {
-                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, constants.brouhaha);
+                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, windowNames.brouhaha);
                 if(!client.isConnected()) {
                     client.addEvent("userJoined:once", function(type, data) {
                         self.setBrouhahaChan(data.channel);

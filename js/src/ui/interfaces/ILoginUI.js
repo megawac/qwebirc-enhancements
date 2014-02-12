@@ -136,7 +136,7 @@
         LoginBox: LoginBox,
         loginBox: function() {
             var self = this;
-            var win = this.newCustomWindow(constants.login, true, ui.WINDOW.connect);
+            var win = this.newCustomWindow(windowNames.login, true, ui.WINDOW.connect);
             var callback = function(data) {
                 win.close();
                 self.fireEvent("login", data);

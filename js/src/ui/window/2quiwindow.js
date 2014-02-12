@@ -41,11 +41,12 @@ ui.QUI.Window = new Class({
                 isChannel: util.isChannelType(self.type),
                 channel: self.name,
                 name: self.name,
-                id: self.name.clean().replace(" ", "-"),
+                id: self.id,//self.name.clean().replace(" ", "-"),
                 topic: false,
                 needsInput: hasInput,
-                nick: self.client ? self.client.nickname : "/*",
-                splitPane: false//feature in development having issue with resizes {{link to repo}}*/
+                nick: self.client && self.client.nickname,
+                client: self.client
+                // splitPane: false//feature in development having issue with resizes {{link to repo}}*/
             }));
         var $win = self.window = self.element.getElement(".window").store("window", self);
 
@@ -76,7 +77,7 @@ ui.QUI.Window = new Class({
         if(e) e.stop();
         if (this.closed) return;
 
-        if (util.isChannelType(this.type) && !util.isBaseWindow(this.name)) {
+        if (util.isChannelType(this.type)) {
             this.client.exec("/PART " + this.name);
         }
 
@@ -117,7 +118,7 @@ ui.QUI.Window = new Class({
 
             wrapper = self.wrapper = Element.from(templates.detachedWindow({
                 "channel": self.name,
-                "base": util.isBaseWindow(self.name)
+                "base": util.isBaseWindow(self.id)
             })),
             //header = wrapper.getElement(".header"),
 
@@ -202,7 +203,7 @@ ui.QUI.Window = new Class({
             self.fxscroll.start();
         }
         if(!self.completer && self.type === ui.WINDOW.channel) {
-            self.completer = new Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.name), {
+            self.completer = new Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.id), {
                 autocomplete: self.getOption("completer").intrusive
             });
             self.completer.$hint.addClass("decorated");
@@ -448,10 +449,5 @@ ui.QUI.Window = new Class({
         return _.extend({
             element: nickele
         }, nickobj);
-    },
-
-    setProperties: function(name) {
-        this.window.getElement(".channel-name").text(name);
-        return this;
     }
 });

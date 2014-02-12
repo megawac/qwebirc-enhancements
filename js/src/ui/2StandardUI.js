@@ -64,7 +64,7 @@ ui.StandardUI = new Class({
             var request = util.unformatURL(data.request).toLowerCase();
             if(DEBUG) console.log("Route: %s Formatted: %s", data.request, request);
 
-            if(self.active && request === self.active.identifier) {
+            if(self.active && request === self.active.id) {
                 return;
             }
 
@@ -84,14 +84,14 @@ ui.StandardUI = new Class({
                 case "about":
                     self.aboutWindow();
                     break;
-                case "embedded":
+                case "embed":
                     self.embeddedWindow();
                     break;
                 case "feedback":
                     self.feedbackWindow();
                     break;
                 default:
-                    var win = _.findWhere(self.windowArray, {identifier:request});
+                    var win = _.findWhere(self.windowArray, {id:request});
                     if(win) {
                         win.select();
                     } else if(util.isChannel(request)) {
@@ -114,7 +114,7 @@ ui.StandardUI = new Class({
     },
 
     updateURI: function(url) {
-        url = url || this.active.identifier;
+        url = url || this.active.id;
         if(this.router && (url != constants.login || location.hash)) this.router.navigate(util.formatURL(url));
     },
 
@@ -130,7 +130,7 @@ ui.StandardUI = new Class({
 
     optionsWindow: function() {
         var self = this;
-        return self.addCustomWindow("options", ui.OptionView, "options", {
+        return self.addCustomWindow(windowNames.options, ui.OptionView, "options", {
             model: self.uiOptions,
             onNoticeTest: function() {
                 self.flash(true);
@@ -144,7 +144,7 @@ ui.StandardUI = new Class({
     },
     channelWindow: function() {
         var self = this;
-        var win = self.addCustomWindow("channels", ui.ChannelList, "channel-list", {
+        var win = self.addCustomWindow(windowNames.channels, ui.ChannelList, "channel-list", {
             onAddChannel: function(channel) {
                 var settings = self.options.settings;
                 if(_.isEmpty(self.clients)) {
@@ -159,18 +159,18 @@ ui.StandardUI = new Class({
         return win;
     },
     embeddedWindow: function() {
-        return this.addCustomWindow("embedded", ui.EmbedWizard, "embedded-wizard");
+        return this.addCustomWindow(windowNames.embed, ui.EmbedWizard, "embedded-wizard");
     },
     aboutWindow: function() {
-        return this.addCustomWindow("about", ui.AboutPane, "about");
+        return this.addCustomWindow(windowNames.about, ui.AboutPane, "about");
     },
     privacyWindow: function() {
-        return this.addCustomWindow("privacy", ui.PrivacyPolicyPane, "privacypolicy");
+        return this.addCustomWindow(windowNames.privacy, ui.PrivacyPolicyPane, "privacypolicy");
     },
     feedbackWindow: function() {
-        return this.addCustomWindow("feedback", ui.FeedbackPane, "feedback");
+        return this.addCustomWindow(windowNames.feedback, ui.FeedbackPane, "feedback");
     },
     faqWindow: function() {
-        return this.addCustomWindow("faq", ui.FAQPane, "faq");
+        return this.addCustomWindow(windowNames.faq, ui.FAQPane, "faq");
     }
 });

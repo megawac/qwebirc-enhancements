@@ -26,8 +26,8 @@ irc.pmodes = {
 
 
 //window names
-var BROUHAHA = constants.brouhaha = "#brouhaha";
-var STATUS = constants.status = "Status";
+constants.brouhaha = "brouhaha";
+constants.status = "Status";
 constants.login = "login";
 
 
@@ -37,7 +37,7 @@ constants.login = "login";
 //     status: "Status"
 // };
 
-constants.BASE_WINDOWS = [constants.brouhaha, constants.login, constants.status];
+constants.BASE_WINDOWS = ["brouhaha", "login", "status"];//window ids
 constants.CHANNEL_TYPES = [ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages];
 constants.INPUT_TYPES = [ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages];
 
