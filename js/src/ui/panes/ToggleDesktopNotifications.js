@@ -5,7 +5,7 @@ function toggleNotifications(model, state, save) {
         });
     }
     else {
-        model.set('dn_state', state != null ? !!state : !model.get('dn_state'));
+        model.set("dn_state", state != null ? !!state : !model.get("dn_state"));
     }
     if(save) model.save();
 }

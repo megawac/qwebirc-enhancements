@@ -1,4 +1,15 @@
-// ircclient new and improved
+/**
+  * ircclient new and improved
+  *
+  * @depends ./ICommands.js
+  * @depends ./Connection.js
+  * @depends ./Tracker.js
+  *
+  * @depends ../config/registeredCTCP.js
+  *
+  * @depends ../util/constants.js
+  * @depends ../util/utils.js
+  */
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
     Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch", "_tdispatch"],

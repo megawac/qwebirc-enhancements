@@ -1,3 +1,9 @@
+/**
+ *  chan list view
+ *
+ *  @depends ./PanelView.js
+ *  @depends /irc/atheme.js
+ */
 ui.ChannelList = new Class({
     Extends: PanelView,
     options: {

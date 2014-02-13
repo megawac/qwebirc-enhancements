@@ -1,3 +1,10 @@
+/**
+ * Controls options
+ *
+ * @depends /config/Options.js
+ *
+ * @depends /ui/Theme.js
+ */
 ui.IUIOptions = new Class({
     theme: ui.Theme,
 
@@ -10,7 +17,7 @@ ui.IUIOptions = new Class({
         });
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
-            var notifiers = notices
+            var notifiers =notices
                 .filter(uiOptions.notice_filter)
                 .map(function(notice) {
                     var onotice = {

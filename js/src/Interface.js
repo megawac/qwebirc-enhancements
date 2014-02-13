@@ -1,11 +1,26 @@
-var defaults = {
-    appTitle: ""/*Quake Net Web IRC*/,
+/*
+ * Creates an instance of Qwebirc. Start of the road
+ * Default config will be extended by whatever settings are given in app.js
+ *
+ * @depend ./qwebirc.js
+ *
+ * @depend ./util/lang.js
+ * @depend ./util/utils.js
+ *
+ * @depend ./config/Settings.js
+ * @depend ./ui/QUI.js
+ * @depend ./ui/theme.js --deprecated
+ *
+ * @depend ./irc/Client.js
+ */
+var DEFAULT_QWEBIRC_CONFIG = {
+    appTitle: "" /* Quake Net Web IRC */,
     networkName: "" /* Quake Net */,
 
     validators: {//test is a helper from ircutils
         nick: [{
             test: util.test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
-            description: format(lang.nickWrongLen, {min: 1, max: 9})
+            description: util.format(lang.nickWrongLen, {min: 1, max: 9})
         }],
         password: [{
             test: function(pass, $ele) {
@@ -33,16 +48,9 @@ var defaults = {
     }
 };
 
-var softextend = function(origin, obj) {//only sets vals if they exist on the object
-    _.each(origin, function(val, key) {
-        if(_.has(obj, key)) {
-            obj[key] = +val == val ? +val : val;//coerce nums
-        }
-    });
-};
-
 qwebirc.createInstance = function(element_id, UIclass, options) {
-    options = _.merge({}, defaults, options);
+    if (!UIclass) UIclass = ui.QUI;
+    options = _.merge({}, DEFAULT_QWEBIRC_CONFIG, options);
     var settings = options.settings = new config.Settings({}, {
         defaults: options.settings
     });
@@ -102,3 +110,11 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
 
     return instance;
 };
+
+function softextend(origin, obj) {//only sets vals if they exist on the object
+    _.each(origin, function(val, key) {
+        if(_.has(obj, key)) {
+            obj[key] = +val == val ? +val : val;//coerce nums
+        }
+    });
+}

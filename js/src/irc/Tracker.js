@@ -1,3 +1,9 @@
+/**
+ * This babe tracks users and some user information on each channel ya subscribe to
+ *
+ * @depends ../util/constants.js
+ * @depends ../util/utils.js
+ */
 irc.IRCTracker = new Class({
     channels: {},
     nicknames: {},
@@ -79,7 +85,7 @@ irc.IRCTracker = new Class({
         var lchannel = self.toIRCLower(channel);
         var chan = self.channels[lchannel];
         if (chan) {
-            _.each(_.keys(chan), function(nick) {
+            _.keys(chan).each(function(nick) {
                 var nc = self.nicknames[nick];
                 delete nc[lchannel];
                 if (_.isEmpty(nc)) { //in no more channels
@@ -116,7 +122,7 @@ irc.IRCTracker = new Class({
             return;
         }
 
-        _.each(_.keys(nickchans), function(chan) {
+        _.keys(nickchans).each(function(chan) {
             var channel = self.getChannel(chan);
             if(channel) {
                 channel[newnick] = channel[oldnick];

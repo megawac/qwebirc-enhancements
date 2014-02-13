@@ -1,3 +1,11 @@
+/**
+ * Command parser interface
+ *
+ * @depends /config/commands.js
+ *
+ * @depends /util/lang.js
+ * @depends /util/utils.js
+ */
 function formatMessage(cmdline) {
     if (cmdline.startsWith("/")) {
         cmdline = (cmdline.startsWith("//") ? "SAY " : "") + cmdline.slice(1); //qweb issue #349

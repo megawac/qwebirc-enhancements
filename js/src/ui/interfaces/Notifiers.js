@@ -1,5 +1,17 @@
-/* global notify, sound */
+/**
+ * Implements all the notification features desktop notifications/flashing/beeps
+ *
+ * @depends /util/uihelpers.js
+ * @depends /util/utils.js
+ * @depends /util/lang.js
+ * @depends /util/uihelpers.js
+ *
+ * @depends ./IUIOptions
+ *
+ * @depends ../Sounds.js
+ */
 (function() {
+    /* global sound, notify */
     var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {

@@ -1,8 +1,14 @@
-/* jshint boss:true */
-/* jshint unused:true */
+/**
+ * my bank of helper functions
+ *
+ * @depends ./constants.js
+ *
+ * @depends /config/styles.js
+ *
+ * jshint boss:true
+ * jshint unused:true
+ */
 
-//my helper functions
-//returns itself
 var join = function(by, xs) {
         return xs.join(by);
     },

@@ -1,4 +1,3 @@
-
 ui.WINDOW = {
     status: 1,
     query: 2,

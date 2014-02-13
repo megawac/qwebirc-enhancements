@@ -10,6 +10,7 @@ Flags:
 *****************************/
 /* jshint node:true */
 module.exports = function(grunt) {
+    var path = require("path");
     var package = grunt.file.readJSON("./package.json");
     var build = grunt.file.readYAML("./build.yml");
     var files = grunt.file.readYAML("./build-files.yml");
@@ -106,6 +107,41 @@ module.exports = function(grunt) {
             plugins: {
                 src: files.plugins,
                 dest: "js/dist/plugins-<%= pkg.version %>.js"
+            }
+        },
+
+        concat_in_order: {
+            qweb: {
+                options: {
+                    regex: /\*\s*(\w+:\s*)?@depend(s)?\s(.*\.js)/g,
+                    index: 3,
+                    getMatches: function (content) {
+                        var matches = [], match;
+                        while (( match = this.regex.exec(content) )) {
+                            if(match[this.index]) matches.push(match[this.index]);
+                        }
+                        return matches;
+                    },
+                    extractRequired: function(filepath, filecontent) {
+                        var workingdir = path.normalize(filepath).split(path.sep);
+                        workingdir.pop();
+                        var deps = this.getMatches(filecontent);
+                        return deps.map(function(dep) {
+                            if( dep.charAt(0) === "/" ) {//absolute path
+                                return path.normalize("js/src" + dep);
+                            }
+                            var dependency = workingdir.concat([dep]);
+                            return path.join.apply(null, dependency);
+                        });
+                    },
+                    extractDeclared: function(filepath) {
+                        return [filepath];
+                    },
+                    onlyConcatRequiredFiles: true
+                },
+                files: {
+                    "js/dist/concatenated.js": ["js/src/Interface.js"]
+                }
             }
         },
 
@@ -231,6 +267,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask("build-js", [
         "concat:qweb", //has to be concatted first for the iffe
+        "concat_in_order:qweb",
         "template:qweb", //remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
 
         "uglify:plugins",

@@ -1,3 +1,6 @@
+/**
+ * CommandHistory inteface... Probably should be moved to ui
+ */
 irc.CommandHistory = new Class({
     Extends: Epitome.Model.Storage,
     Implements: [Options],

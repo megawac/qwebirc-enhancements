@@ -1,5 +1,14 @@
 // <% if(pkg.build['twisted server']) { %> only include this code if "twisted server" set in package.json
-// //uris = dict(p=push, n=newConnection, s=subscribe)
+// //
+
+/**
+ * Twisted IRCConnection Class... Still needs simplification
+ * uris = dict(p=push, n=newConnection, s=subscribe)
+ *
+ * @depends /util/lang.js
+ * @depends /util/utils.js
+ * @depends /ui/popups.js --dirty alerts I didnt feel like propogating
+ */
 (function() {
     //http://blog.mibbit.com/?p=143
     // moved browser specific headers to be removed here so it doesnt have to be computed each connection.

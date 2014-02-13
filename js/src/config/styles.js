@@ -1,3 +1,5 @@
+//IRC colour and style map
+
 //to do add support for exiting all open styles ^O (\x0D)
 irc.styles = [
     {

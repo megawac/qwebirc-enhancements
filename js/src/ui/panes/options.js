@@ -1,4 +1,11 @@
-/* globals Slider */
+/**
+ *  Options view
+ *
+ *  @depends ./PanelView.js
+ *  @depends ./Welcome.js
+ *  @depends ./ToggleDesktopNotifications.js
+ *  globals Slider
+ */
 ui.OptionView = new Class({
     Extends: PanelView,
     Binds: ["save", "reset"],
@@ -20,7 +27,6 @@ ui.OptionView = new Class({
     },
 
     /*********LISTENERS**************/
-
     inputChange: function(e, target) {//set model values when inputs are clicked
         var id = target.get("id"),
             item;
@@ -61,8 +67,8 @@ ui.OptionView = new Class({
     noticeChange: function(e, target) {
         e.stop();
         var type = target.getParent(".notice-group").id;
-        var notices = _.clone(this.model.get(type));
         var par = target.getParent(".controls");
+        var notices = _.clone(this.model.get(type));
         var notice = _.findWhere(notices, {id: par.get("data-id")});
         notice[target.get("data-id")] = target.val();
         this.model.set("custom_notices", notices);

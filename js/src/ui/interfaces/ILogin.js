@@ -1,3 +1,11 @@
+/**
+ * Login page
+ *
+ * @depends ../panes/Welcome.js
+ * @depends ../Popups.js
+ * @depends ../../util/utils.js
+ * @depends ../../util/lang.js
+ */
 (function() {
     function validate($ele, validators) {
         if(_.isEmpty(validators)) return;

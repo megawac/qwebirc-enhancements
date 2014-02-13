@@ -1,3 +1,9 @@
+/**
+ * extended ui
+ *
+ * @depends ./StandardUI.js
+ * @depends ./window/QUI.Window.js
+ */
 ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],

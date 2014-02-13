@@ -1,3 +1,12 @@
+/**
+ * window interface
+ *
+ * @depends /ui/window/BaseWindow.js
+ *
+ * @depends /util/constants.js
+ * @depends /util/utils.js
+ * @depends /util/uihelpers.js
+ */
 ui.IWindows = new Class({
     windows: {},
     customWindows: {},

@@ -1,3 +1,8 @@
+/**
+ *  welcome view
+ *
+ *  @depends ./PanelView.js
+ */
 ui.WelcomePane = new Class({
     Extends: PanelView,
     options: {

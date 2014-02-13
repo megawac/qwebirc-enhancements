@@ -1,3 +1,9 @@
+/**
+ * Abstract window
+ *
+ * @depends /util/uihelpers.js
+ * @depends /util/utils.js
+ */
 ui.Window = new Class({
     Extends: Epitome.View,
     Binds: ["sendInput"],

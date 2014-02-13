@@ -1,4 +1,9 @@
-//mae view and qui and controller
+/**
+ * qui window -should implement base not extend
+ *
+ * @depends ./BaseWindow.js
+ * @depends ../Popups.js
+ */
 ui.QUI.Window = new Class({
     Extends: ui.Window,
     Binds: ["close"],

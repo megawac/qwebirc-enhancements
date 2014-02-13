@@ -1,3 +1,27 @@
+/**
+ * Qwebirc base ui functions - Implements all the core ui components
+ *
+ * @depends ./interfaces/IRCClient-Adapter.js
+ * @depends ./interfaces/IWindows.js
+ * @depends ./interfaces/ILogin.js
+ * @depends ./interfaces/Notifiers.js
+ *
+ * @depends ./panes/About.js
+ * @depends ./panes/ChannelList.js
+ * @depends ./panes/FAQ.js
+ * @depends ./panes/Feedback.js
+ * @depends ./panes/Options.js
+ * @depends ./panes/PrivacyPolicy.js
+ * @depends ./panes/Wizard.js
+ *
+ * @depends /irc/CommandHistory
+ *
+ * @depends /util/constants.js
+ * @depends /util/utils.js
+ * @depends /util/uihelpers.js
+ *
+ * fuck
+ */
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],

@@ -1,4 +1,3 @@
-
 //commands are substituted by util.formatter. Please make sure they are the correct command for your server
 //eg : https://www.quakenet.org/help/q-commands
 config.IRC_COMMANDS = { //maybe make these templates?

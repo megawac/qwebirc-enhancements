@@ -1,3 +1,13 @@
+/**
+ * Should migrate to utils
+ *
+ * @depends /config/theme-templates.js
+ * @depends /config/styles.js
+ * 
+ * @depends /util/constants.js
+ * @depends /util/utils.js
+ * @depends /util/urlifier.js
+ */
 ui.Theme = new Class({
     initialize: function(themeDict) {
         var self = this,
