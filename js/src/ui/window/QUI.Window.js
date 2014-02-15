@@ -2,9 +2,9 @@
  * qui window -should implement base not extend
  *
  * @depends [ui/Window, ui/Popups]
- * @provides [ui/QUI.Window]
+ * @provides [ui/QUIWindow]
  */
-ui.QUI.Window = new Class({
+ui.QUIWindow = new Class({
     Extends: ui.Window,
     Binds: ["close"],
     options: {

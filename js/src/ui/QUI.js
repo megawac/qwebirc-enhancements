@@ -1,14 +1,14 @@
 /**
  * extended ui
  *
- * @depends [ui/StandardUI, ui/QUI.Window]
+ * @depends [ui/StandardUI, ui/QUIWindow]
  * @provides [ui/QUI]
  */
 ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],
+    Window: ui.QUIWindow,
     initialize: function(parentElement, theme, options) {
-        this.Window = ui.QUI.Window;
         this.parent(parentElement, theme, "qui", options);
     },
     postInitialize: function() {
@@ -57,12 +57,13 @@ ui.QUI = new Class({
 
     newTab: function(win, name) {
         var self = this;
+        var isBrouhaha = win.id === "brouhaha";
         var $tab = Element.from(templates.ircTab({
-            "name": name,
+            "name": isBrouhaha ? " " : name,
             closable: !util.isBaseWindow(win.id)
         }));
         self.nav.addTab($tab);
-        if(win.id === "brouhaha") $tab.addClass("brouhaha");
+        if(isBrouhaha) $tab.addClass("brouhaha");
         $tab.store("window", win);
 
         return $tab;

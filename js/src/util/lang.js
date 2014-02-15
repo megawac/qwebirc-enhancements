@@ -28,7 +28,7 @@ _.merge(lang, {
     message: message,
 
     windowNames: {
-        "brouhaha": " ", //empty string so no channel name but custom icon
+        "brouhaha": "brouhaha", //empty string so no channel name but custom icon
         "login":    "Connection Details",
         "status":   "Status",
         "options":  "Options",

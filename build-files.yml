@@ -1,16 +1,4 @@
 {
-    "qwebirc": [
-        "js/src/qwebirc_start.js",
-        "js/src/util/*.js",
-        "templates/Templates.js",
-        "js/src/config/**.js",
-        "js/src/irc/*.js",
-        "js/src/ui/interfaces/*.js",
-        "js/src/ui/*.js",
-        "js/src/ui/window/*.js",
-        "js/src/ui/panes/*.js",
-        "js/src/qwebirc_end.js"
-    ],
     "templates": {
         "qwebirc": "js/templates/qwebirc.js",
         "main": {

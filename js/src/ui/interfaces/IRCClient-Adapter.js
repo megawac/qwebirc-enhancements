@@ -1,7 +1,7 @@
 /**
  * Proxies events from the irc client to the ui
  *
- * @depends [util/lang, util/constants, util/utils, util/uihelpers]
+ * @depends [util/lang, util/constants, util/utils, util/uihelpers, ui/IWindows]
  * @provides [ui/IIRCClient]
  */
 (function() {

@@ -95,11 +95,41 @@
 
     // **Reduce** builds up a single result from a list of values, aka `inject`,
     // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
-    _.reduce = _.foldl = _.inject = Array.reduce;
+    _.reduce = _.foldl = _.inject = function (obj, iterator, memo, context) {
+        var initial = arguments.length > 2;
+        if (obj == null) obj = [];
+        each(obj, function(value, index, list) {
+            if (!initial) {
+                memo = value;
+                initial = true;
+            } else {
+                memo = iterator.call(context, memo, value, index, list);
+            }
+        });
+        return memo;
+    };
 
     // The right-associative version of reduce, also known as `foldr`.
     // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
-    _.reduceRight = _.foldr = Array.reduceRight;
+    _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
+        var initial = arguments.length > 2;
+        if (obj == null) obj = [];
+        var length = obj.length;
+        if (length !== +length) {
+            var keys = _.keys(obj);
+            length = keys.length;
+        }
+        each(obj, function(value, index, list) {
+            index = keys ? keys[--length] : --length;
+            if (!initial) {
+                memo = obj[index];
+                initial = true;
+            } else {
+                memo = iterator.call(context, memo, obj[index], index, list);
+            }
+        });
+        return memo;
+    };
 
     // Return the first value which passes a truth test. Aliased as `detect`.
     _.find = _.detect = function(obj, iterator, context) {

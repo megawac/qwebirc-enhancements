@@ -136,19 +136,11 @@ module.exports = function(grunt) {
                         });
                     },
                     extractRequired: function(filepath, content) {
-                        // var workingdir = path.normalize(filepath).split(path.sep);
-                        // workingdir.pop();
-                        // return this.getMatches(content, this.depends_re).map(function(dep) {
-                        //     var dependency = workingdir.concat([dep]);
-                        //     return path.join.apply(null, dependency);
-                        // });
                         var deps = this.extract(this.depends_re, content);
-                        // console.log(deps);
                         return deps;
                     },
                     extractDeclared: function(path, content) {
                         var deps = this.extract(this.provide_re, content);
-                        console.log(deps);
                         return deps;
                     }
                 },

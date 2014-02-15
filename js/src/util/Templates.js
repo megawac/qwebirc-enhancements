@@ -1,7 +1,9 @@
+/**
+ * Template monkey patches + add helpers
+ * @depends [qwebirc, util/utils, util/lang]
+ * @provides [utils/templates]
+ */
 (function(engine) {
-
-
-
     //Some simple templates that dont really need to be compiled
     var source = {
         messageLine:    "<hr class='lastpos' />",
@@ -17,9 +19,6 @@
 
     // source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
     // source.horizontalDivider = "<div class='ui-icon ui-icon-grip-solid-horizontal handle horizontal'></div>";
-
-
-    var compiled = qwebirc.templates || {};
 
     /************************
         HELPERS
@@ -62,17 +61,20 @@
     /******************
         Compiliation
     *********************/
-
-    function compileAll(source,compiled) {
-        _.each(source, function(item, key) {
-            // compiled[key] = engine.compile(item);
-            compiled[key] = Function.from(item);
-        });
+    //allows templates to reference eachother (engine.partials)
+    engine.partials = _.reduce(source, function(compiled, template, key) {
+        // compiled[key] = engine.compile(item);
+        compiled[key] = Function.from(template);
         return compiled;
-    }
-
-    compileAll(source, compiled);
-
-    //allows templates to reference eachother
-    engine.partials = compiled;
+    }, templates || {});
 })(Handlebars);
+
+/**
+ * @depends: [qwebirc]
+ */
+Epitome.View.implement({
+    template: function(data, template) {
+        // refactored for handlebars
+        return (template || this.options.template)(data);
+    }
+});
