@@ -192,6 +192,13 @@
         }
     }
 
+    Epitome.View.implement({
+        template: function(data, template) {
+            // refactored for handlebars
+            return (template || this.options.template)(data);
+        }
+    });
+
     window.$lambda = Function.from;
 
     window.$clear = function(timer) {
@@ -199,5 +206,4 @@
         clearInterval(timer);
         return null;
     };
-
 })(this);

@@ -1,8 +1,8 @@
 /**
  * Abstract window
  *
- * @depends /util/uihelpers.js
- * @depends /util/utils.js
+ * @depends [util/uihelpers, util/utils]
+ * @provides [ui/Window]
  */
 ui.Window = new Class({
     Extends: Epitome.View,

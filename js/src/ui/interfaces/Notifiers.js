@@ -1,14 +1,8 @@
 /**
  * Implements all the notification features desktop notifications/flashing/beeps
  *
- * @depends /util/uihelpers.js
- * @depends /util/utils.js
- * @depends /util/lang.js
- * @depends /util/uihelpers.js
- *
- * @depends ./IUIOptions
- *
- * @depends ../Sounds.js
+ * @depends [util/uihelpers, util/utils, util/lang, ui/UIOptions, sound/Player]
+ * @provides [ui/Notifiers]
  */
 (function() {
     /* global sound, notify */

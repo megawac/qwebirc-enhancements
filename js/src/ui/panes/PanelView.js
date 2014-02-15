@@ -1,8 +1,8 @@
-//class to be inheritted
 /**
- * Base view
+ * Base view to be inheritted
  *
- * @depends ../../util/uihelpers.js
+ * @depends [util/uihelpers]
+ * @provides [panes/PanelView]
  */
 var PanelView = ui.PanelView = new Class({
     Extends: Epitome.View,

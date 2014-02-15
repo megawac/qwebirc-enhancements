@@ -1,3 +1,7 @@
+/**
+ * @depends [ui, util/uihelpers, util/lang]
+ * @provides [ui/Popups]
+ */
 (function() {
     function checkKeys(fn, keys, type) {//or just use pseudos.keys
         keys = keys || [];

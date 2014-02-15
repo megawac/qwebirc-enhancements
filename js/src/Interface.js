@@ -1,17 +1,9 @@
-/*
+/**
  * Creates an instance of Qwebirc. Start of the road
  * Default config will be extended by whatever settings are given in app.js
  *
- * @depend ./qwebirc.js
- *
- * @depend ./util/lang.js
- * @depend ./util/utils.js
- *
- * @depend ./config/Settings.js
- * @depend ./ui/QUI.js
- * @depend ./ui/theme.js --deprecated
- *
- * @depend ./irc/Client.js
+ * @depends [qwebirc, util/utils, config/Settings]
+ * @depends [ui/QUI, ui/Theme, irc/Client]
  */
 var DEFAULT_QWEBIRC_CONFIG = {
     appTitle: "" /* Quake Net Web IRC */,

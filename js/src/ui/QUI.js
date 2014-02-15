@@ -1,8 +1,8 @@
 /**
  * extended ui
  *
- * @depends ./StandardUI.js
- * @depends ./window/QUI.Window.js
+ * @depends [ui/StandardUI, ui/QUI.Window]
+ * @provides [ui/QUI]
  */
 ui.QUI = new Class({
     Extends: ui.StandardUI,

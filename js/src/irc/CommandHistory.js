@@ -1,5 +1,8 @@
 /**
  * CommandHistory inteface... Probably should be moved to ui
+ *
+ * @depends [util/utils] for browser.isMobile
+ * @provides [irc/CommandHistory]
  */
 irc.CommandHistory = new Class({
     Extends: Epitome.Model.Storage,

@@ -1,4 +1,8 @@
-//http://indiegamr.com/the-state-of-audio-in-html5-games/
+/**
+ * see http://indiegamr.com/the-state-of-audio-in-html5-games/
+ * @depends [sound]
+ * @provides [sound/Player]
+ */
 /* global sound */
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],

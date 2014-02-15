@@ -1,8 +1,8 @@
 /**
  * This babe tracks users and some user information on each channel ya subscribe to
  *
- * @depends ../util/constants.js
- * @depends ../util/utils.js
+ * @depends [irc, util/utils]
+ * @provides [irc/Tracker]
  */
 irc.IRCTracker = new Class({
     channels: {},

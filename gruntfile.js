@@ -74,17 +74,17 @@ module.exports = function(grunt) {
         },
 
         concat: {
-            options: {
-                // define a string to put between each file in the concatenated output
-                separator: "\n"
-            },
             qweb: {
                 options: {
-                    banner: "(function(window, document, undefined) {",
-                    footer: "})(window, document);"
+                    banner: "(function(window, document, undefined) {\n\"use strict;\"",
+                    footer: "})(window, document);",
+
+                    process: {
+                        data: templateContext
+                    }
                 },
                 // the files to concatenate
-                src: files.qwebirc,
+                src: "js/dist/qwebirc-<%= pkg.version %>.js",
                 // the location of the resulting JS file
                 dest: "js/dist/qwebirc-<%= pkg.version %>.js"
             },
@@ -113,34 +113,47 @@ module.exports = function(grunt) {
         concat_in_order: {
             qweb: {
                 options: {
-                    regex: /\*\s*(\w+:\s*)?@depend(s)?\s(.*\.js)/g,
-                    index: 3,
-                    getMatches: function (content) {
+                    depends_re: /\*\s*@depend(s)?\s+(\[(.*)\]|(.*)\s)/g,  //matches * @depend [ui/StandardUI, util/lang] or @depends ui/StandardUI
+                    provide_re: /\*\s*@provide(s)?\s+(\[(.*)\]|(.*)\s)/g, //matches * @provide [ui/StandardUI, util/lang] or @provdes ui/STandardUI
+                    getMatches: function ( regex, content ) {
                         var matches = [], match;
-                        while (( match = this.regex.exec(content) )) {
-                            if(match[this.index]) matches.push(match[this.index]);
+                        while (( match = regex.exec(content) )) {
+                            matches.push(match);
                         }
                         return matches;
                     },
-                    extractRequired: function(filepath, filecontent) {
-                        var workingdir = path.normalize(filepath).split(path.sep);
-                        workingdir.pop();
-                        var deps = this.getMatches(filecontent);
-                        return deps.map(function(dep) {
-                            if( dep.charAt(0) === "/" ) {//absolute path
-                                return path.normalize("js/src" + dep);
+                    flatten: function(array) {
+                        return Array.prototype.concat.apply([], array);
+                    },
+                    extract: function(regex, content) {
+                        return this.flatten(this.getMatches(regex, content).map(function(match) {
+                            if(match[3]) {
+                                return match[3].replace(/\s/g, "").split(",").filter(Boolean); //handle comma deliminated dependencies
                             }
-                            var dependency = workingdir.concat([dep]);
-                            return path.join.apply(null, dependency);
+                            return match[4];
+                        })).map(function(path) {
+                            return path.toLowerCase();
                         });
                     },
-                    extractDeclared: function(filepath) {
-                        return [filepath];
+                    extractRequired: function(filepath, content) {
+                        // var workingdir = path.normalize(filepath).split(path.sep);
+                        // workingdir.pop();
+                        // return this.getMatches(content, this.depends_re).map(function(dep) {
+                        //     var dependency = workingdir.concat([dep]);
+                        //     return path.join.apply(null, dependency);
+                        // });
+                        var deps = this.extract(this.depends_re, content);
+                        // console.log(deps);
+                        return deps;
                     },
-                    onlyConcatRequiredFiles: true
+                    extractDeclared: function(path, content) {
+                        var deps = this.extract(this.provide_re, content);
+                        console.log(deps);
+                        return deps;
+                    }
                 },
                 files: {
-                    "js/dist/concatenated.js": ["js/src/Interface.js"]
+                    "js/dist/qwebirc-<%= pkg.version %>.js": ["js/src/**/*.js"]
                 }
             }
         },
@@ -174,7 +187,7 @@ module.exports = function(grunt) {
                     beautify: false,
                     enclose: undefined,
 
-                    banner: "//qwebirc v<%= pkg.version %> templates\n"
+                    banner: "//qwebirc v<%= pkg.version %> core templates\n"
                 },
                 files: {
                     "js/dist/templates-<%= pkg.version %>.js": files.templates.qwebirc
@@ -203,17 +216,6 @@ module.exports = function(grunt) {
                 options: {banner: ""},
                 files: {
                     "js/dist/app-<%= pkg.version %>.js": "configure/config.js"
-                }
-            }
-        },
-
-        template: {
-            qweb: {
-                options: {
-                    data: templateContext
-                },
-                files: {
-                    "js/dist/qwebirc-<%= pkg.version %>.js": ["js/dist/qwebirc-<%= pkg.version %>.js"]
                 }
             }
         },
@@ -266,9 +268,8 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask("build-js", [
-        "concat:qweb", //has to be concatted first for the iffe
-        "concat_in_order:qweb",
-        "template:qweb", //remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
+        "concat_in_order:qweb", //build the files in the correct order
+        "concat:qweb",          //prep and remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
 
         "uglify:plugins",
         "uglify:qweb",

@@ -1,14 +1,9 @@
 /**
   * ircclient new and improved
   *
-  * @depends ./ICommands.js
-  * @depends ./Connection.js
-  * @depends ./Tracker.js
-  *
-  * @depends ../config/registeredCTCP.js
-  *
-  * @depends ../util/constants.js
-  * @depends ../util/utils.js
+  * @depends [irc/Commands, irc/Connection, irc/Tracker, config/ctcp]
+  * @depends [util/constants, util/utils]
+  * @provides [irc/Client]
   */
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
@@ -180,14 +175,12 @@ irc.IRCClient = new Class({
 
     nickOnChanHasPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (entry == null) return false; /* shouldn"t happen */
-
-        return (entry.prefixes).contains(prefix);
+        return entry ? (entry.prefixes).contains(prefix) : false;
     },
 
     getNickStatus: function(channel, nick) {
         var nickchan = this.tracker.getNickOnChannel(nick, channel);
-        if (nickchan == null || nickchan.prefixes.length === 0) {
+        if (!nickchan || nickchan.prefixes.length === 0) {
             return "";
         }
         return nickchan.prefixes.charAt(0);//prefix of highest order
@@ -195,11 +188,11 @@ irc.IRCClient = new Class({
 
     nickOnChanHasAtLeastPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (entry == null) return false; // shouldn"t happen 
+        if (!entry) return false; // shouldn't happen 
 
         /* this array is sorted */
         var pos = this.prefixes.indexOf(prefix);
-        if (pos === -1) return false; // shouldn"t happen 
+        if (pos === -1) return false; // shouldn't happen 
 
         var prefixes = this.prefixes.slice(0, pos + 1);
 
@@ -814,7 +807,7 @@ irc.IRCClient = new Class({
             }
 
             if (target === this.nickname) {
-                var ctcptype = type == "ACTION" ? "privAction" : "privCTCP";
+                var ctcptype = type === "ACTION" ? "privAction" : "privCTCP";
                 this.trigger(ctcptype, {
                     "nick": nick,
                     "host": data.host,
@@ -828,7 +821,7 @@ irc.IRCClient = new Class({
                     "message": ctcp[1] || "",
                     "prefix": this.getNickStatus(target, nick)
                 };
-                if (type == "ACTION") {
+                if (type === "ACTION") {
                     this.tracker.updateLastSpoke(nick);
                     this.trigger("chanAction", context);
                 }

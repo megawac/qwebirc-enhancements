@@ -1,11 +1,12 @@
-/* qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved. */
-// ; (function(window, Epitome, undefined) {
+/**
+ * qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved.
+ *
+ * @provides [qwebirc, irc, util, config, auth, ui, cookies, sound, lang, windowNames, templates, constants]
+ */
 
 //wrapped in iife during grunt build
 /* jshint globalstrict:true */
-"use strict";
-
-var DEBUG = <%= build.debug %>; //will be removed as dead code if false
+var DEBUG = "<%= build.debug %>" === true; //will be removed as dead code if false
 
 //cache common globals in scope
 var $ = document.id,
@@ -20,12 +21,8 @@ var $ = document.id,
 //global object
 var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
     irc: {},
-    ui: {
-        themes: {}
-    },
-    util: {
-        crypto: {}
-    },
+    ui: {},
+    util: {},
     global: {
         dynamicBaseURL: "/",
         staticBaseURL: "/"
@@ -55,13 +52,11 @@ var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
 var irc = qwebirc.irc,
 
     util = qwebirc.util,
-    crypto = util.crypto,
 
     config = qwebirc.config,
     auth = qwebirc.auth,
 
     ui = qwebirc.ui,
-    themes = ui.themes,
 
     cookies = qwebirc.cookies,
 

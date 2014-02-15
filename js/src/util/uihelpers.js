@@ -1,3 +1,9 @@
+/**
+ * Collection of ui related helper functions
+ * @depends [qwebirc]
+ * @provides [util/uihelpers]
+ */
+
 ui.Behaviour = (function() {
     /* global Behavior, Delegator */
     var behaviour = new Behavior();

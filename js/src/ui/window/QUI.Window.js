@@ -1,8 +1,8 @@
 /**
  * qui window -should implement base not extend
  *
- * @depends ./BaseWindow.js
- * @depends ../Popups.js
+ * @depends [ui/Window, ui/Popups]
+ * @provides [ui/QUI.Window]
  */
 ui.QUI.Window = new Class({
     Extends: ui.Window,

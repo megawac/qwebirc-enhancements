@@ -1,3 +1,8 @@
+/**
+ * ui options model
+ * @depends [util/lang, config]
+ * @provides [config/OptionModel]
+ */
 ui["default options"] = {
     "auto_open_pm": false,
     "nick_ov_status": true,

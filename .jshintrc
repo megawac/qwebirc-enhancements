@@ -18,6 +18,7 @@
     "$$": true,
     "Asset": true,
     "Storage": true,
+    "Color": true,
 
     //libs
     "_": true,

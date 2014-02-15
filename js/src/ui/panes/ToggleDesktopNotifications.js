@@ -1,3 +1,6 @@
+/**
+ * @provides [ util/ToggleNotifications]
+ */
 function toggleNotifications(model, state, save) {
     if(notify.permissionLevel() !== notify.PERMISSION_GRANTED) {
         notify.requestPermission(function() {

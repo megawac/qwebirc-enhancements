@@ -1,10 +1,8 @@
 /**
  * Command parser interface
  *
- * @depends /config/commands.js
- *
- * @depends /util/lang.js
- * @depends /util/utils.js
+ * @depends [util/lang, util/utils, config/commands]
+ * @provides [irc/Commands]
  */
 function formatMessage(cmdline) {
     if (cmdline.startsWith("/")) {

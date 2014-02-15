@@ -5,6 +5,9 @@ js/templates/*
 css/qwebirc*.css
 templates/modifiablecss.hbs
 
+# cool analysis tool https://github.com/es-analysis/plato
+report/*
+
 #Standard stuff
 *.sublime*
 *.dropbox

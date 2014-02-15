@@ -1,10 +1,8 @@
 /**
  * Login page
  *
- * @depends ../panes/Welcome.js
- * @depends ../Popups.js
- * @depends ../../util/utils.js
- * @depends ../../util/lang.js
+ * @depends [panes/Welcome, ui/Popups, util/utils, util/utils]
+ * @provides [ui/ILogin]
  */
 (function() {
     function validate($ele, validators) {

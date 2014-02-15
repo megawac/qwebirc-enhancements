@@ -1,4 +1,9 @@
 // <% if(pkg.build["node server"]) { %> only include this code if "node server" set in package.json
+/**
+ * Deprecated
+ * @depends [irc, util/utils]
+ * @provides [irc/NodeConnection]
+ */
 irc.NodeConnection = new Class({
     Implements: [Options, Events],
     Binds: ["_recv", "_error"],

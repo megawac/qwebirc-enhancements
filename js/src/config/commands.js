@@ -1,5 +1,9 @@
-//commands are substituted by util.formatter. Please make sure they are the correct command for your server
-//eg : https://www.quakenet.org/help/q-commands
+/**
+ * commands are substituted by util.formatter. Please make sure they are the correct command for your server
+ * eg : https://www.quakenet.org/help/q-commands
+ * @depends [config]
+ * @provides [config/commands]
+ */
 config.IRC_COMMANDS = { //maybe make these templates?
     "ACTION": {
         command: "PRIVMSG {target} :\x01ACTION {text}\x01"

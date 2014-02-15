@@ -1,3 +1,6 @@
+/**
+ * @provides [util/constants]
+ */
 ui.WINDOW = {
     status: 1,
     query: 2,
@@ -40,8 +43,8 @@ constants.BASE_WINDOWS = ["brouhaha", "login", "status"];//window ids
 constants.CHANNEL_TYPES = [ui.WINDOW.channel, ui.WINDOW.query, ui.WINDOW.messages];
 constants.INPUT_TYPES = [ui.WINDOW.status, ui.WINDOW.query, ui.WINDOW.channel, ui.WINDOW.messages];
 
-constants.op = "+",
-constants.deop = "-",
+constants.op = "+";
+constants.deop = "-";
 constants.prefixes = {
     op: "@",
     voice: "+"

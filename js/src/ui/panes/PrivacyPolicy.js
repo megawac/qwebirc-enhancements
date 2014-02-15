@@ -1,7 +1,8 @@
 /**
  *  pp view
  *
- *  @depends ./PanelView.js
+ *  @depends [panes/PanelView]
+ *  @provides [panes/Privacy]
  */
 ui.PrivacyPolicyPane = new Class({
     Extends: PanelView,

@@ -1,6 +1,9 @@
-//IRC colour and style map
-
-//to do add support for exiting all open styles ^O (\x0D)
+/**
+ * IRC colour and style map
+ * to do add support for exiting all open styles ^O (\x0D)
+ * @depends [irc]
+ * @provides [config/styles]
+ */
 irc.styles = [
     {
         name: "normal",

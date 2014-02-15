@@ -1,37 +1,33 @@
 /**
  * my bank of helper functions
  *
- * @depends ./constants.js
- *
- * @depends /config/styles.js
- *
- * jshint boss:true
- * jshint unused:true
+ * @depends [util/constants, config/styles]
+ * @provides [util/utils]
  */
 
+/* jshint boss:true */
+/* jshint unused:true */
+
 var join = function(by, xs) {
-        return xs.join(by);
-    },
+    return xs.join(by);
+};
 
-    // replace = _.autoCurry(function(reg, rep, str) {
-    //     return str.replace(reg, rep);
-    // }),
+// replace = _.autoCurry(function(reg, rep, str) {
+//     return str.replace(reg, rep);
+// }),
 
-    startsWith = function(what, str) {
-        return str.startsWith(what);
-    },
+var startsWith = function(what, str) {
+    return str.startsWith(what);
+};
 
-    // splitBang = _.partial(split, "!"),
-
-    // joinBang = _.partial(join, "!"),
-
-    joinEmpty = _.partial(join, ""),
+var joinEmpty = _.partial(join, ""),
 
     // splitEmpty = split(""),
     joinComma = util.joinChans = _.partial(join, ","),
 
     // splitComma = split(","),
     concatUnique = util.concatUnique = _.compose(_.uniq, Array.concat);
+
 
 var format = util.format = util.formatter = function(message, data) {
     return (message.message || message).substitute(data);
@@ -59,24 +55,23 @@ util.test = _.autoCurry(function(reg, str) {
 // util.hostToHost = _.compose(Array.getLast, splitBang);
 
 
-var isChannel = util.isChannel = _.partial(startsWith, "#"),
+var isChannel = util.isChannel = _.partial(startsWith, "#");
 
-    formatChannel = util.formatChannel = function(chan) {
-        if (!isChannel(chan)) {
-            chan = "#" + chan;
-        }
-        return chan;
-    },
+var formatChannel = util.formatChannel = function(chan) {
+    if (!isChannel(chan)) {
+        chan = "#" + chan;
+    }
+    return chan;
+};
 
+var appendChannel = function(chans, chan) {
+    return Array.from(chans).concat(chan).map(formatChannel);
+};
 
-    appendChannel = function(chans, chan) {
-        return Array.from(chans).concat(chan).map(formatChannel);
-    },
-
-    splitChan = util.splitChans = function(xs) {
-        if (_.isString(xs)) xs = xs.split(",");
-        return xs.map(String.clean);
-    };
+var splitChan = util.splitChans = function(xs) {
+    if (_.isString(xs)) xs = xs.split(",");
+    return xs.map(String.clean);
+};
 
 //function to determine if a string is one of the stock windows
 util.isBaseWindow = _.partial(_.contains, constants.BASE_WINDOWS);

@@ -1,3 +1,8 @@
+/**
+ * Navbar
+ * @depends [util/uihelpers]
+ * @provides [ui/Nav]
+ */
 ui.NavBar = new Class({
     Extends: Epitome.View,
     Binds: ["adjust"],

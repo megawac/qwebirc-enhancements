@@ -2,7 +2,8 @@
  * Home of future localization.... Its gonna be a rough road...
  * todo request local.json and ready qwebirc only after its loaded
  *
- * @depend /qwebirc.js
+ * @depend [qwebirc]
+ * @provides [util/lang]
  */
 
 var types = {

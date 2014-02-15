@@ -1,6 +1,8 @@
 /*!
 * Custom query code credit to Atheme (https://github.com/atheme) for the iris project (https://github.com/atheme/iris)
 * Copyright (c) 2005-2013 Atheme Project (http://www.atheme.org)
+* @depends [irc, util/utils]
+* @provides atheme
 */
 irc.atheme = {
     /**

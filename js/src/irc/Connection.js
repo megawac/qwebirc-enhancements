@@ -5,9 +5,8 @@
  * Twisted IRCConnection Class... Still needs simplification
  * uris = dict(p=push, n=newConnection, s=subscribe)
  *
- * @depends /util/lang.js
- * @depends /util/utils.js
- * @depends /ui/popups.js --dirty alerts I didnt feel like propogating
+ * @depends [util/lang, util/utils, ui/popups]   --dirty alerts I didnt feel like propogating
+ * @provides [irc/Connection]
  */
 (function() {
     //http://blog.mibbit.com/?p=143
@@ -310,7 +309,7 @@
             this.recv();
         },
 
-        lostConnection: function(reason) {
+        lostConnection: function(/*reason*/) {
             this.connected = false;
             this.fireEvent("lostConnection", this.__retryAttempts);
             this.__error.apply(this, arguments);

@@ -1,8 +1,8 @@
 /**
  *  chan list view
  *
- *  @depends ./PanelView.js
- *  @depends /irc/atheme.js
+ *  @depends [panes/PanelView, atheme]
+ *  @provides [panes/Channels]
  */
 ui.ChannelList = new Class({
     Extends: PanelView,

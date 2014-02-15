@@ -1,3 +1,7 @@
+/**
+ * @depends [config, util/utils]
+ * @provides [config/theme-templates]
+ */
 config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
     "O": irc.styles.colour.key,

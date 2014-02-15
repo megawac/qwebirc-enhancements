@@ -1,9 +1,10 @@
 /**
  *  About view
  *
- *  @depends ./PanelView.js
+ *  @depends [panes/PanelView]
+ *  @provides [panes/About]
  */
- ui.AboutPane = new Class({
+ui.AboutPane = new Class({
     Extends: PanelView,
     options: {
         pane: "about",

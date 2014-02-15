@@ -1,10 +1,8 @@
 /**
  * Proxies events from the irc client to the ui
  *
- * @depends /util/lang.js
- * @depends /util/constants.js
- * @depends /util/utils.js
- * @depends /util/uihelpers.js
+ * @depends [util/lang, util/constants, util/utils, util/uihelpers]
+ * @provides [ui/IIRCClient]
  */
 (function() {
     //expects to be implemented with windowsui

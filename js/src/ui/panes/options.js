@@ -1,9 +1,8 @@
 /**
  *  Options view
  *
- *  @depends ./PanelView.js
- *  @depends ./Welcome.js
- *  @depends ./ToggleDesktopNotifications.js
+ *  @depends [panes/PanelView, panes/Welcome,  util/ToggleNotifications]
+ *  @provides [panes/Options]
  *  globals Slider
  */
 ui.OptionView = new Class({

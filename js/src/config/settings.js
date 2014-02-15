@@ -1,3 +1,8 @@
+/**
+ * user settings
+ * @depends [config, cookies]
+ * @provides [config/Settings]
+ */
 config.Settings = new Class({
     Extends: Epitome.Model.Storage,
     options: {

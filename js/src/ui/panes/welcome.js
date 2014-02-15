@@ -1,7 +1,8 @@
 /**
  *  welcome view
  *
- *  @depends ./PanelView.js
+ *  @depends [panes/PanelView, util/ToggleNotifications]
+ *  @provides [panes/Welcome]
  */
 ui.WelcomePane = new Class({
     Extends: PanelView,

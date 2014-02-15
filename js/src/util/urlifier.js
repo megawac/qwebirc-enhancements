@@ -1,3 +1,7 @@
+/**
+ * URL parser new and improved for easy extending
+ * @provides [util/urlifier]
+ */
 (function() {
     //welcome to my dirty corner. Here we welcome regexs and confusing loops
 

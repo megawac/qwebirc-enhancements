@@ -1,9 +1,8 @@
 /**
  * Controls options
  *
- * @depends /config/Options.js
- *
- * @depends /ui/Theme.js
+ * @depends [config/OptionModel, ui/Theme]
+ * @provides [ui/UIOptions]
  */
 ui.IUIOptions = new Class({
     theme: ui.Theme,
