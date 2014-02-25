@@ -152,9 +152,10 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                mangle: build.minify,
+                mangle: !!build.minify,
                 compress: {
-                    dead_code: true
+                    dead_code: true,
+                    drop_console: !!build.debug
                 },
                 preserveComments: "none",
                 beautify: !build.minify,
@@ -188,20 +189,26 @@ module.exports = function(grunt) {
 
             plugins: {
                 options: {
+                    // beautify: false,
                     banner: "/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n"
                 },
                 files: {
                     "js/dist/plugins-<%= pkg.version %>.js": files.plugins
                 }
             },
+            modules: {
+                options: {
+                    banner: "",
+                    beautify: false,
+                    preserveComments: "some"
+                },
+                files: {
+                    "js/dist/modules-<%= pkg.version %>.js": files.modules
+                }
+            },
             qweb: {
                 files: {
                     "js/dist/qwebirc-<%= pkg.version %>.js": "js/dist/qwebirc-<%= pkg.version %>.js"
-                }
-            },
-            full: {
-                files: {
-                    "js/dist/qwebirc-full-<%= pkg.version %>.js": files.full
                 }
             },
             config: {
@@ -225,7 +232,9 @@ module.exports = function(grunt) {
                 src: "configure/index.tmpl",
                 dest: "index.html",
                 options: {
-                    beautify: true,
+                    beautify: {
+                        "max_preserve_newlines": -1
+                    },
                     relative: false,
                     data: templateContext,
                     scripts: {
@@ -264,6 +273,7 @@ module.exports = function(grunt) {
         "concat:qweb",          //prep and remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
 
         "uglify:plugins",
+        "uglify:modules",
         "uglify:qweb",
         "uglify:config"
     ]);

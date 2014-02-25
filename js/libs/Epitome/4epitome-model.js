@@ -1,4 +1,4 @@
-;(function(exports){
+(function(){
 	'use strict';
 
 	// wrapper function for requirejs or normal object
@@ -61,16 +61,22 @@
 				// if any properties did change, fire a change event with the array.
 				this.propertiesChanged.length && this.trigger('change', this.get(this.propertiesChanged));
 				this.validationFailed.length && this.trigger('error', [this.validationFailed]);
+
+				return this;
 			},
 
 			// private, real setter functions, not on prototype, see note above
 			_set: function(key, value){
 				// needs to be bound the the instance.
-				if (!key || typeof value === 'undefined') return this;
+				if (!key || typeof value === undef) return this;
 
 				// custom setter - see bit further down
-				if (this.properties[key] && this.properties[key]['set'])
-					return this.properties[key]['set'].call(this, value);
+				if (this.properties[key] && this.properties[key].set){
+					value = this.properties[key].set.call(this, value);
+					if (typeof value === undef){
+						return this;
+					}
+				}
 
 				// no change? this is crude and works for primitives.
 				if (this._attributes[key] && isEqual(this._attributes[key], value))
@@ -104,7 +110,7 @@
 				this.propertiesChanged.push(key);
 
 				return this;
-			}.overloadSetter(),   // mootools abstracts overloading to allow object iteration
+			}.overloadSetter(),
 
 			get: function(key){
 				// overload getter, 2 paths...
@@ -115,7 +121,7 @@
 				}
 
 				// else, return from attributes or return null when undefined.
-				return (key && typeof this._attributes[key] !== 'undefined') ? this._attributes[key] : null;
+				return (key && typeof this._attributes[key] !== undef) ? this._attributes[key] : null;
 			}.overloadGetter(),
 
 			unset: function(){
@@ -142,7 +148,7 @@
 
 			empty: function(){
 				// empty the model and fire change event
-				var keys = Object.keys(this.toJSON()),
+				var keys = Object.keys(this._attributes),
 					self = this;
 
 				// let the instance know.
@@ -151,7 +157,7 @@
 				// fire change for all keys in the model.
 				Array.each(keys, function(key){
 					self.trigger('change:' + key, null);
-				}, this);
+				});
 
 				this._attributes = {};
 				this.trigger('empty');
@@ -168,18 +174,18 @@
 				return (key in this.validators) ? this.validators[key].call(this, value) : true;
 			}
 		});
-	}; // end wrap
+	}, // end wrap
+	undef = 'undefined';
 
 	if (typeof define === 'function' && define.amd){
-		// requires epitome object only.
 		define(['./epitome-isequal', './epitome-events'], wrap);
 	}
-	else if (typeof module !== 'undefined' && module.exports){
-		// CommonJS module is defined
+	else if (typeof module !== undef && module.exports){
+		require('mootools');
 		module.exports = wrap(require('./epitome-isequal'), require('./epitome-events'));
 	}
 	else {
-		exports.Epitome || (exports.Epitome = {isEqual: {}, Events: {}});
-		exports.Epitome.Model = wrap(exports.Epitome.isEqual, exports.Epitome.Events);
+		this.Epitome || (this.Epitome = {isEqual: {}, Events: {}});
+		this.Epitome.Model = wrap(this.Epitome.isEqual, this.Epitome.Events);
 	}
-}(this));
+}.call(this));

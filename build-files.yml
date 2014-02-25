@@ -17,6 +17,10 @@
             "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
         }
     },
+    "modules": [
+        "js/modules/respond.js",
+        "js/modules/Handlebars-production.js"
+    ],
     "plugins": [
         "js/libs/*.js",
         "js/libs/Epitome/*.js"
@@ -59,11 +63,11 @@
             "local": "/js/modules/socket.io.js",
             "local min": "/js/modules/socket.io.js"
         },
-        "respond": {
-            "cdn": "//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js",
-            "cdn min": "//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js",
-            "local": "/js/modules/respond.js",
-            "local min": "/js/modules/respond.js"
+        "modules": {
+            "cdn": "//cdn.jsdelivr.net/g/handlebarsjs@1.0.12,respond@1.4",
+            "cdn min": "//cdn.jsdelivr.net/g/handlebarsjs@1.0.12,respond@1.4",
+            "local": "/js/dist/modules-<%= pkg.version %>.js",
+            "local min": "/js/dist/modules-<%= pkg.version %>.js"
         }
     }
 }

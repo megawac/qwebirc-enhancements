@@ -17,29 +17,35 @@ requires:
   - Core/Element.Event
   - /MooTools.More
 
-provides: [Assets]
+provides: [Asset, Assets]
 
 ...
 */
+(function(window) {
+    //hash of urls that have already loaded normally
+    var loaded = {};
+    window.Asset = {
 
-var Asset = {
+        javascript: function(source, properties){
+            if(source in loaded) return new Element('script');
+            if (!properties) properties = {};
 
-    javascript: function(source, properties){
-        if (!properties) properties = {};
+            var script = new Element('script', {
+                    src: source,
+                    type: 'text/javascript',
+                    async: ''
+                }),
+                doc = properties.document || document,
+                onload = properties.onload || properties.onLoad,
+                load = function() {
+                    loaded[source] = true;
+                    if(onload) onload.call(this);
+                };
 
-        var script = new Element('script', {
-                src: source,
-                type: 'text/javascript',
-                async: ''
-            }),
-            doc = properties.document || document,
-            load = properties.onload || properties.onLoad;
+            delete properties.onload;
+            delete properties.onLoad;
+            delete properties.document;
 
-        delete properties.onload;
-        delete properties.onLoad;
-        delete properties.document;
-
-        if (load){
             if (!script.addEventListener){
                 script.addEvent('readystatechange', function(){
                     if (['loaded', 'complete'].contains(this.readyState)) load.call(this);
@@ -47,8 +53,9 @@ var Asset = {
             } else {
                 script.addEvent('load', load);
             }
-        }
 
-        return script.set(properties).inject(doc.head);
-    }
-};
+            return script.set(properties).inject(doc.head);
+        }
+    };
+
+})(this);

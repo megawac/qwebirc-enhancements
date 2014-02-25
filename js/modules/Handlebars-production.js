@@ -1,6 +1,5 @@
-/*!
-
- handlebars v1.0.12
+/*! 
+handlebars v1.0.12
 
 Copyright (C) 2011 by Yehuda Katz
 

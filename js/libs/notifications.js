@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Tsvetan Tsvetkov (tsekach@gmail.com)
+ * Author: Tsvetan Tsvetkov (tsekach@gmail.com) adapted by Graeme Yeates
  */
 (function (win) {
     /*

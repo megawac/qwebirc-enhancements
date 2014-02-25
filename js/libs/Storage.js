@@ -14,9 +14,6 @@ provides: [Storage]
 
 ...
 */
-/*!
-Copyright (c) 2010 Arieh Glazer
-*/
 (function(window) {
     'use strict';
     /* global globalStorage, Cookie */
@@ -56,21 +53,6 @@ Copyright (c) 2010 Arieh Glazer
                         removeItem: function(name) {
                             storage.removeAttribute(name);
                             storage.save($this.options.name);
-                        }
-                    };
-                })();
-            } else if (window.globalStorage) { //FF<3.5
-                this.storage = (function() {
-                    var storage = globalStorage[$this.options.name];
-                    return {
-                        setItem: function(name, value) {
-                            storage[name] = value;
-                        },
-                        getItem: function(name) {
-                            return ('value' in storage[name]) ? storage[name].value : null;
-                        },
-                        removeItem: function(name) {
-                            delete(storage[name]);
                         }
                     };
                 })();
