@@ -114,7 +114,7 @@ util.removeChannel = _.compose(_.uniq, function(chans, chan) {
 });
 
 /*
- * taken from https://github.com/martynsmith/node-irc
+ * Adapted from https://github.com/martynsmith/node-irc - see http://jsperf.com/javascript-irc-parsers for dif implementations
  * parseMessage(line, stripColors)
  *
  * takes a raw "line" from the IRC server and turns it into an object with
@@ -225,8 +225,10 @@ util.nickChanComparitor = function(client, nickHash) {
 util.validPrefix = _.contains;
 
 util.addPrefix = function(nc, pref, prefs) {
-    if (prefs && !util.validPrefix(prefs, pref)) return nc.prefixes;
-    return nc.prefixes = concatUnique(nc.prefixes, pref).join("");
+    if (prefs && !util.validPrefix(prefs, pref) || nc.prefixes.contains(pref)) return nc.prefixes;
+    return nc.prefixes = _.sortBy( (pref + nc.prefixes).split(""), function(pref) {
+        return prefs.indexOf(pref);
+    }).join("");
 };
 
 util.removePrefix = function(nc, pref) {
@@ -243,7 +245,7 @@ util.prefixOnNick = _.autoCurry(function(prefixes, nick) {
 
 util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = _.compose(_.lambda("x[1]"), util.prefixOnNick);
+util.stripPrefix = _.compose(function(xs){return xs[1]}, util.prefixOnNick);
 
 util.createWordRegex = function(word) {
     return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");//=> /\bmegawac\b/i
@@ -268,7 +270,7 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), _.lambda("x.charCodeAt(0)"));
+var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), _.first);
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
@@ -298,25 +300,16 @@ util.getColourByKey = function(key) {
     return _.findWhere(irc.colours, {
         key: _.toInt(key)
     });
-};
-
-util.longtoduration = function(l) {
-    var seconds = l % 60;
-    var minutes = Math.floor((l % 3600) / 60);
-    var hours = Math.floor((l % (3600 * 24)) / 3600);
-    var days = Math.floor(l / (24 * 3600));
-
-    return days + " days " + hours + " hours " + minutes + " minutes " + seconds + " seconds";
-};
+};  
 
 //pads based on the ret of a condition
-util.pad = _.autoCurry(function(cond, padding, str) {
+util.pad = function(cond, padding, str) {
     str = String(str);
     return cond(str) ? padding + str : str;
-});
+};
 
-// util.padzero = pad(_.lambda(".length<=1"), "0");
-util.padspace = util.pad(_.lambda(".length!==0"), " ");
+util.padzero = _.partial(util.pad, function(x) {return x.length <= 1;}, "0");
+util.padspace = _.partial(util.pad, _.negate(_.isEmpty), " ");
 
 // NOT cryptographically secure! 
 //http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -328,13 +321,21 @@ util.randHexString = function(numBytes) {
     return id;
 };
 
+//Should I include a real date frameowkr (used to have Mootools version...)
 util.IRCTimestamp = function(date) {
-    // return "[" + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + "]";
-    return date.format("[%H:%M]");
+    return "[" + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + "]";
 };
 
 util.IRCDate = function(date) {
-    return date.format("%c");
+    if(date.toLocaleString) return date.toLocaleString();
+
+    return format("{d}/{M}/{y} {h}:{m}", {
+        d: date.getDay(),
+        M: date.getMonth() + 1,
+        y: date.getYear(),
+        h: date.getHours(),
+        m: date.getMinutes()
+    });
 };
 
 irc.nickChanEntry = function(p, l) {

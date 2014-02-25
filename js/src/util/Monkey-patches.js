@@ -1,5 +1,10 @@
+/**
+ * Some mootools customizations - may break spec
+ * @provides [hacks, patches]
+ */
 (function(window) {
-
+    var strp = String.prototype,
+        forEach = Array.prototype.forEach;
     //okay this is mainly just for preference - didnt like merges behaviour with classes particularly with Options.setOptions and this was the easiest way to reimplemnt it
     //https://github.com/mootools/mootools-core/issues/2526
     var mergeOne = function(source, key, current){
@@ -29,8 +34,6 @@
         }
     });
 
-
-    var strp = String.prototype;
     ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
         try{
             if(strp[method]) strp[method].protect();
@@ -89,6 +92,11 @@
         }
     });
 
+    Array.implement("each", function(fn, context) {//optimization avoids some fn calls
+        forEach.call(this, fn, context);
+        return this;
+    });
+
     Element.Properties.val = Element.Properties.value = {
         get: function() {
             return this[(this.get("type") == "checkbox") ? "checked" : "value"];
@@ -122,10 +130,9 @@
         }
     })
     .implement({
-
         //removes all elements in arguments from array if found - opposite of adopt
         disown: function() {
-            Array.each(arguments, function(element) {
+            forEach.call(arguments, function(element) {
                 element = document.id(element, true);
                 if (element) element.dispose();
             });

@@ -1,7 +1,7 @@
 /**
  * qwebirc -- Copyright (C) 2008-2011 Chris Porter and the qwebirc project --- All rights reserved.
  *
- * @provides [qwebirc, irc, util, config, auth, ui, cookies, sound, lang, windowNames, templates, constants]
+ * @provides [qwebirc, irc, util, config, auth, ui, components, cookies, sound, lang, windowNames, templates, constants]
  */
 
 //wrapped in iife during grunt build
@@ -23,6 +23,7 @@ var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
     irc: {},
     ui: {},
     util: {},
+    components: {},
     global: {
         dynamicBaseURL: "/",
         staticBaseURL: "/"
@@ -57,6 +58,7 @@ var irc = qwebirc.irc,
     auth = qwebirc.auth,
 
     ui = qwebirc.ui,
+    components = qwebirc.comp = qwebirc.components,
 
     cookies = qwebirc.cookies,
 

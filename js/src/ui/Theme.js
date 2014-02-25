@@ -10,10 +10,10 @@ ui.Theme = new Class({
         var self = this,
             defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
         
-        var thememap = _.map(config.ThemeControlCodeMap, function(str) {
+        var thememap = Object.map(config.ThemeControlCodeMap, function(str) {
             return util.formatSafe(str, config.ThemeControlCodeMap);
         });
-        self._theme = _.map(defaults, function(str) {
+        self._theme = Object.map(defaults, function(str) {
             return util.formatSafe(str, thememap);
         });
 

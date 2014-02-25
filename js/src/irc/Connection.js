@@ -5,7 +5,7 @@
  * Twisted IRCConnection Class... Still needs simplification
  * uris = dict(p=push, n=newConnection, s=subscribe)
  *
- * @depends [util/lang, util/utils, ui/popups]   --dirty alerts I didnt feel like propogating
+ * @depends [util/lang, util/utils, components/Alert]   --dirty alerts I didnt feel like propogating
  * @provides [irc/Connection]
  */
 (function() {
@@ -318,7 +318,7 @@
         __error: function(message, context) {
             var msg = context ? util.formatter(message.message, context) : message.message;
             this.fireEvent("error", msg);
-            new ui.Alert({
+            new components.Alert({
                 title: "Connection Error",
                 text: msg
             });

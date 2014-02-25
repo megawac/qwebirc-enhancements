@@ -1,7 +1,7 @@
 /**
  * Login page
  *
- * @depends [panes/Welcome, ui/Popups, util/utils, util/utils]
+ * @depends [panes/Welcome, components/Popups, util/utils, util/utils]
  * @provides [ui/ILogin]
  */
 (function() {
@@ -29,8 +29,8 @@
 
     var LoginBox = function(parentElement, callback, settings, networkName, validators) {
         var nickname = settings.get("nickname"),
-            username = Base64.decode(settings.get("username")),//clientside no need for more advanced
-            password = Base64.decode(settings.get("password")),
+            username = settings.get("username"),//clientside no need for more advanced
+            password = settings.get("password"),
             eauth = auth.enabled || settings.get("auth");
 
         var formatChans = util.formatChannelString;
@@ -58,7 +58,7 @@
                 }
             });
             $chans.addEvent("dblclick", function() {
-                new ui.Dialog({
+                new components.Dialog({
                     title: lang.setChanTitle,
                     text: lang.setChanDialog,
                     value: $chans.text(),
@@ -116,8 +116,8 @@
                         data.serverPassword = username + " " + password;
                     }
 
-                    settings.set("username", Base64.encode(username));
-                    settings.set("password", Base64.encode(password));
+                    settings.set("username", username);
+                    settings.set("password", password);
                     settings.set("auth", true);
                     auth.enabled = true;
                 } else {

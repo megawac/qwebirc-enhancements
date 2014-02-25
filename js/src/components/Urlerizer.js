@@ -1,5 +1,9 @@
-//Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
-(function(self) {
+/** 
+ * Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
+ * @depends [components]
+ * @provides [components/Urlerizer]
+ */
+(function() {
 
     function getTrailing(text, punc) {
         if (Type.isRegExp(punc)) {
@@ -27,7 +31,7 @@
         }
     }
 
-    var urlerizer = self.Urlerizer = new Class({
+    var Urlerizer = components.Urlerizer = new Class({
         Implements: [Options],
         options: {
             nofollow: false,
@@ -43,13 +47,14 @@
         leading_punctuation: [],
         trailing_punctuation: [/[.,.)]$/],
         wrapping_punctuation: [
-            ['(', ')'],
-            ['<', '>'],
-            ['&lt;', '&gt;'],
-            ['“', '”'],
-            ['‘', '’'],
-            ['\'', '\''],
-            ['[', ']']
+            ["(", ")"],
+            ["<", ">"],
+            ["&lt;", "&gt;"],
+            ["“", "”"],
+            ["‘", "’"],
+            ["'", "'"],
+            ["\"", "\""],
+            ["[", "]"]
         ],
 
         initialize: function(opts) {
@@ -62,29 +67,29 @@
                     parse: function(text) {
                         var options = this.options;
                         var word = text;
-                        if ((word.contains('.') || word.contains('@') || word.contains(':')) &&
-                                (!options.hide_servers || !(urlerizer.regexs.server.test(word))) ) {//dont match google.com:510
+                        if ((word.contains(".") || word.contains("@") || word.contains(":")) &&
+                                (!options.hide_servers || !(Urlerizer.regexs.server.test(word))) ) {//dont match google.com:510
                             // Deal with punctuation.
                             var parsed = this.parsePunctuation(word);
                             var middle = parsed.mid;
 
                             // Make URL we want to point to.
                             var url;
-                            var nofollow_attr = options.nofollow ? ' rel="nofollow"' : '';
-                            var target_attr = options.target ? ' target="' + options.target + '"' : '';
+                            var nofollow_attr = options.nofollow ? " rel='nofollow'" : "";
+                            var target_attr = options.target ? " target='" + options.target + "'" : "";
 
-                            if (middle.match(urlerizer.regexs.simple_url)) url = this.urlquote(middle);
-                            else if (middle.match(urlerizer.regexs.url_improved)) url = this.urlquote('http://' + middle);
-                            else if (middle.contains(':') && middle.match(urlerizer.regexs.simple_email)) {
+                            if (middle.match(Urlerizer.regexs.simple_url)) url = this.urlquote(middle);
+                            else if (middle.match(Urlerizer.regexs.url_improved)) url = this.urlquote("http://" + middle);
+                            else if (middle.contains(":") && middle.match(Urlerizer.regexs.simple_email)) {
                                 // XXX: Not handling IDN.
-                                url = 'mailto:' + middle;
-                                nofollow_attr = '';
+                                url = "mailto:" + middle;
+                                nofollow_attr = "";
                             }
 
                             // Make link.
                             if (url) {
                                 var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
-                                middle = '<a href="' + url + '"' + nofollow_attr + target_attr + '>' + trimmed + '</a>';
+                                middle = "<a href='" + url + "'" + nofollow_attr + target_attr + ">" + trimmed + "</a>";
                                 word = parsed.lead + middle + parsed.end;
                             }
                         }
@@ -99,7 +104,7 @@
             // XXX: Not handling IDN.
             // An URL is considered unquoted if it contains no % characters or
             // contains a % not followed by two hexadecimal digits.
-            if (url.indexOf('%') == -1 || url.match(urlerizer.regexs.unquoted_percents)) {
+            if (!url.contains("%") || url.match(Urlerizer.regexs.unquoted_percents)) {
                 return encodeURI(url);
             } else {
                 return url;
@@ -108,7 +113,7 @@
 
         parse: function(text) {
             var self = this,
-                result = (self.options.autoescape ? _.escape(text) : text).split(' '),
+                result = (self.options.autoescape ? _.escape(text) : text).split(" "),
                 funcs = _.filter(self.patterns, function(pat) {
                     return !pat.entireStr;
                 }),
@@ -126,7 +131,7 @@
             for (; i >= 0; i--) {
                 funcs.some(parseWord);//one pattern per word or it gets too complicated
             }
-            result = result.join(' ');
+            result = result.join(" ");
             self.patterns.each(function(pattern) {
                 if (pattern.entireStr && pattern.pattern.test(result)) {
                     result = pattern.parse.call(self, result);
@@ -136,9 +141,9 @@
         },
 
         parsePunctuation: function(text) {
-            var lead = '',
+            var lead = "",
                 mid = text,
-                end = '';
+                end = "";
 
             function leader(punc) {
                 var lead = getLeading(mid, punc);
@@ -185,20 +190,19 @@
 
         addPattern: function(reg, action, whole) {
             this.patterns.push({
-                'pattern': reg,
-                'parse': action,
-                'entireStr': whole || false
+                pattern: reg,
+                parse: action,
+                entireStr: whole || false
             });
             return this;
         }
     });
 
-    urlerizer.regexs = {
+    Urlerizer.regexs = {
         simple_url: /^https?:\/\/\w/,
         url_improved: /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/,//matches anything thats urlish- even bit.ly/a
         simple_email: /^\S+@\S+\.\S+$/,
         unquoted_percents: /%(?![0-9A-Fa-f]{2})/,
         server: /(\:(\d{2}))|(qwebirc\:\/)/
     };
-
-})(this);
+})();

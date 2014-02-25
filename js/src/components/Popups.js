@@ -1,6 +1,7 @@
 /**
+ * Some dialog helpers
  * @depends [ui, util/uihelpers, util/lang]
- * @provides [ui/Popups]
+ * @provides [components/Popups, components/Alert, components/Dialog]
  */
 (function() {
     function checkKeys(fn, keys, type) {//or just use pseudos.keys
@@ -15,7 +16,7 @@
     }
 
     //anutron.github.io/mootools-bootstrap/#modals - changed closeOnEsc to closeOnKeys using Element.psuedo.keys
-    ui.Dialog = new Class({
+    components.Dialog = new Class({
         Extends: Bootstrap.Popup,
         options: {//mainly defaults
             popup_template: "popup-dialog",
@@ -63,7 +64,7 @@
         }
     });
 
-    ui.Alert = new Class({
+    components.Alert = new Class({
         Extends: Bootstrap.Popup,
         options: {
             popup_template: "popup-alert",

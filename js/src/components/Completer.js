@@ -1,7 +1,9 @@
-/*
-    Lightweight basic autocompleter?
-    WIP: goal is to create typeaheadesque (https://github.com/twitter/typeahead.js/) input box. Only going to support local data and no drop down for now..
-*/
+/**
+ * Lightweight basic autocompleter
+ * WIP: goal is to create typeaheadesque (https://github.com/twitter/typeahead.js/) input box. Only going to support local data and no drop down for now..
+ * @depends [components]
+ * @provides [components/Completer]
+ */
 (function() {
     var keyboardBinds = {
         "down": "next",
@@ -13,7 +15,7 @@
         "enter": "complete"
     };
     
-    function hinter() {
+    var hinter = function() {
         if(this.options.autocomplete) {
             var text = this.$input.get("value");
             var full;
@@ -24,9 +26,9 @@
             }
             this.seth(full || "");
         }
-    }
+    };
 
-    this.Completer = new Class({
+    components.Completer = new Class({
         Implements: [Options],
         Binds: ["process", "update"],
         index: -1,

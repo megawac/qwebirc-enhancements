@@ -79,35 +79,24 @@
                 ui.setTitle(vis ? self.titleText : lang.activityNotice);
             };
 
+            var flasher = self._flasher = {
+                timer: setInterval(flash, 750),
+                evt: {//whatever comes first
+                    "mousedown": self.cancelFlash,
+                    "keydown": self.cancelFlash,
+                    "focus": self.cancelFlash
+                }
+            };
             self.flashing = true;
-            // flashA();
-            self._flasher = _.periodical(flash, 750);
-            window.addEvents({//whatever comes first
-                "mousedown:once": self.cancelFlash,
-                "keydown:once": self.cancelFlash,
-                "focus:once": self.cancelFlash
-            });
-            return self;
-        },
-
-        showNotice: function(options, force) {
-            var self = this;
-            if((force || !document.hasFocus()) && self.uiOptions.get("dn_state")) {
-                var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
-                var notice = notify.createNotification(opts.title, opts);
-                var timer = _.delay(notice.close, self.uiOptions.get("dn_duration"), notice);
-                self._notices.push({
-                    waiter: timer,
-                    close: notice.close
-                });
-            }
+            window.addEvents(flasher.evt);
             return self;
         },
 
         cancelFlash: function() {
             this.flashing = false;
 
-            clearInterval(this._flasher);
+            clearInterval(this._flasher.timer);
+            window.removeEvents(this._flasher.evt);
             this._flasher = null;
 
             this._notices.each(function(notice) {
@@ -118,6 +107,21 @@
             this.toggleFavIcon(true);
             ui.setTitle(this.titleText);
         },
+
+        showNotice: function(options, force) {
+            var self = this;
+            if((force || !document.hasFocus()) && self.uiOptions.get("dn_state")) {
+                var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
+                var notice = notify.createNotification(opts.title, opts);
+                var timer = notice.close.delay(self.uiOptions.get("dn_duration"), notice);
+                self._notices.push({
+                    waiter: timer,
+                    close: notice.close
+                });
+            }
+            return self;
+        },
+
         //not sure if changing the favicon is a good idea - messes with peoples bookmarks
         toggleFavIcon: function(state) {
             var isNormalVis = !!favIcons.normal.getParent();

@@ -1,7 +1,8 @@
 /**
  * qui window -should implement base not extend
  *
- * @depends [ui/Window, ui/Popups]
+ * @depends [ui/Window]
+ * @depends [components/AutoScroll, components/Completer, components/Popups]
  * @provides [ui/QUIWindow]
  */
 ui.QUIWindow = new Class({
@@ -67,7 +68,7 @@ ui.QUIWindow = new Class({
 
         if(hasInput) {
             $win.addClass("ircwindow");
-            self.fxscroll = new Fx.AutoScroll(lines, {
+            self.fxscroll = new components.AutoScroll(lines, {
                 start: false
             });
             self.$input = $win.getElement(".input .irc-input");
@@ -208,7 +209,7 @@ ui.QUIWindow = new Class({
             self.fxscroll.start();
         }
         if(!self.completer && self.type === ui.WINDOW.channel) {
-            self.completer = new Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.id), {
+            self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.id), {
                 autocomplete: self.getOption("completer").intrusive
             });
             self.completer.$hint.addClass("decorated");
@@ -233,7 +234,7 @@ ui.QUIWindow = new Class({
                     });
                 }
             }
-            _.delay(self.updatePrefix, 1000, self);//takes a little while to recieve on some servers
+            self.updatePrefix.delay(1000, self);//takes a little while to recieve on some servers
         }
 
     },
@@ -245,11 +246,11 @@ ui.QUIWindow = new Class({
     editTopic: function() {
         var self = this;
         if (!self.client.nickOnChanHasPrefix(self.client.nickname, self.name, constants.prefixes.op)) {
-            new ui.Alert({
+            new components.Alert({
                 text: lang.changeTopicNeedsOp
             });
         } else {
-            new ui.Dialog({
+            new components.Dialog({
                 title: "Set Topic",
                 text: util.format(lang.changeTopicConfirm, {channel: self.name}),
                 placeholder: this.window.getElement(".topic").text(),
@@ -271,7 +272,7 @@ ui.QUIWindow = new Class({
                 self.__dirtyFixes();
             }
         } else {
-            new ui.Dialog({
+            new components.Dialog({
                 title: "Set nickname",
                 text: "Enter a new nickname",
                 placeholder: self.nickname,

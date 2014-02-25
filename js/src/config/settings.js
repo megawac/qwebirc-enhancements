@@ -3,6 +3,8 @@
  * @depends [config, cookies]
  * @provides [config/Settings]
  */
+var encode  = btoa || _.identity,
+    decode = atob || _.identity;
 config.Settings = new Class({
     Extends: Epitome.Model.Storage,
     options: {
@@ -19,6 +21,24 @@ config.Settings = new Class({
 
         onReady: function() {
             this.loaded = true;
+        }
+    },
+    properties: {
+        username: {
+            get: function() {
+                return decode(this._attributes.username);
+            },
+            set: function(user) {
+                return encode(user);
+            }
+        },
+        password: {
+            get: function() {
+                return decode(this._attributes.password);
+            },
+            set: function(password) {
+                return encode(password);
+            }
         }
     },
 

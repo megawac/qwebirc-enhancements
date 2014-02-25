@@ -1,12 +1,13 @@
 /**
  * URL parser new and improved for easy extending
+ * @depends [components/Urlerizer]
  * @provides [util/urlifier]
  */
 (function() {
     //welcome to my dirty corner. Here we welcome regexs and confusing loops
 
     //Parses messages for url strings and creates hyperlinks
-    var urlifier = util.urlifier = new Urlerizer({
+    var urlifier = util.urlifier = new components.Urlerizer({
         target: "_blank"
     });
     // var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
@@ -51,7 +52,7 @@
         return parsed.lead + res + parsed.end;
     });
 
-    var inputurl = util.inputParser = new Urlerizer({
+    var inputurl = util.inputParser = new components.Urlerizer({
         default_parser: false,
         autoescape: false
     });

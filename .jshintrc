@@ -38,12 +38,14 @@
     "cookies": true,
     "constants": true,
     "windowNames": true,
+    "components": true,
 
     //Locals
     "DEBUG": true
   },
 
   "browser": true,
+  "mootools": true,
   "esnext": true,
   "globalstrict": false,
   "strict": false,//strict declared at top
