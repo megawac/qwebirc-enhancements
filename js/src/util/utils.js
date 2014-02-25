@@ -255,15 +255,14 @@ util.testForNick = _.autoCurry(function(nick, text) {
     return util.createWordRegex(nick).test(text);
 });
 
-util.toHSBColour = function(nick, client) {
-    var lower = client.toIRCLower(util.stripPrefix(client.prefixes, nick));
-    if (lower == client.lowerNickname) return null;
-
+util.toHSBColour = function(nick) {
     var hash = 0;
-    for (var i = 0; i < lower.length; i++){
-        hash = 31 * hash + lower.charCodeAt(i);
+    var hue;
+
+    for (var i = 0; i < nick.length; i++){
+        hash = 31 * hash + nick.charCodeAt(i);
     }
-    var hue = Math.abs(hash) % 360;
+    hue = Math.abs(hash) % 360;
 
     return new Color([hue, 70, 60], "hsb");
 };

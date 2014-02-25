@@ -223,7 +223,7 @@ ui.QUIWindow = new Class({
                 var nodes = self.nicklist.childNodes;
                 if (colour) {
                     _.each(nodes, function(node) {
-                        var colour = util.toHSBColour(node.get("data-nick"), self.client);
+                        var colour = util.toHSBColour(node.get("data-nick"));
                         if (colour != null) {
                             node.firstChild.setStyle("color", colour.rgbToHex());
                         }
@@ -444,7 +444,7 @@ ui.QUIWindow = new Class({
         var span = nickele.getElement("span");
 
         if (this.getOption("nick_colours")) {
-            var colour = util.toHSBColour(nickobj.nick, this.client);
+            var colour = util.toHSBColour(nickobj.nick);
             if (colour != null) {
                 span.setStyle("color", colour.rgbToHex());
             }
