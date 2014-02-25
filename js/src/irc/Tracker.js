@@ -11,11 +11,6 @@ irc.IRCTracker = new Class({
         this.owner = owner;
     },
 
-    toIRCLower: function(value) {
-        /* proxied because the method can change after we connect */
-        return this.owner.toIRCLower(value);
-    },
-
     getNick: function(nick) {
         return this.nicknames[nick];
     },
@@ -29,22 +24,22 @@ irc.IRCTracker = new Class({
     },
 
     getChannel: function(channel) {
-        return this.channels[this.toIRCLower(channel)];
+        return this.channels[channel.toLowerCase()];
     },
 
     getOrCreateChannel: function(channel) {
-        return this.getChannel(channel) || (this.channels[this.toIRCLower(channel)] = {});
+        return this.getChannel(channel) || (this.channels[channel.toLowerCase()] = {});
     },
 
     getOrCreateNickOnChannel: function(nick, channel) {
         var nc = this.getOrCreateNick(nick);
-        return nc[this.toIRCLower(channel)] || this.addNickToChannel(nc, channel);
+        return nc[channel.toLowerCase()] || this.addNickToChannel(nc, channel);
     },
 
     getNickOnChannel: function(nick, channel) {
         var nickchan = this.getNick(nick);
         if (nickchan) {
-            return nickchan[this.toIRCLower(channel)];
+            return nickchan[channel.toLowerCase()];
         }
     },
 
@@ -55,7 +50,7 @@ irc.IRCTracker = new Class({
             var nickchan = this.getOrCreateNick(nick);
             var chan = this.getOrCreateChannel(channel);
 
-            nickchan[this.toIRCLower(channel)] = nc;
+            nickchan[channel.toLowerCase()] = nc;
             chan[nick] = nc;
         }
 
@@ -67,7 +62,7 @@ irc.IRCTracker = new Class({
         var nickchan = self.nicknames[nick];
         if (nickchan){
             _.each(nickchan, function(data, chan) {
-                var lchannel = self.toIRCLower(chan);
+                var lchannel = chan.toLowerCase();
                 var channel = self.channels[lchannel];
                 if(channel) {
                     delete channel[nick];
@@ -82,7 +77,7 @@ irc.IRCTracker = new Class({
 
     removeChannel: function(channel) {
         var self = this;
-        var lchannel = self.toIRCLower(channel);
+        var lchannel = channel.toLowerCase();
         var chan = self.channels[lchannel];
         if (chan) {
             _.keys(chan).each(function(nick) {
@@ -97,7 +92,7 @@ irc.IRCTracker = new Class({
     },
 
     removeNickFromChannel: function(nick, channel) {
-        var lchannel = this.toIRCLower(channel);
+        var lchannel = channel.toLowerCase();
 
         var nickchan = this.getNick(nick);
         var chan = this.getChannel(lchannel);

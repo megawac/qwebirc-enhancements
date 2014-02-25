@@ -7,7 +7,7 @@
   */
 irc.IRCClient = new Class({
     Implements: [Options, Events, irc.Commands],
-    Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch", "_tdispatch"],
+    Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch"],
     options: {
         minRejoinTime: [0],
         networkServices: [],
@@ -67,7 +67,11 @@ irc.IRCClient = new Class({
                 serverPassword: options.serverPassword,
             });
             self.connection.addEvents({
-                "recv": self._tdispatch,
+                "recv": self.dispatch,
+                "disconnect": function(data) {
+                    self.disconnect(data[1]);
+                },
+                "connect": self.connected,
                 // "retry": self.retry,
                 "lostConnection": self.lostConnection
             });
@@ -99,27 +103,21 @@ irc.IRCClient = new Class({
         return this.connection.send(data);
     },
 
-    disconnect: function() {
-        this.connection.disconnect();
-        return this;
-    },
-
-    disconnected: function(message) {
+    disconnect: function(message) {
         delete this.tracker;
-        this.trigger("disconnect", {
-            message: message
-        });
+        this.writeMessages(message || lang.disconnected, {}, {channels: "ALL"});
+        this.connection.disconnect();
+        return this.trigger("disconnect");
     },
 
     quit: function(message, notify) {
         if(this.isConnected()) {
             this.connection.send("QUIT :" + (message || this.getOption("quit_msg")), true);//this.connection.sendUnqueued("QUIT :" + (message || this.getOption("quit_msg")), false);//
             if(notify) {//time to go
+                /* global $clear */
                 _.each(this.activeTimers, $clear);
                 this.activeTimers = {};
-                this.writeMessages(lang.disconnected, {}, {channels: "ALL"});
                 this.disconnect();
-                this.trigger("disconnect");
                 this.__signedOn = false;
             }
         }
@@ -251,27 +249,6 @@ irc.IRCClient = new Class({
 
         if (!(fn && fn.call(this, data))) {//fn dne or does not return true
             this.rawNumeric(data);
-        }
-    },
-
-    _tdispatch: function(data) {
-        var message = data[0];
-        switch(message) {
-            case "connect":
-                this.connected();
-                break;
-            case "disconnect":
-                if (data.length === 0) {
-                    this.disconnected("No error!");
-                } else {
-                    this.disconnected(data[1]);
-                }
-                this.disconnect();
-                break;
-            case "c":
-                var _data = util.processTwistedData(data);
-                this.dispatch(_data);
-                break;
         }
     },
 
@@ -641,13 +618,9 @@ irc.IRCClient = new Class({
             oldnick = data.nick,
             wasus = this.nickname === oldnick;
 
-        if (wasus) { //shouldnt this always be true?
-            this.nickname = newnick;
-            this.lowerNickname = this.toIRCLower(this.nickname);
-        }
-
         if (wasus) {
             self.nickname = newnick;
+            self.lowerNickname = self.toIRCLower(self.nickname);
             self.options.settings.set("nickname", newnick);
         }
 
@@ -658,6 +631,7 @@ irc.IRCClient = new Class({
         _.each(channels, function(obj, chan) {
             self.updateNickList(chan);
         });
+        //_.keys(channels).each(self.updateNickList, self);
 
         self.trigger("nickChange", {
             "nick": oldnick,
@@ -703,6 +677,7 @@ irc.IRCClient = new Class({
         _.each(channels, function(nick, chan) {
             self.updateNickList(chan);
         });
+        //_.keys(channels).each(self.updateNickList, self);
 
         self.trigger("quit", {
             "host": data.host,

@@ -270,7 +270,7 @@ util.toHSBColour = function(nick, client) {
 
 
 //helper functions
-var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), _.first);
+var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), function(s) { return s.charCodeAt(0); });
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
@@ -300,7 +300,7 @@ util.getColourByKey = function(key) {
     return _.findWhere(irc.colours, {
         key: _.toInt(key)
     });
-};  
+};
 
 //pads based on the ret of a condition
 util.pad = function(cond, padding, str) {

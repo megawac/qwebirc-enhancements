@@ -272,7 +272,12 @@
 
             self.__retryAttempts = 0;
             payload.each(function(data) {
-                self.fireEvent("recv", [data]);//array because mootools fire event is broken for arrays
+                var type = data[0];
+
+                if      (type === "connect")    self.fireEvent("connect", data);
+                else if (type === "disconnect") self.fireEvent("disconnect", data);
+                else if (type === "c")          self.fireEvent("recv", util.processTwistedData(data));
+                else if (DEBUG)                 console.warn("Unexpected type " + type, data);
             });
 
             return true;
@@ -284,6 +289,7 @@
         },
 
         __cancelTimeout: function() {
+            /* global $clear */
             if (this.__timeoutId != null) {
                 $clear(this.__timeoutId);
                 this.__timeoutId = null;
