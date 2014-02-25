@@ -1,10 +1,12 @@
 {
     #minify source files?
-    "minify": false,
+    "minify": true,
     # compile all local source files into a large file
+    # Note: according to html5 rocks the optimal script size (for caching) is <125 kB
+    # I've set up the build scripts with this in mind so `concat` may not be recommended
     # see https://hacks.mozilla.org/2012/12/fantastic-front-end-performance-part-1-concatenate-compress-cache-a-node-js-holiday-season-part-4/
     "concat": false,
-    # Load resources off of a top-tier CDN where possible
+    # Load resources off of a top-tier CDN where possible - otherwise going to build a modules.js file
     # see http://www.sitepoint.com/7-reasons-to-use-a-cdn/
     "use cdn": true,
 
