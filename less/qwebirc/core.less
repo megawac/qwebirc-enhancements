@@ -1,0 +1,166 @@
+/*! qwebirc -- Copyright (C) 2008-2012 Chris Porter and the qwebirc project --- All rights reserved. */
+
+#noscript {
+    text-align: center;
+    font-weight: bold;
+}
+
+html, body {
+    height: 100%;
+}
+
+
+// Core QWebirc styles and helpers
+
+.qwebirc {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: @qweb-sans-serif;
+
+    // MISC
+    &.signed-in .buttons {
+        display: inline-block;
+        cursor: pointer;
+    }
+    .modal .alert {
+        margin: 0;
+    }
+
+    .modal .modal-footer {
+        margin: 0;
+        padding: 10px 20px 10px;
+    }
+
+    .btn-smaller {
+        padding: 2px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+
+    .attach, .detach, .tab-close {
+        cursor: pointer;
+    }
+
+    .handle {
+        z-index: 2;
+        position: absolute;
+        background-repeat: no-repeat;
+        margin: auto;
+    }
+
+    .buttons span {
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    .buttons {
+        display: none;
+    }
+
+    .center {
+        margin-top: 5%;
+    }
+
+    .init-channels {
+        font-size: 95%;
+        text-align: center;
+        color: #928D8D;
+    }
+
+    .monospace {
+        font-family: @qweb-mono;
+    }
+
+    /*.handle.vertical {
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        cursor: col-resize;
+        z-index: 10;
+    }
+    .qui .show-nicklist .content .handle {
+        display: block;
+    }
+    .handle.horizontal {
+        height: 10px;
+        cursor: row-resize;
+        left: 0;
+        right: 0;
+        z-index: 10;
+    }*/
+
+    .loading {
+        padding-left: 4px;
+        padding-top: 3px;
+        font-size: 0.8em;
+    }
+
+    /* status */
+    .user .status {
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 3px;
+    }
+    .user .status.voice {
+        width: 8px;
+        height: 8px;
+
+        background-color: rgb(223, 187, 47);
+        background-image: radial-gradient(45px 45px 45deg, circle, yellow 0%, orange 100%, red 95%);
+        animation-name: spin;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+
+    .user .status.op {
+        width: 8px;
+        height: 8px;
+
+        background-color: #7AE60E;
+        background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+        animation-name: spin;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+
+
+
+    /* type ahead and input decorations */
+    .tt-query {
+        padding: 0;
+        height: 26px;
+        text-indent: 5px;
+        position: relative;
+        vertical-align: top;
+        background-color: transparent;
+    }
+
+    .input .decorated {
+        background-image: linear-gradient(bottom, rgb(235,235,232) 54%, rgb(247,250,240) 66%);
+        //this won't be auto prefixed
+        // background-image: -webkit-gradient(
+        //     linear,
+        //     left bottom,
+        //     left top,
+        //     color-stop(0.54, rgb(235,235,232)),
+        //     color-stop(0.66, rgb(247,250,240))
+        // );
+    }
+    .tt-hint {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        padding: 0;
+        text-indent: 5px;
+        border-color: transparent;
+        box-shadow: none;
+        color: #BDBDBD;
+    }
+    /*end typeahead*/
+
+}

@@ -1,0 +1,53 @@
+.qwebirc {
+
+    .outertabbar {   
+        height: 26px;
+        line-height: 20px;
+        padding: 2px 0;
+
+        > * {
+            vertical-align: top;
+        }
+
+        .dropdown-tab {
+            cursor: pointer; cursor: hand;
+            display: inline-block;
+            padding-left: 4px;
+            width: 30px;
+        }
+    }
+
+    .tabbar {
+        display: inline-block;
+        overflow-x: hidden;
+        margin-left: 10px;
+        font-size: 13px;
+        height: 22px;
+
+        .tab {
+            padding: 2px;
+            cursor: default;
+            margin-right: 3px;
+            white-space: nowrap;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+
+        .detach, .tab-close {
+            vertical-align: middle;
+            padding-bottom: 3px;
+            display: inline-block;
+        }
+
+        .brouhaha.tab {
+            background-image: url("../images/b_background_unsel.gif");
+            padding-left: 65px; //width wont work here
+
+            &.selected {
+                background-image: url("../images/b_background_sel2.gif");
+            }
+        }
+    }
+
+}

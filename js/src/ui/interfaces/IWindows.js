@@ -217,9 +217,7 @@ ui.IWindows = new Class({
             delete this.customWindows[wid];
         }.bind(this));
 
-        if(_.isString(cssClass)) {
-            win.lines.addClass(cssClass);
-        }
+        win.lines.addClasses("custom", cssClass || "");
 
         options = _.extend({
             element: win.lines

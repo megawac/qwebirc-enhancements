@@ -10,7 +10,6 @@ Flags:
 *****************************/
 /* jshint node:true */
 module.exports = function(grunt) {
-    var path = require("path");
     var package = grunt.file.readJSON("./package.json");
     var build = grunt.file.readYAML("./build.yml");
     var files = grunt.file.readYAML("./build-files.yml");
@@ -94,13 +93,8 @@ module.exports = function(grunt) {
                 dest: "js/dist/qwebirc-full-<%= pkg.version %>.js"
             },
 
-            css: {
-                src: "css/src/*.css",
-                dest:"css/qwebirc-<%= pkg.version %>.css"
-            },
-
             modifiablecss: {
-                src: "css/src/*.hbs",
+                src: "mcss/*.hbs",
                 dest: "templates/modifiablecss.hbs"
             },
 
@@ -219,10 +213,55 @@ module.exports = function(grunt) {
             }
         },
 
+        less: {
+            twbs: {
+                options: {
+                    strictMath: true,
+                    ieCompat: true
+                },
+                files: {
+                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "less/bootstrap.less"
+                }
+            },
+            qwebirc: {
+                options: {
+                    strictMath: true
+                },
+                files: {
+                    "css/qwebirc-<%= pkg.version %>.css": "less/qwebirc.less"
+                }
+            }
+        },
+
         cssmin: {
+            options: {
+                preserveComments: "some"
+            },
             combine: {
                 files: {
-                    "css/qwebirc-<%= pkg.version %>-min.css": ["css/src/*.css"]
+                    "css/qwebirc-<%= pkg.version %>.css": ["css/qwebirc-<%= pkg.version %>.css"]
+                }
+            }
+        },
+
+        autoprefixer: {
+            options: {
+                browsers: ["ie > 7", "firefox > 10", "chrome > 5", "safari > 5", "Opera > 10", "bb > 10", "iOS > 10"]
+            },
+            qweb: {
+                src: "css/qwebirc-<%= pkg.version %>.css",
+                dest: "css/qwebirc-<%= pkg.version %>.css"
+            },
+        },
+
+        csscomb: {
+            options: {
+                config: "less/.csscomb.json"
+            },
+            dist: {
+                files: {
+                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+                    "css/qwebirc-<%= pkg.version %>.css": "css/qwebirc-<%= pkg.version %>.css"
                 }
             }
         },
@@ -242,7 +281,7 @@ module.exports = function(grunt) {
                         config: ["js/dist/app-<%= pkg.version %>.js"]
                     },
                     styles: {
-                        bundle: build.minify ? ["css/qwebirc-<%= pkg.version %>-min.css"] : ["css/qwebirc.css"]
+                        bundle: ["css/qwebirc-<%= pkg.version %>.css"]
                     }
                 }
             }
@@ -279,7 +318,9 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask("build-css", function() {
-        grunt.task.run("concat:css");
+        grunt.task.run("less");
+        grunt.task.run("csscomb");
+        grunt.task.run("autoprefixer");
 
         if(build.minify) {
             grunt.task.run("cssmin");
@@ -295,11 +336,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask("build", [
         "build-templates",
-
         "build-js",
-
         "build-css",
-
         "build-html"
     ]);
 

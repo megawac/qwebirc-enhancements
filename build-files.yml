@@ -42,8 +42,8 @@
             "local min": "css/qwebirc-<%= pkg.version %>-min.css"
         },
         "bootstrap css": {
-            "local": "css/bootstrap-3.0.3.css",
-            "local min": "css/bootstrap-3.0.3-min.css"
+            "local": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+            "local min": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
         },
         "mootools": {
             "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js",
