@@ -10,6 +10,9 @@
     # see http://www.sitepoint.com/7-reasons-to-use-a-cdn/
     "use cdn": true,
 
+    #give stats on build (gzip size) - significantly slows down the build
+    "report": false,
+
     # Does your server support Atheme RPC services (currently only using channel lists)
     "atheme": false,
 

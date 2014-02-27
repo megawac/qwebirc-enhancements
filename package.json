@@ -22,15 +22,38 @@
     "node": ">= 0.6.0"
   },
   "devDependencies": {
-    "grunt": "0.4.x",
-    "matchdep": "~0.3.0",
-    "grunt-contrib-handlebars": "0.5.x",
-    "grunt-contrib-concat": "0.3.x",
-    "grunt-contrib-uglify": "0.3.x",
-    "grunt-concat-in-order": "~0.1.6",
-    "grunt-html-build": "~0.3.2",
-    "grunt-contrib-cssmin": "0.7.x",
+    "grunt": "0.4",
+    "grunt-contrib-handlebars": "0.5",
+    "grunt-contrib-concat": "0.3",
+    "grunt-contrib-uglify": "0.3",
+    "grunt-concat-in-order": "0.1",
+    "grunt-contrib-less": "0.9",
+    "grunt-contrib-csslint": "0.2",
+    "grunt-contrib-cssmin": "0.7",
+    "grunt-csscomb": "2.0",
+    "grunt-autoprefixer": "0.7",
+    "grunt-html-build": "0.3",
     "grunt-bumpup": "~0.5.0",
-    "grunt-tagrelease": "~0.3.1"
+    "grunt-tagrelease": "~0.3.1",
+    "grunt-file-info": "~1.0.4",
+    "matchdep": "~0.3.0"
+  },
+
+  "frontend-dependencies": {
+    "twbs": {
+      "version": "3.1.1"
+    },
+    "mootools": {
+      "version": "1.4.5"
+    },
+    "respond": {
+      "version": "1.4"
+    },
+    "soundManager": {
+      "version": "2.97a.20130512"
+    },
+    "Handlebars": {
+      "version": "1.0.0"
+    }
   }
 }

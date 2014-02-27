@@ -36,7 +36,6 @@ irc.IRCClient = new Class({
         options = self.setOptions(options).options;
 
         self.nickname = options.nickname;
-        self.lowerNickname = self.toIRCLower(self.nickname);
 
         //sorry ugly bit of templating :(
 
@@ -362,10 +361,9 @@ irc.IRCClient = new Class({
                 } else if (value === "rfc1459") {
                     //default
                 } else if(DEBUG) {
-                    // TODO: warn 
-                    console.log("unsupported codec");
+                    // TODO: handle
+                    console.warn("unsupported codec");
                 }
-                self.lowerNickname = self.toIRCLower(self.nickname); //why does self happen here
                 break;
             case "CHANMODES":
                 value.split(",").each(function(mode, inx) {
@@ -474,7 +472,7 @@ irc.IRCClient = new Class({
             msgs: []
         };
         var msgs = ndata.msgs;
-
+        //todo clean this up - fix it up in irc_rpl_xxx
         switch(type.toLowerCase()) {
             case "user":
                 msgs.push({
@@ -605,7 +603,6 @@ irc.IRCClient = new Class({
         var self = this;
         self.nickname = data.args[0];
         data.message = data.args[1];
-        self.lowerNickname = self.toIRCLower(self.nickname);
         self._signOn(data);
         _.delay(function() {
             self.__signedOn = true; //so auto join channels arent selected immediately - brouhaha window is
@@ -620,7 +617,6 @@ irc.IRCClient = new Class({
 
         if (wasus) {
             self.nickname = newnick;
-            self.lowerNickname = self.toIRCLower(self.nickname);
             self.options.settings.set("nickname", newnick);
         }
 

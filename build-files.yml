@@ -39,11 +39,11 @@
 
         "qwebirc css": {
             "local": "css/qwebirc-<%= pkg.version %>.css",
-            "local min": "css/qwebirc-<%= pkg.version %>-min.css"
+            "local min": "css/qwebirc-<%= pkg.version %>.css"
         },
         "bootstrap css": {
-            "local": "css/bootstrap-3.0.3.css",
-            "local min": "css/bootstrap-3.0.3-min.css"
+            "local": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+            "local min": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
         },
         "mootools": {
             "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js",
@@ -54,8 +54,8 @@
         "soundManager": {
             "cdn": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
             "cdn min": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
-            "local": "/js/modules/soundmanager2.js",
-            "local min": "/js/modules/soundmanager2.js"
+            "local": "js/modules/soundmanager2.js",
+            "local min": "js/modules/soundmanager2.js"
         },
         "socketio": {
             "cdn": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
