@@ -1,0 +1,201 @@
+// Main QUI theme styles 
+.qui {
+    .dropdownmenu {
+        position: absolute;
+        z-index: 100;
+        list-style: none;
+        padding: 5px 10px;
+        font-size: 0.7em;
+
+        a {
+            cursor: pointer; cursor: hand;
+            padding-top: 3px;
+        }
+    }
+
+    .chanmenu {
+        width: 150px;
+    }
+
+    .dropdownhint {
+      position: relative;
+      left: -500px;
+      z-index: 10;
+      white-space: nowrap;
+      font-size: 0.7em;
+    }
+
+    .windows {
+        width: 100%;
+        position: absolute;
+        top: 25px;
+        bottom: 0;
+    }
+
+    .windows > * {
+        height: 100%;
+    }
+
+    //  .window {
+    //     position: absolute;
+    //     top: 25px;
+    //     bottom: 0;
+    //     width: 100%;
+    // } 
+
+    .window > * {
+        width: 100%;
+    }
+
+    .content {
+        position: absolute;
+        top: 0;
+        bottom: 25px;
+
+        > * {
+            top: 0;
+            height:100%;
+        }
+    }
+
+    .channel .content {
+        top: 15px;
+    }
+
+    .show-nicklist .leftpanel {
+        position: absolute;
+        left: 0;
+        right: 140px;
+    }
+
+    .properties {
+        bottom: 0;
+        position: absolute;
+        width: 100%;
+        height: 25px;
+    }
+
+    .ircwindow {
+        .content {
+            bottom: 52px;
+        }
+
+        .rightpanel {
+            width: 140px;
+            position: absolute;
+            right: 0;
+        }
+
+        .properties {
+            bottom: 27px;
+        }
+
+        .lines {
+            font-family: @qweb-lines;
+            text-indent: 10px;
+            padding-left: 1em;
+        }
+    }
+
+    .channel-name {
+        cursor: default;
+        font-size: 0.8em;
+        padding: 2px;
+        text-decoration: none;
+        white-space: nowrap;
+        float: left;
+        margin: 1px 0 1px 8px;
+        font-weight: bold;
+    }
+
+    .bottompanel {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+    }
+
+    .lines, .colourline {
+        word-wrap: break-word;
+        white-space: pre;
+        white-space: pre-wrap;
+        overflow: auto;
+    }
+
+
+    .nicklist {
+        overflow: auto;
+        font-size: 0.7em;
+    }
+
+    .lines .nick {
+        margin-right: 4px;
+        .channel {
+            color: rgb(109, 89, 89);
+        }
+    }
+
+    .topic {
+        padding-left: 5px;
+        font-size: 0.7em;
+        cursor: default;
+
+        .emptytopic {
+            color: gray;
+        }
+    }
+
+    // input stuff 
+    .input {
+        margin: 0;
+
+        div {
+            padding: 0 5px 1px;
+            margin: 0;
+            width: 100%;
+        }
+        div > .input-group-addon {
+            cursor:pointer;cursor:hand;
+            padding: 2px 5px;
+        }
+
+        div > * {
+            height: 26px;
+        }
+    }
+
+    .nicklist .user, .nick-menu {
+        display: block;
+        text-decoration: none;
+        cursor: default;
+        padding-left: 1px;
+    }
+
+    .nick-menu ul {
+        margin: 0;
+        padding-left: 20px;
+        list-style-type: circle;
+        cursor:pointer;cursor:hand;
+    }
+
+    .nicklist .menu {
+        margin: 0 0 0 5px;
+
+        a {
+            border-bottom: 0;
+            border-top: 0;
+        }
+    }
+
+    .hyperlink-whois, .hyperlink-channel {
+        cursor: pointer;cursor: hand;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    hr.lastpos {
+      border: none;
+      margin: .5em 3em;
+    }
+
+}
