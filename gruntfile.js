@@ -220,7 +220,7 @@ module.exports = function(grunt) {
                     ieCompat: true
                 },
                 files: {
-                    "css/bootstrap.css": "less/bootstrap.less"
+                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "less/bootstrap.less"
                 }
             },
             qwebirc: {
@@ -260,7 +260,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    "css/bootstrap.css": "css/bootstrap.css",
+                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
                     "css/qwebirc-<%= pkg.version %>.css": "css/qwebirc-<%= pkg.version %>.css"
                 }
             }
