@@ -2,8 +2,9 @@
 index.html
 js/dist/*
 js/templates/*
-css/qwebirc*.css
+css/*
 templates/modifiablecss.hbs
+*.log
 
 # cool analysis tool https://github.com/es-analysis/plato
 report/*
