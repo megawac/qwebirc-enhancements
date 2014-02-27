@@ -9,52 +9,52 @@ html, body {
     height: 100%;
 }
 
-// MISC
-.modal .alert {
-    margin: 0;
-}
-
-.modal .modal-footer {
-    margin: 0;
-    padding: 10px 20px 10px;
-}
-
-.btn-smaller {
-    padding: 2px 5px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
-}
-
-
-.attach, .detach, .tab-close {
-    cursor: pointer;
-}
-
-.handle {
-    z-index: 2;
-    position: absolute;
-    background-repeat: no-repeat;
-    margin: auto;
-}
-
-.buttons span {
-    vertical-align: middle;
-    display: inline-block;
-}
 
 // Core QWebirc styles and helpers
-
-.qwebirc.signed-in .buttons {
-    display: inline-block;
-    cursor: pointer;
-}
 
 .qwebirc {
     height: 100%;
     width: 100%;
     overflow: hidden;
     font-family: @qweb-sans-serif;
+
+    // MISC
+    &.signed-in .buttons {
+        display: inline-block;
+        cursor: pointer;
+    }
+    .modal .alert {
+        margin: 0;
+    }
+
+    .modal .modal-footer {
+        margin: 0;
+        padding: 10px 20px 10px;
+    }
+
+    .btn-smaller {
+        padding: 2px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+
+    .attach, .detach, .tab-close {
+        cursor: pointer;
+    }
+
+    .handle {
+        z-index: 2;
+        position: absolute;
+        background-repeat: no-repeat;
+        margin: auto;
+    }
+
+    .buttons span {
+        vertical-align: middle;
+        display: inline-block;
+    }
 
     .buttons {
         display: none;
@@ -71,7 +71,7 @@ html, body {
     }
 
     .monospace {
-        font-family: Consolas, "Lucida Console", monospace;
+        font-family: @qweb-mono;
     }
 
     /*.handle.vertical {

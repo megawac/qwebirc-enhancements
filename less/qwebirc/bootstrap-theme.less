@@ -2,10 +2,6 @@
 @send-grey: #474949;
 @send-grey-back: darken(@send-grey, 20%);
 
-.send {
-  .button-variant(grey; @send-grey; @send-grey-back);
-  padding: 2px 10px;
-}
 // .send:hover,
 // .send:focus,
 // .send:active,
@@ -16,6 +12,15 @@
 
 .qwebirc {
 
+    //remove bold...
+    input {
+        font-weight: 500;
+    }
+
+    .send {
+      .button-variant(grey; @send-grey; @send-grey-back);
+      padding: 2px 10px;
+    }
     /*http://www.helloerik.com/column-examples/example4.html*/
     //Probably shouldnt do this as its included in 3.1 with different padding
     .container-fluid {
