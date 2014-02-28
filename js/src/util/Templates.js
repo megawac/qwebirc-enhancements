@@ -34,20 +34,18 @@
     engine.registerHelper("$link", util.formatURL);
 
     //f(property name, type of prop, default val)
-    engine.registerHelper("$css", function(prop, def, type, default2) {//this refers to context
-        if(type === "c") { //colour
-            var x = new Color(def);
-            var c = x.setHue(this.style_hue).setSaturation(x.hsb[1] + this.style_saturation).setBrightness(x.hsb[2] + this.style_brightness);
-            if (Browser.ie && c == "255,255,255") c = "255,255,254";// IE confuses white with transparent... 
-            
-            return "rgb(" + c + ")";
-        }
-        else if(type === "comp") {
-            return this[prop] ? def : default2;
-        }
-        else {
-            return this[prop] || def;
-        }
+    engine.registerHelper("$css", function(prop, def, def2) {//this refers to context
+        if(def2) return this[prop] ? def : def2;
+        return this[prop] || def;
+    });
+
+    engine.registerHelper("$col", function(def) {//this refers to context
+        var col = new Color(def);
+        return col
+            .setHue(this.style_hue)
+            .setSaturation(col.hsb[1] + this.style_saturation)
+            .setBrightness(col.hsb[2] + this.style_brightness)
+            .rgbToHex();
     });
 
     engine.registerHelper("format", function(prop) {
@@ -67,7 +65,7 @@
         compiled[key] = Function.from(template);
         return compiled;
     }, templates || {});
-})(Handlebars);
+})(window.Handlebars);
 
 /**
  * @depends: [qwebirc]

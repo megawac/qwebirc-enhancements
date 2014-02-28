@@ -42,6 +42,7 @@ module.exports = function(grunt) {
                     knownHelpers: {
                         "check": true,
                         "$css": true,
+                        "$col": true,
                         "enableDisable": true,
                         "$link": true,
                         "format": true,

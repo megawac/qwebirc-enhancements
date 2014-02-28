@@ -31,23 +31,31 @@
             white-space: nowrap;
             font-weight: bold;
             border-radius: 4px;
-        }
 
+            &.hilight-activity {
+                color: #009900;
+            }
+            &.hilight-speech {
+                color: #0000ff;
+            }
+            &.hilight-us {
+                color: #ff0000;
+                background: #d8d88a;
+            }
+            &.brouhaha {
+                background-image: url("../images/b_background_unsel.gif");
+                padding-left: 65px; //width wont work here
+
+                &.selected {
+                    background-image: url("../images/b_background_sel2.gif");
+                }
+            }
+        }
 
         .detach, .tab-close {
             vertical-align: middle;
             padding-bottom: 3px;
             display: inline-block;
         }
-
-        .brouhaha.tab {
-            background-image: url("../images/b_background_unsel.gif");
-            padding-left: 65px; //width wont work here
-
-            &.selected {
-                background-image: url("../images/b_background_sel2.gif");
-            }
-        }
     }
-
 }

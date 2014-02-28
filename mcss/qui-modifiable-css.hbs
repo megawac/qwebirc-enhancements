@@ -4,7 +4,7 @@
 {{! update the Browser object is also now part of the context so you can do #if ie6 or something}}
 
 .channel-name {
-    background-color: rgb(255, 255, 191);
+    background-color: #FFFFBF;
     border: 1px solid #C8D1DB;
     border-radius: 4px 4px 4px 4px;
     color: #000000;
@@ -14,152 +14,116 @@
 .qui .lines {
     color: black;
     font-size: {{$css 'font_size' 12}}px;
-    background: {{$css 'lines_background' 'f2f0ff' 'c'}};
+    background: {{$col 'f2f0ff'}};
 }
 
 .qui .lines .timestamp {
-    display: {{$css 'show_timestamps' 'inline' 'comp' 'none'}};
+    display: {{$css 'show_timestamps' 'inline' 'none'}};
 }
 
 .lines .highlight1 {
-    background-color: {{$css 'lines_highlight1' 'f6ff94' 'c'}};
+    background-color: {{$col 'f6ff94'}};
 }
 
 .lines .highlight2 {
-    background-color: {{$css 'lines_highlight2' 'A4FCCA' 'c'}};
+    background-color: {{$col 'A4FCCA'}};
 }
 
 .lines .highlight3 {
-    background-color: {{$css 'lines_highlight3' 'FAC3D5' 'c'}};
+    background-color: {{$col 'FAC3D5'}};
 }
 
 .lines .mentioned {
-    background-color: {{$css 'mentioned_colour' 'E63772' 'c'}} !important;
+    background-color: {{$col 'E63772'}} !important;
 }
 
 .qui .properties {
-    background-color: {{$css 'menu_background' 'f2f0ff' 'c'}};
-    border-top: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
+    background-color: {{$col 'f2f0ff'}};
+    border-top: 1px solid {{$col 'c8d2dc'}};
 }
 
 
 .qui .topic {
     color: gray;
-    background-color: {{$css 'topic_background' 'f2f0ff' 'c'}};
-    border-bottom: 1px dashed {{$css 'topic_border' 'c8d2dc' 'c'}};
+    background-color: {{$col 'f2f0ff'}};
+    border-bottom: 1px dashed {{$col 'c8d2dc'}};
 }
 
 {{! tab stuff }}
 .qui .outertabbar {    
-    border-bottom: 1px solid {{$css 'tabbar_border' 'c3cee0' 'c'}};
-    background: {{$css 'tabbar_background' 'e2ecf9' 'c'}};
+    border-bottom: 1px solid {{$col 'c3cee0'}};
+    background: {{$col 'e2ecf9'}};
 }
 
 
 .qui .tabbar {
-    color: {{$css 'tabbar_text' '000000' 'c'}};
+    color: {{$col '000000'}};
 }
 
 .qui .tabbar .tab {
-    color: {{$css 'tab_text' '000000' 'c'}};
-    border: 1px solid {{$css 'tab_border' 'c8d2dc' 'c'}};
+    color: {{$col '000000'}};
+    border: 1px solid {{$col 'c8d2dc'}};
 }
 
 .qui .tabbar .tab:hover {
-    background: {{$css 'tab_hover' 'ffffff' 'c'}};
+    background: {{$col 'ffffff'}};
     border: 1px solid #c8d2dc;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
 
-.qui .tabbar .hilight-activity.tab {
-    color: #009900;
-}
-
-.qui .tabbar .hilight-speech.tab {
-    color: #0000ff;
-}
-
-.qui .tabbar .hilight-us.tab {
-    color: #ff0000;
-    background: rgb(216, 216, 138);
-}
-
-
 .qui .tabbar .selected.tab {
-    background: {{$css 'tab_selected' 'ffffff' 'c'}};
-    border: 1px solid {{$css 'tab_selected_border' 'c8d2dc' 'c'}};
-    color: {{$css 'tab_selected_text' '333333' 'c'}};
+    background: {{$col 'ffffff'}};
+    border: 1px solid {{$col 'c8d2dc'}};
+    color: {{$col '333333'}};
 }
 {{!  tab stuff  }}
 
 {{! irc input stuff }}
 
-.qui .input .nickname {
-    color: #524F50;
-}
-
 .qui .input {
-    background-color: {{$css 'menu_background' 'f2f0ff' 'c'}};
+    background-color: {{$col 'f2f0ff'}};
 }
 
 .qui .input div {
-    border-top: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
+    border-top: 1px solid {{$col 'c3cee0'}};
 }
 
-.qui .input .nickname {
-    color: #524F50;
-    font-size: 14px;
-}
 
 .qui .input .tt-query {
-    border: 1px solid {{$css 'input_border' 'c3cee0' 'c'}};
+    border: 1px solid {{$col 'c3cee0'}};
 }
 
 .qui .nicklist {
-    border-left: 1px solid {{$css 'nicklist_border' 'c8d2dc' 'c'}};
-    background: {{$css 'nicklist_background' 'f2f0ff' 'c'}};
-    color: {{$css 'nicklist_text' '000000' 'c'}};
+    border-left: 1px solid {{$col 'c8d2dc'}};
+    background: {{$col 'f2f0ff'}};
+    color: {{$col '000000'}};
 }
 
 .qui .nicklist .user, .qui .nick-menu {
-    border-top: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
-    border-bottom: 1px solid {{$css 'nicklist_background' 'f2f0ff' 'c'}};
+    border-top: 1px solid {{$col 'f2f0ff'}};
+    border-bottom: 1px solid {{$col 'f2f0ff'}};
 }
 
 .qui .nicklist .selected {
     color: black;
     background: white;
-    border-bottom: {{$css 'nicklist_selected_border' 'c8d2dc' 'c'}} 1px solid;
+    border-bottom: {{$col 'c8d2dc'}} 1px solid;
 }
 
 .qui .nicklist .selected-middle {
-    border-top: {{$css 'nicklist_selected_border' 'c8d2dc' 'c'}} 1px solid;
+    border-top: {{$col 'c8d2dc'}} 1px solid;
 }
 
 .qui .dropdownmenu {
-    border: 1px solid {{$css 'menu_border' 'c8d2dc' 'c'}};
-    background: {{$css 'menu_background' 'f2f0ff' 'c'}};
-}
-
-.qui .dropdownmenu a {
-    color: black
+    border: 1px solid {{$col 'c8d2dc'}};
+    background: {{$col 'f2f0ff'}};
 }
 
 .qui .dropdownmenu a:hover {
-    background: {{$css 'menu_hover_background' 'FFFE' 'c'}};
-}
-
-.qui .chanmenu .hint {
-    float: right;
-    font-size: 75%;
-    color: grey;
+    background: {{$col 'FFFE'}};
 }
 
 .qui hr.lastpos {
-  border-top: 1px solid {{$css 'lastpositionbar' 'C8D2DC' 'c'}};
-}
-
-.qwebirc-init-channels {
-    color: #928D8D;
+  border-top: 1px solid {{$col 'C8D2DC'}};
 }
