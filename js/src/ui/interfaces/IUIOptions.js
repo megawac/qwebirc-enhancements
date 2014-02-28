@@ -5,8 +5,6 @@
  * @provides [ui/UIOptions]
  */
 ui.IUIOptions = new Class({
-    theme: ui.Theme,
-
     config: function() {
         var self = this;
         var options = self.options;
@@ -14,9 +12,10 @@ ui.IUIOptions = new Class({
         var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({}, {
             defaults: options.uiOptions
         });
+        self.theme = new ui.Theme(uiOptions, options.theme);
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
-            var notifiers =notices
+            var notifiers = notices
                 .filter(uiOptions.notice_filter)
                 .map(function(notice) {
                     var onotice = {
@@ -42,7 +41,6 @@ ui.IUIOptions = new Class({
                 });
             
             self.theme.messageParsers.empty().combine(notifiers);
-            self.theme.config = uiOptions;
         }
 
         uiOptions.on({

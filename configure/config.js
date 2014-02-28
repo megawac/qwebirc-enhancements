@@ -18,7 +18,7 @@
 
 ******************************************************************/
 
-this.app = qwebirc.createInstance("ircui", qwebirc.ui.QUI, {
+this.app = qwebirc.createInstance("ircui", /*qwebirc.ui.QUI, */{
     "appTitle": "",//eg Freenode WebIRC
     "networkName": "",//eg Freenode
     "debug": false,

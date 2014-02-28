@@ -8,8 +8,8 @@ ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],
     Window: ui.QUIWindow,
-    initialize: function(parentElement, theme, options) {
-        this.parent(parentElement, theme, "qui", options);
+    initialize: function($par, options) {
+        this.parent($par, options);
     },
     postInitialize: function() {
         var self = this.parent();

@@ -40,8 +40,12 @@ var DEFAULT_QWEBIRC_CONFIG = {
     }
 };
 
+// createInstance: (element|str id), [qwebircUI], options -> qwebirc instance
 qwebirc.createInstance = function(element_id, UIclass, options) {
-    if (!UIclass) UIclass = ui.QUI;
+    if(!options) {
+        options = UIclass;
+        UIclass = ui.QUI;
+    }
     options = _.merge({}, DEFAULT_QWEBIRC_CONFIG, options);
     var settings = options.settings = new config.Settings({}, {
         defaults: options.settings
@@ -64,7 +68,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
     }
 
     //create instance
-    var instance = new UIclass(element_id, new ui.Theme(options.theme), options); //unconventional naming scheme
+    var instance = new UIclass(element_id, options); //unconventional naming scheme
     instance.addEvents({
         "ready:once": function() {
             instance.loginBox();

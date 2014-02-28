@@ -6,7 +6,7 @@
  * @provides [ui/Theme]
  */
 ui.Theme = new Class({
-    initialize: function(themeDict) {
+    initialize: function(uiOptions, themeDict) {
         var self = this,
             defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
         
@@ -18,17 +18,17 @@ ui.Theme = new Class({
         });
 
         self.highlightClasses.channels = {};
-        self.config = config;
+        self.config = uiOptions;
     },
 
     //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
-    formatMessage: function($ele, type, _data, highlight) {
+    formatMessage: function($ele, type, _data) {
         var self = this,
             isobj = _.isObject(_data),
             data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
-            if (_.has(data, "n")) {
+            if ("n" in data) {
                 //works slightly harder than it has too :/
                 data.N = templates.userlink(data);
                 data.nicktmpl = templates.ircnick(data);
@@ -46,7 +46,7 @@ ui.Theme = new Class({
         }
 
 
-        var themed = type ? self.formatText(type, data, highlight) : data;
+        var themed = type ? self.formatText(type, data) : data;
         var result = self.colourise(themed);
         var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
         $ele/*.addClass("colourline")*/
@@ -64,7 +64,7 @@ ui.Theme = new Class({
         return result;
     },
 
-    formatText: function(type, data, highlight) {
+    formatText: function(type, data) {
         return util.formatter(this._theme[type], data);//most formatting done on init
     },
 

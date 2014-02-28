@@ -24,24 +24,23 @@ ui.StandardUI = new Class({
     // options: { -TODO
     //     routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
     // },
-    initialize: function(parentElement, theme, uiName, options) {
+    initialize: function($par, options) {
         var self = this.setOptions(options);
         self.settings = options.settings;
 
         document.addEvent("domready", function() {
-            self.theme = theme;
             self.config();
 
-            parentElement = self.element = self.parentElement = $(parentElement).addClasses("qwebirc", "qwebirc-" + uiName);
+            $par = self.element = self.parentElement = $($par).addClass("qwebirc");
             self.commandhistory = new irc.CommandHistory({
                 store: self.uiOptions.get("completer").store
             });
             self.windows[ui.WINDOW.custom] = self.customWindows;
 
             getTemplate("qwebirc-layout", function(template) {
-                Elements.from(template()).inject(parentElement);
-                self.outerTabs = parentElement.getElement(".outertabbar");
-                self.windowsPanel = parentElement.getElement(".windows");
+                Elements.from(template()).inject($par);
+                self.outerTabs = $par.getElement(".outertabbar");
+                self.windowsPanel = $par.getElement(".windows");
             });
 
             self.postInitialize();
@@ -110,9 +109,7 @@ ui.StandardUI = new Class({
                     if(win) {
                         win.select();
                     } else if(util.isChannel(request)) {
-                        _.each(self.clients, function(client) {
-                            client.exec("/JOIN " + request);
-                        });
+                        _.invoke(self.clients, "exec", "/JOIN " + request);
                     }
             }
         });
