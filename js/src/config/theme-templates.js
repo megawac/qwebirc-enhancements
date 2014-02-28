@@ -63,7 +63,7 @@ config.ThemeIRCTemplates = {
     "OURPRIVCTCP": "[ctcp({t})] {x} {m}",
     "OURTARGETEDCTCP": "[ctcp({t})] {x} {m}",
 
-    "WHOISUSER": "{P}{B}{n}{B} [{h}]",
+    "WHOISUSER": "{P}{B}{N}{B} [{h}]",
     "WHOISREALNAME":        "{P} realname : {m}",
     "WHOISCHANNELS":        "{P} channels : {m}",
     "WHOISSERVER":          "{P} server   : {x} [{m}]",

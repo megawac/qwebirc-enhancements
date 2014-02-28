@@ -467,7 +467,7 @@ irc.IRCClient = new Class({
 
     _whois: function(nick, type, data) {
         var ndata = {
-            "n": nick,
+            nick: nick,
             channel: ui.WINDOW.active,
             msgs: []
         };
@@ -477,12 +477,12 @@ irc.IRCClient = new Class({
             case "user":
                 msgs.push({
                     type: "whoisUser",
-                    h: data.ident + "@" + data.hostname
+                    host: data.ident + "@" + data.hostname
                 });
 
                 msgs.push({
                     type: "whoisRealname",
-                    m: data.realname
+                    message: data.realname
                 });
                 break;
             case "server":
