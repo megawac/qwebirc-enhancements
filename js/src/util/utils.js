@@ -326,6 +326,7 @@ util.IRCTimestamp = function(date) {
 };
 
 util.IRCDate = function(date) {
+    if(!_.isDate()) date = new Date();
     if(date.toLocaleString) return date.toLocaleString();
 
     return format("{d}/{M}/{y} {h}:{m}", {

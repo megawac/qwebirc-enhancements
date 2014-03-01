@@ -51,14 +51,12 @@ ui.IUIOptions = new Class({
             "change:custom_notices": setNotices,
             "change:standard_notices": setNotices,
             "change:show_nicklist": function(state) {
-                _.each(self.windowArray, function(win){win.toggleNickList()});
+                _.invoke(self.windowArray, "toggleNickList");
             },
             "change:completer": function(completer) {
                 self.commandhistory.options.store = completer.store;
                 if(!completer.store) self.commandhistory.clear();
-                _.each(self.windowArray, function(win) {
-                    win.toggleAutocomplete(completer.intrusive);
-                });
+                _.invoke(self.windowArray, "toggleAutocomplete", completer.intrusive);
             }
         });
         setNotices();
