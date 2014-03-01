@@ -3,8 +3,8 @@
  * @depends [config, cookies]
  * @provides [config/Settings]
  */
-var encode  = btoa || _.identity,
-    decode = atob || _.identity;
+var encode  = window.btoa || _.identity,
+    decode = window.atob || _.identity;
 config.Settings = new Class({
     Extends: Epitome.Model.Storage,
     options: {

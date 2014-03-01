@@ -33,7 +33,7 @@ ui.IUIOptions = new Class({
                     ["msg", "nick", "type"].each(function(type) {
                         if(notice[type]) {
                             onotice[type] = new RegExp(notice.autoescape ? String.escapeRegExp(notice[type]) : notice[type],//format regex
-                                                                           notice.case ? "i" : "");//set flag
+                                                                           notice["case"] ? "i" : "");//set flag
                         }
                     });
 
