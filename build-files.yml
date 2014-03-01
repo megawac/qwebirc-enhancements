@@ -1,53 +1,54 @@
 {
     "templates": {
-        "qwebirc": "js/templates/qwebirc.js",
+        "qwebirc": "dist/templates/qwebirc.js",
         "main": {
-            "js/templates/qwebirc.js": "templates/**.hbs"
+            "dist/templates/qwebirc.js": "templates/**.hbs"
         },
         "panes": {
-            "js/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
-            "js/templates/channel-list.js": ["panes/channel-list.hbs", "panes/partials/channel-list-content.hbs"],
-            "js/templates/wizard.js": ["panes/wizard.hbs"],
-            "js/templates/feedback.js": ["panes/feedback.hbs"],
-            "js/templates/about.js": ["panes/about.hbs"],
-            "js/templates/faq.js": ["panes/faq.hbs"],
-            "js/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
-            "js/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
-            "js/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
-            "js/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
+            "dist/templates/options.js": ["panes/options.hbs", "panes/partials/customNotice.hbs"],
+            "dist/templates/channel-list.js": ["panes/channel-list.hbs", "panes/partials/channel-list-content.hbs"],
+            "dist/templates/wizard.js": ["panes/wizard.hbs"],
+            "dist/templates/feedback.js": ["panes/feedback.hbs"],
+            "dist/templates/about.js": ["panes/about.hbs"],
+            "dist/templates/faq.js": ["panes/faq.hbs"],
+            "dist/templates/privacypolicy.js": ["panes/privacypolicy.hbs"],
+            "dist/templates/popup-alert.js": ["templates/amd/popup-alert.hbs"],
+            "dist/templates/popup-dialog.js": ["templates/amd/popup-dialog.hbs"],
+            "dist/templates/welcome-pane.js": ["templates/amd/welcome-pane.hbs"]
         }
     },
     "modules": [
         "js/modules/respond.js",
-        "js/modules/Handlebars-production.js"
+        "js/modules/Handlebars-production.js",
+        "js/modules/Promise.js"
     ],
     "plugins": [
         "js/libs/*.js",
         "js/libs/Epitome/*.js"
     ],
     "full": [
-        "js/dist/plugins-<%= pkg.version %>.js",
-        "js/dist/templates-<%= pkg.version %>.js",
-        "js/dist/qwebirc-<%= pkg.version %>.js"
+        "dist/js/plugins-<%= pkg.version %>.js",
+        "dist/js/templates-<%= pkg.version %>.js",
+        "dist/js/qwebirc-<%= pkg.version %>.js"
     ],
 
     "resources": {
         "qwebirc templates": {
-            "local": "js/dist/templates-<%= pkg.version %>.js",
-            "local min": "js/dist/templates-<%= pkg.version %>.js"
+            "local": "dist/dist/templates-<%= pkg.version %>.js",
+            "local min": "dist/dist/templates-<%= pkg.version %>.js"
         },
 
         "qwebirc css": {
-            "local": "css/qwebirc-<%= pkg.version %>.css",
-            "local min": "css/qwebirc-<%= pkg.version %>.css"
+            "local": "dist/css/qwebirc-<%= pkg.version %>.css",
+            "local min": "dist/css/qwebirc-<%= pkg.version %>.css"
         },
         "bootstrap css": {
-            "local": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
-            "local min": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
+            "local": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+            "local min": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
         },
         "mootools": {
-            "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js",
-            "cdn min": "//oss.maxcdn.com/libs/mootools/1.4.5/mootools-core-full-compat.min.js",
+            "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-nocompat.js",
+            "cdn min": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-nocompat.min.js",
             "local": "js/modules/mootools-1.4.5.js",
             "local min": "js/modules/mootools-1.4.5.js"
         },
@@ -64,10 +65,11 @@
             "local min": "/js/modules/socket.io.js"
         },
         "modules": {
-            "cdn": "//cdn.jsdelivr.net/g/handlebarsjs@1.0.12,respond@1.4",
-            "cdn min": "//cdn.jsdelivr.net/g/handlebarsjs@1.0.12,respond@1.4",
-            "local": "/js/dist/modules-<%= pkg.version %>.js",
-            "local min": "/js/dist/modules-<%= pkg.version %>.js"
+            # not including soundManager2 here so users can disable sound and not load code
+            "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
+            "cdn min": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
+            "local": "/dist/js/modules-<%= pkg.version %>.js",
+            "local min": "/dist/js/modules-<%= pkg.version %>.js"
         }
     }
 }

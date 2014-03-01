@@ -1,13 +1,14 @@
 #Compiled Resources
 index.html
-js/dist/*
-js/templates/*
-css/*
+dist
 templates/modifiablecss.hbs
 *.log
 
+# in the works
+test
+
 # cool analysis tool https://github.com/es-analysis/plato
-report/*
+report
 
 #Standard stuff
 *.sublime*

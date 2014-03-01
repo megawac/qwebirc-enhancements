@@ -3,6 +3,8 @@
   "description": "webirc client",
   "repository": "www.github.com/megawac/qwebirc-enhancements",
   "version": "0.96.2",
+  "network": "",
+  "tags": ["webirc", "irc", "irc client"],
   "author": {
     "name": "Graeme Yeates",
     "url": "www.github.com/megawac",

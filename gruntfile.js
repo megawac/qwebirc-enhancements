@@ -84,14 +84,14 @@ module.exports = function(grunt) {
                     }
                 },
                 // the files to concatenate
-                src: "js/dist/qwebirc-<%= pkg.version %>.js",
+                src: "dist/js/qwebirc-<%= pkg.version %>.js",
                 // the location of the resulting JS file
-                dest: "js/dist/qwebirc-<%= pkg.version %>.js"
+                dest: "dist/js/qwebirc-<%= pkg.version %>.js"
             },
 
             full: {
                 src: files.full,
-                dest: "js/dist/qwebirc-full-<%= pkg.version %>.js"
+                dest: "dist/js/qwebirc-full-<%= pkg.version %>.js"
             },
 
             modifiablecss: {
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
 
             plugins: {
                 src: files.plugins,
-                dest: "js/dist/plugins-<%= pkg.version %>.js"
+                dest: "dist/js/plugins-<%= pkg.version %>.js"
             }
         },
 
@@ -140,7 +140,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "js/dist/qwebirc-<%= pkg.version %>.js": ["js/src/**/*.js"]
+                    "dist/js/qwebirc-<%= pkg.version %>.js": ["js/src/**/*.js"]
                 }
             }
         },
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
                     banner: "//qwebirc v<%= pkg.version %> core templates\n"
                 },
                 files: {
-                    "js/dist/templates-<%= pkg.version %>.js": files.templates.qwebirc
+                    "dist/js/templates-<%= pkg.version %>.js": files.templates.qwebirc
                 }
             },
 
@@ -188,7 +188,7 @@ module.exports = function(grunt) {
                     banner: "/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n"
                 },
                 files: {
-                    "js/dist/plugins-<%= pkg.version %>.js": files.plugins
+                    "dist/js/plugins-<%= pkg.version %>.js": files.plugins
                 }
             },
             modules: {
@@ -198,18 +198,18 @@ module.exports = function(grunt) {
                     preserveComments: "some"
                 },
                 files: {
-                    "js/dist/modules-<%= pkg.version %>.js": files.modules
+                    "dist/js/modules-<%= pkg.version %>.js": files.modules
                 }
             },
             qweb: {
                 files: {
-                    "js/dist/qwebirc-<%= pkg.version %>.js": "js/dist/qwebirc-<%= pkg.version %>.js"
+                    "dist/js/qwebirc-<%= pkg.version %>.js": "dist/js/qwebirc-<%= pkg.version %>.js"
                 }
             },
             config: {
                 options: {banner: ""},
                 files: {
-                    "js/dist/app-<%= pkg.version %>.js": "configure/config.js"
+                    "dist/js/app-<%= pkg.version %>.js": "configure/config.js"
                 }
             }
         },
@@ -221,7 +221,7 @@ module.exports = function(grunt) {
                     ieCompat: true
                 },
                 files: {
-                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "less/bootstrap.less"
+                    "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "less/bootstrap.less"
                 }
             },
             qwebirc: {
@@ -229,7 +229,7 @@ module.exports = function(grunt) {
                     strictMath: true
                 },
                 files: {
-                    "css/qwebirc-<%= pkg.version %>.css": "less/qwebirc.less"
+                    "dist/css/qwebirc-<%= pkg.version %>.css": "less/qwebirc.less"
                 }
             }
         },
@@ -240,7 +240,7 @@ module.exports = function(grunt) {
             },
             combine: {
                 files: {
-                    "css/qwebirc-<%= pkg.version %>.css": ["css/qwebirc-<%= pkg.version %>.css"]
+                    "dist/css/qwebirc-<%= pkg.version %>.css": ["dist/css/qwebirc-<%= pkg.version %>.css"]
                 }
             }
         },
@@ -250,8 +250,8 @@ module.exports = function(grunt) {
                 browsers: ["ie > 7", "firefox > 10", "chrome > 5", "safari > 5", "Opera > 10", "bb > 10", "iOS > 10"]
             },
             qweb: {
-                src: "css/qwebirc-<%= pkg.version %>.css",
-                dest: "css/qwebirc-<%= pkg.version %>.css"
+                src: "dist/css/qwebirc-<%= pkg.version %>.css",
+                dest: "dist/css/qwebirc-<%= pkg.version %>.css"
             },
         },
 
@@ -261,8 +261,8 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
-                    "css/qwebirc-<%= pkg.version %>.css": "css/qwebirc-<%= pkg.version %>.css"
+                    "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+                    "dist/css/qwebirc-<%= pkg.version %>.css": "dist/css/qwebirc-<%= pkg.version %>.css"
                 }
             }
         },
@@ -278,11 +278,11 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        bundle: build.concat ? ["js/dist/qwebirc-full-<%= pkg.version %>.js"] : files.full,
-                        config: ["js/dist/app-<%= pkg.version %>.js"]
+                        bundle: build.concat ? ["dist/js/qwebirc-full-<%= pkg.version %>.js"] : files.full,
+                        config: ["dist/js/app-<%= pkg.version %>.js"]
                     },
                     styles: {
-                        bundle: ["css/qwebirc-<%= pkg.version %>.css"]
+                        bundle: ["dist/css/qwebirc-<%= pkg.version %>.css"]
                     }
                 }
             }
@@ -300,8 +300,8 @@ module.exports = function(grunt) {
         file_info: {
             source_files: {
                 src: files.full.concat([
-                    "js/dist/modules-<%= pkg.version %>.js", "js/modules/mootools-1.4.5.js", "js/modules/soundmanager2.js",
-                    "css/qwebirc-<%= pkg.version %>.css", "css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
+                    "dist/js/modules-<%= pkg.version %>.js", "js/modules/mootools-1.4.5.js", "js/modules/soundmanager2.js",
+                    "dist/css/qwebirc-<%= pkg.version %>.css", "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
                 ]),
                 options: {
                     stdout: build.report

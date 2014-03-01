@@ -3,25 +3,26 @@
 <head>
 
   <!-- build:process -->
-    <title>WebIRC Using QWebirc v<%= pkg.version %></title>
+    <title><% if(pkg.network) { %>,<%= pkg.network %> <% } %>WebIRC Using QWebirc v<%= pkg.version %></title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="irc,qwebirc<% if(pkg.network) { %>,<%= pkg.network %><% } %>">
+    <meta name="keywords" content="irc,qwebirc<% if(pkg.network) { %>,<%= pkg.network.toLowerCase() %><% } %>">
     <link rel="shortcut icon" type="image/png" href="images/favicon.png">
   <!-- /build -->
   <!-- build:process -->
-    <link href="<%= getFileURL('bootstrap css') %>" rel="stylesheet">
-    <link href="<%= getFileURL('qwebirc css') %>" rel="stylesheet">
-
+    <link href="dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css" rel="stylesheet">
+    <link href="dist/css/qwebirc-<%= pkg.version %>.css" rel="stylesheet">
+  <!-- /build -->
+  <!-- build:process -->
     <script src="<%= getFileURL('modules') %>"></script>
     <script src="<%= getFileURL('mootools') %>"></script>
     <% if(pkg.build['node server']) { %> <script src="<%= getFileURL('socketio') %>" async></script> <% } %>
   <!-- /build -->
   <!-- build:script bundle  -->
-    <script src="js/dist/plugins-<%= pkg.version %>.js"></script>
-    <script src="js/dist/templates-<%= pkg.version %>.js"></script>
-    <script src="js/dist/qwebirc-<%= pkg.version %>.js"></script>
+    <script src="dist/js/plugins-<%= pkg.version %>.js"></script>
+    <script src="dist/js/templates-<%= pkg.version %>.js"></script>
+    <script src="dist/js/qwebirc-<%= pkg.version %>.js"></script>
   <!-- /build -->
 
   <!-- build:script inline config -->
