@@ -56,7 +56,7 @@ sound.SoundPlayer = new Class({
                 soundinit();
             }
             else {//lazy load
-                Asset.javascript("<%= getFileURL('soundManager') %>", {onLoad: soundinit});//see gruntfile
+                components.Loader.javascript("<%= getFileURL('soundManager') %>").then(soundinit);//see gruntfile
             }
         });
     },

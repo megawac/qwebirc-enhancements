@@ -34,16 +34,15 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
         cb(_.lookup(templates, name));
     }
     else {
-        var path = options && options.path || "js/templates/",
+        var path = options && options.path || "dist/templates/",
             file = options && options.file || name,
-            type = options && options.type || ".js",
-            $script;
+            type = options && options.type || ".js";
         if(!path.endsWith("/")) path += "/";
         if(!type.startsWith(".")) type = "." + type;
-        $script = Asset.javascript(path + file + type, {onLoad: function() {
-            cb(_.lookup(templates, name));
-            $script.dispose();
-        }});
+        components.Loader.javascript(path + file + type)
+            .then(function() {
+                cb(_.lookup(templates, name));
+            });
         //$script.addEvent("error", ..now what?)
     }
     //return deferred
@@ -55,7 +54,7 @@ util.loadTemplate = function(name) {//helper to preload a template
     return function() {return template.apply(this, arguments);};
 };
   
-ui.setTitle = function(title, options) {
+ui.setTitle = function(title) {
     document.title = title;
 };
   

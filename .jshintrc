@@ -3,6 +3,8 @@
   // Example: https://github.com/jshint/jshint/blob/master/examples/.jshintrc
   // Documentation: http://www.jshint.com/docs/options/
   "globals": {
+    //Polyfilled
+    "Promise": true,
 
     //Mootools
     "Browser": true,
