@@ -27,7 +27,7 @@ provides: [Elements.from, Elements.From]
 
     window.addEvent('domready', function(){
         range = document.createRange && document.createRange();
-        if(range.createContextualFragment) { //ie >= 9
+        if(range && range.createContextualFragment) { //ie >= 9
             range.selectNode(document.getElement('div'));
         } else {
             range = null;
