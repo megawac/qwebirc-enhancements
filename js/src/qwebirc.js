@@ -70,3 +70,6 @@ var irc = qwebirc.irc,
     templates = qwebirc.templates,
 
     constants = qwebirc.constants;
+
+//promises indicating qwebirc is ready to load
+var readyPromises = [];

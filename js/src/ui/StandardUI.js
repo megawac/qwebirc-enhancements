@@ -8,7 +8,7 @@
  * Components
  * @depends [irc/CommandHistory, ui/Nav]
  * Utils
- * @depends [util/constants, util/utils, util/uihelpers]
+ * @depends [qwebirc/ready, util/constants, util/utils, util/uihelpers]
  *
  * @provides [ui/StandardUI]
  * fuck
@@ -28,7 +28,7 @@ ui.StandardUI = new Class({
         var self = this.setOptions(options);
         self.settings = options.settings;
 
-        document.addEvent("domready", function() {
+        qwebirc.ready(function() {
             self.config();
 
             $par = self.element = self.parentElement = $($par).addClass("qwebirc");
@@ -41,10 +41,10 @@ ui.StandardUI = new Class({
                 Elements.from(template()).inject($par);
                 self.outerTabs = $par.getElement(".outertabbar");
                 self.windowsPanel = $par.getElement(".windows");
+            
+                self.postInitialize();
+                self.fireEvent("ready");
             });
-
-            self.postInitialize();
-            self.fireEvent("ready");
         });
     },
 

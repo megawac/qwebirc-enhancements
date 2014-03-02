@@ -34,6 +34,27 @@
         }
     });
 
+    Class.refactor(Request, {
+        initialize: function(options) {
+            var self = this;
+            self.previous(options);
+            self.promise = new Promise(function (fulfill, reject) {
+                self.addEvents({
+                    success: fulfill,
+                    failure: reject
+                });
+            });
+        }
+    })
+    .implement({
+        "then": function(success, error) {
+            return this.promise.then(success, error);
+        },
+        "catch": function(error) {
+            return this.promise["catch"](error);
+        }
+    });
+
     ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
         try{
             if(strp[method]) strp[method].protect();

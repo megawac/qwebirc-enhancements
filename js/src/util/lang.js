@@ -3,7 +3,7 @@
  * todo request local.json and ready qwebirc only after its loaded
  *
  * @depend [qwebirc]
- * @provides [util/lang]
+ * @provides [lang, util/lang]
  */
 
 var types = {

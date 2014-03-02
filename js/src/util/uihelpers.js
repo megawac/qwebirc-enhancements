@@ -24,31 +24,32 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
         Note: Should use deferred if available
         Still need to finish implementing this.
     */
-    if(!_.isFunction(cb)) {
-        cb = util.noop;
-    }
-    if(_.isFunction(name)) {
-        cb(name);//assume identity
-    }
-    else if(_.has(templates, name)) {
-        cb(_.lookup(templates, name));
-    }
-    else {
-        var path = options && options.path || "dist/templates/",
-            file = options && options.file || name,
-            type = options && options.type || ".js";
-        if(!path.endsWith("/")) path += "/";
-        if(!type.startsWith(".")) type = "." + type;
-        components.Loader.javascript(path + file + type)
+    var promise = new Promise(function(fulfill, reject) {
+        if(_.isFunction(name)) {
+            if(DEBUG) console.warn("wtf");
+            fulfill(name);//assume identity
+        }
+        else if(_.has(templates, name)) {
+            fulfill(_.lookup(templates, name));
+        }
+        else {
+            var path = options && options.path || "dist/templates/",
+                file = options && options.file || name,
+                type = options && options.type || ".js";
+            if(!path.endsWith("/")) path += "/";
+            if(!type.startsWith(".")) type = "." + type;
+            components.loader.javascript(path + file + type)
             .then(function() {
-                cb(_.lookup(templates, name));
-            });
-        //$script.addEvent("error", ..now what?)
-    }
-    //return deferred
+                fulfill(_.lookup(templates, name));
+            }, reject);
+        }
+        //return deferred
+    });
+    if(cb) promise.then(cb);
+    return promise;
 };
   
-util.loadTemplate = function(name) {//helper to preload a template
+util.loadTemplate = function(name) {//helper to preload a template - assumes not called instantly
     var template;
     getTemplate(name, function(tmpl) {template = tmpl});
     return function() {return template.apply(this, arguments);};
@@ -69,8 +70,8 @@ ui.setTitle = function(title) {
 util.wrapSelected = function($eles, wrap) {
     $eles = $$($eles);
   
-    var start = Array.isArray(wrap) ? wrap[0] : wrap,
-        end = Array.isArray(wrap) ? wrap[1] : wrap;
+    var start = _.isArray(wrap) ? wrap[0] : wrap,
+        end = _.isArray(wrap) ? wrap[1] : wrap;
   
     $eles.each(function($ele) {
         var range = $ele.getSelectedRange();
@@ -224,7 +225,7 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
     dir = (dir || "width").capitalize();
     offset = offset || 10;
     var $res = $ele.lastChild;
-    Array.some($ele.childNodes, function($kid) {
+    _.some($ele.childNodes, function($kid) {
         offset += $kid["get" + dir]();
         if(offset >= pos) {
             $res = $kid;

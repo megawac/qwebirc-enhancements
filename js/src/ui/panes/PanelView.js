@@ -5,9 +5,11 @@
  * @provides [panes/PanelView]
  */
 var PanelView = ui.PanelView = new Class({
+    /* global getTemplate */
     Extends: Epitome.View,
     options: {
         pane: "",
+        deps: [],
 
         events: {
             "click:relay([data-event='close'])": "_close"
@@ -26,10 +28,10 @@ var PanelView = ui.PanelView = new Class({
         var self = this.empty();
         var $loader = Element.from(templates.loadingPage()).inject(self.element);
 
-        //dream of promises here
-        getTemplate(self.options.pane, function(template) {
-            var eles = Elements.from(template(self.getData()));
-            self.element.adopt(eles);//not inject because it can have text nodes
+        Promise.all([getTemplate(self.options.pane), components.loader.load(self.options.deps)])
+        .then(function(results) {
+            //results[0] is the template
+            self.element.adopt(Elements.from(results[0](self.getData())));//not inject because it can have text nodes
             $loader.dispose();
             self.postRender();
         });

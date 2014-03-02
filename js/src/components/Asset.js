@@ -7,9 +7,9 @@
 (function() {
     //hash of urls that have already loaded successfully
     var loaded = {};
-    components.Loader = {
+    components.loader = {
         javascript: function(source, properties) {
-            return new Promise(function(fullfil, error) {
+            return new Promise(function(fullfil, reject) {
                 if(source in loaded) fullfil();
                 if (!properties) properties = {};
 
@@ -25,7 +25,7 @@
                     script.destroy();
                 };
                 var onerror = function() {
-                    error();
+                    reject();
                     success = false;
                     script.destroy();
                 };
@@ -44,6 +44,17 @@
                     .set(properties)
                     .inject(doc.head);
             });
+        },
+
+        load: function(sources, properties) {
+            if(!Type.isArray(sources)) sources = Array.from(arguments);
+            if(!Type.isObject(properties)) {
+                if(Type.isObject(_.last(sources))) properties = sources.pop();
+            }
+            var promises = sources.map(function(source) {
+                return components.loader.javascript(source, properties);
+            });
+            return Promise.all(promises);
         }
     };
 
