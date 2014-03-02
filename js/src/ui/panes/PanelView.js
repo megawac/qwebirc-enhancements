@@ -48,7 +48,6 @@ var PanelView = ui.PanelView = new Class({
     },
 
     _close: function() {
-        this.trigger("close");
-        return this.destroy();
+        return this.trigger("close").destroy();
     }
 });

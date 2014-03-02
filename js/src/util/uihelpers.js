@@ -68,12 +68,11 @@ ui.setTitle = function(title) {
 // util.getCaretPos = Element.getCaretPosition;
   
 util.wrapSelected = function($eles, wrap) {
-    $eles = $$($eles);
+    var isArray = _.isArray(wrap);
+    var start = isArray ? wrap[0] : wrap,
+        end = isArray ? wrap[1] : wrap;
   
-    var start = _.isArray(wrap) ? wrap[0] : wrap,
-        end = _.isArray(wrap) ? wrap[1] : wrap;
-  
-    $eles.each(function($ele) {
+    return $$($eles).each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
             var text = $ele.val();

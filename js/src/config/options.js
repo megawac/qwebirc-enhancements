@@ -32,9 +32,11 @@ ui["default options"] = {
     "highlight": true,
     "highlight_mentioned": true,
 
-    "style_hue": 210,
-    "style_saturation": 0,
-    "style_brightness": 0,
+    "colour": {
+        //hex format (note # infront is optional)
+        "background": "f0f7ff",
+        "font": "000"
+    },
 
     "quit_msg": lang.quit,
 
@@ -108,6 +110,16 @@ config.OptionModel = new Class({
         defaults: ui["default options"],
         key: cookies.options,
         minimize: true
+    },
+
+    properties: {
+        colour: {
+            set: function(colours) {
+                return Object.map(colours, function(val) {
+                    return new Color(val);
+                });
+            }
+        }
     },
 
     defaultNotice: function() {//default custom notice

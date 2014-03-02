@@ -12,6 +12,7 @@ ui.IUIOptions = new Class({
         var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({}, {
             defaults: options.uiOptions
         });
+        var updateStylesheet = self.updateStylesheet.bind(self);
         self.theme = new ui.Theme(uiOptions, options.theme);
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
@@ -42,12 +43,9 @@ ui.IUIOptions = new Class({
             
             self.theme.messageParsers.empty().combine(notifiers);
         }
-
         uiOptions.on({
-            "change:style_hue": function(style_hue) {
-                self.updateStylesheet();
-            },
-            "change:font_size": self.updateStylesheet,
+            "change:colour": updateStylesheet,
+            "change:font_size": updateStylesheet,
             "change:custom_notices": setNotices,
             "change:standard_notices": setNotices,
             "change:show_nicklist": function(state) {
@@ -77,7 +75,7 @@ ui.IUIOptions = new Class({
         this.updateStylesheet(vals);
     },
 
-    updateStylesheet: function(values) {//todo calculate all the values and just sub in
+    updateStylesheet: function(values) {
         var self = this;
         getTemplate("modifiablecss", function(template) {
             var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);

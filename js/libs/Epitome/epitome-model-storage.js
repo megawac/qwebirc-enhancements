@@ -59,7 +59,9 @@
                 },
 
                 setupSync: function() {
-                    this._attributes = Object.append(this._attributes, this.properties.storage.get(this.options.key));
+                    Object.each(this.properties.storage.get(this.options.key), function(item, key) {
+                        this.set(key, item);
+                    }, this);
                     this.fireEvent("init");
                     return this;
                 },

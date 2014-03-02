@@ -3,13 +3,13 @@
  *
  *  @depends [panes/PanelView, panes/Welcome,  util/ToggleNotifications]
  *  @provides [panes/Options]
- *  globals Slider
  */
 ui.OptionView = new Class({
     Extends: PanelView,
     Binds: ["save", "reset"],
     options: {
         pane: "options",
+        deps: ["js/modules/jscolor.js"],
         events: {
             "change:relay(.options input)": "inputChange",
             "change:relay(.options .notice-group input)": "noticeChange",
@@ -32,7 +32,9 @@ ui.OptionView = new Class({
 
         //handle sub props
         if(id && (id = id.splitMax(".", 2)) && (null != (item = this.model.get(id[0])))) {
-            if(id.length > 1) this.model.set(id[0], _.assign(_.clone(item), id[1], target.val()));
+            if(id.length > 1) {
+                this.model.set(id[0], _.assign(_.clone(item), id[1], target.val()));
+            }
             else this.model.set(id[0], target.val());
         }
     },
@@ -50,9 +52,7 @@ ui.OptionView = new Class({
         var _data = _.clone(data);
         _data.lang = lang;
 
-        var temp = templates.customNotice(_data);
-
-        $addbtn.insertAdjacentHTML("beforebegin", temp);//insert before btn
+        $addbtn.insertAdjacentHTML("beforebegin", templates.customNotice(_data));//insert before btn
     },
 
     removeNotifier: function(e, target) {
@@ -75,38 +75,23 @@ ui.OptionView = new Class({
     /*********LISTENERS**************/
 
     postRender: function() {
-        var model = this.model,
-            options = this.options;
-
         // _.each(model.get("custom_notices"), function(notice) {
         //     notice.lang = lang;
         //     this.addNotifier(notice);
         // }, this);
 
-        this.element.getElements(".slider").each(function(slider) {
-            var id = slider.get("id"),
-                knob = slider.getElement(".knob");
-            new Slider(slider, knob, {
-                steps: 36,
-                range: [0, 369],
-                wheel: true
-            })
-            .addEvent("change", function(val) {
-                model.set(id, val);
-            })
-            .set(model.get(id));
-        });
-
-        this.element.getElement(".options").addEvents({ //default will fire before bubble
+        this.element.getElement("form").addEvents({ //default will fire before bubble
             "submit": this.save,
             "reset": this.reset
         });
 
-        if(_.isFunction(options.getUI)) {
-            ui.WelcomePane.show(options.getUI(), {
+        if(_.isFunction(this.options.getUI)) {
+            ui.WelcomePane.show(this.options.getUI(), {
                 element: this.element
             });
         }
+        //instantiate colour pickers
+        window.jscolor.init();
 
         return this.parent();
     },

@@ -43,6 +43,7 @@ module.exports = function(grunt) {
                         "check": true,
                         "$css": true,
                         "$col": true,
+                        "$hex": true,
                         "enableDisable": true,
                         "$link": true,
                         "format": true,

@@ -35,17 +35,19 @@
 
     //f(property name, type of prop, default val)
     engine.registerHelper("$css", function(prop, def, def2) {//this refers to context
-        if(def2) return this[prop] ? def : def2;
+        if(typeof def2 !== "object") return this[prop] ? def : def2;
         return this[prop] || def;
     });
 
-    engine.registerHelper("$col", function(def) {//this refers to context
-        var col = new Color(def);
-        return col
-            .setHue(this.style_hue)
-            .setSaturation(col.hsb[1] + this.style_saturation)
-            .setBrightness(col.hsb[2] + this.style_brightness)
-            .rgbToHex();
+    engine.registerHelper("$col", function(val, type) {
+        //this refers to context
+        //mix up background or `type` with a  given colour value
+        var base = this.colour[_.isString(type) ? type : "background"];
+        return (val ? base.mix(val) : base).rgbToHex();
+    });
+
+    engine.registerHelper("$hex", function(prop) {
+        return new Color(this.colour ? this.colour[prop] : prop).rgbToHex();
     });
 
     engine.registerHelper("format", function(prop) {

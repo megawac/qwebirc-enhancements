@@ -5,14 +5,14 @@
 
 .channel-name {
     background-color: #FFFFBF;
-    border: 1px solid #C8D1DB;
+    border: thin solid #C8D1DB;
     border-radius: 4px 4px 4px 4px;
-    color: #000000;
+    color: #000;
 }
 
 
 .qui .lines {
-    color: black;
+    color: {{$col '' 'font'}};
     font-size: {{$css 'font_size' 12}}px;
     background: {{$col 'f2f0ff'}};
 }
@@ -38,86 +38,86 @@
 }
 
 .qui .properties {
-    background-color: {{$col 'f2f0ff'}};
-    border-top: 1px solid {{$col 'c8d2dc'}};
+    background-color: {{$col ''}};
+    border-top: thin solid {{$col 'c8d2dc'}};
 }
 
 
 .qui .topic {
-    color: gray;
-    background-color: {{$col 'f2f0ff'}};
-    border-bottom: 1px dashed {{$col 'c8d2dc'}};
+    color: {{$col '4F4F4F' 'font'}};
+    background-color: {{$col ''}};
+    border-bottom: thin dashed {{$col 'c8d2dc'}};
 }
 
 {{! tab stuff }}
 .qui .outertabbar {    
-    border-bottom: 1px solid {{$col 'c3cee0'}};
-    background: {{$col 'e2ecf9'}};
+    border-bottom: thin solid {{$col '858585'}};
+    background: {{$col '#E1ECF8'}};
 }
 
 
 .qui .tabbar {
-    color: {{$col '000000'}};
+    color: {{$col '' 'font'}};
 }
 
 .qui .tabbar .tab {
-    color: {{$col '000000'}};
-    border: 1px solid {{$col 'c8d2dc'}};
+    color: {{$col '' 'font'}};
+    border: thin solid {{$col 'c8d2dc'}};
 }
 
 .qui .tabbar .tab:hover {
-    background: {{$col 'ffffff'}};
-    border: 1px solid #c8d2dc;
+    background: {{$col 'fff'}};
+    border: thin solid #c8d2dc;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
 
 .qui .tabbar .selected.tab {
-    background: {{$col 'ffffff'}};
-    border: 1px solid {{$col 'c8d2dc'}};
-    color: {{$col '333333'}};
+    background: {{$col 'fff'}};
+    border: thin solid {{$col 'c8d2dc'}};
+    color: {{$col '333333' 'font'}};
 }
 {{!  tab stuff  }}
 
 {{! irc input stuff }}
 
 .qui .input {
-    background-color: {{$col 'f2f0ff'}};
+    background-color: {{$col ''}};
 }
 
 .qui .input div {
-    border-top: 1px solid {{$col 'c3cee0'}};
+    border-top: thin solid {{$col 'c3cee0'}};
 }
 
 
 .qui .input .tt-query {
-    border: 1px solid {{$col 'c3cee0'}};
+    border: thin solid {{$col 'c3cee0'}};
 }
 
 .qui .nicklist {
-    border-left: 1px solid {{$col 'c8d2dc'}};
-    background: {{$col 'f2f0ff'}};
-    color: {{$col '000000'}};
+    border-left: thin solid {{$col 'c8d2dc'}};
+    background: {{$col ''}};
+    color: {{$col '' 'font'}};
 }
 
 .qui .nicklist .user, .qui .nick-menu {
-    border-top: 1px solid {{$col 'f2f0ff'}};
-    border-bottom: 1px solid {{$col 'f2f0ff'}};
+    border-top: thin solid {{$col ''}};
+    border-bottom: thin solid {{$col ''}};
 }
 
 .qui .nicklist .selected {
-    color: black;
+    color: {{$col '' 'font'}};
     background: white;
-    border-bottom: {{$col 'c8d2dc'}} 1px solid;
+    border-bottom: {{$col 'c8d2dc'}} thin solid;
 }
 
 .qui .nicklist .selected-middle {
-    border-top: {{$col 'c8d2dc'}} 1px solid;
+    border-top: {{$col 'c8d2dc'}} thin solid;
 }
 
 .qui .dropdownmenu {
-    border: 1px solid {{$col 'c8d2dc'}};
-    background: {{$col 'f2f0ff'}};
+    border: thin solid {{$col 'c8d2dc'}};
+    background: {{$col ''}};
 }
 
 .qui .dropdownmenu a:hover {
@@ -125,5 +125,5 @@
 }
 
 .qui hr.lastpos {
-  border-top: 1px solid {{$col 'C8D2DC'}};
+  border-top: thin solid {{$col 'C8D2DC'}};
 }

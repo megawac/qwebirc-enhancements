@@ -1,5 +1,5 @@
 {{!TODO: make Coloumns}}
-<form class="form-horizontal options">
+<form class="form-horizontal">
     <ul class="option-tabs tabs nav nav-tabs" data-behavior="BS.Tabs">
         <li class="ui-options"><a href="#">Interface</a></li>
         <li class="irc-options"><a href="#">Chat Preferences</a></li>
@@ -69,9 +69,9 @@
                 </label>
             </div>
             <div class="controls">
-                <label for="style_hue">
-                    {{lang "STYLE_HUE"}}
-                    <div id="style_hue" class="slider hue-slider"><div class="knob"></div></div>
+                <label for="colour.background">
+                    {{lang "BACKGROUND"}}
+                    <input id="colour.background" class="color" value="{{$hex 'background'}}" spellcheck="false">
                 </label>
             </div>
         </div>

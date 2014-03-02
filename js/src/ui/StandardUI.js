@@ -16,8 +16,7 @@
 ui.StandardUI = new Class({
     // Extends: ui.NotificationUI,
     Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
-    Binds: ["whoisURL", "updateStylesheet",
-            "nextWindow", "prevWindow",
+    Binds: ["whoisURL", "nextWindow", "prevWindow",
             //custom windows
             /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/
             ],

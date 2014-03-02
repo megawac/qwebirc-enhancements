@@ -101,10 +101,10 @@ _.merge(lang, {
     LASTPOS_LINE: "Show a last position indicator for each window",
     NICK_COLOURS: "Automatically colour nicknames",
     HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
-    STYLE_HUE: "Adjust user interface hue",
+    BACKGROUND: "Background colour",
     SHOW_NICKLIST: "Show nickname list in channels",
     SHOW_TIMESTAMPS: "Show timestamps",
-    FONT_SIZE: "Set font size",
+    FONT_SIZE: "Font size (px)",
     VOLUME: "Volume",
 
 

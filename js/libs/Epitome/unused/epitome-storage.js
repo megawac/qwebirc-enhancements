@@ -74,7 +74,7 @@
 							}
 						},
 
-					// internal methods to proxy working with storage and fallbacks
+					    // internal methods to proxy working with storage and fallbacks
 						getItem = function(item){
 							// return from storage in memory
 							return item in storage ? storage[item] : null;
