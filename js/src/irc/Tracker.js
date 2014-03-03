@@ -4,7 +4,7 @@
  * @depends [irc, util/utils]
  * @provides [irc/Tracker]
  */
-irc.IRCTracker = new Class({
+irc.Tracker = new Class({
     channels: {},
     nicknames: {},
     initialize: function(owner) {

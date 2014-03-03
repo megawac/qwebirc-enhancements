@@ -81,7 +81,7 @@ irc.IRCClient = new Class({
 
         // self.commandparser = new irc.Commands(self);
         // self.exec = self.commandparser.exec;
-        self.tracker = new irc.IRCTracker(self);
+        self.tracker = new irc.Tracker(self);
     },
 
     getOption: function(opt) {
