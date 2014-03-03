@@ -31,7 +31,7 @@ ui.OptionView = new Class({
             item;
 
         //handle sub props
-        if(id && (id = id.splitMax(".", 2)) && (null != (item = this.model.get(id[0])))) {
+        if(id && (id = util.splitMax(id, ".", 2)) && (null != (item = this.model.get(id[0])))) {
             if(id.length > 1) {
                 this.model.set(id[0], _.assign(_.clone(item), id[1], target.val()));
             }

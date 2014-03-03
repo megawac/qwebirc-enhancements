@@ -48,6 +48,39 @@ util.test = _.autoCurry(function(reg, str) {
     return str.test(reg);
 });
 
+//replaces all occurences of the tofind string in this string with
+//alternatively call replace with a regex global
+//http://jsperf.com/replaceall-escape/3
+util.replaceAll = function(str, tofind, torep) {
+    str = String(str);
+    var temp;
+    while ((temp = str.replace(tofind, torep)) !== str) { //using regex you end up having todo a bunch of escaping) {
+        str = temp;
+    }
+    return str;
+};
+
+//splits string into array of with a max length of max
+// useful for seperating names from messages
+// "test!willsplit!into!1".splitMax("!", 1) => ["test!willsplit!into!1"]
+// "test!willsplit!into!3".splitMax("!", 3) => ["test", "willsplit", "into!3"]
+// "testwillsplitinto1".splitMax("!", 3) => ["testwillsplitinto1"]"
+//http://jsperf.com/string-splitmax-implementations
+util.splitMax = function(str, by, max) {
+    max = (max || 1) - 1;
+    var items = String(str).split(by),
+        newitems = items.slice(0, max);
+    if (items.length > max) {
+        newitems.push(items.slice(max).join(by));
+    }
+    // var items = this.split(by);
+    // var newitems = items.slice(0, max - 1);
+    // if (items.length >= max) {
+    //     newitems.push(items.slice(max - 1).join(by));
+    // }
+    return newitems;
+};
+
 //String -> String
 // megawac!~megawac@megawac.user.gamesurge -> megawac
 // util.hostToNick = _.compose(joinBang, restRight, splitBang);
@@ -232,7 +265,7 @@ util.addPrefix = function(nc, pref, prefs) {
 };
 
 util.removePrefix = function(nc, pref) {
-    return nc.prefixes = nc.prefixes.replaceAll(pref, "");
+    return nc.prefixes = util.replaceAll(nc.prefixes, pref, "");
 };
 
 //get prefixs on a nick

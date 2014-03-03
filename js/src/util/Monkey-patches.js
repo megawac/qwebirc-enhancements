@@ -3,7 +3,7 @@
  * @provides [hacks, patches]
  */
 (function(window) {
-    var strp = String.prototype,
+    var stringProto = String.prototype,
         forEach = Array.prototype.forEach;
     //okay this is mainly just for preference - didnt like merges behaviour with classes particularly with Options.setOptions and this was the easiest way to reimplemnt it
     //https://github.com/mootools/mootools-core/issues/2526
@@ -57,45 +57,11 @@
 
     ["startsWith", "endsWith", "trimLeft", "trimRight"].each(function(method) {
         try{
-            if(strp[method]) strp[method].protect();
+            if(stringProto[method]) stringProto[method].protect();
         }catch(o_O){}
     });
 
     String.implement({
-
-        //replaces all occurences of the tofind string in this string with
-        //alternatively call replace with a regex global
-        //http://jsperf.com/replaceall-escape/3
-        replaceAll: function(tofind, torep) {
-            var temp, str = this;
-            while ((temp = str.replace(tofind, torep)) !== str) { //using regex you end up having todo a bunch of escaping) {
-                str = temp;
-            }
-            return str;
-        },
-
-        //splits string into array of with a max length of max
-        // useful for seperating names from messages
-        // "test!willsplit!into!1".splitMax("!", 1) => ["test!willsplit!into!1"]
-        // "test!willsplit!into!3".splitMax("!", 3) => ["test", "willsplit", "into!3"]
-        // "testwillsplitinto1".splitMax("!", 3) => ["testwillsplitinto1"]"
-        //http://jsperf.com/string-splitmax-implementations
-        splitMax: function(by, max) {
-            max = (max || 1) - 1;
-            var items = this.split(by),
-                newitems = items.slice(0, max);
-            if (items.length > max) {
-                newitems.push(items.slice(max).join(by));
-            }
-            return newitems;
-        },
-
-        // var items = this.split(by);
-        // var newitems = items.slice(0, max - 1);
-        // if (items.length >= max) {
-        //     newitems.push(items.slice(max - 1).join(by));
-        // }
-	
 		//see es6 spec
         startsWith: function(what, pos) {
             return this.slice((pos || 0), what.length) == what;

@@ -10,12 +10,10 @@ function formatMessage(cmdline) {
     } else {
         cmdline = "SAY " + cmdline; //default just say the msg
     }
-    return cmdline.splitMax(" ", 2); //split command from the params
+    return util.splitMax(cmdline, " ", 2); //split command from the params
 }
 
 irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClient so not really
-    // Binds: ["exec"],
-
     __autojoined: false,
 
     // routes all outputs with the server
@@ -45,7 +43,7 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClien
                 break;
             }
             if (_.isNumber(cmdopts.splitargs) && _.isString(args)) {
-                args = args.splitMax(" ", cmdopts.splitargs);
+                args = util.splitMax(args, " ", cmdopts.splitargs);
                 //only guess target if cmdopts.target less than eq length
                 if(cmdopts.target && cmdopts.target <= args.length) {
                     target = args.shift();//so you can avoid checks for correct syntax

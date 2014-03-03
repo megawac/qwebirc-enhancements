@@ -368,7 +368,7 @@ irc.IRCClient = new Class({
         } else {
             message = message.slice(1);
         }
-        return message.splitMax(" ", 2);
+        return util.splitMax(message, " ", 2);
     },
 
     rawNumeric: function(data) {
@@ -952,7 +952,7 @@ irc.IRCClient = new Class({
         }
 
         supported.each(function(mode) {
-            ms = mode.splitMax("=", 2);
+            ms = util.splitMax(mode, "=", 2);
             this._supported(ms[0], ms[1]);
         }, this);
     },
