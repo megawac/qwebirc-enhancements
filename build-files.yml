@@ -58,12 +58,6 @@
             "local": "js/modules/soundmanager2.js",
             "local min": "js/modules/soundmanager2.js"
         },
-        "socketio": {
-            "cdn": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
-            "cdn min": "//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js",
-            "local": "/js/modules/socket.io.js",
-            "local min": "/js/modules/socket.io.js"
-        },
         "modules": {
             # not including soundManager2 here so users can disable sound and not load code
             "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
