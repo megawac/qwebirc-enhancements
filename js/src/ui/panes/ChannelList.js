@@ -1,3 +1,4 @@
+// <% if(pkg.build["atheme"]) { %> only include this code if "atheme" set in package.json
 /**
  *  chan list view
  *
@@ -50,3 +51,4 @@ ui.ChannelList = new Class({
         });
     }, 50)
 });
+//<% } %>

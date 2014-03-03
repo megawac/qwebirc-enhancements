@@ -6,7 +6,7 @@
 
 //wrapped in iife during grunt build
 /* jshint globalstrict:true */
-var DEBUG = "<%= build.debug %>" === true; //will be removed as dead code if false
+var DEBUG = "<%= build.debug %>" === "true"; //will be removed as dead code if false
 
 //cache common globals in scope
 var $ = document.id,

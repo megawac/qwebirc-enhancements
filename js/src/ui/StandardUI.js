@@ -85,9 +85,11 @@ ui.StandardUI = new Class({
                 case "options":
                     self.optionsWindow();
                     break;
+                // <% if(pkg.build["atheme"]) { %>
                 case "channels":
                     self.channelWindow();
                     break;
+                // <% } %>
                 case "privacy":
                     self.privacyWindow();
                     break;
@@ -153,6 +155,7 @@ ui.StandardUI = new Class({
             }
         });
     },
+    // <% if(pkg.build["atheme"]) { %>
     channelWindow: function() {
         var self = this;
         var win = self.addCustomWindow(windowNames.channels, ui.ChannelList, "channel-list", {
@@ -169,6 +172,7 @@ ui.StandardUI = new Class({
         if(sib) self.linkWindows(win, {cols: "col-xl-5 col-md-6 col-sm-12", sibs: [sib] });
         return win;
     },
+    //<% } %>
     embeddedWindow: function() {
         return this.addCustomWindow(windowNames.embed, ui.EmbedWizard, "embedded-wizard");
     },

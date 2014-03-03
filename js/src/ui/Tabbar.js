@@ -46,7 +46,7 @@ ui.NavBar = new Class({
 
         var self = this,
             dropdownMenu = Element.from(templates.mainmenu({
-                lang: lang
+                atheme: "<%= build.atheme %>" === "true"
             })).inject(self.options.menuElement);
 
         var dropdownbtn = this.element.getElement(".main-menu");
