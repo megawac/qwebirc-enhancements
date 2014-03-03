@@ -44,9 +44,10 @@ You can set compile settings either in the gruntfile manually or using some of t
 - build:
  * minify: minimize the file size by shortening variable names and reducing whitespace
  * concat: concatenate files into large files where applicable
+ * "use cdn": load files from a cdn where applicable
   
 ##Status
-Project is currently at `v-0.96.x` until localization and channel lists are supported see [todos](#todos).
+Project is currently at `v-0.97.x` until localization and channel lists are supported see [todos](#todos).
   
 ####Done:  
 * improved extendibility through modularization and refactoring
@@ -69,8 +70,6 @@ Project is currently at `v-0.96.x` until localization and channel lists are supp
 ####TODOs: 
 * (minor) Finish Drag.SplitPane module (issues with keeping relative pos with window resizes) {{link to repo}}
 * (minor) Move `ui.Theme` methods to utils and `ui.IWindow`
-* (minor) Refactor `ui.Window` to `ui.IWindow`
-* (major) Proper dependency management system either through a JSDoc `@depend` tool or `require/export` tool
 * Add options for:
  * (mid) configure hotkeys
 * (major) Refactor python compile code to call appropriate Grunt build and set app options
@@ -82,13 +81,7 @@ Project is currently at `v-0.96.x` until localization and channel lists are supp
 
 ##DEMO:  
 
-#### Twisted (Iris)
+#### Twisted (or Iris)
 I have an instance of the code running over twisted on the Geeks-IRC network at [geeks-irc.herokuapp.com](http://geeks-irc.herokuapp.com/)
 
-Source code of the instance is on [this branch](https://github.com/megawac/iris/tree/Geeks-IRC)
-
-#### Node
-I currently have an instance running for the Gamesurge network at: [qwebirc.herokuapp.com](http://qwebirc.herokuapp.com/)  
-
-Source code of the instance is in [this repo](https://github.com/megawac/qwebirc-node)
-
+(Outdated) Source code of the instance is on [this branch](https://github.com/megawac/iris/tree/Geeks-IRC)

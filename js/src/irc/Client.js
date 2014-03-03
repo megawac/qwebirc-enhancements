@@ -37,47 +37,19 @@ irc.IRCClient = new Class({
 
         self.nickname = options.nickname;
 
-        //sorry ugly bit of templating :(
-
-        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
-        if(options.node) {
-        // <% } %>
-            //<% if(pkg.build["node server"]) { %>
-            var conn = self.connection = new irc.NodeConnection({
-                account: options.account,
-                nickname: self.nickname,
-                password: options.password,
-                serverPassword: options.serverPassword
-            });
-            conn.addEvents({
-                "recv": self.dispatch,
-                "quit": self.quit,
-                // "retry": self.retry,
-                "connected": self.connected,
-                "lostConnection": self.lostConnection
-            });
-            // <% } %>
-        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
-        } else {
-        // <% } %>
-            //<% if(pkg.build["twisted server"]) { %>
-            self.connection = new irc.TwistedConnection({
-                nickname: self.nickname,
-                serverPassword: options.serverPassword,
-            });
-            self.connection.addEvents({
-                "recv": self.dispatch,
-                "disconnect": function(data) {
-                    self.disconnect(data[1]);
-                },
-                "connect": self.connected,
-                // "retry": self.retry,
-                "lostConnection": self.lostConnection
-            });
-            // <% } %>
-        // <% if(pkg.build["twisted server"] && pkg.build["node server"]) { %>
-        }
-        // <% } %>
+        self.connection = new irc.Connection({
+            nickname: self.nickname,
+            serverPassword: options.serverPassword,
+        })
+        .addEvents({
+            "recv": self.dispatch,
+            "disconnect": function(data) {
+                self.disconnect(data[1]);
+            },
+            "connect": self.connected,
+            // "retry": self.retry,
+            "lostConnection": self.lostConnection
+        });
 
         // self.commandparser = new irc.Commands(self);
         // self.exec = self.commandparser.exec;

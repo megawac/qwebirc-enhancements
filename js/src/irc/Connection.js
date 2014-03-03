@@ -1,6 +1,3 @@
-// <% if(pkg.build['twisted server']) { %> only include this code if "twisted server" set in package.json
-// //
-
 /**
  * Twisted IRCConnection Class... Still needs simplification
  * uris = dict(p=push, n=newConnection, s=subscribe)
@@ -21,7 +18,7 @@
         "Content-Type": "M"*/
     };
 
-    irc.TwistedConnection = new Class({
+    irc.Connection = new Class({
         Implements: [Events, Options],
         Binds: ["send"],
         options: {
@@ -331,4 +328,3 @@
         }
     });
 })();
-// <% } %>

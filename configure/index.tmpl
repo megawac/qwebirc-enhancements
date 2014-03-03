@@ -17,7 +17,6 @@
   <!-- build:process -->
     <script src="<%= getFileURL('modules') %>"></script>
     <script src="<%= getFileURL('mootools') %>"></script>
-    <% if(pkg.build['node server']) { %> <script src="<%= getFileURL('socketio') %>" async></script> <% } %>
   <!-- /build -->
   <!-- build:script bundle  -->
     <script src="dist/js/plugins-<%= pkg.version %>.js"></script>

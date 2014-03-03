@@ -5,8 +5,6 @@ Flags:
 -"minify": use uglify to minimize js size
 -"concat": place css and js all in the same file.
 -"use cdn": load files from a cdn where applicable
--"node server": include files for a node server
--"twisted server": include files for a twisted server (currently will break if "node server" is truthy)
 *****************************/
 /* jshint node:true */
 module.exports = function(grunt) {

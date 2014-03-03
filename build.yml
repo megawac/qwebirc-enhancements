@@ -16,10 +16,6 @@
     # Does your server support Atheme RPC services (currently only using channel lists)
     "atheme": false,
 
-    # deprecated
-    "node server": true,
-    "twisted server": true,
-
     # In debug mode? console debug statements may be outputted
     "debug": false
 }
