@@ -102,6 +102,7 @@ _.merge(lang, {
     NICK_COLOURS: "Automatically colour nicknames",
     HIDE_JOINPARTS: "Hide JOINS/PARTS/QUITS",
     BACKGROUND: "Background colour",
+    FONT_COLOUR: "Font colour",
     SHOW_NICKLIST: "Show nickname list in channels",
     SHOW_TIMESTAMPS: "Show timestamps",
     FONT_SIZE: "Font size (px)",
