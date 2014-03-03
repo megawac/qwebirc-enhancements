@@ -69,8 +69,7 @@ ui.IUIOptions = new Class({
 
     setModifiableStylesheet: function(vals) {
         this._styleSheet = new Element("style", {
-            type: "text/css",
-            media: "all"
+            type: "text/css"
         }).inject(document.head);
         this.updateStylesheet(vals);
     },

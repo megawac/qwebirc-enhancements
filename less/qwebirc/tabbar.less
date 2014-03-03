@@ -31,6 +31,21 @@
             white-space: nowrap;
             font-weight: bold;
             border-radius: 4px;
+            background: rgba(189, 189, 189, 0.1);
+
+            &:hover,&.selected {
+                background: #fff;
+                background: rgba(255, 255, 255, 0.9);
+            }
+            &.brouhaha {
+                background-image: url("/images/b_background_unsel.gif");
+                padding-left: 65px; //width wont work here
+                opacity: 0.8;
+
+                &.selected {
+                    background-image: url("/images/b_background_sel2.gif");
+                }
+            }
 
             &.hilight-activity {
                 color: #009900;
@@ -41,14 +56,6 @@
             &.hilight-us {
                 color: #ff0000;
                 background: #d8d88a;
-            }
-            &.brouhaha {
-                background-image: url("/images/b_background_unsel.gif");
-                padding-left: 65px; //width wont work here
-
-                &.selected {
-                    background-image: url("/images/b_background_sel2.gif");
-                }
             }
         }
 

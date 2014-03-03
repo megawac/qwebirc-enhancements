@@ -43,7 +43,8 @@
         //this refers to context
         //mix up background or `type` with a  given colour value
         var base = this.colour[_.isString(type) ? type : "background"];
-        return (val ? base.mix(val) : base).rgbToHex();
+        var weight = _.isNumber(_.last(arguments)) ? _.last(arguments) : 50; //mix 50% by default
+        return (val ? base.mix(val, weight) : base).rgbToHex();
     });
 
     engine.registerHelper("$hex", function(prop) {
