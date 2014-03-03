@@ -3,60 +3,55 @@
 {{! not $css generally the context (for property names) is the uiOptions values see ui/standardUI for implementation}}
 {{! update the Browser object is also now part of the context so you can do #if ie6 or something}}
 
-.channel-name {
-    background-color: #FFFFBF;
-    border: thin solid #C8D1DB;
-    border-radius: 4px 4px 4px 4px;
-    color: #000;
+.qui .content {
+    color: {{$col '' 'font'}};
+    background: {{$col ''}};
 }
 
-
 .qui .lines {
-    color: {{$col '' 'font'}};
     font-size: {{$css 'font_size' 12}}px;
-    background: {{$col 'f2f0ff'}};
 }
 
 .qui .lines .timestamp {
     display: {{$css 'show_timestamps' 'inline' 'none'}};
 }
 
-.lines .highlight1 {
-    background-color: {{$col 'f6ff94'}};
+.qui .lines .highlight1 {
+    background: {{$col 'f6ff94'}};
 }
 
-.lines .highlight2 {
-    background-color: {{$col 'a4fcca'}};
+.qui .lines .highlight2 {
+    background: {{$col 'a4fcca'}};
 }
 
-.lines .highlight3 {
-    background-color: {{$col 'fac3d5'}};
+.qui .lines .highlight3 {
+    background: {{$col 'fac3d5'}};
 }
 
-.lines .mentioned {
-    background-color: {{$col 'e63772'}} !important;
+.qui .lines .mentioned {
+    background: {{$col 'e63772'}} !important;
 }
 
 .qui .properties {
-    background-color: {{$col ''}};
+    background: {{$col 'f2f0ff'}};
     border-top: thin solid {{$col 'b8c5d1'}};
 }
 
 
 .qui .topic {
     color: {{$col '4f4f4f' 'font'}};
-    background-color: {{$col ''}};
+    background: {{$col ''}};
     border-bottom: thin dashed {{$col 'c8d2dc'}};
 }
 
 {{! tab stuff }}
-.qui .outertabbar {    
+.qui .outertabbar, .qui .detached-window .header {
+    color: {{$col '0d0b0b' 'font'}};
+    background: {{$col 'c9def5'}};
     border-bottom: thin solid {{$col '858585'}};
-    background: {{$col 'e1ecf8'}};
 }
 
 .qui .tabbar .tab {
-    color: {{$col '' 'font'}};
     border: thin solid {{$col 'c8d2dc'}};
 }
 
@@ -68,22 +63,21 @@
 {{! irc input stuff }}
 
 .qui .input {
-    background-color: {{$col ''}};
+    background: {{$col 'f2f0ff'}};
 }
 
 .qui .input div {
     border-top: thin solid {{$col 'c3cee0'}};
 }
 
-
-.qui .input .tt-query {
+.qui .input .tt-query, .qui hr.lastpos {
     border: thin solid {{$col 'c3cee0'}};
 }
 
+{{! nicklist }}
+
 .qui .nicklist {
     border-left: thin solid {{$col 'c8d2dc'}};
-    background: {{$col ''}};
-    color: {{$col '' 'font'}};
 }
 
 .qui .nicklist .user, .qui .nick-menu {
@@ -93,23 +87,19 @@
 
 .qui .nicklist .selected {
     color: {{$col '' 'font'}};
-    background: white;
-    border-bottom: {{$col 'c8d2dc'}} thin solid;
+    border-bottom: thin solid {{$col 'c8d2dc'}};
+    background: #fff;
 }
 
 .qui .nicklist .selected-middle {
     border-top: {{$col 'c8d2dc'}} thin solid;
 }
 
-.qui .dropdownmenu {
+.qui .dropdownmenu, .qui hr.lastpos {
     border: thin solid {{$col 'c8d2dc'}};
     background: {{$col ''}};
 }
 
 .qui .dropdownmenu a:hover {
     background: {{$col 'fffe'}};
-}
-
-.qui hr.lastpos {
-  border-top: thin solid {{$col 'c8d2dc'}};
 }
