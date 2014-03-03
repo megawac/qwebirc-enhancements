@@ -18,7 +18,7 @@
 
     # deprecated
     "node server": true,
-    "twisted server": true,
+    "twisted server": false,
 
     # In debug mode? console debug statements may be outputted
     "debug": false
