@@ -19,7 +19,7 @@ config.Settings = new Class({
         key: cookies.settings,
         minimize: false,
 
-        onReady: function() {
+        onInit: function() {
             this.loaded = true;
         }
     },
@@ -28,8 +28,8 @@ config.Settings = new Class({
             get: function() {
                 return decode(this._attributes.username);
             },
-            set: function(user) {
-                return encode(user);
+            set: function(user) { //prevent double encoding
+                return this.loaded ? encode(user) : user;
             }
         },
         password: {
@@ -37,7 +37,7 @@ config.Settings = new Class({
                 return decode(this._attributes.password);
             },
             set: function(password) {
-                return encode(password);
+                return this.loaded ? encode(password) : password;
             }
         }
     },
