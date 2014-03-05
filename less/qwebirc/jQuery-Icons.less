@@ -5,38 +5,35 @@
  * Released under the MIT license.
  */
 
+//https://github.com/jquery/jquery-ui/blob/83b3d67175f16057844e5719bcda56eeb74560f3/themes/base/theme.css
 
-/* Icons
-----------------------------------*/
 
-/* states and images */
+ // Icons
+
+ // states and images 
 .ui-icon {
     width: 16px;
     height: 16px;
 }
 .ui-icon,
-.ui-widget-content .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_222222_256x240.png)/*{iconsContent}*/;
-}
+.ui-widget-content .ui-icon,
 .ui-widget-header .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_222222_256x240.png)/*{iconsHeader}*/;
+    background-image: url("@{jQuery-images}/ui-icons_222222_256x240.png"); //{iconsContent}
 }
 .ui-state-default .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_888888_256x240.png)/*{iconsDefault}*/;
+    background-image: url("@{jQuery-images}/ui-icons_888888_256x240.png"); //{iconsDefault}
 }
 .ui-state-hover .ui-icon,
-.ui-state-focus .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_454545_256x240.png)/*{iconsHover}*/;
-}
+.ui-state-focus .ui-icon,
 .ui-state-active .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_454545_256x240.png)/*{iconsActive}*/;
+    background-image: url("@{jQuery-images}/ui-icons_454545_256x240.png"); //{iconsActive}
 }
 .ui-state-highlight .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_2e83ff_256x240.png)/*{iconsHighlight}*/;
+    background-image: url("@{jQuery-images}/ui-icons_2e83ff_256x240.png"); //{iconsHighlight}
 }
 .ui-state-error .ui-icon,
 .ui-state-error-text .ui-icon {
-    background-image: url(//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images/ui-icons_cd0a0a_256x240.png)/*{iconsError}*/;
+    background-image: url("@{jQuery-images}/ui-icons_cd0a0a_256x240.png"); //{iconsError}
 }
 
 /* positioning */
