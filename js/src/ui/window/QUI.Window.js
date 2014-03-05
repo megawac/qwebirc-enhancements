@@ -273,8 +273,8 @@ ui.QUIWindow = new Class({
             }
         } else {
             new components.Dialog({
-                title: "Set nickname",
-                text: "Enter a new nickname",
+                title: lang.setNick,
+                text: lang.setNickDesc,
                 placeholder: self.nickname,
                 onSubmit: function(data) {//screw validating
                     self.client.exec("/NICK " + data.value);

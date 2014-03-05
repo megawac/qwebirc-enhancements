@@ -1,23 +1,23 @@
 <div class="container-fluid center">
     <form class="login">
-        <h2>Connect to {{network}} IRC</h2>
+        <h2>{{lang 'connectWelcome'}}</h2>
         <div class="control-group right">
-            <label class="control-label" for="nickname">Nickname:
-                <input type="text" class="form-control" data-validate="nick" name="basic" id="nickname" value="{{nickname}}" placeholder="Nickname" required />
+            <label class="control-label" for="nickname">{{lang 'nickname'}}:
+                <input type="text" class="form-control" data-validate="nick" name="basic" id="nickname" value="{{nickname}}" placeholder="{{lang 'nickname'}}" required />
             </label>
         </div>
         <div class="control-group right {{#unless full}}hidden{{/unless}}">
-            <label class="control-label" for="username">Username:
-                <input type="text" class="form-control" data-validate="username" name="full" id="username" value="{{username}}" placeholder="{{network}} username">
+            <label class="control-label" for="username">{{lang 'username'}}:
+                <input type="text" class="form-control" data-validate="username" name="full" id="username" value="{{username}}" placeholder="{{network}} {{lang 'username'}}">
             </label>
         </div>
         <div class="control-group right {{#unless full}}hidden{{/unless}}">
-            <label class="control-label" for="password">Password:
+            <label class="control-label" for="password">{{'password'}}:
                 <input type="password" class="form-control" data-validate="password" name="full" id="password" value="{{password}}">
             </label>
         </div>
         <div class="authenticate">
-            <label for="authenticate">Authenticate (optional)<input type="checkbox" id="authenticate" {{check full}}></label>
+            <label for="authenticate">{{lang 'enableAuth'}}<input type="checkbox" id="authenticate" {{check full}}></label>
         </div>
         <div>
             <input type="submit" value="Connect" class="btn btn-primary btn-smaller" />

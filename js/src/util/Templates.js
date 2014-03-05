@@ -7,11 +7,11 @@
     //Some simple templates that dont really need to be compiled
     var source = {
         messageLine:    "<hr class='lastpos' />",
-        dropdownhint:   "<div class='dropdownhint'>Click the icon for the main menu.</div>",
+        dropdownhint:   "<div class='dropdownhint'>" + lang.dropdownHint + "</div>",
         
         tabbar:         "<div class='tabbar'></div>",
         tabDetach:      "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>",
-        tabAttach:      "<span class='attach ui-icon ui-icon-circle-minus'></span>",
+        tabAttach:      "<span class='attach ui-icon ui-icon-circle-minus' title='" + lang.attachWindow + "'></span>",
         tabClose:       "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>",
 
         loadingPage:    "<div class='loading'>" + lang.loadingPage + "<img src='images/loading.gif' alt='url'></div>"
@@ -56,7 +56,7 @@
     });
 
     engine.registerHelper("lang", function(prop) {
-        return lang[prop];
+        return util.format(_.lookup(lang, prop), this);
     });
 
     /******************

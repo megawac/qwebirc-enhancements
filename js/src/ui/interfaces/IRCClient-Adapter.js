@@ -152,12 +152,12 @@
             // "disconnect": lineParser,
             "error": lineParser,
             "info": lineParser,
-            "auth:once": function() {
+            "auth:once": function(data) {
                 ui_.beep();
                 ui_.showNotice({
-                    title: "Successful auth",
-                    body: "Successfully authed with server and set your hostmask"
-                });
+                    title: lang.authSuccess,
+                    body: util.format("{nick}: {message}", data)
+                }, true);
             },
 
             "chanAction": lineParser,

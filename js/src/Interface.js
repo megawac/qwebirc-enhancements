@@ -83,14 +83,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
 
             var client = new irc.IRCClient(ircopts);
             instance.newClient(client);
-            client.writeMessages(lang.copyright);
             client.connect();
-            client.addEvent("auth", function(data) {
-                instance.showNotice({
-                    title: lang.authSuccess,
-                    body: util.format("{nick}: {message}", data)
-                }, true);
-            });
             window.onbeforeunload = function(e) {
                 if (client.isConnected()) {//has gotten passed the IRC gate
                     e = e || window.event;

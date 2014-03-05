@@ -14,18 +14,10 @@ var types = {
     MESSAGE: 4
 };
 
-var message = function(msg, type) {
-    return {
-        message: msg,
-        type: type
-    };
-};
-
 //language specific stuff. right now just an object
 // can either be a message or array of messages
 _.merge(lang, {
     TYPES: types,
-    message: message,
 
     windowNames: {
         "brouhaha": "brouhaha", //empty string so no channel name but custom icon
@@ -40,57 +32,70 @@ _.merge(lang, {
         "channels": "Channel List"
     },
 
-    loginMessages: [message("Hint #1! When you close a channel this one will be deleted from your favorites and won't come back on the next connection.", types.INFO),
-                    message("Hint #2! To join a new channel type this command in the chat box: /j #channel", types.INFO)],
-    joinAfterAuth: message("Waiting for login before joining channels...", types.INFO),
-    authFailed: [message("Could not auth with IRC network - waited 5 seconds.", types.ERROR),
-                message("Otherwise reattempt authing by sending: \"/AUTH <your username> <your password>\"", types.ERROR),
-                message("To ignore the error and join channels, unauthed, type: \"/autojoin\".", types.ERROR)],
-    signOn: message("SIGNON", types.SERVER),
-    joinChans: message("Joining channels...", types.INFO),
+    loginMessages: ["Hint #1! When you close a channel this one will be deleted from your favorites and won't come back on the next connection.",
+                    "Hint #2! To join a new channel type this command in the chat box: /j #channel"],
+    joinAfterAuth: {message: "Waiting for login before joining channels...", type: 1},
+    authFailed: ["Could not auth with IRC network - waited 5 seconds.",
+                "Otherwise reattempt authing by sending: \"/AUTH <your username> <your password>\"",
+                "To ignore the error and join channels, unauthed, type: \"/autojoin\"."],
+    
+    authSuccess: "Authenticated with network!",
+    signOn: "SIGNON",
+    joinChans: "Joining channels...",
     noTopic: "(No topic set.)",
 
     changeTopicNeedsOp: "Sorry, you need to be a channel operator to change the topic!",
     changeTopicConfirm: "Change topic of {channel} to:",
 
-    poorJoinFormat: message("Channel names begin with # (corrected automatically).", types.INFO),
-    waitToJoin: message("You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
-    invalidCommand: message("Can't use this command in this window", types.ERROR),
-    invalidChanTarget: message("Can't target a channel with this command.", types.ERROR),
-    insufficentArgs: message("Insufficient arguments for command.", types.ERROR),
+    poorJoinFormat: "Channel names begin with # (corrected automatically).",
+    // waitToJoin: "You recently tried to join {channel}. To prevent join-flooding, please wait {time} seconds before reattempting or type /fjoin {channel} to ignore this warning...", types.ERROR),
+    invalidCommand: "Can't use this command in this window",
+    invalidChanTarget: "Can't target a channel with this command.",
+    insufficentArgs: "Insufficient arguments for command.",
 
     loadingPage: "Loading . . .",
     fishSlap: "slaps {nick} with a large fishbot",
 
-    copyright: [message("qwebirc v" + qwebirc.VERSION, types.INFO),
-                message("Copyright (C) 2008-2011 Chris Porter and the qwebirc project.", types.INFO),
-                message("Current version by Emanuel \"megawac\" Jackstare", types.INFO),
-                message("http://www.qwebirc.org", types.INFO),
-                message("Licensed under the GNU General Public License, Version 2.", types.INFO)],
+    copyright: ["qwebirc v-{qwebirc.version}",
+                "Copyright (C) 2008-2011 Chris Porter and the qwebirc project.",
+                "Current version by Emanuel \"megawac\" Jackstare",
+                "http://www.qwebirc.org",
+                "Licensed under the GNU General Public License, Version 2."],
 
+    ircAlert: "IRC Alert",
     alertNotice: "Alert!",
     activityNotice: "Activity!",
     partChan: "Part",
-    logOut: message("Logged out", types.MESSAGE),
     quit: "Page closed",
-    disconnected: message("Client has been disconnected", types.INFO),
+    disconnected: "Client has been disconnected",
 
-    uncontrolledFlood: message("ERROR: uncontrolled flood detected -- disconnected.", types.ERROR),
-    connError: message("An error occured: {1}", types.ERROR),
-    // connRetry: message("Connection lost: retrying in {next} secs", types.ERROR),
-    connTimeOut: message("Error: connection closed after {retryAttempts} requests failed.", types.ERROR),
-    connectionFail: message("Couldn't connect to remote server.", types.ERROR),
+    uncontrolledFlood: "ERROR: uncontrolled flood detected -- disconnected.",
+    connLost: "Connection Lost",
+    connError: "An error occured: {1}",
+    // connRetry: "Connection lost: retrying in {next} secs",
+    connTimeOut: "Error: connection closed after {retryAttempts} requests failed.",
+    connFail: "Couldn't connect to remote server.",
 
+    dropdownHint: "Click the icon for the main menu.",
     closeTab: "Close tab",
     detachWindow: "Detach Window",
+    attachWindow: "Redock Window",
 
     missingNick: "You must supply a nickname",
-    missingPass: "You must supply a password.",
+    missingPass: "You must supply a password",
     nickWrongLen: "Nick must be between {min} and {max} characters",
+    setNick: "Set nickname",
+    setNickDesc: "Enter a new nickname",
 
     setChanTitle: "Set Channels",
     setChanDialog: "Set initial channels (comma seperated)",
 
+    //Login
+    connectWelcome: "Connect to {{network}} IRC",
+    nickname: "Nickname",
+    username: "Username",
+    password: "Password",
+    enableAuth: "Authenticate (optional)",
 
     //options
     DEDICATED_MSG_WINDOW: "Send privmsgs to dedicated messages window",
@@ -136,4 +141,23 @@ _.merge(lang, {
 
     ENABLE: "Enable",
     DISABLE: "Disable"
+});
+
+[
+    "poorJoinFormat"
+].each(function(item) {
+    lang[item] = {
+        message: lang[item],
+        type: types.INFO
+    };
+});
+
+[
+    "invalidCommand", "invalidChanTarget", "insufficentArgs",
+    "uncontrolledFlood", "connError", "connTimeOut", "connFail"
+].each(function(item) {
+    lang[item] = {
+        message: lang[item],
+        type: types.ERROR
+    };
 });
