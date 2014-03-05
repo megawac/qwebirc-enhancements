@@ -87,7 +87,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             client.connect();
             client.addEvent("auth", function(data) {
                 instance.showNotice({
-                    title: "Authenticated with network!",
+                    title: lang.authSuccess,
                     body: util.format("{nick}: {message}", data)
                 }, true);
             });

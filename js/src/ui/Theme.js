@@ -9,12 +9,12 @@ ui.Theme = new Class({
     initialize: function(uiOptions, themeDict) {
         var self = this,
             defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
-        
-        var thememap = Object.map(config.ThemeControlCodeMap, function(str) {
-            return util.formatSafe(str, config.ThemeControlCodeMap);
-        });
+
         self._theme = Object.map(defaults, function(str) {
-            return util.formatSafe(str, thememap);
+            // localize
+            str = util.formatSafe(str, lang, /\{lang ([^{}]+)\}/g);
+            // set controls
+            return util.formatSafe(str, config.ThemeControlCodeMap);
         });
 
         self.highlightClasses.channels = {};

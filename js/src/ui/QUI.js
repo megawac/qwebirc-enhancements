@@ -161,7 +161,7 @@ ui.QUI = new Class({
     },
 
     newClient: function(client) {
-        this.parentElement.swapClass("signed-out","signed-in");
+        this.parentElement.swapClass("signed-out", "signed-in");
         var self = this;
         var status = self.parent(client);
         //load brouhaha window (b4 connecting)

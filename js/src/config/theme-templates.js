@@ -2,7 +2,7 @@
  * @depends [config, util/utils]
  * @provides [config/theme-templates]
  */
-config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
+var baseControlMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
     "O": irc.styles.colour.key,
     "B": util.getStyleByName("bold").key,
@@ -13,6 +13,10 @@ config.ThemeControlCodeMap = { //these are settings for the templates -ie {C} is
     "CN": templates.userlink({"nick":"{newnick}"}),// change nick
     "P": "{C}4=={O} " //prefix
 };
+
+config.ThemeControlCodeMap = Object.map(baseControlMap, function(str) {
+    return util.formatSafe(str, baseControlMap);
+});
 
 config.ThemeIRCTemplates = {
     "SIGNON": "{P}Signed on!",

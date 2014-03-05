@@ -9,7 +9,7 @@ ui.IUIOptions = new Class({
         var self = this;
         var options = self.options;
         if(self.uiOptions instanceof config.OptionModel) return this;
-        var uiOptions = self.uiOptions = self.uiOptions2 = new config.OptionModel({}, {
+        var uiOptions = self.uiOptions = new config.OptionModel({}, {
             defaults: options.uiOptions
         });
         var updateStylesheet = self.updateStylesheet.bind(self);
