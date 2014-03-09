@@ -214,7 +214,7 @@ ui.QUI = new Class({
             if(keyboard.isActive()) {
                 if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
                     self.selectWindow(e.key - 1);
-                } else if(self.active.$input && !(e.alt||e.control||e.meta) && isChar(e.code) ) {
+                } else if(self.active.$input && !(e.alt||e.meta) && isChar(e.code) ) { //focus input on a character input or ctrl+[xxx]
                     self.active.$input.focus();
                 }
             }
