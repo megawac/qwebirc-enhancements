@@ -12,12 +12,6 @@ ui.WINDOW = {
     active: 9 //currently selected window
 };
 
-ui.HIGHLIGHT = {
-    none: 0,
-    activity: 1,
-    speech: 2,
-    us: 3
-};
 
 irc.pmodes = {
     LIST: 0,
@@ -26,6 +20,13 @@ irc.pmodes = {
     regular: 3
 };
 
+
+constants.hl = {
+    none: 0,
+    activity: 1,
+    speech: 2,
+    us: 3
+};
 
 //window names
 constants.brouhaha = "brouhaha";

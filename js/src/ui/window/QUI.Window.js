@@ -1,42 +1,31 @@
 /**
  * qui window -should implement base not extend
  *
- * @depends [ui/Window]
+ * @depends [ui/Window, ui/Detachable]
  * @depends [components/AutoScroll, components/Completer, components/Popups]
  * @provides [ui/QUIWindow]
  */
 ui.QUIWindow = new Class({
     Extends: ui.Window,
-    Binds: ["close"],
+    Implements: [ui.IDetachableWindow],
     options: {
         events: {
-            // "click:relay(.input .send)": "sendInput",
+            // "click:relay(.input .send)": "sendInput", (its a submit button no need)
+    
             "dblclick:relay(.input .nickname)": "setNickname",
             "dblclick:relay(.topic)": "editTopic",
 
             "contextmenu:relay(.lines .nick)": "nickLinesMenu",
+            "click:relay(.nicklist .user .nick)": "nickListMenu",
             "click:relay(.nick-menu li)": "menuClick",
 
-            "click:relay(.nicklist .user .nick)": "nickListMenu",
-
-            "click:relay(.detached-window .attach)": "attach",
-            "click:relay(.detached-window .tab-close)": "close",
-
-            "click:relay(.lines .hyperlink-whois)": "whoisURL",
-
-            "click": "setActive"
+            "click:relay(.lines .hyperlink-whois)": "whoisURL"
         }
     },
 
-    detached: false,
-
-    initialize: function(parentObject, $par, client, type, name/*, identifier*/) {
-        var self = this;
-        self.parent.apply(self, arguments);
-
-        self.tab = parentObject.newTab(self, name);
-
-        self.nicksColoured = self.getOption("nick_colours");
+    initialize: function(/*parentObject, $par, client, type, name, identifier*/) {
+        // > pass
+        this.parent.apply(this, arguments);
     },
 
     render: function() {
@@ -47,10 +36,11 @@ ui.QUIWindow = new Class({
             .html(self.template({
                 mobile: Browser.isMobile,
                 isChannel: util.isChannelType(self.type),
+                isIRCWindow: hasInput,
                 channel: self.name,
                 name: self.name,
                 id: self.id,//self.name.clean().replace(" ", "-"),
-                topic: false,
+                topic: lang.noTopic,
                 needsInput: hasInput,
                 nick: self.client && self.client.nickname,
                 client: self.client
@@ -65,18 +55,16 @@ ui.QUIWindow = new Class({
         if (type === ui.WINDOW.channel) {
             $win.addClass("channel");
             self.toggleNickList();
-            self.updateTopic("");
         }
 
         if(hasInput) {
-            $win.addClass("ircwindow");
             self.fxscroll = new components.AutoScroll(lines, {
                 start: false
             });
             self.$input = $win.getElement(".input .irc-input");
 
             $win.getElement("form")
-                .addEvent("submit", self.sendInput);
+                .addEvent("submit", self.sendInput.bind(self));
         }
         return self;
     },
@@ -91,8 +79,8 @@ ui.QUIWindow = new Class({
 
         if(this.fxscroll)
             this.fxscroll.stop();
-        if(this.resizable)
-            this.resizable.detach().stop();
+        // if(this.resizable)
+        //     this.resizable.detach().stop();
         if(this.drag)
             this.drag.detach().stop();
         if(this.completer)
@@ -101,106 +89,23 @@ ui.QUIWindow = new Class({
         return this.parent();
     },
 
-    attach: function(e) {
-        this.detached = false;
-
-        util.resetGrid(this.element).removeClass("detached");
-
-        this.window.replaces(this.wrapper);
-        this.wrapper.destroy();
-
-        this.drag.detach().stop();
-        this.resizable.detach().stop();
-        this.wrapper = this.resizable = this.drag = null;
-
-        this.parentObject.nav.toggleTab(this.tab.removeClass("detached"), true);
-        this.select();
-
-        this.fireEvent("attached");
-    },
-
-    detach: function(e) {
-        var self = this,
-            win = self.window,
-            po = self.parentObject,
-
-            wrapper = self.wrapper = Element.from(templates.detachedWindow({
-                "channel": self.name,
-                "base": util.isBaseWindow(self.id)
-            })),
-            //header = wrapper.getElement(".header"),
-
-            // resizeWrapper = Element.from(templates.resizeHandle()),
-            // resizeHandle = resizeWrapper.getElement(".resize-handle");
-            resizeHandle = wrapper.getElement(".resize-handle");
-
-        var size = util.percentToPixel({x:40, y:60}, win.getParent(".qwebirc"));
-        
-        //as to not mess with other window remove grid
-        util.removeGrid(self.element).addClass("detached").show();
-        
-        //set size and add detach wrapper to dom
-        wrapper.setStyles({
-            "width": size.x,
-            "height": size.y
-        }).replaces(win);
-
-        win.addEvent("mousedown", function(e) {
-            var tag = e.target.tagName.toLowerCase();
-            if(!(tag == "div" || tag == "form"))//prevent dragging if not on container
-                e.stopPropagation();
-        }).inject(wrapper.getElement(".body"));
-
-        self.resizable = wrapper.makeResizable({
-            limit: {//min/max
-                x: [400, null],
-                y: [200, null]
-            },
-            handle: resizeHandle,
-            stopPropagation: true
-        });
-        self.drag = wrapper.makeDraggable({
-            handle: wrapper,
-            includeMargins: true
-        });
-
-        /*** update windows and center detached window ****/
-        if(self.active) po.nextWindow();//change window if we"re active
-        self.detached = true;
-        _.defer(function() {
-            self.setActive();
-            self._selectUpdates();
-            wrapper.position();
-        });
-
-        //keeps order
-        po.nav.toggleTab(self.tab.addClass("detached"), false);
-        self.fireEvent("detached");
-    },
-
-    setActive: _.throttle(function(e) {//sets this window as the most active
-        // if(!this.element.hasClass("active")) {
-        this.element.addClass("active")
-                    .getSiblings(".active").removeClass("active");
-        // }
-    }, 1000, true),
 
     select: function() {//change window elements
-        if(this.active || this.closed) return;
-        this.parent();
-
-        this.tab.addClass("selected");
-        this._selectUpdates();
-        this.setActive();
-        this.fireEvent("selected");
+        if(!this.active && !this.closed) {
+            this.parent();
+            this._selectUpdates();
+            this.setActive()
+                .fireEvent("selected");
+        }
+        
+        return this;
     },
 
     deselect: function() {
         if(this.active && !this.detached) {
-            this.tab.removeClasses("selected");
-            if(this.fxscroll) this.fxscroll.stop();//save some work as reasonably intense
-            this.parent();
+            if(this.fxscroll) this.fxscroll.stop(); // don't autoscroll in the background tyvm
         }
+        return this.parent();
     },
 
     //styles and ui things to update
@@ -218,24 +123,7 @@ ui.QUIWindow = new Class({
             self.$input.removeClass("decorated");
         }
 
-        if(util.isChannelType(self.type)) {
-            var colour = self.getOption("nick_colours");
-            if (self.nicksColoured !== colour) {
-                self.nicksColoured = colour;
-                var nodes = self.nicklist.childNodes;
-                if (colour) {
-                    _.each(nodes, function(node) {
-                        var colour = util.toHSBColour(node.get("data-nick"));
-                        if (colour != null) {
-                            node.firstChild.setStyle("color", colour.rgbToHex());
-                        }
-                    });
-                } else {
-                    _.each(nodes, function(node) {
-                        node.firstChild.setStyle("color", null);
-                    });
-                }
-            }
+        if (util.isChannelType(self.type)) {
             self.updatePrefix.delay(1000, self);//takes a little while to recieve on some servers
         }
 
@@ -340,45 +228,6 @@ ui.QUIWindow = new Class({
         this.client.exec(action, this.name);
     },
 
-    updateTopic: function(topic) {
-        var $topic = this.window.getElement(".topic").empty();
-        if (topic) {
-            this.parentObject.theme.formatTopic(topic, $topic);
-        } else {
-            $topic.html(templates.topicText({topic: lang.noTopic, empty:true}));
-        }
-    },
-
-    addLine: function(type, data, colourClass) {
-        var $msg = Element.from(templates.ircMessage({ type: type.hyphenate().replace(" ", "-") }));
-
-        if(colourClass)
-            $msg.addClass(colourClass);
-        if(data.colourClass)
-            $msg.addClass(data.colourClass);
-
-        this.parent(type.toUpperCase(), data, colourClass, $msg);
-    },
-
-    highlightTab: function(state) {
-        if (state != this.highlight) {
-            this.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech");
-
-            switch (state) {
-            case ui.HIGHLIGHT.us:
-                this.tab.addClass("hilight-us");
-                break;
-            case ui.HIGHLIGHT.speech:
-                this.tab.addClass("hilight-speech");
-                break;
-            case ui.HIGHLIGHT.activity:
-                this.tab.addClass("hilight-activity");
-                break;
-            }
-            this.parent(state);
-        }
-    },
-
     toggleAutocomplete: function(state) {
         if(this.completer) {
             state = !!state;
@@ -413,50 +262,6 @@ ui.QUIWindow = new Class({
                 }));*/
             }
         }
-    },
-
-    //holy shit i got this to actually make sense
-    // takes nicks (sorted array)
-    updateNickList: function(nicklist) {
-        if(!this.nicklist) return false;
-        var self = this;
-        var lnh = self.lastNickHash;
-
-        //get users who left
-        //used to just take the difference and then do an each on that but changes to the array made it nec to do it like this for efficency
-        var nicks = nicklist.map(function(nickobj, index) {
-            var nick = nickobj.nick;
-            var old = lnh[nick];
-
-            if(!old || old.prefix !== nickobj.prefix) {
-                if(old && old.element) old.element.dispose();//or update it jeez
-                lnh[nick] = self.nickListAdd(nickobj, index);
-            }
-            return nick;
-        });
-
-        _.difference(_.keys(lnh), nicks).each(function(nick) {
-            lnh[nick].element.dispose();
-            delete lnh[nick];
-        });
-    },
-
-    nickListAdd: function(nickobj, position) {
-        var nickele = Element.from(templates.nickbtn(nickobj));
-        var span = nickele.getElement("span");
-
-        if (this.getOption("nick_colours")) {
-            var colour = util.toHSBColour(nickobj.nick);
-            if (colour != null) {
-                span.setStyle("color", colour.rgbToHex());
-            }
-        }
-
-        this.nicklist.insertAt(nickele, position);
-
-        return _.extend({
-            element: nickele
-        }, nickobj);
     },
 
     whoisURL: function(e, target) {

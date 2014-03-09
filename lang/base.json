@@ -81,7 +81,6 @@
     "ACCEPT_SERVICE_INVITES" : "Automatically join channels when invited",
     "USE_HIDDENHOST"         : "Hide your hostmask when authed (+x)",
     "LASTPOS_LINE"           : "Show a last position indicator for each window",
-    "NICK_COLOURS"           : "Automatically colour nicknames",
     "HIDE_JOINPARTS"         : "Hide JOINS/PARTS/QUITS",
     "BACKGROUND"             : "Background colour",
     "FONT_COLOUR"            : "Font colour",

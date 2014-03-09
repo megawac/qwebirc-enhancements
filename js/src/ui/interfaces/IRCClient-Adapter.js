@@ -87,7 +87,7 @@
             type = data.type || data.t || type;
             channel = data.channel || constants.status;
 
-            win.addLine(data.type, data);
+            win.addLine(data.type, data, data.colourClass);
 
             if(!util.isBaseWindow(data.channel) && broadcast_re.test(type)) {
                 var data2 = _.clone(data);
@@ -102,7 +102,7 @@
                 }
                 data2.linkedchannel = channel;
 
-                if(uiOptions.get("brouhaha").enabled) ui_.windows.brouhaha.addLine(data2.type, data2);
+                if(uiOptions.get("brouhaha").enabled) ui_.windows.brouhaha.addLine(data2.type, data2, data.colourClass);
             }
         }
 

@@ -1,4 +1,4 @@
-<div class="window" data-id="{{id}}" data-name="{{name}}">
+<div class="window {{#if isIRCWindow}}ircwindow{{/if}}" data-id="{{id}}" data-name="{{name}}">
     {{#if isChannel}}
         <div class='topic'>{{> topicText}}</div>
     {{/if}}

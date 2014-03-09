@@ -9,7 +9,6 @@ ui["default options"] = {
     "accept_service_invites": true,
     "use_hiddenhost": true,
     "lastpos_line": true,
-    "nick_colours": false,
     "hide_joinparts": false,
     "show_nicklist": !Browser.isMobile,
     "show_timestamps": true,
@@ -45,7 +44,7 @@ ui["default options"] = {
         {
             type: "(?!SERVER)NOTICE$",//notice not server notice
             beep: true,
-            tabhl: ui.HIGHLIGHT.speech,
+            tabhl: constants.hl.speech,
             id: "notice"
         },
         {
@@ -53,7 +52,7 @@ ui["default options"] = {
             flash: true,
             beep: true,
             pm: true,
-            tabhl: ui.HIGHLIGHT.speech,
+            tabhl: constants.hl.speech,
             id: "pm"
         },
         {
@@ -71,7 +70,7 @@ ui["default options"] = {
             mentioned: true,
             highlight: "mentioned",
             notus: true,
-            tabhl: ui.HIGHLIGHT.us,
+            tabhl: constants.hl.us,
             id: "mention"
         },
         {//match bots
@@ -96,7 +95,7 @@ ui["default options"] = {
             highlight: true,
             notus: true,
             "case": true,
-            tabhl: ui.HIGHLIGHT.activity,
+            tabhl: constants.hl.activity,
             types: [ui.WINDOW.channel],
             id: "hl"
         }

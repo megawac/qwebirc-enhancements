@@ -138,7 +138,7 @@ ui.Theme = new Class({
 
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
-            tabHighlight = ui.HIGHLIGHT.none,
+            tabHighlight = constants.hl.none,
             highlights = self.highlightClasses,
             nick = win.client.nickname,
             notus = data.n !== nick;
