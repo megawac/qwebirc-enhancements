@@ -225,7 +225,11 @@ module.exports = function(grunt) {
             },
             qwebirc: {
                 options: {
-                    strictMath: true
+                    strictMath: true,
+
+                    modifyVars: {
+                        "jQuery-images": "'" + (build["use cdn"] ? files.resources["jQuery-images"].cdn : files.resources["jQuery-images"].local) + "'"
+                    }
                 },
                 files: {
                     "dist/css/qwebirc-<%= pkg.version %>.css": "less/qwebirc.less"
@@ -235,7 +239,13 @@ module.exports = function(grunt) {
 
         cssmin: {
             options: {
-                preserveComments: "some"
+                preserveComments: "some",
+                banner: [
+                    "/*!",
+                    " * <%= pkg.name %> ::: Version <%= pkg.version %> ::: <%= pkg.repository %>",
+                    " * Authors: <%= pkg.author.name %> (<%= pkg.author.url %>)",
+                    " */"
+                ].join("\n")
             },
             combine: {
                 files: {

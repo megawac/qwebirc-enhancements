@@ -8,13 +8,14 @@ ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],
     Window: ui.QUIWindow,
+    options: {
+        imageRegex: /\.(gif|jpg|jpeg|tiff|png)$/i
+    },
     initialize: function($par, options) {
         this.parent($par, options);
     },
     postInitialize: function() {
         var self = this.parent();
-        self.element.addClasses("qui", "signed-out")
-            .addEvent("click:relay(.lines .hyperlink-whois)", self.whoisURL);
         self.setHotKeys();
         self.nav.on({
             "selectTab": function(e, tab) {
@@ -25,6 +26,66 @@ ui.QUI = new Class({
                 target.getParent(".tab").retrieve("window").detach();
             }
         });
+
+        self.element.addClasses("qui", "signed-out");
+
+        //create an image popover on (img) url hover
+        //could use BS popovers here but this will be more efficent
+        var currentPopover, currentTarget; //popover currently being shown
+        var destroyPopover = function() {
+            if(currentTarget && currentTarget.isHovered()) return true;
+            if(currentPopover) currentPopover.destroy();
+            currentPopover = currentTarget = null;
+        };
+        var imgEvents = {
+            "mouseenter:relay(a)": function(e, $tar) {
+                if(destroyPopover()) return; //no need already shown
+                if(self.options.imageRegex.test($tar.href)) {
+                    getTemplate("image-popover", function(template) {
+                        currentTarget = $tar;
+                        currentPopover = Element.from(template({
+                            image_url: $tar.href
+                        }))
+                        .inject(self.element)
+                        .setStyle("display", "block");
+
+                        var tarPos = $tar.getCoordinates();
+
+                        var payload = currentPopover.getElement(".payload")
+                            .addEvent("load", function() {
+                                currentPopover.getElement(".loading").dispose();
+                                //set arrow position
+                                currentPopover.getElement(".arrow")
+                                    .setStyle("top", Math.abs(tarPos.top - pos.y) + tarPos.height/2);
+                            });
+
+                        var maxWidth = payload.getComputedStyle("max-width").toInt();
+                        var maxHeight = payload.getComputedStyle("max-height").toInt();
+                        var imgMaxMin = {
+                            x: {
+                                min: 40,
+                                max: window.getWidth() - maxWidth - 40
+                            },
+                            y: {
+                                min: 40,
+                                max: window.getHeight() - maxHeight - 40
+                            }
+                        };
+
+                        var pos = {
+                            x: Math.min((Math.max(tarPos.right + 10, imgMaxMin.x.min)), imgMaxMin.x.max),
+                            y: Math.min((Math.max(e.client.y / 2, imgMaxMin.y.min)), imgMaxMin.y.max)
+                        };
+
+                        currentPopover.setPosition(pos);
+                    });
+                }
+            },
+            "mouseleave:relay(a)": _.debounce(destroyPopover, 100) //throttled to prevent hover being toggled when leaving spaces
+        };
+        if(self.uiOptions.get("image_popovers")) {
+            self.element.addEvents(imgEvents);
+        }
 
         return self;
     },
@@ -141,7 +202,7 @@ ui.QUI = new Class({
             return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
         }
 
-        document.addEvents({
+        self.element.addEvents({
             "blur:relay(input)": function() {
                 keyboard.activate();
             },
