@@ -2,6 +2,7 @@
  * Twisted IRCConnection Class... Still needs simplification
  * uris = dict(p=push, n=newConnection, s=subscribe)
  *
+ * @depends [util/ircprocessor]
  * @depends [util/lang, util/utils, components/Alert]   --dirty alerts I didnt feel like propogating
  * @provides [irc/Connection]
  */

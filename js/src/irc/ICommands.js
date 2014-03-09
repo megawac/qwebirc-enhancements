@@ -13,7 +13,7 @@ function formatMessage(cmdline) {
     return util.splitMax(cmdline, " ", 2); //split command from the params
 }
 
-irc.Commands = new Class({//sort of an abstract class but relies on irc.IRCClient so not really
+irc.Commands = new Class({//sort of an abstract class but relies on irc.Client so not really
     __autojoined: false,
 
     // routes all outputs with the server

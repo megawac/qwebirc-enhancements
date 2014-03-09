@@ -80,7 +80,7 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
         "login:once": function(loginopts) {
             var ircopts = _.extend({settings: settings, uiOptions: instance.uiOptions}, options.client, loginopts);
 
-            var client = new irc.IRCClient(ircopts);
+            var client = new irc.Client(ircopts);
             instance.newClient(client);
             client.connect();
             window.onbeforeunload = function(e) {

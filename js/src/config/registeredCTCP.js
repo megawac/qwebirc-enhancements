@@ -3,10 +3,10 @@
  * @provides [config/ctcp]
  */
 irc.RegisteredCTCPs = {
-    "VERSION": $lambda("qwebirc v" + qwebirc.VERSION),
-    "USERINFO": $lambda("qwebirc"),
+    "VERSION": Function.from("qwebirc v" + qwebirc.VERSION),
+    "USERINFO": Function.from("qwebirc"),
     "TIME": util.IRCDate,
-    "PING": $lambda,
-    "CLIENTINFO": $lambda("PING VERSION TIME USERINFO CLIENTINFO WEBSITE"),
-    "WEBSITE": $lambda(((window == window.top) ? "direct" : document.referrer))
+    "PING": Function.from,
+    "CLIENTINFO": Function.from("PING VERSION TIME USERINFO CLIENTINFO WEBSITE"),
+    "WEBSITE": Function.from(((window == window.top) ? "direct" : document.referrer))
 };

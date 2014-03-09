@@ -249,8 +249,6 @@
         }
     }
 
-    window.$lambda = Function.from;
-
     window.$clear = function(timer) {
         clearTimeout(timer);
         clearInterval(timer);
