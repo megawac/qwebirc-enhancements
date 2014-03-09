@@ -193,8 +193,8 @@ ui.QUI = new Class({
     setHotKeys: function () {
         if(Browser.isMobile) return;
         var self = this,
-            keyboard = this.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
-            inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
+            keyboard = self.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
+            inputKeyboard = self.inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
         
         keyboard.scope = self;
 
@@ -208,14 +208,14 @@ ui.QUI = new Class({
             },
             "focus:relay(input)": function() {
                 inputKeyboard.activate();
-            },
-            "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
-                if(keyboard.isActive()) {
-                    if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
-                        self.selectWindow(e.key - 1);
-                    } else if(self.active.$input && !(e.alt||e.control||e.meta) && isChar(e.code) ) {
-                        self.active.$input.focus();
-                    }
+            }
+        });
+        document.addEvent("keydown", function(e) { // pressing 1 2 3 4 etc will change tab
+            if(keyboard.isActive()) {
+                if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
+                    self.selectWindow(e.key - 1);
+                } else if(self.active.$input && !(e.alt||e.control||e.meta) && isChar(e.code) ) {
+                    self.active.$input.focus();
                 }
             }
         });
