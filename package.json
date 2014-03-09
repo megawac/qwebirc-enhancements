@@ -2,7 +2,7 @@
   "name": "qwebirc",
   "description": "webirc client",
   "repository": "www.github.com/megawac/qwebirc-enhancements",
-  "version": "0.96.2",
+  "version": "0.97.0",
   "network": "",
   "tags": [
     "webirc",
