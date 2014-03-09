@@ -3,7 +3,7 @@
  * @depends [qwebirc, util/utils, util/lang]
  * @provides [utils/templates]
  */
-(function(engine) {
+qwebirc.ready(function(engine) {
     //Some simple templates that dont really need to be compiled
     var source = {
         messageLine:    "<hr class='lastpos' />",
@@ -35,7 +35,7 @@
 
     //f(property name, type of prop, default val)
     engine.registerHelper("$css", function(prop, def, def2) {//this refers to context
-        if(typeof def2 !== "object") return this[prop] ? def : def2;
+        if (typeof def2 !== "object") return this[prop] ? def : def2;
         return this[prop] || def;
     });
 
@@ -56,6 +56,8 @@
     });
 
     engine.registerHelper("lang", function(prop) {
+        var item = _.lookup(lang, prop);
+        if (!item && DEBUG) console.error(prop + " is invalid");
         return util.format(_.lookup(lang, prop), this);
     });
 
@@ -68,7 +70,7 @@
         compiled[key] = Function.from(template);
         return compiled;
     }, templates || {});
-})(window.Handlebars);
+}, window.Handlebars);
 
 /**
  * @depends: [qwebirc]

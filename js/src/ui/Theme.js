@@ -65,7 +65,7 @@ ui.Theme = new Class({
     },
 
     formatText: function(type, data) {
-        return util.formatter(this._theme[type], data);//most formatting done on init
+        return util.format(this._theme[type], data);//most formatting done on init
     },
 
     colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/

@@ -4,7 +4,11 @@
   "repository": "www.github.com/megawac/qwebirc-enhancements",
   "version": "0.96.2",
   "network": "",
-  "tags": ["webirc", "irc", "irc client"],
+  "tags": [
+    "webirc",
+    "irc",
+    "irc client"
+  ],
   "author": {
     "name": "Graeme Yeates",
     "url": "www.github.com/megawac",
@@ -33,9 +37,8 @@
     "grunt-contrib-csslint": "0.2",
     "grunt-contrib-cssmin": "0.7",
     "grunt-csscomb": "2.0",
-    "grunt-autoprefixer": "0.7",
+    "grunt-autoprefixer": "~0.7.2",
     "grunt-html-build": "0.3",
-    "grunt-convert": "~0.1.9",
     "grunt-bumpup": "~0.5.0",
     "grunt-tagrelease": "~0.3.1",
     "grunt-file-info": "~1.0.4",

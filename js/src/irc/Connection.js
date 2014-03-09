@@ -319,7 +319,7 @@
         },
 
         __error: function(message, context) {
-            var msg = context ? util.formatter(message.message, context) : message.message;
+            var msg = context ? util.format(message.message, context) : message.message;
             this.fireEvent("error", msg);
             new components.Alert({
                 title: lang.connLost,

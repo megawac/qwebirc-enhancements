@@ -22,13 +22,15 @@ ui.QUIWindow = new Class({
             "click:relay(.detached-window .attach)": "attach",
             "click:relay(.detached-window .tab-close)": "close",
 
+            "click:relay(.lines .hyperlink-whois)": "whoisURL",
+
             "click": "setActive"
         }
     },
 
     detached: false,
 
-    initialize: function(parentObject, $par, client, type, name, identifier) {
+    initialize: function(parentObject, $par, client, type, name/*, identifier*/) {
         var self = this;
         self.parent.apply(self, arguments);
 
@@ -455,5 +457,12 @@ ui.QUIWindow = new Class({
         return _.extend({
             element: nickele
         }, nickobj);
+    },
+
+    whoisURL: function(e, target) {
+        /*if (this.uiOptions.get("query_on_nick_click")) {
+            client.exec("/QUERY " + nick);
+        } else {*/
+        this.client.exec("/WHOIS " + target.get("data-user"));
     }
 });

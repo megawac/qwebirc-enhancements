@@ -63,7 +63,7 @@ irc.IRCClient = new Class({
 
     //connection methods
     connect: function() {
-        this.writeMessages(lang.copyright, {}, {type: LANGTYPE.INFO});
+        this.writeMessages(lang.copyright, {qwebirc: qwebirc}, {type: LANGTYPE.INFO});
         this.connection.connect();
         return this;
     },
@@ -228,28 +228,19 @@ irc.IRCClient = new Class({
     /*************************************************
     *               message helpers                  *
     **************************************************/
-    writeMessages: function(messages, args, data) {
-        data = _.extend({
-            type: "info",
+    writeMessages: function(messages, args, idata) {
+        var data = _.extend({
+            type: LANGTYPE.INFO,
             colourClass: "",
             channel: constants.status,
             message: []
-        }, data);
+        }, idata);
         data.channels = data.channels === "ALL" ? [constants.status, "brouhaha"].concat(this.channels) : data.channels;
 
         function write(message) {
-            var msg = args ? util.format(message.message, args) :
-                            message.message; //replaces values like {replaceme} if args has a key like that
+            var msg = args ? util.format(message, args) :
+                            message.message || message; //replaces values like {replaceme} if args has a key like that
             data.message.push(msg);
-
-            switch (message.type || messages.type || data.type) {
-            case LANGTYPE.ERROR:
-                data.colourClass = "warn";
-                break;
-            case LANGTYPE.INFO:
-                data.colourClass = "info";
-                break;
-            }
         }
 
         if (_.isArray(messages)){
@@ -257,6 +248,16 @@ irc.IRCClient = new Class({
         } else {
             write(messages);
         }
+        switch (messages.type || data.type) {
+            case LANGTYPE.ERROR:
+                data.colourClass = "warn";
+                break;
+            case LANGTYPE.INFO:
+                data.colourClass = "info";
+                break;
+        }
+        data.type = "info";
+
         return this.trigger("info", data);
     },
 
@@ -299,8 +300,8 @@ irc.IRCClient = new Class({
             }));
         }
 
-        self.writeMessages(lang.signOn, {}, {type: LANGTYPE.SERVER});
-        self.writeMessages(lang.loginMessages, {}, {channel: "brouhaha", type: LANGTYPE.INFO});
+        self.writeMessages(lang.signOn, {}, {type: LANGTYPE.SERVER})
+            .writeMessages(lang.loginMessages, {}, {channel: "brouhaha", type: LANGTYPE.INFO});
 
         if (!self.authed && auth.enabled) {
             self.send(util.formatCommand("AUTH", self.options));

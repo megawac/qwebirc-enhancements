@@ -16,7 +16,6 @@ irc.atheme = {
         /* New login request. */
         var req = new Request.JSON({
             url: qwebirc.global.dynamicBaseURL + "a/" + command + "?req=" + irc.atheme.cacheAvoidance,
-            async: true,
             data: data
         });
 

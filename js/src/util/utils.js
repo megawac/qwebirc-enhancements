@@ -29,7 +29,7 @@ var joinEmpty = _.partial(join, ""),
 util.concatUnique = _.compose(_.uniq, Array.concat);
 
 
-var format = util.format = util.formatter = function(message, data) {
+var format = util.format = function(message, data) {
     return (message.message || message).substitute(data);
 };
 util.formatCommand = function(command, data) {
@@ -37,7 +37,7 @@ util.formatCommand = function(command, data) {
     return format(command.command, data);
 };
 
-util.formatSafe = util.formatterSafe = function(str, object, regexp) { //if property not found string is not replaced
+util.formatSafe = function(str, object, regexp) { //if property not found string is not replaced
     return String(str.message || str).replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name) {
         if (match.charAt(0) === "\\") return match.slice(1);
         return (object[name] != null) ? object[name] : match;

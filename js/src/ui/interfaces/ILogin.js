@@ -15,7 +15,7 @@
         var $controlpar = $ele.getParent(".control-group")
                             .toggleClass("has-error", failbool);
         if (failbool) {
-            if($controlpar.getElements(".help-block").filter(function(ele) {return ele.html() === failed.description}).length === 0) {
+            if($controlpar.getElements(".help-block").filter(function(ele) {return ele.html() === failed.description();}).length === 0) {
                 getTemplate("failed-validator", function(template) {
                     Elements.from(template(failed)).inject($controlpar);
                     // $ele.focus();

@@ -9,33 +9,32 @@ var DEFAULT_QWEBIRC_CONFIG = {
     appTitle: "" /* Quake Net Web IRC */,
     networkName: "" /* Quake Net */,
 
-    validators: {//test is a helper from ircutils
+    validators: { //test is a helper from ircutils
         nick: [{
-            test: util.test(/^[\s\S]{1,9}$/),//max 9 by spec some servers implement different rules
-            description: util.format(lang.nickWrongLen, {min: 1, max: 9})
+            test: util.test(/^[\s\S]{1,9}$/), //max 9 by spec some servers implement different rules
+            description: lang.getFormatter("nickWrongLen", {min: 1, max: 9})
         }],
         password: [{
             test: function(pass, $ele) {
                 return pass || !$ele.isVisible();
             },
-            description: lang.missingNick
+            description: lang.getter("missingNick")
         }],
         username: [{
             test: function(user, $ele) {
                 return user || !$ele.isVisible();
             },
-            description: lang.missingPass
+            description: lang.getter("missingPass")
         }]
     },
-    theme: undefined,
     parseQueryString: true,
 
     uiOptions: {/*see config/options.js*/},
     settings: {/*see config/settings.js*/},
     client: {/*see irc/IRCClient.js*/
-        networkServices: [],//registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
+        networkServices: [], //registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
         // minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
-        loginRegex: /I recogni[sz]e you\./,//network service response when auth successful
+        loginRegex: /I recogni[sz]e you\./, //network service response when auth successful
         node: false
     }
 };
