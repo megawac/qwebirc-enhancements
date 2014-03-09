@@ -139,6 +139,10 @@
             return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
         },
 
+        isHovered: function() {
+            return !!(this.getElement(":hover") || this.parentNode.getElement(":hover") === this);
+        },
+
         isDisplayed: function() {
             return !this.hasClass("hidden");
         },

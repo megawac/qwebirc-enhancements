@@ -13,6 +13,7 @@ ui["default options"] = {
     "hide_joinparts": false,
     "show_nicklist": !Browser.isMobile,
     "show_timestamps": true,
+    "image_popovers": !Browser.isMobile,
     "font_size": 12,
     "volume": 100, //0-100
 
@@ -38,7 +39,7 @@ ui["default options"] = {
         "font": "000"
     },
 
-    "quit_msg": lang.quit,
+    "quit_msg": "Page closed",
 
     "standard_notices": [
         {

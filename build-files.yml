@@ -64,6 +64,11 @@
             "cdn min": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
             "local": "/dist/js/modules-<%= pkg.version %>.js",
             "local min": "/dist/js/modules-<%= pkg.version %>.js"
+        },
+
+        "jQuery-images": {
+            "cdn": "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images",
+            "local": "/images"
         }
     }
 }

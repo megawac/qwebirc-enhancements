@@ -26,7 +26,7 @@
 
             notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
                 icon: "images/qwebircsmall.png",
-                title: "IRC Alert",
+                title: lang.ircAlert,
                 body: "New notification!"
             },
 

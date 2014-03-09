@@ -62,7 +62,7 @@
             self.newRequest("n")
                 .addEvent("complete", function(stream) {
                     if (!stream) {
-                        self.lostConnection(lang.connectionFail);
+                        self.lostConnection(lang.connFail);
                         return;
                     } else if (!stream[0]) {
                         self.disconnect();
@@ -319,10 +319,10 @@
         },
 
         __error: function(message, context) {
-            var msg = context ? util.formatter(message.message, context) : message.message;
+            var msg = context ? util.format(message.message, context) : message.message;
             this.fireEvent("error", msg);
             new components.Alert({
-                title: "Connection Error",
+                title: lang.connLost,
                 text: msg
             });
         }

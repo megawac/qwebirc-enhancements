@@ -131,16 +131,6 @@ ui.StandardUI = new Class({
         if(this.router && (url != constants.login || location.hash)) this.router.navigate(util.formatURL(url));
     },
 
-    whoisURL: function(e, target) {
-        var client = target.getParent(".window").retrieve("window").client,
-            nick = target.get("data-user");
-        /*if (this.uiOptions.get("query_on_nick_click")) {
-            client.exec("/QUERY " + nick);
-        } else {*/
-        client.exec("/WHOIS " + nick);
-        //}
-    },
-
     optionsWindow: function() {
         var self = this;
         return self.addCustomWindow(windowNames.options, ui.OptionView, "options", {

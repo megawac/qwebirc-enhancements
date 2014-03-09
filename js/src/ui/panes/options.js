@@ -50,7 +50,6 @@ ui.OptionView = new Class({
         var $addbtn = this.element.getElement("#add-notice"/*"#custom_notices .panel-body"*/);
 
         var _data = _.clone(data);
-        _data.lang = lang;
 
         $addbtn.insertAdjacentHTML("beforebegin", templates.customNotice(_data));//insert before btn
     },

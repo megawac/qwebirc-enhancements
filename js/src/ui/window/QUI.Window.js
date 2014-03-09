@@ -22,13 +22,15 @@ ui.QUIWindow = new Class({
             "click:relay(.detached-window .attach)": "attach",
             "click:relay(.detached-window .tab-close)": "close",
 
+            "click:relay(.lines .hyperlink-whois)": "whoisURL",
+
             "click": "setActive"
         }
     },
 
     detached: false,
 
-    initialize: function(parentObject, $par, client, type, name, identifier) {
+    initialize: function(parentObject, $par, client, type, name/*, identifier*/) {
         var self = this;
         self.parent.apply(self, arguments);
 
@@ -273,8 +275,8 @@ ui.QUIWindow = new Class({
             }
         } else {
             new components.Dialog({
-                title: "Set nickname",
-                text: "Enter a new nickname",
+                title: lang.setNick,
+                text: lang.setNickDesc,
                 placeholder: self.nickname,
                 onSubmit: function(data) {//screw validating
                     self.client.exec("/NICK " + data.value);
@@ -455,5 +457,12 @@ ui.QUIWindow = new Class({
         return _.extend({
             element: nickele
         }, nickobj);
+    },
+
+    whoisURL: function(e, target) {
+        /*if (this.uiOptions.get("query_on_nick_click")) {
+            client.exec("/QUERY " + nick);
+        } else {*/
+        this.client.exec("/WHOIS " + target.get("data-user"));
     }
 });

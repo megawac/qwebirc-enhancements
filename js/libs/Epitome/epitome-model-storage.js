@@ -1,5 +1,5 @@
 ; (function() {
-    'use strict';
+    "use strict";
 
     // wrapper function for requirejs or normal object
     var wrap = function(Model) {
@@ -15,7 +15,7 @@
                 options: {
                     storage: {
                         duration: 365,
-                        domain: '/',
+                        domain: "/",
                         fallback: true,
                         storageType: "localStorage"
                     },
@@ -28,7 +28,7 @@
                     // in case we have custom accessors in the model object.
                     this.setOptions(options);
                     if(!this.options.key)
-                        throw('Initiated without storage key (options.key)');
+                        throw("Initiated without storage key (options.key)");
                     if(!this.properties.storage)
                         this.properties.storage = new Storage(this.options.storage);
                     this.parent(obj, this.options);
@@ -36,7 +36,7 @@
                 },
 
                 //revert or update changes to Model
-                sync: function(method, model) {
+                sync: function() {
                     var oldattrs = this._attributes,
                         attrs = Object.append({}, this.options.defaults, this.properties.storage.get(this.options.key));
 
@@ -54,7 +54,7 @@
                         }
                     });
 
-                    this.trigger('sync');
+                    this.trigger("sync");
                     return this;
                 },
 
@@ -62,15 +62,14 @@
                     Object.each(this.properties.storage.get(this.options.key), function(item, key) {
                         this.set(key, item);
                     }, this);
-                    this.fireEvent("init");
-                    return this;
+                    return this.fireEvent("init");
                 },
 
                 save: function(val) {
                     if(this.validate()) {
                         var data = this.options.minimize ? Object.filter(this._attributes, this._filter, this) : this._attributes;
                         this.properties.storage.set(this.options.key, data);
-                        this.trigger('save');
+                        this.trigger("save");
                     }
                     return this;
                 },
@@ -90,8 +89,8 @@
                 }
             });
         }; // end wrap
-    if (typeof define === 'function' && define.amd) {
-        define(['./epitome-model'], wrap);
+    if (typeof define === "function" && define.amd) {
+        define(["./epitome-model"], wrap);
     } else {
         this.Epitome || (this.Epitome = {
             Model: {}
