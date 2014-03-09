@@ -46,9 +46,6 @@ You can set compile settings either in the gruntfile manually or using some of t
  * concat: concatenate files into large files where applicable
  * "use cdn": load files from a cdn where applicable
   
-##Status
-Project is currently at `v-0.97.x` until localization and channel lists are supported see [todos](#todos).
-  
 ####Done:  
 * improved extendibility through modularization and refactoring
 * ui client relationship event driven and moving important functions to utils. Makes implementing extensions much simpler
@@ -57,6 +54,8 @@ Project is currently at `v-0.97.x` until localization and channel lists are supp
  * detachable windows and resizable components
  * fixed tab overflow not showing
  * stable scrolling implementation
+ * image popovers
+ * boostrapped
 * code quality improvements (more dry and intuitive and less hacky)
  * join-flood detection
  * Rewrote ui using mv* style
@@ -66,6 +65,7 @@ Project is currently at `v-0.97.x` until localization and channel lists are supp
 * fix some memory leaks
 * moved all panes to seperate modules (havent rewritten the embed wizard)
 * mocked up new input bar see screenshot above
+* Localization (see [#7](https://github.com/megawac/qwebirc-enhancements/issues/7))
   
 ####TODOs: 
 * (minor) Finish Drag.SplitPane module (issues with keeping relative pos with window resizes) {{link to repo}}
@@ -73,7 +73,6 @@ Project is currently at `v-0.97.x` until localization and channel lists are supp
 * Add options for:
  * (mid) configure hotkeys
 * (major) Refactor python compile code to call appropriate Grunt build and set app options
-* (major) Complete localization
   
   
 ####KNOWN BUGS:  
