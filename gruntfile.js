@@ -373,5 +373,9 @@ module.exports = function(grunt) {
         grunt.task.run("build");
         grunt.task.run("bumpup:" + type); // Bump up the package version
         grunt.task.run("tagrelease");     // Commit & tag the changes from above
+
+        grunt.log.ok("Release created!")
+                .subhead("\tgit push --follow-tags")
+                .ok("To push tags when satisified");
     });
 };
