@@ -9,6 +9,7 @@ ui.OptionView = new Class({
     Binds: ["save", "reset"],
     options: {
         pane: "options",
+        i18n: "options",
         deps: ["js/modules/jscolor.js"],
         events: {
             "change:relay(.options input)": "inputChange",

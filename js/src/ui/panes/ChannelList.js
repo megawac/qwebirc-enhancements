@@ -9,6 +9,7 @@ ui.ChannelList = new Class({
     Extends: PanelView,
     options: {
         pane: "channel-list",
+        i18n: "channels",
         events: {
             "click:relay(.refresh)": "postRender",
             "keypress:relay(input.filter)": "update",

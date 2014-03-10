@@ -1,0 +1,21 @@
+{
+	"welcome": {
+		"title": "Welcome to {appTitle}",
+
+		"visitOptions": "Also check out the new options",
+
+		"browseHappy": "a current browser release",
+		"supportsDesktopNotifications": "which supports desktop notifications",
+
+		"enableNotificationMessage": "Before you login please enable desktop notifications",
+		"enableNotifications": "Enable notifications",
+
+		"noNotificationSupport": "Your browser does not support desktop notifications.",
+		"considerThis": "Consider installing",
+
+		"chromeFrame": "Chrome Frame for Internet Explorer",
+		"chromeFrameTut": "You can follow this tutorial to set up chrome frame.",
+
+		"ffExtension": "the Firefox Tab-notifier extension"
+	}
+}

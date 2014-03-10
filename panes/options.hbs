@@ -1,84 +1,84 @@
 {{!TODO: make Coloumns}}
 <form class="form-horizontal">
     <ul class="option-tabs tabs nav nav-tabs" data-behavior="BS.Tabs">
-        <li class="ui-options"><a href="#">Interface</a></li>
-        <li class="irc-options"><a href="#">Chat Preferences</a></li>
-        <li class="alert-options"><a href="#">Notifications</a></li>
-        <li class="hotkeys disabled"><a href="#">Hot Keys(TODO)</a></li>
+        <li class="ui-options"><a href="#">{{lang "option.interface"}}</a></li>
+        <li class="irc-options"><a href="#">{{lang "option.irc_opts"}}</a></li>
+        <li class="alert-options"><a href="#">{{lang "option.notices"}}</a></li>
+        <li class="hotkeys disabled"><a href="#">{{lang "option.hotkeys"}}(TODO)</a></li>
     </ul>
     <div class="tab-content">
         <div class="ui-options control-group well active">
             <div class="controls">
                 <label class="checkbox" for="brouhaha.enabled">
-                    {{lang "ENABLE_BROUHAHA"}}
+                    {{lang "option.ENABLE_BROUHAHA"}}
                     <input type="checkbox" id="brouhaha.enabled" {{check brouhaha.enabled}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="auto_open_pm">
-                    {{lang "AUTO_OPEN_PM"}}
+                    {{lang "option.AUTO_OPEN_PM"}}
                     <input type="checkbox" id="auto_open_pm" {{check auto_open_pm}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="image_popout">
                     <a target="_blank" href="http://i.imgur.com/cMiwR5o.png">
-                        {{lang "ENABLE_IMAGE_POPOUT"}}
+                        {{lang "option.ENABLE_IMAGE_POPOUT"}}
                     </a>
                     <input type="checkbox" id="image_popout" {{check image_popout}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="nick_ov_status">
-                    {{lang "NICK_OV_STATUS"}}
+                    {{lang "option.NICK_OV_STATUS"}}
                     <input type="checkbox" id="nick_ov_status" {{check nick_ov_status}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="show_timestamps">
-                    {{lang "SHOW_TIMESTAMPS"}}
+                    {{lang "option.SHOW_TIMESTAMPS"}}
                     <input type="checkbox" id="show_timestamps" {{check show_timestamps}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="show_nicklist">
-                    {{lang "SHOW_NICKLIST"}}
+                    {{lang "option.SHOW_NICKLIST"}}
                     <input type="checkbox" id="show_nicklist" {{check show_nicklist}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="lastpos_line">
-                    {{lang "LASTPOS_LINE"}}
+                    {{lang "option.LASTPOS_LINE"}}
                     <input type="checkbox" id="lastpos_line" {{check lastpos_line}}>
                 </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="hide_joinparts">
-                    {{lang "HIDE_JOINPARTS"}}
+                    {{lang "option.HIDE_JOINPARTS"}}
                     <input type="checkbox" id="hide_joinparts" {{check hide_joinparts}}>
                 </label>
             </div>
             <div class="controls">
                 <label for="font_size">
-                    {{lang "FONT_SIZE"}}
+                    {{lang "option.FONT_SIZE"}}
                     <input type="number" id="font_size" value="{{font_size}}">
                 </label>
             </div>
             <div class="controls">
                 <label for="volume">
-                    {{lang "VOLUME"}}
+                    {{lang "option.VOLUME"}}
                     <input type="number" id="volume" value="{{volume}}">
                 </label>
             </div>
             <div class="controls">
                 <label for="colour.background">
-                    {{lang "BACKGROUND"}}
+                    {{lang "option.BACKGROUND"}}
                     <input id="colour.background" class="color" value="{{$hex 'background'}}" spellcheck="false">
                 </label>
             </div>
             <div class="controls">
                 <label for="colour.font">
-                    {{lang "FONT_COLOUR"}}
+                    {{lang "option.FONT_COLOUR"}}
                     <input id="colour.font" class="color" value="{{$hex 'font'}}" spellcheck="false">
                 </label>
             </div>
@@ -86,38 +86,38 @@
         <div class="irc-options control-group well">
             <div class="controls">
             <label class="checkbox" for="use_hiddenhost">
-                {{lang "USE_HIDDENHOST"}}
+                {{lang "option.USE_HIDDENHOST"}}
                 <input type="checkbox" id="use_hiddenhost" {{check use_hiddenhost}}>
             </label>
             </div>
             <div class="controls">
                 <label class="checkbox" for="accept_service_invites">
-                    {{lang "ACCEPT_SERVICE_INVITES"}}
+                    {{lang "option.ACCEPT_SERVICE_INVITES"}}
                     <input type="checkbox" id="accept_service_invites" {{check accept_service_invites}}>
                 </label>
             </div>
             <div class="controls">
                 <label for="quit_msg" class="control-label">
-                    {{lang "QUIT_MSG"}}
+                    {{lang "option.QUIT_MSG"}}
                     <input type="text" id="quit_msg" value="{{quit_msg}}">
                 </label>
             </div>
         </div>
         <div class="alert-options control-group well">
             <div class="controls">
-                <label class="control-label-inline">{{lang "DESKTOP_NOTICES"}}
+                <label class="control-label-inline">{{lang "option.DESKTOP_NOTICES"}}
                     <input type="button" value="{{enableDisable dn_state}}" id="dn_state">
                 </label>
-                <label class="control-label-inline" for="dn_duration">Notification duration:
+                <label class="control-label-inline" for="dn_duration">{{lang "option.noticeDuration"}}:
                     <input type="number" id="dn_duration" value="{{dn_duration}}">ms
                 </label>
                 <input type="button" value="Test" id="notice-test">
-                <a href="http://caniuse.com/notifications" target="_blank">Notification Support</a>
+                <a href="http://caniuse.com/notifications" target="_blank">{{lang "option.noticeSupport"}}</a>
             </div>
             <div>
                 <div id="standard_notices" class="controls notice-group panel panel-default">
                     <div class="panel-heading" data-trigger="toggleReveal" data-togglereveal-target="~.panel-body" data-togglereveal-options="{}">
-                        <h4><a>Standard Notices</a></h4>
+                        <h4><a>{{lang "option.standardNotices"}}</a></h4>
                     </div>
                     <div class="panel-body" {{!style="display: none;"}}>
                         {{#each standard_notices}}
@@ -127,13 +127,13 @@
                 </div>
                 <div id="custom_notices" class="controls notice-group panel panel-default">
                     <div class="panel-heading">
-                        <h4><a>Custom Notices</a></h4>
+                        <h4><a>{{lang "option.customNotices"}}</a></h4>
                     </div>
                     <div class="panel-body">
                         {{#each custom_notices}}
                             {{> customNotice}}
                         {{/each}}
-                        <input type="button" value="{{lang "ADD_NOTICE"}}" id="add-notice" class="btn btn-default btn-small">
+                        <input type="button" value="{{lang 'option.ADD_NOTICE'}}" id="add-notice" class="btn btn-default btn-small">
                     </div>
                 </div>
             </div>
@@ -143,7 +143,7 @@
         </div>
     </div>
     <div class="actions">
-        <button type="submit" class="btn btn-small btn-primary" value="save">Save Changes</button>
-        <button type="reset" class="btn btn-small btn-warning" value="reset">Revert</button>
+        <button type="submit" class="btn btn-small btn-primary" value="save">{{lang "option.save"}}</button>
+        <button type="reset" class="btn btn-small btn-warning" value="reset">{{lang "option.revert"}}</button>
     </div>
 </form>

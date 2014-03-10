@@ -1,0 +1,10 @@
+{
+    "channels": {
+        "title": "Channel list",
+        "filterHeader": "Filter by topic and name"
+    },
+
+    "channel"     : "Channel",
+    "users"       : "Users",
+    "topic"       : "Topic"
+}

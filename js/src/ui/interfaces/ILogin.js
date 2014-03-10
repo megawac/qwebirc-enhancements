@@ -27,7 +27,7 @@
         return !failed;
     }
 
-    var LoginBox = function(parentElement, callback, settings, networkName, validators) {
+    var LoginBox = function(parentElement, callback, settings, appTitle, validators) {
         var nickname = settings.get("nickname"),
             username = settings.get("username"),//clientside no need for more advanced
             password = settings.get("password"),
@@ -37,7 +37,7 @@
 
         getTemplate("authpage", function(template) {
             var $page = Element.from(template({
-                "network": networkName,
+                "appTitle": appTitle,
                 "nickname": nickname,
                 "username": username,
                 "password": password,
@@ -147,7 +147,7 @@
                 win.close();
                 self.fireEvent("login", data);
             };
-            this.LoginBox(win.lines, callback, this.options.settings, this.options.networkName, this.options.validators);
+            this.LoginBox(win.lines, callback, this.options.settings, this.options.appTitle, this.options.validators);
             return win;
         },
         welcome: function() {

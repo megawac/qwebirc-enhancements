@@ -8,6 +8,7 @@ ui.WelcomePane = new Class({
     Extends: PanelView,
     options: {
         pane: "welcome-pane",
+        i18n: "welcome",
         events: {
             "click:relay(.enable-notifications)": "enableNotifications",
             "click:relay(.controls)": "controlClick"
@@ -36,6 +37,5 @@ ui.WelcomePane = new Class({
             options.element = new Element("div.welcome").inject(options.element);
             return new ui.WelcomePane(_ui, options);
         }
-        return false;
     }
 });

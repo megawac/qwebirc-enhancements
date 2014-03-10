@@ -1,7 +1,7 @@
 /**
  * Base view to be inheritted
  *
- * @depends [util/uihelpers]
+ * @depends [components/loader, util/uihelpers]
  * @provides [panes/PanelView]
  */
 var PanelView = ui.PanelView = new Class({
@@ -9,6 +9,7 @@ var PanelView = ui.PanelView = new Class({
     Extends: Epitome.View,
     options: {
         pane: "",
+        // i18n: "mypanel",
         deps: [],
 
         events: {
@@ -27,8 +28,12 @@ var PanelView = ui.PanelView = new Class({
     render: function() {
         var self = this.empty();
         var $loader = Element.from(templates.loadingPage()).inject(self.element);
+        var loadPromises = [getTemplate(self.options.pane), components.loader.load(self.options.deps)];
+        if (self.options.i18n) {
+            loadPromises.push(lang.load("panes/" + self.options.i18n));
+        }
 
-        Promise.all([getTemplate(self.options.pane), components.loader.load(self.options.deps)])
+        Promise.all(loadPromises)
         .then(function(results) {
             //results[0] is the template
             self.element.adopt(Elements.from(results[0](self.getData())));//not inject because it can have text nodes
