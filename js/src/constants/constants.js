@@ -1,4 +1,5 @@
 /**
+ * @depends [ui, irc, constants]
  * @provides [util/constants]
  */
 ui.WINDOW = {

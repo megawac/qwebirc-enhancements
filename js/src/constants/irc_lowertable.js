@@ -1,4 +1,5 @@
 /**
+ * @depends [constants]
  * @provides [irc/LowerTable]
  */
 constants.IRCLowerTable = [
