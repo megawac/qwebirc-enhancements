@@ -86,10 +86,9 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             window.onbeforeunload = function(e) {
                 if (client.isConnected()) {//has gotten passed the IRC gate
                     e = e || window.event;
-                    e.preventDefault = true;
-                    var message = "This action will close all active IRC connections.";
-                    e.returnValue = message;//legacy ie
-                    return message;
+                    e.preventDefault();
+                    e.returnValue = lang.dontLeave;//legacy ie
+                    return lang.dontLeave;
                 }
             };
             window.addEvent("unload", client.quit);

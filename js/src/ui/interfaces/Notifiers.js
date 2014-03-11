@@ -9,7 +9,7 @@
     var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {
-        var favIcon = $(document.head).getElement("link[rel^='shortcut'][rel$='icon']");
+        var favIcon = document.getElement("link[rel^='shortcut'][rel$='icon']");
         if (favIcon) {
             favIcons.normal = favIcon;
             favIcons.empty = new Element("link", {
@@ -20,29 +20,25 @@
         }
     });
     ui.INotifiers = new Class({
-        Implements: [ui.IUIOptions],
-        // Binds: ["beep", "flash", "cancelFlash"],
         options: {
-
-            notificationOptions: {//https://github.com/ttsvetko/HTML5-Desktop-Notifications
+            notificationOptions: { //https://github.com/ttsvetko/HTML5-Desktop-Notifications
                 icon: "images/qwebircsmall.png",
-                title: lang.ircAlert,
+                title: lang.getter("ircAlert"),
                 body: "New notification!"
             },
 
-            sounds: {
+            sounds: { //files in sounds/
                 minSoundRepeatInterval: 1000,
                 sounds: [{
                     id: "beep",
                     url: ["beep3.ogg", "beep3.mp3"]
-                }]//files in sounds/
+                }]
             }
         },
         _notices: [],
         canFlash: false,
         lastSound: 0,
         titleText: document.title,
-
 
         beep: function() {
             return this.playSound("beep");
@@ -52,7 +48,7 @@
                 this.soundInit();
                 this.soundPlayer.addEvent("ready:once", this.playSound.bind(this, alias));
             }
-            else if (this.soundPlayer.isReady() && (Date.now() - this.lastSound > this.options.sounds.minSoundRepeatInterval)) {
+            else if (this.soundPlayer.isReady() && ((Date.now() - this.lastSound) > this.options.sounds.minSoundRepeatInterval)) {
                 this.lastSound = Date.now();
                 this.soundPlayer.play(alias, {
                     volume: this.uiOptions.get("volume")
@@ -112,7 +108,7 @@
             var self = this;
             if((force || !document.hasFocus()) && self.uiOptions.get("dn_state")) {
                 var opts = _.extend({/*timeout: self.uiOptions.get("dn_duration")*/}, self.options.notificationOptions, options);
-                var notice = notify.createNotification(opts.title, opts);
+                var notice = notify.createNotification(_.result(opts, "title"), opts);
                 var timer = notice.close.delay(self.uiOptions.get("dn_duration"), notice);
                 self._notices.push({
                     waiter: timer,
@@ -124,7 +120,7 @@
 
         //not sure if changing the favicon is a good idea - messes with peoples bookmarks
         toggleFavIcon: function(state) {
-            var isNormalVis = !!favIcons.normal.getParent();
+            var isNormalVis = !!favIcons.normal.parentNode;
             var vis = _.isBoolean(state) ? state : !isNormalVis;
             if(vis && !isNormalVis) {
                 favIcons.normal.replaces(favIcons.empty);
