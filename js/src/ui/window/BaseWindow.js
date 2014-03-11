@@ -25,12 +25,12 @@ ui.Window = new Class({
 
     initialize: function(parentObject, $par, client, type, name, identifier) {
         this.parentObject = parentObject;
-        this.tab = parentObject.newTab(this, name);
         this.type = type;
         this.currentChannel = this.name = name;
         this.client = client;
         this.id = identifier;
         this.history = this.parentObject.commandhistory;
+        this.tab = parentObject.newTab(this, name);
         this.parent({
             element: $par
         });

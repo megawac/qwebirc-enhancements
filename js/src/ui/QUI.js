@@ -100,7 +100,7 @@ ui.QUI = new Class({
         var active = this.active;
         var win = tab.retrieve("window");
         var isChannel = util.isChannelType(win.type);
-        if(!active || !isChannel || (isChannel && active.name !== windowNames.brouhaha)) {
+        if(!active || !isChannel || (isChannel && active.id !== constants.brouhaha)) {
             win.select();
         }
         if(this.windows.brouhaha && isChannel && !util.isBaseWindow(win.id)) {//update brouhaha window attrs
@@ -118,7 +118,7 @@ ui.QUI = new Class({
 
     newTab: function(win, name) {
         var self = this;
-        var isBrouhaha = win.id === "brouhaha";
+        var isBrouhaha = win.id === constants.brouhaha;
         var $tab = Element.from(templates.ircTab({
             "name": isBrouhaha ? " " : name,
             closable: !util.isBaseWindow(win.id)
