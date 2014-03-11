@@ -5,6 +5,7 @@
  * @depends [util/constants, util/utils, util/urlifier]
  * @provides [ui/Theme]
  */
+var styles = irc.styles;
 ui.Theme = new Class({
     initialize: function(uiOptions, themeDict) {
         var self = this,
@@ -68,12 +69,17 @@ ui.Theme = new Class({
         return util.format(this._theme[type], data);//most formatting done on init
     },
 
-    colourise: function(line) {//http://www.mirc.com/colors.html http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
+    colourise: function(line) {
+        //http://www.mirc.com/colors.html
+        //http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
+        //https://github.com/perl6/mu/blob/master/examples/rules/Grammar-IRC.pm
         //regexs are cruel to parse this thing
 
-        var result = line;
+        if (line.contains(styles.close.key)) { //split up by the irc style break character ^O
+            return line.split(styles.close.key).map(this.colourise, this).join("");
+        }
 
-        var styles = irc.styles;
+        var result = line;
 
         var parseArr = _.compact(result.split(styles.colour.key));
 
@@ -116,7 +122,7 @@ ui.Theme = new Class({
         });
 
         //matching styles (italics bold under)
-        _.each(styles.special, function(style) {//i wish colours were this easy
+        styles.special.each(function(style) {//i wish colours were this easy
             result = result.replace(style.keyregex, function(match, text) {
                 return templates.ircstyle({
                     "style": style.style,

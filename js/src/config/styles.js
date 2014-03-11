@@ -1,6 +1,5 @@
 /**
  * IRC colour and style map
- * to do add support for exiting all open styles ^O (\x0D)
  * @depends [irc]
  * @provides [config/styles]
  */
@@ -46,6 +45,11 @@ irc.styles = [
 irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == "normal" ||  sty.name == "colour" } );
 irc.styles.colour = _.findWhere(irc.styles, {name: "colour" } );
 irc.styles.normal = _.findWhere(irc.styles, {name: "normal" } );
+
+// breaks all open styles ^O (\x0D)
+irc.styles.close = {
+    key: "\x0D"
+};
 
 irc.colours = [//http://www.mirc.com/colors.html
     {
