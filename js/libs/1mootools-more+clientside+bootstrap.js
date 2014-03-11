@@ -20,7 +20,8 @@ provides: [Event.Mock]
 ...
 */
 
-(function($,window,undef){
+(function(window){
+window.Event = window.Event || window.DOMEvent; //for 1.4 nocompat
 
 /**
  * creates a Mock event to be used with fire event
@@ -52,7 +53,7 @@ Event.Mock = function(target,type){
 	return e;
 };
 
-})(document.id,window);
+})(window);
 
 // Begin: Source/Utilities/Table.js
 /*
