@@ -1,3 +1,6 @@
 https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg  
   
-We default to html5 audio so include a copy of the soundfile as mp3 (for ie safari and flash fallback) and ogg (for ff, opera and chrome)  
+Using html5 audio. I use foobar2000 to convert formats
+Only really use mp3 and ogg
+
+The mario sounds are from http://themushroomkingdom.net/media/smw/wav

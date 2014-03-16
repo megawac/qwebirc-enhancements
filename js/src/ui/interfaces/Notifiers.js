@@ -19,6 +19,12 @@
             });
         }
     });
+    function makeSound(name) {
+        return {
+            id: name,
+            url: [name + ".ogg", name + ".mp3"]
+        };
+    }
     ui.INotifiers = new Class({
         options: {
             notificationOptions: { //https://github.com/ttsvetko/HTML5-Desktop-Notifications
@@ -29,10 +35,7 @@
 
             sounds: { //files in sounds/
                 minSoundRepeatInterval: 1000,
-                sounds: [{
-                    id: "beep",
-                    url: ["beep3.ogg", "beep3.mp3"]
-                }]
+                sounds: ["beep", "smb_coin", "smb_kick", "smb_pause", "smb3_fireball", "smb3_frog_mario_walk", "smw_spring_jump", "smw_stomp"].map(makeSound)
             }
         },
         _notices: [],
@@ -41,7 +44,7 @@
         titleText: document.title,
 
         beep: function() {
-            return this.playSound("beep");
+            return this.uiOptions.get("beep");
         },
         playSound: function(alias) {
             if(!this.soundPlayer) {
