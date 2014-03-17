@@ -385,7 +385,7 @@ module.exports = function(grunt) {
         if(build.report) grunt.task.run("file_info");
     });
 
+    grunt.registerTask("release", ["build", "release"]);
+
     grunt.registerTask("default", ["build"]);
-    
-    grunt.registerTask("build", "release");
 };

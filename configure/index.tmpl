@@ -12,16 +12,16 @@
   <!-- /build -->
   <!-- build:process -->
     <link href="dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css" rel="stylesheet">
-    <link href="dist/css/qwebirc-<%= pkg.version %>.css" rel="stylesheet">
+    <link href="dist/css/qwebirc-<%= suffix %>.css" rel="stylesheet">
   <!-- /build -->
   <!-- build:process -->
     <script src="<%= getFileURL('modules') %>"></script>
     <script src="<%= getFileURL('mootools') %>"></script>
   <!-- /build -->
   <!-- build:script bundle  -->
-    <script src="dist/js/plugins-<%= pkg.version %>.js"></script>
-    <script src="dist/js/templates-<%= pkg.version %>.js"></script>
-    <script src="dist/js/qwebirc-<%= pkg.version %>.js"></script>
+    <script src="dist/js/plugins-<%= suffix %>.js"></script>
+    <script src="dist/js/templates-<%= suffix %>.js"></script>
+    <script src="dist/js/qwebirc-<%= suffix %>.js"></script>
   <!-- /build -->
 
   <!-- build:script inline config -->
