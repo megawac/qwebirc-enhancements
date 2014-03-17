@@ -9,12 +9,9 @@ qwebirc.ready(function(engine) {
         messageLine:    "<hr class='lastpos' />",
         dropdownhint:   "<div class='dropdownhint'>" + lang.dropdownHint + "</div>",
         
-        tabbar:         "<div class='tabbar'></div>",
         tabDetach:      "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>",
         tabAttach:      "<span class='attach ui-icon ui-icon-circle-minus' title='" + lang.attachWindow + "'></span>",
-        tabClose:       "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>",
-
-        loadingPage:    "<div class='loading'>" + lang.loadingPage + "<img src='images/loading.gif' alt='url'></div>"
+        tabClose:       "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>"
     };
 
     // source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
@@ -23,42 +20,64 @@ qwebirc.ready(function(engine) {
     /************************
         HELPERS
     ***********************/
-    engine.registerHelper("check", function(checked){
-        return checked ? "checked" : "";
-    });
+    engine.registerHelper({
+        "check": function(checked){
+            return checked ? "checked" : "";
+        },
+        
+        "enableDisable": function(x) {
+            return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
+        },
+        
+        "$link": util.formatURL,
+        
+        "format": function(prop) {
+            return util.format(prop, this);
+        },
+        
+        "lang": function(prop) {
+            var item = _.lookup(lang, prop);
+            if (!item && DEBUG) console.error(prop + " is invalid");
+            return util.format(_.lookup(lang, prop), this);
+        },
+        
+        "$timestamp": util.IRCTimestamp,
 
-    engine.registerHelper("enableDisable", function(x) {
-        return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
-    });
+        //Modifiable css helpers!
 
-    engine.registerHelper("$link", util.formatURL);
+        //f(property name, default val)
+        "$result": function(prop, def) {//this refers to context
+            var result = _.result(this, prop);//waiting on https://github.com/jashkenas/underscore/pull/1515
+            return result == null ? def : result;
+        },
 
-    //f(property name, type of prop, default val)
-    engine.registerHelper("$css", function(prop, def, def2) {//this refers to context
-        if (typeof def2 !== "object") return this[prop] ? def : def2;
-        return this[prop] || def;
-    });
+        //attempting to mimic some of these http://lesscss.org/functions/#color-operations
+        "$mix": function(val, colourProp, weight) {
+            //this refers to context
+            //mix up background or `colourProp` with a  given colour value
+            var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
+            weight = isFinite(weight) ? +weight : 50; //mix 50% by default
+            return (val ? base.mix(val, weight) : base).rgbToHex();
+        },
+        
+        "$saturate": function(percent, colourProp) {
+            var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
+            return base.setSaturation(percent.toFloat()).rgbToHex();
+        },
 
-    engine.registerHelper("$col", function(val, type) {
-        //this refers to context
-        //mix up background or `type` with a  given colour value
-        var base = this.colour[_.isString(type) ? type : "background"];
-        var weight = _.isNumber(_.last(arguments)) ? _.last(arguments) : 50; //mix 50% by default
-        return (val ? base.mix(val, weight) : base).rgbToHex();
-    });
+        "$darken": function(percent, colourProp) {
+            var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
+            return base.setBrightness(percent.toFloat()).rgbToHex();
+        },
 
-    engine.registerHelper("$hex", function(prop) {
-        return new Color(this.colour ? this.colour[prop] : prop).rgbToHex();
-    });
+        "$invert": function(colourProp) {
+            return new Color(this.colour[colourProp] || this.colour.background).invert().rgbToHex();
+        },
 
-    engine.registerHelper("format", function(prop) {
-        return util.format(prop, this);
-    });
-
-    engine.registerHelper("lang", function(prop) {
-        var item = _.lookup(lang, prop);
-        if (!item && DEBUG) console.error(prop + " is invalid");
-        return util.format(_.lookup(lang, prop), this);
+        //get the hex value of a property
+        "$hex": function(colourProp) {
+            return new Color(this.colour[colourProp] || this.colour.background).rgbToHex();
+        }
     });
 
     /******************

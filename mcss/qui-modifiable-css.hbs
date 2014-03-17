@@ -1,107 +1,117 @@
-{{! Note this is a handlebars template. Changing values in here requires a grunt rebuild}}
-{{! $css helper contract is f: property_name default_val type default_val2 -> string}}
-{{! not $css generally the context (for property names) is the uiOptions values see ui/standardUI for implementation}}
-{{! update the Browser object is also now part of the context so you can do #if ie6 or something}}
+{{!--  
+    * Note this is a handlebars template. Changing values in here requires a grunt rebuild
+    * note the context (for property names) is the uiOptions values see ui/standardUI for implementation
+    * update the Browser object is also now part of the context so you can do #if ie6 or something
+
+    * Available helpers
+    * see js/src/utils/Templates (github.com/megawac/qwebirc-enhancements/blob/master/js/src/util/Templates.js) 
+    * colours will assume the base background by default
+        * "$result": property, default -> str           get a property or its default val
+        * "$hex": str ([colour]) -> hex                 get hex val
+        * "$mix": str (colour), [type|colour] -> hex    mix colour and base colour by default
+        * "$saturate": num, [type|colour] -> hex        saturate colour by percent
+        * "$darken": num, [type|colour] -> hex          darken colour by percent
+        * "$invert": [type|colour] -> hex               invert a colour or default
+--}}
 
 .qui .content {
-    color: {{$col '' 'font'}};
-    background: {{$col ''}};
+    color: {{$hex 'font'}};
+    background: {{$hex 'background'}};
 }
 
 .qui .lines {
-    font-size: {{$css 'font_size' 12}}px;
+    font-size: {{$result 'font_size' 12}}px;
 }
 
 .qui .lines .timestamp {
-    display: {{$css 'show_timestamps' 'inline' 'none'}};
+    display: {{#if show_timestamps}}'inline'{{else}}'none'{{/if}};
 }
 
 .qui .lines .highlight1 {
-    background: {{$col 'f6ff94'}};
+    background: {{$mix 'f6ff94'}};
 }
 
 .qui .lines .highlight2 {
-    background: {{$col 'a4fcca'}};
+    background: {{$mix 'a4fcca'}};
 }
 
 .qui .lines .highlight3 {
-    background: {{$col 'fac3d5'}};
+    background: {{$mix 'fac3d5'}};
 }
 
 .qui .lines .mentioned {
-    background: {{$col 'e63772'}} !important;
+    background: {{$mix 'e63772'}} !important;
 }
 
 .qui .properties {
-    background: {{$col 'f2f0ff'}};
-    border-top: thin solid {{$col 'b8c5d1'}};
+    background: {{$mix 'f2f0ff'}};
+    border-top: thin solid {{$mix 'b8c5d1'}};
 }
 
-
 .qui .topic {
-    color: {{$col '4f4f4f' 'font'}};
-    background: {{$col ''}};
-    border-bottom: thin dashed {{$col 'c8d2dc'}};
+    color: {{$mix '4f4f4f' 'font'}};
+    background: {{$hex 'background'}};
+    border-bottom: thin dashed {{$mix 'c8d2dc'}};
 }
 
 {{! tab stuff }}
 .qui .outertabbar, .qui .detached-window .header {
-    color: {{$col '0d0b0b' 'font'}};
-    background: {{$col 'c9def5'}};
-    border-bottom: thin solid {{$col '858585'}};
+    color: {{$mix '0d0b0b' 'font'}};
+    background: {{$mix 'c9def5'}};
+    border-bottom: thin solid {{$mix '858585'}};
 }
 
 .qui .tabbar .tab {
-    background: {{$col 'CCCCCC'}};
+    background: {{$mix 'CCCCCC'}};
     background: rgba(189, 189, 189, 0.1);
-    border: thin solid {{$col 'c8d2dc'}};
+    border: thin solid {{$mix 'c8d2dc'}};
 }
 
 .qui .tabbar .selected.tab {
-    color: {{$col '333333' 'font'}};
+    color: {{$mix '333333' 'font'}};
 }
 {{!  tab stuff  }}
 
 {{! irc input stuff }}
 
 .qui .input {
-    background: {{$col 'f2f0ff'}};
+    background: {{$mix 'f2f0ff'}};
 }
 
 .qui .input div {
-    border-top: thin solid {{$col 'c3cee0'}};
+    border-top: thin solid {{$mix 'c3cee0'}};
 }
 
 .qui .input .tt-query, .qui hr.lastpos {
-    border: thin solid {{$col 'c3cee0'}};
+    border: thin solid {{$mix 'c3cee0'}};
 }
 
 {{! nicklist }}
 
 .qui .nicklist {
-    border-left: thin solid {{$col 'c8d2dc'}};
+    border-left: thin solid {{$mix 'c8d2dc'}};
 }
 
 .qui .nicklist .user, .qui .nick-menu {
-    border-top: thin solid {{$col ''}};
-    border-bottom: thin solid {{$col ''}};
+    border-top: thin solid {{$hex 'background'}};
+    border-bottom: thin solid {{$hex 'background'}};
 }
 
 .qui .nicklist .selected {
-    color: {{$col '' 'font'}};
-    border-bottom: thin solid {{$col 'c8d2dc'}};
+    color: {{$hex 'font'}};
+    border-bottom: thin solid {{$mix 'c8d2dc'}};
     background: #fff;
 }
 
 .qui .nicklist .selected-middle {
-    border-top: {{$col 'c8d2dc'}} thin solid;
+    border-top: {{$mix 'c8d2dc'}} thin solid;
 }
 
 .qui .dropdownmenu, .qui hr.lastpos {
-    border: thin solid {{$col 'c8d2dc'}};
-    background: {{$col ''}};
+    border: thin solid {{$mix 'c8d2dc'}};
+    background: {{$hex 'background'}};
 }
 
 .qui .dropdownmenu a:hover {
-    background: {{$col 'fffe'}};
+    background: {{$mix 'fffe'}};
 }

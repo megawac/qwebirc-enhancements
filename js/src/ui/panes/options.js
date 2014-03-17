@@ -13,11 +13,11 @@ ui.OptionView = new Class({
         deps: ["js/modules/jscolor.js"],
         events: {
             "change:relay(.options input)": "inputChange",
-            "change:relay(.options .notice-group input)": "noticeChange",
-            "click:relay(.options #add-notice)": "addNotifier",
-            "click:relay(.options .remove-notice)": "removeNotifier",
-            "click:relay(.options #dn_state)": "dnToggle",
-            "click:relay(.options #notice-test)": "noticeTest"
+            "change:relay(.notice-group input)": "noticeChange",
+            "click:relay(#add-notice)": "addNotifier",
+            "click:relay(.remove-notice)": "removeNotifier",
+            "click:relay(#dn_state)": "dnToggle",
+            "click:relay(#notice-test)": "noticeTest"
         },
         
         onDnToggle: function(e, target) {
@@ -115,7 +115,6 @@ ui.OptionView = new Class({
     },
 
     destroy: function() {
-        this.trigger("close");
-        return this.parent();
+        return this.trigger("close").parent();
     }
 });

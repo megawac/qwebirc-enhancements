@@ -1,1 +1,4 @@
-<div class="{{type}} {{colourClass}}"></div>
+<div class="{{type}} {{colourClass}}">
+	{{#if timestamp}}<span class='timestamp'>{{$timestamp timestamp}}</span>{{/if}}
+	{{{message}}} {{! compiled message (prop from ui.theme)}}
+</div>

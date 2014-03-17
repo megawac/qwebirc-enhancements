@@ -241,6 +241,7 @@ util.randHexString = function(numBytes) {
 
 //Should I include a real date frameowkr (used to have Mootools version...)
 util.IRCTimestamp = function(date) {
+    if(!_.isDate(date)) date = new Date();
     return "[" + util.padzero(date.getHours()) + ":" + util.padzero(date.getMinutes()) + "]";
 };
 
