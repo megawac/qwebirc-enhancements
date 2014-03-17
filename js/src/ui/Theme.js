@@ -7,7 +7,7 @@
  */
 var styles = irc.styles;
 ui.Theme = new Class({
-    initialize: function(uiOptions, themeDict) {
+    initialize: function(themeDict) {
         var self = this,
             defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
 
@@ -19,14 +19,13 @@ ui.Theme = new Class({
         });
 
         self.highlightClasses.channels = {};
-        self.config = uiOptions;
     },
 
     //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
-    formatMessage: function($ele, type, _data) {
-        var self = this,
-            isobj = _.isObject(_data),
-            data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
+    formatMessage: function(/*$ele, */type, _data) {
+        var self = this;
+        var isobj = _.isObject(_data);
+        var data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if(isobj) {
             if ("n" in data) {
@@ -49,9 +48,8 @@ ui.Theme = new Class({
 
         var themed = type ? self.formatText(type, data) : data;
         var result = self.colourise(themed);
-        var timestamp = self.config && self.config.get("show_timestamps") ? templates.timestamp({time:util.IRCTimestamp(new Date())}) : "";
-        $ele/*.addClass("colourline")*/
-            .insertAdjacentHTML("beforeend", timestamp + result);
+        // $ele/*.addClass("colourline")*/
+        //     .insertAdjacentHTML("beforeend", result);
         return result;
     },
 
@@ -69,7 +67,7 @@ ui.Theme = new Class({
         return util.format(this._theme[type], data);//most formatting done on init
     },
 
-    colourise: function(line) {
+    colourise: function(line) { //more like stylize
         //http://www.mirc.com/colors.html
         //http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
         //https://github.com/perl6/mu/blob/master/examples/rules/Grammar-IRC.pm
@@ -82,12 +80,14 @@ ui.Theme = new Class({
         var result = line;
 
         var parseArr = _.compact(result.split(styles.colour.key));
+        
+        var col_re = /^\d/;
 
         //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
         //will be an array of subarrays for each coloured string
         var colouredarr = parseArr.reduce(function(memo, str) {
-            if( /^\d/.test(str) ) { //^C...
-                _.last(memo).push(str);
+            if( col_re.test(str) ) { //^C...
+                memo.getLast().push(str);
             } else { //^C1***
                 memo.push([]);
             }
@@ -95,8 +95,8 @@ ui.Theme = new Class({
         }, [[]]);
 
         parseArr.each(function(str) {//help
-            if( /^\d/.test(str) ) { //^C...
-                _.last(colouredarr).push(str);
+            if( col_re.test(str) ) { //^C...
+                colouredarr.getLast().push(str);
             } else { //^C1***
                 colouredarr.push([]);
             }
@@ -142,6 +142,7 @@ ui.Theme = new Class({
 
     highlightClasses: ["highlight1", "highlight2"/*, "highlight3"*/],
 
+    //Applies highlighting and gives user notice based on user settings from options/notices
     highlightAndNotice: function(data, type, win, $ele) {
         var self = this,
             tabHighlight = constants.hl.none,

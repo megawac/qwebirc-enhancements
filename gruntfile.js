@@ -28,10 +28,12 @@ module.exports = function(grunt) {
 
     package.build = build;
 
-    grunt.initConfig({
+    var config = {
         pkg: package,
         build: build,
         meta: {},
+
+        suffix: "<%= pkg.version %>",
 
         handlebars: {
             options: {
@@ -39,13 +41,19 @@ module.exports = function(grunt) {
                 compilerOptions: {
                     knownHelpers: {
                         "check": true,
-                        "$css": true,
-                        "$col": true,
-                        "$hex": true,
                         "enableDisable": true,
                         "$link": true,
                         "format": true,
-                        "lang": true
+                        "lang": true,
+                        "$timestamp": true,
+
+                        //mcss vars
+                        "$result": true,
+                        "$hex": true,
+                        "$mix": true,
+                        "$saturate": true,
+                        "$darken": true,
+                        "$invert": true
                     },
                     knownHelpersOnly: true
                 },
@@ -83,14 +91,14 @@ module.exports = function(grunt) {
                     }
                 },
                 // the files to concatenate
-                src: "dist/js/qwebirc-<%= pkg.version %>.js",
+                src: "dist/js/qwebirc-<%= suffix %>.js",
                 // the location of the resulting JS file
-                dest: "dist/js/qwebirc-<%= pkg.version %>.js"
+                dest: "dist/js/qwebirc-<%= suffix %>.js"
             },
 
             full: {
                 src: files.full,
-                dest: "dist/js/qwebirc-full-<%= pkg.version %>.js"
+                dest: "dist/js/qwebirc-full-<%= suffix %>.js"
             },
 
             modifiablecss: {
@@ -100,7 +108,7 @@ module.exports = function(grunt) {
 
             plugins: {
                 src: files.plugins,
-                dest: "dist/js/plugins-<%= pkg.version %>.js"
+                dest: "dist/js/plugins-<%= suffix %>.js"
             }
         },
 
@@ -139,7 +147,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "dist/js/qwebirc-<%= pkg.version %>.js": ["js/src/**/*.js"]
+                    "dist/js/qwebirc-<%= suffix %>.js": ["js/src/**/*.js"]
                 }
             }
         },
@@ -177,7 +185,7 @@ module.exports = function(grunt) {
                     banner: "//qwebirc v<%= pkg.version %> core templates\n"
                 },
                 files: {
-                    "dist/js/templates-<%= pkg.version %>.js": files.templates.qwebirc
+                    "dist/js/templates-<%= suffix %>.js": files.templates.qwebirc
                 }
             },
 
@@ -187,7 +195,7 @@ module.exports = function(grunt) {
                     banner: "/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n"
                 },
                 files: {
-                    "dist/js/plugins-<%= pkg.version %>.js": files.plugins
+                    "dist/js/plugins-<%= suffix %>.js": files.plugins
                 }
             },
             modules: {
@@ -197,18 +205,18 @@ module.exports = function(grunt) {
                     preserveComments: "some"
                 },
                 files: {
-                    "dist/js/modules-<%= pkg.version %>.js": files.modules
+                    "dist/js/modules-<%= suffix %>.js": files.modules
                 }
             },
             qweb: {
                 files: {
-                    "dist/js/qwebirc-<%= pkg.version %>.js": "dist/js/qwebirc-<%= pkg.version %>.js"
+                    "dist/js/qwebirc-<%= suffix %>.js": "dist/js/qwebirc-<%= suffix %>.js"
                 }
             },
             config: {
                 options: {banner: ""},
                 files: {
-                    "dist/js/app-<%= pkg.version %>.js": "configure/config.js"
+                    "dist/js/app-<%= suffix %>.js": "configure/config.js"
                 }
             }
         },
@@ -232,7 +240,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "dist/css/qwebirc-<%= pkg.version %>.css": "less/qwebirc.less"
+                    "dist/css/qwebirc-<%= suffix %>.css": "less/qwebirc.less"
                 }
             }
         },
@@ -249,7 +257,7 @@ module.exports = function(grunt) {
             },
             combine: {
                 files: {
-                    "dist/css/qwebirc-<%= pkg.version %>.css": ["dist/css/qwebirc-<%= pkg.version %>.css"]
+                    "dist/css/qwebirc-<%= suffix %>.css": ["dist/css/qwebirc-<%= suffix %>.css"]
                 }
             }
         },
@@ -259,8 +267,8 @@ module.exports = function(grunt) {
                 browsers: ["ie > 7", "firefox > 10", "chrome > 5", "safari > 5", "Opera > 10", "bb > 10", "iOS > 10"]
             },
             qweb: {
-                src: "dist/css/qwebirc-<%= pkg.version %>.css",
-                dest: "dist/css/qwebirc-<%= pkg.version %>.css"
+                src: "dist/css/qwebirc-<%= suffix %>.css",
+                dest: "dist/css/qwebirc-<%= suffix %>.css"
             },
         },
 
@@ -271,7 +279,7 @@ module.exports = function(grunt) {
             dist: {
                 files: {
                     "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
-                    "dist/css/qwebirc-<%= pkg.version %>.css": "dist/css/qwebirc-<%= pkg.version %>.css"
+                    "dist/css/qwebirc-<%= suffix %>.css": "dist/css/qwebirc-<%= suffix %>.css"
                 }
             }
         },
@@ -287,37 +295,47 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        bundle: build.concat ? ["dist/js/qwebirc-full-<%= pkg.version %>.js"] : files.full,
-                        config: ["dist/js/app-<%= pkg.version %>.js"]
+                        bundle: build.concat ? ["dist/js/qwebirc-full-<%= suffix %>.js"] : files.full,
+                        config: ["dist/js/app-<%= suffix %>.js"]
                     },
                     styles: {
-                        bundle: ["dist/css/qwebirc-<%= pkg.version %>.css"]
+                        bundle: ["dist/css/qwebirc-<%= suffix %>.css"]
                     }
                 }
             }
         },
 
-        bumpup: {
-            file: "package.json"
-        },
-        tagrelease: {
-            file: "package.json",
-            commit:  true,
-            message: "v-%version%"
+        release: {
+            options: {
+                bump: true,
+                tag: true,
+                push: true,
+                pushTags: true,
+                npm: false,
+                tagName: "v-<%= version %>", //default: "<%= version %>"
+                commitMessage: "Dropping v-<%= version %>", //default: "release <%= version %>"
+                github: {
+                    repo: "megawac/qwebirc-enhancements", //put your user/repo here
+                    usernameVar: "GITHUB_USER", //ENVIRONMENT VARIABLE that contains Github username 
+                    passwordVar: "GITHUB_PASS" //ENVIRONMENT VARIABLE that contains Github password
+                }
+            }
         },
 
         file_info: {
             source_files: {
                 src: files.full.concat([
-                    "dist/js/modules-<%= pkg.version %>.js", "js/modules/mootools-1.4.5.js", "js/modules/soundmanager2.js",
-                    "dist/css/qwebirc-<%= pkg.version %>.css", "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
+                    "dist/js/modules-<%= suffix %>.js", "js/modules/mootools-1.4.5.js", "js/modules/soundmanager2.js",
+                    "dist/css/qwebirc-<%= suffix %>.css", "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
                 ]),
                 options: {
                     stdout: build.report
                 }
             }
         }
-    });
+    };
+
+    grunt.initConfig(config);
 
 
     // load all grunt tasks
@@ -356,7 +374,8 @@ module.exports = function(grunt) {
         grunt.task.run("htmlbuild:qweb");
     });
 
-    grunt.registerTask("build", function() {
+    grunt.registerTask("build", function(prefix) {
+        config.suffix = prefix || package.version + require("moment")().format("-MMDDhhmm");
         grunt.task.run([
             "build-templates",
             "build-js",
@@ -367,15 +386,6 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("default", ["build"]);
-
-    grunt.registerTask("release", function (type) {
-        type = type ? type : "patch";
-        grunt.task.run("build");
-        grunt.task.run("bumpup:" + type); // Bump up the package version
-        grunt.task.run("tagrelease");     // Commit & tag the changes from above
-
-        grunt.log.ok("Release created!")
-                .subhead("\tgit push --follow-tags")
-                .ok("To push tags when satisified");
-    });
+    
+    grunt.registerTask("build", "release");
 };

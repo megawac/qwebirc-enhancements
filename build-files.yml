@@ -27,20 +27,20 @@
         "js/libs/Epitome/*.js"
     ],
     "full": [
-        "dist/js/plugins-<%= pkg.version %>.js",
-        "dist/js/templates-<%= pkg.version %>.js",
-        "dist/js/qwebirc-<%= pkg.version %>.js"
+        "dist/js/plugins-<%= suffix %>.js",
+        "dist/js/templates-<%= suffix %>.js",
+        "dist/js/qwebirc-<%= suffix %>.js"
     ],
 
     "resources": {
         "qwebirc templates": {
-            "local": "dist/dist/templates-<%= pkg.version %>.js",
-            "local min": "dist/dist/templates-<%= pkg.version %>.js"
+            "local": "dist/dist/templates-<%= suffix %>.js",
+            "local min": "dist/dist/templates-<%= suffix %>.js"
         },
 
         "qwebirc css": {
-            "local": "dist/css/qwebirc-<%= pkg.version %>.css",
-            "local min": "dist/css/qwebirc-<%= pkg.version %>.css"
+            "local": "dist/css/qwebirc-<%= suffix %>.css",
+            "local min": "dist/css/qwebirc-<%= suffix %>.css"
         },
         "bootstrap css": {
             "local": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
@@ -62,8 +62,8 @@
             # not including soundManager2 here so users can disable sound and not load code
             "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
             "cdn min": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
-            "local": "/dist/js/modules-<%= pkg.version %>.js",
-            "local min": "/dist/js/modules-<%= pkg.version %>.js"
+            "local": "/dist/js/modules-<%= suffix %>.js",
+            "local min": "/dist/js/modules-<%= suffix %>.js"
         },
 
         "jQuery-images": {
