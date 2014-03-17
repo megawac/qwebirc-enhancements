@@ -124,9 +124,9 @@ irc.Client.implement({
 
         self.tracker.renameNick(oldnick, newnick);
 
-        var channels = self.tracker.getNick(newnick);
+        var channels = self.tracker.getNick(newnick); //null/array
 
-        channels.each(function(obj, chan) {
+        _.each(channels, function(obj, chan) {
             self.updateNickList(chan);
         });
         //_.keys(channels).each(self.updateNickList, self);

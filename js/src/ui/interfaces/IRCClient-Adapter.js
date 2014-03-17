@@ -12,10 +12,10 @@
 
         newClient: function(client) {
             client.id = this.clientId++;
+            this.clients[client.id] = client;
 
             var windows = this.windows[client.id] = {};
-            this.clients[client.id] = client;
-            var win = this.newWindow(client, ui.WINDOW.status, constants.status);
+            var win = this.newWindow(client, ui.WINDOW.status, lang.windowNames.status);
             this.selectWindow(win);
 
             addClientEvents.call(this, client, windows);
