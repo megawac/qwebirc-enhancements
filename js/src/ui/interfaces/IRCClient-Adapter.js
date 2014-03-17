@@ -7,8 +7,6 @@
 (function() {
     //expects to be implemented with windowsui
     ui.IIRCClient = new Class({
-        Implements: [ui.IWindows],
-
         clients: {},
         clientId: 0,
 

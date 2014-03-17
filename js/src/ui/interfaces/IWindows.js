@@ -13,7 +13,7 @@ ui.IWindows = new Class({
 
     getWindowIdentifier: function(name) {
         for(var wid in windowNames) { //check if base window
-            if(windowNames[wid] === name) return wid;
+            if (windowNames[wid] === name) return wid;
         }
         return name.toLowerCase();
     },
@@ -25,7 +25,7 @@ ui.IWindows = new Class({
     newWindow: function(client, type, name) {
         var win = this.getWindow(client, name);
         if (!win) {
-            if(util.windowNeedsInput(type)) {
+            if (util.windowNeedsInput(type)) {
                 this.commandhistory.addChannel(name);
             }
             var wId = this.getWindowIdentifier(name);
@@ -96,9 +96,7 @@ ui.IWindows = new Class({
                 "selected": function() {
                     self.selectWindow(win, false);
                 },
-                "deselected": _.debounce(function() {//hacky to prevent self call
-                    win.deselect();
-                }, 5),
+                "deselected": _.debounce(win.deselect.bind(win), 5), //hacky to prevent self call
                 "detached": function() {
                     makeGrid(win);
                 },
@@ -119,7 +117,7 @@ ui.IWindows = new Class({
     },
 
     getWindow: function(client, name) {
-        if(_.isString(client)) name = client;
+        if (_.isString(client)) name = client;
         var wins = this.getWindows(client);
         if (_.isObject(wins)) {
             return wins[this.getWindowIdentifier(name)];
@@ -141,11 +139,13 @@ ui.IWindows = new Class({
         }
     },
     selectWindow: function(win, deselActive) {
-        if(_.isNumber(win))
+        if (_.isNumber(win)) {
             win = this.windowArray[win];
-        else if(_.isString(win))
+        }
+        else if (_.isString(win)) {
             win = this.getWindow(win);
-        if(win !== this.active) {
+        }
+        if (win !== this.active) {
             if (this.active && (deselActive == null || deselActive)) {
                 _.invoke(this.windowArray, "deselect"); //ensure all windows selections are removed
             }
@@ -156,9 +156,8 @@ ui.IWindows = new Class({
         }
         return win;
     },
-    updateURI: util.noop,
-    setWindow: function(win, deselActive) {
-        if(!this.active || (win !== this.active && !this.active.closed)) {
+    setWindow: function(win/*, deselActive*/) {
+        if (!this.active || (win !== this.active && !this.active.closed)) {
             this.last = this.active;
         }
         this.active = win;
@@ -175,7 +174,7 @@ ui.IWindows = new Class({
 
         if (isActive) {
             delete this.active;
-            if(this.last) {//select last active window
+            if (this.last) {//select last active window
                 this.last.select();
             }
             else if (!_.isEmpty(winarr)) {//case for 2 consecutive closes
@@ -184,9 +183,9 @@ ui.IWindows = new Class({
         }
     },
     nextWindow: function(direction, fromWin) {
-        var windows = _.where(this.windowArray, {detached:false}),
-            win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
-        if(win) win.select();
+        var windows = _.where(this.windowArray, {detached:false});
+        var win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
+        if (win) win.select();
 
         return win;
     },
@@ -205,17 +204,18 @@ ui.IWindows = new Class({
     },
 
     addCustomWindow: function(windowName, CustomView, cssClass, options) {
-        var wid = this.getWindowIdentifier(windowName);
-        if (_.has(this.customWindows, wid)) {
-            return this.selectWindow(this.customWindows[wid]);
+        var self = this;
+        var wid = self.getWindowIdentifier(windowName);
+        if (_.has(self.customWindows, wid)) {
+            return self.selectWindow(self.customWindows[wid]);
         }
 
-        var win = this.newCustomWindow(windowName, true);
-        this.customWindows[wid] = win;
+        var win = self.newCustomWindow(windowName, true);
+        self.customWindows[wid] = win;
 
         win.addEvent("destroy", function() {
-            delete this.customWindows[wid];
-        }.bind(this));
+            delete self.customWindows[wid];
+        });
 
         win.lines.addClasses("custom", cssClass || "");
 

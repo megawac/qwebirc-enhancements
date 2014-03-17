@@ -13,7 +13,7 @@ ui.IUIOptions = new Class({
             defaults: options.uiOptions
         });
         var updateStylesheet = self.updateStylesheet.bind(self);
-        self.theme = new ui.Theme(uiOptions, options.theme);
+        self.theme = new ui.Theme(options.theme);
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
             var notifiers = notices

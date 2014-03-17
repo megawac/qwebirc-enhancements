@@ -16,7 +16,6 @@ ui.QUI = new Class({
     },
     postInitialize: function() {
         var self = this.parent();
-        self.setHotKeys();
         self.nav.on({
             "selectTab": function(e, tab) {
                 self.selectTab(tab);
@@ -83,10 +82,16 @@ ui.QUI = new Class({
             },
             "mouseleave:relay(a)": _.debounce(destroyPopover, 100) //throttled to prevent hover being toggled when leaving spaces
         };
-        if(self.uiOptions.get("image_popovers")) {
-            self.element.addEvents(imgEvents);
-        }
-
+        var togglePopovers = function() {
+            if(self.uiOptions.get("image_popovers")) {
+                self.element.addEvents(imgEvents);
+            } else {
+                self.element.removeEvents(imgEvents);
+            }
+        };
+        self.uiOptions.on("change:image_popovers", togglePopovers);
+        togglePopovers();
+        
         return self;
     },
 
@@ -130,99 +135,7 @@ ui.QUI = new Class({
         return $tab;
     },
 
-    hotkeys: {
-        keyboard: {
-            nextWindow: {
-                keys: "right",
-                description: "",
-                handler: function() {
-                    this.scope.nextWindow();
-                }
-            },
-            next: {
-                keys: "tab",
-                description: "",
-                handler: function() {
-                    this.scope.nextWindow();
-                }
-            },
-            prevWindow: {
-                keys: "left",
-                description: "",
-                handler: function() {
-                    this.scope.prevWindow();
-                }
-            }
-        },
-
-        input: {
-            bold: {
-                keys: "ctrl+b",
-                description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("bold").bbcode)
-            },
-            italic: {
-                keys: "ctrl+i",
-                description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("italic").bbcode)
-            },
-            underline: {
-                keys: "ctrl+u",
-                description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("underline").bbcode)
-            },
-            colour: {
-                keys: "ctrl+c",
-                description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("colour").bbcode)
-            }/*,
-            submitInput: {
-                keys: "enter",
-                description: "",
-                handler: function(e) {
-                    var $tar = e.target;
-                    if($tar.hasClass("irc-input"))  {
-                        $tar.getParent(".window").retrieve("window").sendInput(e, $tar);
-                    }
-                }
-            }*/
-        }
-    },
-
-    /* global Keyboard */
-    setHotKeys: function () {
-        if(Browser.isMobile) return;
-        var self = this,
-            keyboard = self.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
-            inputKeyboard = self.inputKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
-        
-        keyboard.scope = self;
-
-        function isChar(code) {//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-            return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
-        }
-
-        self.element.addEvents({
-            "blur:relay(input)": function() {
-                keyboard.activate();
-            },
-            "focus:relay(input)": function() {
-                inputKeyboard.activate();
-            }
-        });
-        document.addEvent("keydown", function(e) { // pressing 1 2 3 4 etc will change tab
-            if(keyboard.isActive()) {
-                if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
-                    self.selectWindow(e.key - 1);
-                } else if(self.active.$input && !(e.alt||e.meta) && isChar(e.code) ) { //focus input on a character input or ctrl+[xxx]
-                    self.active.$input.focus();
-                }
-            }
-        });
-    },
-
     newClient: function(client) {
-        this.parentElement.swapClass("signed-out", "signed-in");
         var self = this;
         var status = self.parent(client);
         //load brouhaha window (b4 connecting)
@@ -243,6 +156,8 @@ ui.QUI = new Class({
 
         makeBrouhaha();
         self.uiOptions.on("change:brouhaha", makeBrouhaha);
+
+        self.parentElement.swapClass("signed-out", "signed-in");
         return status;
     },
 

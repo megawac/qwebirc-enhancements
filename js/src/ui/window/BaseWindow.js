@@ -137,21 +137,22 @@ ui.Window = new Class({
     */
     addLine: function(type, data, colourClass) {
         type = type.toUpperCase();
-        var self = this,
-            parent = self.parentObject;
+        var self = this;
+        var theme = self.parentObject.theme;
         var $msg = Element.from(templates.ircMessage({
             type: type.clean().hyphenate().replace(" ", "-").toLowerCase(),
-            colourClass: colourClass
+            colourClass: colourClass,
+            timestamp: self.getOption("show_timestamps"), //show timestamp?
+            message: theme.formatMessage(/*$msg, */type, data)
         }));
 
-        var highlight =  self.id !== "brouhaha" ? parent.theme.highlightAndNotice(data, type, self, $msg) : constants.hl.none,
-            hl_line = false;
+        // Give user beep/dn notifications and highlight message based on user settings
+        var highlight =  self.id !== constants.brouhaha ? theme.highlightAndNotice(data, type, self, $msg) : constants.hl.none;
 
         if (!self.active && (highlight !== constants.hl.none)) {
             self.highlightTab(highlight);
         }
 
-        parent.theme.formatMessage($msg, type, data, hl_line);
         self.lines.adopt($msg)
                 .maxChildren(self.options.maxLines);//remove lines if totalLines > maxLines
 

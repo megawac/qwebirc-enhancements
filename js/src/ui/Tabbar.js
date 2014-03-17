@@ -37,19 +37,19 @@ ui.NavBar = new Class({
         }
     },
     render: function() {
-        Elements.from(this.template())
+        var self = this;
+        Elements.from(self.template())
                 .filter(Type.isElement)//strip random text nodes
-                .inject(this.element);
-        this.tabs = this.element.getElement(".tabbar");
-        this.scroller = new Fx.Scroll(this.tabs);
-        this.adjust();
+                .inject(self.element);
+        self.tabs = self.element.getElement(".tabbar");
+        self.scroller = new Fx.Scroll(self.tabs);
+        self.adjust();
 
-        var self = this,
-            dropdownMenu = Element.from(templates.mainmenu({
-                atheme: "<%= build.atheme %>" === "true"
-            })).inject(self.options.menuElement);
+        var dropdownMenu = Element.from(templates.mainmenu({
+            atheme: "<%= build.atheme %>" === "true"
+        })).inject(self.options.menuElement);
 
-        var dropdownbtn = this.element.getElement(".main-menu");
+        var dropdownbtn = self.element.getElement(".main-menu");
 
         ui.decorateDropdown(dropdownbtn, dropdownMenu, {
             onShow: function() {
@@ -61,25 +61,28 @@ ui.NavBar = new Class({
             autohide: true
         });
 
+        var ddhint = Element.from(templates.dropdownhint())
+            .inject(self.element)
+            .position({
+                relativeTo: self.element,
+                position: {"y": "bottom"},
+                offset: {y:10}
+            });
+
+        var hideHint = _.once(_.partial(Element.destroy, ddhint));
+
         var dropdownEffect = new Fx.Tween(dropdownbtn, {
             duration: "long",
             property: "opacity",
             link: "chain"
         });
-        var ddhint = Element.from(templates.dropdownhint());
-        ddhint.inject(this.element)
-            .position({
-                relativeTo: this.element,
-                position: {"y": "bottom"},
-                offset: {y:10}
-            });
-
         dropdownEffect
             .start(0.25)
             .start(1)
             .start(0.33)
             .start(1);
 
+        //slide hint accross the screen
         new Fx.Morph(ddhint, {
             duration: "normal",
             transition: Fx.Transitions.Sine.easeOut
@@ -87,35 +90,26 @@ ui.NavBar = new Class({
             left: [900, 5]
         });
 
-        _.delay(function() {
+        (function() {
             new Fx.Morph(ddhint, {
                 duration: "long"
             }).start({
                 left: [5, -900]
             });
-        }, 4000);
+        }).delay(4000);
 
-        var hider2 = _.once(_.partial(Element.destroy, ddhint));
-
-        _.delay(hider2, 4000);
-
+        hideHint.delay(4000);
         document.addEvents({
-            "mousedown:once": hider2,
-            "keydown:once": hider2
+            "mousedown:once": hideHint,
+            "keydown:once": hideHint
         });
     },
 
     adjust: function() {
         var wid = this.tabs.getWidth(),
-            swid = this.tabs.getScrollWidth(),
-            scrollers = this.element.getElements("[name='tabscroll']");
+            swid = this.tabs.getScrollWidth();
 
-        if(swid > wid) {
-            scrollers.show();
-        }
-        else {
-            scrollers.hide();
-        }
+        this.element.getElements("[name='tabscroll']").toggle(swid > wid);
 
         util.fillContainer(this.tabs, {style: "max-width"});
     },
@@ -136,7 +130,7 @@ ui.NavBar = new Class({
         return this;
     },
 
-    scrollLeft: function(e, target) {
+    scrollLeft: function(e/*, target*/) {
         e.stop();
         var pos = this.tabs.getScrollLeft(),
             $ele = util.elementAtScrollPos(this.tabs, pos);

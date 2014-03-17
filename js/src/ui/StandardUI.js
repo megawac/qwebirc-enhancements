@@ -2,7 +2,7 @@
  * Qwebirc base ui functions - Implements all the core ui components
  *
  * Implementing interfaces
- * @depends [ui/IIRCClient, ui/IWindows, ui/ILogin, ui/Notifiers, ui/UIOptions]
+ * @depends [ui/IIRCClient, ui/IWindows, ui/ILogin, ui/Notifiers, ui/UIOptions, ui/IKeyboard]
  * panes
  * @depends [panes/About, panes/Channels, panes/FAQ, panes/Feedback, panes/Options, panes/Privacy, panes/Wizard]
  * Components
@@ -14,8 +14,7 @@
  * fuck
  */
 ui.StandardUI = new Class({
-    // Extends: ui.NotificationUI,
-    Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers],
+    Implements: [Options, ui.IIRCClient, ui.IWindows, ui.ILogin, ui.IUIOptions, ui.INotifiers, ui.IKeyboard],
     Binds: ["whoisURL", "nextWindow", "prevWindow",
             //custom windows
             /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/
@@ -122,6 +121,9 @@ ui.StandardUI = new Class({
         self.router = new Epitome.Router({
             onUndefined: checkRoute
         });
+
+        //set up key bindings
+        self.makeKeyboard();
 
         return this;
     },
