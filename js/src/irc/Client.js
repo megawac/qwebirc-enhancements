@@ -12,7 +12,7 @@ irc.Client = new Class({
     options: {
         minRejoinTime: [0],
         networkServices: [],
-        loginRegex: /^$/ //always fail
+        loginRegex: /a^/ //always fail
     },
     inviteChanList: [],
     channels: [],

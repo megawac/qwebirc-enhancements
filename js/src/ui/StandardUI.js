@@ -142,9 +142,8 @@ ui.StandardUI = new Class({
                 self.beep();
                 self.showNotice({}, true);
             },
-            getUI: function() {
-                return self;
-            }
+            onBeepTest: self.beep.bind(self),
+            getUI: Function.from(self)
         });
     },
     // <% if(pkg.build["atheme"]) { %>

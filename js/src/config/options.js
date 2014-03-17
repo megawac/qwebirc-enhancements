@@ -1,6 +1,6 @@
 /**
  * ui options model
- * @depends [util/lang, config]
+ * @depends [util/lang, util/constants, config]
  * @provides [config/OptionModel]
  */
 ui["default options"] = {
@@ -28,6 +28,8 @@ ui["default options"] = {
 
     "dn_state": false,
     "dn_duration": 4000,
+
+    "beep_sound": "beep", //classic facebook beep notification by default see Notifiers.js
 
     "highlight": true,
     "highlight_mentioned": true,

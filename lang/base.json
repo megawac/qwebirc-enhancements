@@ -87,5 +87,8 @@
     "missingPass"            : "You must supply a password",
     "nickWrongLen"           : "Nick must be between {min} and {max} characters",
 
-    "loadingMessage"            : "Loading"
+    "loadingMessage"         : "Loading",
+
+    "ENABLE"                 : "Enable",
+    "DISABLE"                : "Disable"
 }

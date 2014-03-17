@@ -34,8 +34,7 @@ var DEFAULT_QWEBIRC_CONFIG = {
     client: {/*see irc/IRCClient.js*/
         networkServices: [], //registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
         // minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
-        loginRegex: /I recogni[sz]e you\./, //network service response when auth successful
-        node: false
+        loginRegex: /a^/ //network service response when auth successful
     }
 };
 

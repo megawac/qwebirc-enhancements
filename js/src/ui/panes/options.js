@@ -12,12 +12,13 @@ ui.OptionView = new Class({
         i18n: "options",
         deps: ["js/modules/jscolor.js"],
         events: {
-            "change:relay(.options input)": "inputChange",
+            "change:relay(input,select)": "inputChange",
             "change:relay(.notice-group input)": "noticeChange",
             "click:relay(#add-notice)": "addNotifier",
             "click:relay(.remove-notice)": "removeNotifier",
             "click:relay(#dn_state)": "dnToggle",
-            "click:relay(#notice-test)": "noticeTest"
+            "click:relay(#notice-test)": "noticeTest",
+            "click:relay(#sound-test)": "beepTest"
         },
         
         onDnToggle: function(e, target) {
@@ -85,11 +86,9 @@ ui.OptionView = new Class({
             "reset": this.reset
         });
 
-        if(_.isFunction(this.options.getUI)) {
-            ui.WelcomePane.show(this.options.getUI(), {
-                element: this.element
-            });
-        }
+        ui.WelcomePane.show(this.options.getUI(), {
+            element: this.element
+        });
         //instantiate colour pickers
         window.jscolor.init();
 
@@ -99,6 +98,7 @@ ui.OptionView = new Class({
     getData: function() {
         var data = this.model.toJSON();
         // data.lang = lang;
+        data.beep_sounds = this.options.getUI().options.sounds.sounds; //from I/Notifiers
         return data;
     },
 

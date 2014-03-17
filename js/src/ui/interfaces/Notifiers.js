@@ -44,7 +44,7 @@
         titleText: document.title,
 
         beep: function() {
-            return this.uiOptions.get("beep");
+            return this.playSound(this.uiOptions.get("beep_sound"));
         },
         playSound: function(alias) {
             if(!this.soundPlayer) {

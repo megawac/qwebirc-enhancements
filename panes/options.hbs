@@ -111,8 +111,18 @@
                 <label class="control-label-inline" for="dn_duration">{{lang "option.noticeDuration"}}:
                     <input type="number" id="dn_duration" value="{{dn_duration}}">ms
                 </label>
-                <input type="button" value="Test" id="notice-test">
+                <input type="button" value="{{lang "option.TEST"}}" id="notice-test">
                 <a href="http://caniuse.com/notifications" target="_blank">{{lang "option.noticeSupport"}}</a>
+            </div>
+            <div class="controls">
+                <label class="control-label-inline">{{lang "option.NOTICE_SOUND"}}
+                    <select class="form-control input-sm" id="beep_sound">
+                        {{#each beep_sounds}}
+                        <option value="{{id}}">{{id}}</option>
+                        {{/each}}
+                    </select>
+                    <input type="button" value="{{lang "option.TEST"}}" id="sound-test">
+                </label>
             </div>
             <div>
                 <div id="standard_notices" class="controls notice-group panel panel-default">
