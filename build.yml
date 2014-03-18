@@ -1,6 +1,6 @@
 {
     #minify source files?
-    "minify": true,
+    "minify": false,
     # compile all local source files into a large file
     # Note: according to html5 rocks the optimal script size (for caching) is <125 kB
     # I've set up the build scripts with this in mind so `concat` may not be recommended

@@ -3,7 +3,6 @@
   "description": "webirc client",
   "repository": "www.github.com/megawac/qwebirc-enhancements",
   "version": "0.97.0",
-  "network": "",
   "tags": [
     "webirc",
     "irc",
@@ -42,7 +41,9 @@
     "grunt-release": "0.7",
     "grunt-file-info": "~1.0.4",
     "matchdep": "~0.3.0",
-    "moment": "2.5"
+    "moment": "2.5",
+    "lodash": "2.4",
+    "toSrc": "~0.1.3"
   },
   "frontend-dependencies": {
     "twbs": {

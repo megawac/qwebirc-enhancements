@@ -14,7 +14,7 @@ config.Settings = new Class({
             "username": "",
             "password": "",
             "auth": false,
-            "newb": true //first visit
+            "newb": "<%= config.user_settings.welcome_message %>" !== "false" //first visit
         },
         key: cookies.settings,
         minimize: false,

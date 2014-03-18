@@ -1,0 +1,56 @@
+## Front end settings that will be plugged in to configure/config.js (if you decide to only use provided customizations)
+## You can update config.js to suit your needs
+## These settings will be injected into qwebirc.js where appropriate and into the config intialization
+## These will be compliled using lodash templates (see http://lodash.com/docs#template) with this file as the object
+
+#default network name
+network: "ChatNet"
+
+init_config:
+    networkName: "<%= network %>" #eg Freenode
+    appTitle: "<%= network %> WebIRC" #eg Freenode WebIRC
+    uiOptions: #set any of the defaults values in js/src/config/options.js -- may be overriden by user
+        colour: #hex values
+            background: #"f0f7ff"
+            font: #"000"
+        brouhaha: 
+            enabled: false #no aggregator by default
+        quit_msg: Page closed
+        highlight: true # highlight messages
+        beep_sound: #beep -- any of the sounds specified below
+
+    client:
+        loginRegex: "I recogni[sz]e you" #authed when this test passes on a message from a network service
+        networkServices:
+            #network hosts ie Services.Quakenet.net
+            #- Services.Quakenet.net
+
+    settings: #default (initial) user settings
+        nickname: #""  
+        username: #""
+        password: #""
+        channels: #[]
+        auth: #false
+    #demand authentication -- not setable by user
+    require_auth: false #require authentication?
+
+user_settings:
+    welcome_message: true #show a welcome message on first visit?
+
+qwebirc_config: #random variables you may wish to settings
+    auth_command: #defaults to "AUTHSERV AUTH {username} {password}" though I've seen many different commands
+
+    base_url: /
+    static_url: /
+
+    timeout: #timeout requests after period
+
+sounds: #supported sounds requires a mp3 and ogg file for each in /sound/
+    - beep
+    - smb_coin
+    - smb_kick
+    - smb_pause
+    - smb3_fireball
+    - smb3_frog_mario_walk
+    - smw_spring_jump
+    - smw_stomp

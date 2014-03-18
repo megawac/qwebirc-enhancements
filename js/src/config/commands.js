@@ -38,8 +38,8 @@ config.IRC_COMMANDS = { //maybe make these templates?
     "MODE": {
         command: "MODE {target} {mode} {args}"
     },
-    "AUTH": {
-        command: "AUTHSERV AUTH {username} {password}"
+    "AUTH": {//templated as quite likely to change
+        command: "<%= config.qwebirc_config.auth_command %>" || "AUTHSERV AUTH {username} {password}"
     },
     "KICK": {
         command: "KICK {channel} {kickee} :{message}"

@@ -19,12 +19,6 @@
             });
         }
     });
-    function makeSound(name) {
-        return {
-            id: name,
-            url: [name + ".ogg", name + ".mp3"]
-        };
-    }
     ui.INotifiers = new Class({
         options: {
             notificationOptions: { //https://github.com/ttsvetko/HTML5-Desktop-Notifications
@@ -35,7 +29,7 @@
 
             sounds: { //files in sounds/
                 minSoundRepeatInterval: 1000,
-                sounds: ["beep", "smb_coin", "smb_kick", "smb_pause", "smb3_fireball", "smb3_frog_mario_walk", "smw_spring_jump", "smw_stomp"].map(makeSound)
+                sounds: <%= serialize(config.sounds) %> || ["beep"]
             }
         },
         _notices: [],
@@ -62,7 +56,14 @@
         soundInit: function() {
             //used to have a bunch of flash checks. going to let the sm handle it
             if(!(this.soundPlayer instanceof sound.SoundPlayer)) {
-                this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
+                var sounds = this.options.sounds;
+                sounds.sounds = sounds.sounds.map(function(name) {
+                    return {
+                        id: name,
+                        url: [name + ".ogg", name + ".mp3"]
+                    };
+                });
+                this.soundPlayer = new sound.SoundPlayer(sounds);
             }
         },
 

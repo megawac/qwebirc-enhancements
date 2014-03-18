@@ -31,11 +31,7 @@ var DEFAULT_QWEBIRC_CONFIG = {
 
     uiOptions: {/*see config/options.js*/},
     settings: {/*see config/settings.js*/},
-    client: {/*see irc/IRCClient.js*/
-        networkServices: [], //registered hosts to treat as a server admin eg ["Services.Quakenet.net"]
-        // minRejoinTime: [5, 20, 300], //array - secs between consecutive joins to a single channel - see js/src/irc/ircclient@canjoinchan
-        loginRegex: /a^/ //network service response when auth successful
-    }
+    client: {/*see irc/IRCClient.js*/}
 };
 
 // createInstance: (element|str id), [qwebircUI], options -> qwebirc instance

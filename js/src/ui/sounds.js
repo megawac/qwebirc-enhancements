@@ -16,9 +16,8 @@ sound.SoundPlayer = new Class({
     loadingSM: false,
 
     initialize: function(options) {
-        this.setOptions(options);
-        var self = this,
-            opts = this.options;
+        var self = this.setOptions(options);
+        var opts = this.options;
 
         window.addEvent("domready", function() {//load soundmanager ->
             if (self.loadingSM !== false)
@@ -37,7 +36,7 @@ sound.SoundPlayer = new Class({
                     url: opts.swfurl,
                     preferFlash: opts.preferFlash,
                     onready: function() {
-                        _.each(opts.sounds, function(sound) {//load all sounds here
+                        opts.sounds.each(function(sound) {//load all sounds here
                             // self.register(sound.id, opts.soundsurl + sound.url + extension);
                             sound = _.clone(sound);
                             sound.url = _.map(sound.url, function(path) {

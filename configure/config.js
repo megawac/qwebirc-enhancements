@@ -18,20 +18,22 @@
 
 ******************************************************************/
 
-this.app = qwebirc.createInstance("ircui", /*qwebirc.ui.QUI, */{
-    "appTitle": "",//eg Freenode WebIRC
-    "networkName": "",//eg Freenode
-    "debug": false,
-    "settings": {
-        //channels: []
-        "auth": false
-    },
-    "uiOptions": {/* eg style_saturation:50 */},
-    "client": {
-        "loginRegex": /^I recogni[sz]e you/, //authed when irc service sends this string
-        "node": false,
-        "networkServices": [ /* network hosts ie Services.Quakenet.net */ ],
-    }
-});
+// this.app = qwebirc.createInstance("ircui", /*qwebirc.ui.QUI, */{
+//     "appTitle": "",//eg Freenode WebIRC
+//     "networkName": "",//eg Freenode
+//     "debug": false,
+//     "settings": {
+//         //channels: []
+//         "auth": false
+//     },
+//     "uiOptions": {/* eg style_saturation:50 */},
+//     "client": {
+//         "loginRegex": /^I recogni[sz]e you/, //authed when irc service sends this string
+//         "node": false,
+//         "networkServices": [ /* network hosts ie Services.Quakenet.net */ ],
+//     }
+// });
+
+this.app = qwebirc.createInstance("ircui", <%= serialize(config.init_config) %>);
 
 // qwebirc.config.IRC_COMMANDS.AUTH.command = "/msg AUTHServ :identify {username} {password}";

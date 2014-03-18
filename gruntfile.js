@@ -8,14 +8,39 @@ Flags:
 *****************************/
 /* jshint node:true */
 module.exports = function(grunt) {
+    var _ = require("lodash");
+    var deepTemplate = function(obj, config) { //also cleaning
+        return _.chain(obj)
+            .omit(function(val) {
+                return val == null;
+            })
+            .mapValues(function(val, key) {
+                if (_.isArray(val)) return val;
+                if (_.isObject(val)) return deepTemplate(val, config);
+                if (_.isString(val)) {
+                    if (/(_re|Regex(p)?)$/.test(key)) return new RegExp(val);
+                    return _.template(val, config);
+                }
+                return val;
+            })
+            .value();
+    };
     var package = grunt.file.readJSON("./package.json");
     var build = grunt.file.readYAML("./build.yml");
     var files = grunt.file.readYAML("./build-files.yml");
+    var config = grunt.file.readYAML("./app-config.yml");
+    config = deepTemplate(config, config);
     var templateContext = {
         package: package,
         pkg: package,
         build: build,
+        cfg: config,
+        config: config,
         files: files,
+
+        serialize: function(obj, depth) {
+            return require("toSrc")(obj, depth || 10);
+        },
         getFileURL: function(resource) {//load path to resource
             var resc = files.resources[resource];
             if(build["use cdn"] && resc.cdn) {
@@ -94,6 +119,17 @@ module.exports = function(grunt) {
                 src: "dist/js/qwebirc-<%= suffix %>.js",
                 // the location of the resulting JS file
                 dest: "dist/js/qwebirc-<%= suffix %>.js"
+            },
+
+            config: {
+                options: {
+                    process: {
+                        data: templateContext
+                    }
+                },
+                files: {
+                    "dist/js/app-<%= suffix %>.js": "configure/config.js"
+                }
             },
 
             full: {
@@ -216,7 +252,7 @@ module.exports = function(grunt) {
             config: {
                 options: {banner: ""},
                 files: {
-                    "dist/js/app-<%= suffix %>.js": "configure/config.js"
+                    "dist/js/app-<%= suffix %>.js": "dist/js/app-<%= suffix %>.js"
                 }
             }
         },
@@ -337,7 +373,6 @@ module.exports = function(grunt) {
 
     grunt.initConfig(config);
 
-
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
@@ -350,6 +385,7 @@ module.exports = function(grunt) {
     grunt.registerTask("build-js", [
         "concat_in_order:qweb", //build the files in the correct order
         "concat:qweb",          //prep and remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
+        "concat:config",
 
         "uglify:plugins",
         "uglify:modules",
