@@ -33,6 +33,7 @@ init_config:
         auth: #false
     #demand authentication -- not setable by user
     require_auth: false #require authentication?
+    parseQueryString: true #should the query string be parse for option presets see https://github.com/megawac/qwebirc-enhancements#configuration
 
 user_settings:
     welcome_message: true #show a welcome message on first visit?
@@ -43,7 +44,14 @@ qwebirc_config: #random variables you may wish to settings
     base_url: /
     static_url: /
 
+    router_prefix: ! #the hash prepended to urls starts with this string
+
     timeout: #timeout requests after period
+
+    extra_html: #for instance google analytics code
+
+templates: ## any data you would like to prefill the handlebars templates
+    feedback_form_url: https://docs.google.com/forms/d/1DQUg-DOEMbmqqeCryhMr6t20m2EMSkng28HdWIUm2vM/viewform
 
 sounds: #supported sounds requires a mp3 and ogg file for each in /sound/
     - beep

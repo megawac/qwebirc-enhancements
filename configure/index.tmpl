@@ -3,11 +3,11 @@
 <head>
 
   <!-- build:process -->
-    <title><% if(pkg.network) { %>,<%= pkg.network %> <% } %>WebIRC Using QWebirc v<%= pkg.version %></title>
+    <title><% if(config.network) { %>,<%= config.network %> <% } %>WebIRC Using QWebirc v<%= pkg.version %></title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="irc,qwebirc<% if(pkg.network) { %>,<%= pkg.network.toLowerCase() %><% } %>">
+    <meta name="keywords" content="irc,qwebirc<% if(config.network) { %>,<%= config.network.toLowerCase() %><% } %>">
     <link rel="shortcut icon" type="image/png" href="images/favicon.png">
   <!-- /build -->
   <!-- build:process -->
@@ -36,5 +36,8 @@
       </div>
     </noscript>
   </div>
+  <!-- build:process -->
+    <%= config.extra_html %>
+  <!-- /build -->
 </body>
 </html>

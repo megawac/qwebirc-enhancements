@@ -80,7 +80,9 @@ module.exports = function(grunt) {
                         "$darken": true,
                         "$invert": true
                     },
-                    knownHelpersOnly: true
+                    knownHelpersOnly: true,
+
+                    data: config.templates
                 },
                 wrapped: true,
                 node: false,
@@ -382,16 +384,19 @@ module.exports = function(grunt) {
         "uglify:templates"
     ]);
 
-    grunt.registerTask("build-js", [
-        "concat_in_order:qweb", //build the files in the correct order
-        "concat:qweb",          //prep and remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
-        "concat:config",
+    grunt.registerTask("build-js", function() {
+        grunt.task.run([
+            "concat_in_order:qweb", //build the files in the correct order
+            "concat:qweb",          //prep and remove unnessary stuff - ie say we"re on node don"t include twisted stuff - if channel lists are disabled don"t include files etc
+            "concat:config",
+            "uglify:modules",
+            "uglify:plugins"
+        ]);
 
-        "uglify:plugins",
-        "uglify:modules",
-        "uglify:qweb",
-        "uglify:config"
-    ]);
+        if (!build.debug) {
+            grunt.task.run(["uglify:qweb", "uglify:config"]);
+        }
+    });
 
     grunt.registerTask("build-css", function() {
         grunt.task.run("less");
