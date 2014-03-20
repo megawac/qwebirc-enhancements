@@ -105,15 +105,22 @@
         disown: 2
     });
 
+    function adoptEvent(ele, args) {
+        try { //good old ie throws for some elements
+            ele.fireEvent("adopt", args);
+        } catch (fuckie) {}
+        return ele;
+    }
+
     Class.refactor(Element, {
         adopt: function() {
             //just mootools adopt method which fires an event when called
-            return this.previous.apply(this, arguments).fireEvent("adopt", arguments);
+            return adoptEvent(this.previous.apply(this, arguments), arguments);
         },
         inject: function(el) {
-            var ret = this.previous.apply(this, arguments);
-            el.fireEvent("adopt", [this]);
-            return ret;
+            this.previous.apply(this, arguments);
+            adoptEvent(el, [this]);
+            return this;
         }
     })
     .implement({
