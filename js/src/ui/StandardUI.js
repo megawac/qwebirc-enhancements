@@ -19,9 +19,6 @@ ui.StandardUI = new Class({
             //custom windows
             /*"optionsWindow", "faqWindow", "privacyWindow", "aboutWindow", "feedbackWindow", "embeddedWindow"*/
             ],
-    // options: { -TODO
-    //     routerPrefix: "!"//eg webchat.freenode.net#!login - valid url chars only
-    // },
     initialize: function($par, options) {
         var self = this.setOptions(options);
         self.settings = options.settings;
@@ -40,8 +37,8 @@ ui.StandardUI = new Class({
                 self.outerTabs = $par.getElement(".outertabbar");
                 self.windowsPanel = $par.getElement(".windows");
             
-                self.postInitialize();
-                self.fireEvent("ready");
+                self.postInitialize()
+                    .fireEvent("ready");
             });
         });
     },

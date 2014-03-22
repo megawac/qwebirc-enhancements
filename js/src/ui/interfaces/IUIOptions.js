@@ -8,7 +8,7 @@ ui.IUIOptions = new Class({
     config: function() {
         var self = this;
         var options = self.options;
-        if(self.uiOptions instanceof config.OptionModel) return this;
+        if(self.uiOptions instanceof config.OptionModel) return self;
         var uiOptions = self.uiOptions = new config.OptionModel({}, {
             defaults: options.uiOptions
         });
@@ -48,7 +48,7 @@ ui.IUIOptions = new Class({
             "change:font_size": updateStylesheet,
             "change:custom_notices": setNotices,
             "change:standard_notices": setNotices,
-            "change:show_nicklist": function(state) {
+            "change:show_nicklist": function(/*state*/) {
                 _.invoke(self.windowArray, "toggleNickList");
             },
             "change:completer": function(completer) {
@@ -59,29 +59,30 @@ ui.IUIOptions = new Class({
         });
         setNotices();
 
-        self.setModifiableStylesheet({
-            style_hue: options.hue || self.uiOptions.get("style_hue"),
-            style_saturation: options.saturation || self.uiOptions.get("style_saturation"),
-            style_brightness: options.brightness || self.uiOptions.get("style_brightness")
-        });
-        return self;
-    },
 
-    setModifiableStylesheet: function(vals) {
-        this._styleSheet = new Element("style", {
+        self._styleSheet = new Element("style", {
             type: "text/css"
         }).inject(document.head);
-        this.updateStylesheet(vals);
+
+        updateStylesheet({
+            colour: Object.filter({
+                back: options.background,
+                font: options.font
+            }, Boolean)
+        });
+
+        return self;
     },
 
     updateStylesheet: function(values) {
         var self = this;
         getTemplate("modifiablecss", function(template) {
-            var styles = _.extend({}, Browser, self.uiOptions.toJSON(), values);
+            var styles = _.merge({}, Browser, self.uiOptions.toJSON(), values);
             var stylesheet = template(styles);
+            
+            //update stylesheet
             var node = self._styleSheet;
-
-            if (node.styleSheet) { /* ie */
+            if ("styleSheet" in node) { /* ol ie */
                 node.styleSheet.cssText = stylesheet;
             } else {
                 node.empty()

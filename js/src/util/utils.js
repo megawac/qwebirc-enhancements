@@ -121,11 +121,11 @@ util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChann
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
-    return "#" + "<%= config.qwebirc_config.router_prefix %>" || "!" + link;
+    return "#" + ("<%= config.qwebirc_config.router_prefix %>" || "!") + link;
 };
 
 util.unformatURL = function(link) {
-    return link.replace(new RegExp("^" + "<%= config.qwebirc_config.router_prefix %>" || "!"), "").replace(/^@/, "#");
+    return link.replace(new RegExp("^" + ("<%= config.qwebirc_config.router_prefix %>" || "!")), "").replace(/^@/, "#");
 };
 
 //appends a channel to the end of the list of channels
