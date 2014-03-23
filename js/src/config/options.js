@@ -149,12 +149,10 @@ config.OptionModel = new Class({
         return this.parent();
     },
 
-
     set: function(key, data) {
         var props = key.split(".");
         if(props.length > 1) {
-            var item = this.get(props[0]);
-            return this.parent(props[0], _.assign(item, key, data));
+            return this.parent(props[0], _.assign(this.get(props[0]), key, data));
         } else {
             this.parent(key, data);
         }

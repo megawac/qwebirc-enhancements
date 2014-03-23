@@ -20,7 +20,8 @@
     "modules": [
         "js/modules/respond.js",
         "js/modules/Handlebars-production.js",
-        "js/modules/Promise.js"
+        "js/modules/Promise.js",
+        "js/modules/underscore.js"
     ],
     "plugins": [
         "js/libs/*.js",
@@ -60,7 +61,7 @@
         },
         "modules": {
             # not including soundManager2 here so users can disable sound and not load code
-            "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
+            "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise,underscorejs@1.6",
             "cdn min": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
             "local": "/dist/js/modules-<%= suffix %>.js",
             "local min": "/dist/js/modules-<%= suffix %>.js"

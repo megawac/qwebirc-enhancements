@@ -114,7 +114,7 @@
         parse: function(text) {
             var self = this,
                 result = (self.options.autoescape ? _.escape(text) : text).split(" "),
-                funcs = _.filter(self.patterns, function(pat) {
+                funcs = self.patterns.filter(function(pat) {
                     return !pat.entireStr;
                 }),
 
