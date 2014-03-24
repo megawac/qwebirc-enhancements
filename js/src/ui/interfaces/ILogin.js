@@ -27,23 +27,23 @@
         return !failed;
     }
 
-    var LoginBox = function(parentElement, callback, settings, appTitle, validators) {
-        var nickname = settings.get("nickname"),
-            username = settings.get("username"),//clientside no need for more advanced
-            password = settings.get("password"),
-            eauth = auth.enabled || settings.get("auth");
+    var LoginBox = function(parentElement, callback) {
+        var options = this.options;
+        var settings = options.settings;
+        var validators = options.validators;
 
         var formatChans = util.formatChannelString;
 
+        var data = _.extend({}, options, {
+            nickname: settings.get("nickname"),
+            username: settings.get("username"),
+            password: settings.get("password"),
+            channels: formatChans(settings.get("channels")),
+            full: auth.enabled || settings.get("auth")
+        });
+
         getTemplate("authpage", function(template) {
-            var $page = Element.from(template({
-                "appTitle": appTitle,
-                "nickname": nickname,
-                "username": username,
-                "password": password,
-                "full": eauth, //whether to show the extra auth options (check the checkbox)
-                "channels": formatChans(settings.get("channels"))
-            })).inject(parentElement);
+            var $page = Element.from(template(data)).inject(parentElement);
 
             var $form = $page.getElement(".login"),
                 $nickBox = $page.getElement("#nickname"),
@@ -105,19 +105,19 @@
                 settings.set("nickname", nickname);// nicks valid
 
                 if (auth.enabled || $chkAddAuth.val()) {
-                    data.username = username = $usernameBox.val();
-                    data.realname = username || "";
-                    data.password = password = $passwordBox.val();
+                    data.username = $usernameBox.val();
+                    data.realname = data.username || "";
+                    data.password = $passwordBox.val();
 
                     if (auth.bouncerAuth()) {
-                        data.serverPassword = password;
+                        data.serverPassword = data.password;
                     }
                     else if(auth.passAuth()){
-                        data.serverPassword = username + " " + password;
+                        data.serverPassword = data.username + " " + data.password;
                     }
 
-                    settings.set("username", username);
-                    settings.set("password", password);
+                    settings.set("username", data.username);
+                    settings.set("password", data.password);
                     settings.set("auth", true);
                     auth.enabled = true;
                 } else {
@@ -147,7 +147,7 @@
                 win.close();
                 self.fireEvent("login", data);
             };
-            this.LoginBox(win.lines, callback, this.options.settings, this.options.appTitle, this.options.validators);
+            this.LoginBox(win.lines, callback);
             return win;
         },
         welcome: function() {
