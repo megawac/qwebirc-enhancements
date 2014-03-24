@@ -52,31 +52,41 @@ qwebirc.ready(function(engine) {
         },
 
         //attempting to mimic some of these http://lesscss.org/functions/#color-operations
-        "$mix": function(val, colourProp, weight) {
+        "$mix": function(val, colourProp) {
             //this refers to context
             //mix up background or `colourProp` with a  given colour value
             var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
-            weight = isFinite(weight) ? +weight : 50; //mix 50% by default
-            return (val ? base.mix(val, weight) : base).rgbToHex();
+            var mixer = one.color(val);
+            return new one.color.RGB(mixer.red() * base.red(), mixer.blue() * base.blue(), mixer.green() * base.green(), base.alpha() * mixer.alpha()).hex();
         },
         
-        "$saturate": function(percent, colourProp) {
-            var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
-            return base.setSaturation(percent.toFloat()).rgbToHex();
+        "$saturate": function(val, colourProp) {
+            var base = one.color(this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp);
+            return base.saturation(parseFloat(val), true).hex();
         },
 
-        "$darken": function(percent, colourProp) {
-            var base = this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp;
-            return base.setBrightness(percent.toFloat()).rgbToHex();
+        "$lighten": function(val, colourProp) {
+            var base = one.color(this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp);
+            return base.lightness(parseFloat(val), true).hex();
         },
 
-        "$invert": function(colourProp) {
-            return new Color(this.colour[colourProp] || this.colour.background).invert().rgbToHex();
+        "$hue": function(val, colourProp) {
+            var base = one.color(this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp);
+            return base.hue(parseFloat(val), true).hex();
         },
 
         //get the hex value of a property
         "$hex": function(colourProp) {
-            return new Color(this.colour[colourProp] || this.colour.background).rgbToHex();
+            return one.color(this.colour[colourProp] || this.colour.background).hex();
+        },
+
+        //block helper
+        "vendor-prefix": function(options) {
+            return ["-webkit-", "-moz-", "-o-", ""].map(function(prefix) {
+                return util.format(options.fn(this), {
+                    prefix: prefix
+                });
+            }, this).join("");
         }
     });
 
@@ -84,11 +94,13 @@ qwebirc.ready(function(engine) {
         Compiliation
     *********************/
     //allows templates to reference eachother (engine.partials)
-    engine.partials = _.reduce(source, function(compiled, template, key) {
+    templates = _.reduce(source, function(compiled, template, key) {
         // compiled[key] = engine.compile(item);
         compiled[key] = Function.from(template);
         return compiled;
     }, templates || {});
+
+    engine.partials = templates;
 }, window.Handlebars);
 
 /**

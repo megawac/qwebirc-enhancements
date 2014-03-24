@@ -1,0 +1,35 @@
+.qwebirc {
+    
+    .user .status {
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 3px;
+    }
+
+    .status {
+        &.animate {
+            animation-name: spin;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+
+            width: 8px;
+            height: 8px;
+        }
+
+        &.voice {
+            background-color: rgb(223, 187, 47);
+            background-image: radial-gradient(circle, yellow 0%, orange 100%, red 95%);
+        }
+
+        &.op {
+            background-color: #7AE60E;
+            background-image: radial-gradient(circle, #5fff4a 3%, #7ae60e 76%);
+
+            // background-image: radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+            // background-image: -moz-radial-gradient(45px 45px 45deg, circle, #5FFF4A 3%, #7AE60E 76%);
+            // background-image: -o-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+            // background-image: -webkit-radial-gradient(45px 45px, circle, #5FFF4A 3%, #7AE60E 76%);
+        }
+    }
+}

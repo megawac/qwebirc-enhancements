@@ -25,8 +25,8 @@ var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
     util: {},
     components: {},
     global: {
-        dynamicBaseURL: "<%= serialize(config.qwebirc_config.base_url) %>" || "/",
-        staticBaseURL: "<%= serialize(config.qwebirc_config.static_url) %>" || "/"
+        dynamicBaseURL: "<%= config.qwebirc_config.base_url %>" || "/",
+        staticBaseURL: "<%= config.qwebirc_config.static_url %>" || "/"
     },
     config: {},
     auth: {

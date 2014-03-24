@@ -9,8 +9,8 @@
         * "$result": property, default -> str           get a property or its default val
         * "$hex": str ([colour]) -> hex                 get hex val
         * "$mix": str (colour), [type|colour] -> hex    mix colour and base colour by default
-        * "$saturate": num, [type|colour] -> hex        saturate colour by percent
-        * "$darken": num, [type|colour] -> hex          darken colour by percent
+        * "$saturate": num, [type|colour] -> hex        saturate colour by delta (less than 1)
+        * "$lighten": num, [type|colour] -> hex          lighten colour by delta (less than 1). Negative delta to darken
         * "$invert": [type|colour] -> hex               invert a colour or default
 --}}
 
@@ -28,43 +28,39 @@
 }
 
 .qui .lines .highlight1 {
-    background: {{$mix 'f6ff94'}};
+    background: {{$hue '-0.25'}};
 }
 
 .qui .lines .highlight2 {
-    background: {{$mix 'a4fcca'}};
-}
-
-.qui .lines .highlight3 {
-    background: {{$mix 'fac3d5'}};
+    background: {{$hue '0.25'}};
 }
 
 .qui .lines .mentioned {
-    background: {{$mix 'e63772'}} !important;
+    background: {{$hue '0.5'}} !important;
 }
 
 .qui .properties {
-    background: {{$mix 'f2f0ff'}};
-    border-top: thin solid {{$mix 'b8c5d1'}};
+    background: {{$saturate '0.04'}};
+    border-top: thin solid {{$lighten '-0.1'}};
 }
 
 .qui .topic {
     color: {{$mix '4f4f4f' 'font'}};
     background: {{$hex 'background'}};
-    border-bottom: thin dashed {{$mix 'c8d2dc'}};
+    border-bottom: thin dashed {{$lighten '-0.15'}};
 }
 
 {{! tab stuff }}
 .qui .outertabbar, .qui .detached-window .header {
     color: {{$mix '0d0b0b' 'font'}};
-    background: {{$mix 'c9def5'}};
-    border-bottom: thin solid {{$mix '858585'}};
+    background: {{$saturate '0.1'}};
+    border-bottom: thin solid {{$lighten '-0.05'}};
 }
 
 .qui .tabbar .tab {
-    background: {{$mix 'CCCCCC'}};
+    background: {{$lighten '-0.005'}};
     background: rgba(189, 189, 189, 0.1);
-    border: thin solid {{$mix 'c8d2dc'}};
+    border: thin solid {{$lighten '-0.1'}};
 }
 
 .qui .tabbar .selected.tab {
@@ -72,46 +68,57 @@
 }
 {{!  tab stuff  }}
 
-{{! irc input stuff }}
-
-.qui .input {
-    background: {{$mix 'f2f0ff'}};
-}
-
-.qui .input div {
-    border-top: thin solid {{$mix 'c3cee0'}};
-}
-
-.qui .input .tt-query, .qui hr.lastpos {
-    border: thin solid {{$mix 'c3cee0'}};
-}
-
 {{! nicklist }}
 
 .qui .nicklist {
-    border-left: thin solid {{$mix 'c8d2dc'}};
+    border-left: thin solid {{$lighten '-0.15'}};
 }
 
 .qui .nicklist .user, .qui .nick-menu {
-    border-top: thin solid {{$hex 'background'}};
-    border-bottom: thin solid {{$hex 'background'}};
+    border: thin solid {{$lighten '-0.1'}};
 }
 
 .qui .nicklist .selected {
     color: {{$hex 'font'}};
-    border-bottom: thin solid {{$mix 'c8d2dc'}};
+    border-bottom: thin solid {{$lighten '-0.15'}};
     background: #fff;
 }
 
 .qui .nicklist .selected-middle {
-    border-top: {{$mix 'c8d2dc'}} thin solid;
+    border-top: {{$lighten '-0.15'}} thin solid;
 }
 
 .qui .dropdownmenu, .qui hr.lastpos {
-    border: thin solid {{$mix 'c8d2dc'}};
+    border: thin solid {{$lighten '-0.15'}};
     background: {{$hex 'background'}};
 }
 
 .qui .dropdownmenu a:hover {
-    background: {{$mix 'fffe'}};
+    background: {{$saturate '40%'}};
+}
+
+{{! irc input stuff }}
+{{! scary gradients }}
+
+.qui .input {
+    background: {{$saturate '0.04'}};
+}
+
+.qui .input div {
+    border-top: thin solid {{$lighten '-0.15'}};
+}
+
+.qui hr.lastpos {
+    border: thin solid {{$lighten '-0.15'}};
+}
+
+.qwebirc .input .decorated {
+    background: {{$saturate '-0.15'}};
+    {{#vendor-prefix}}
+        background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
+    {{/vendor-prefix}}
+}
+
+.qui .user {
+    background: {{$saturate '-0.15'}};
 }

@@ -77,8 +77,9 @@ module.exports = function(grunt) {
                         "$hex": true,
                         "$mix": true,
                         "$saturate": true,
-                        "$darken": true,
-                        "$invert": true
+                        "$lighten": true,
+                        "$hue": true,
+                        "vendor-prefix": true
                     },
                     knownHelpersOnly: true,
 
@@ -88,9 +89,21 @@ module.exports = function(grunt) {
                 node: false,
                 // amd: true,
                 processContent: function(content) {//remove whitespace
+                    var mark_open = "\x08openstr\x08";
+                    var match_open = " {{";
+                    var mark_close = "\x08closesstr\x08";
+                    var match_close = "}} ";
+                    //prevent }} } from being joint to {{{ or }}} which will break the handlebars parser
+                    content = content.replace(/\{[\x20\t\n\r]+\{\{/g, mark_open)
+                                    .replace(/\}\}[\x20\t\n\r]+\}/g, mark_close);
+
                     content = content.replace(/^[\x20\t]+/mg, "")
                                     .replace(/[\x20\t]+$/mg, "")
                                     .replace(/\r\n/g, "");//remove line breaks (for min)
+
+                    content = content.split(mark_open).join(match_open)
+                                    .split(mark_close).join(match_close);
+
                     return content;
                 },
 

@@ -21,7 +21,8 @@
         "js/modules/respond.js",
         "js/modules/Handlebars-production.js",
         "js/modules/Promise.js",
-        "js/modules/underscore.js"
+        "js/modules/underscore.js",
+        "js/modules/one-color.js"
     ],
     "plugins": [
         "js/libs/*.js",
@@ -50,21 +51,16 @@
         "mootools": {
             "cdn": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-nocompat.js",
             "cdn min": "//cdn.jsdelivr.net/mootools/1.4.5/mootools-core-nocompat.min.js",
-            "local": "js/modules/mootools-1.4.5.js",
-            "local min": "js/modules/mootools-1.4.5.js"
+            "local": "js/modules/mootools-1.4.5.js"
         },
         "soundManager": {
             "cdn": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
-            "cdn min": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
-            "local": "js/modules/soundmanager2.js",
-            "local min": "js/modules/soundmanager2.js"
+            "local": "js/modules/soundmanager2.js"
         },
         "modules": {
             # not including soundManager2 here so users can disable sound and not load code
-            "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise,underscorejs@1.6",
-            "cdn min": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.0.12,es6-promise",
-            "local": "/dist/js/modules-<%= suffix %>.js",
-            "local min": "/dist/js/modules-<%= suffix %>.js"
+            "cdn": "//cdn.jsdelivr.net/g/respond@1.4,handlebarsjs@1.3,es6-promise,underscorejs@1.6,one-color@2.4",
+            "local": "/dist/js/modules-<%= suffix %>.js"
         },
 
         "jQuery-images": {

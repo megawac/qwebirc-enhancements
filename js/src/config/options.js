@@ -117,9 +117,7 @@ config.OptionModel = new Class({
     properties: {
         colour: {
             set: function(colours) {
-                return Object.map(colours, function(val) {
-                    return new Color(val);
-                });
+                return Object.map(colours, one.color);
             }
         }
     },

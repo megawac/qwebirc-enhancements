@@ -28,6 +28,7 @@
     "Bootstrap": true,
     "Base64": true,
     "notify": true,
+    "one": true,
 
     //Qwebirc
     "qwebirc": true,
