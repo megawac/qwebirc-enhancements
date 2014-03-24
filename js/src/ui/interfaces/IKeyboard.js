@@ -80,10 +80,13 @@ ui.IKeyboard = new Class({
 
         self._keyboardHandler = {
             "keydown": function(e) { // pressing 1 2 3 4 etc will change tab
-                if(keyboard.isActive()) {
+                if(keyboard.isActive() && e.nodeName !== "INPUT") {
                     if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
                         self.selectWindow(e.key - 1);
-                    } else if(self.active.$input && !(e.alt||e.meta) && isChar(e.code) ) { //focus input on a character input or ctrl+[xxx]
+                    } else if(self.active.$input &&
+                                !(e.alt||e.meta) && //focus input on a character input or ctrl+[xxx]
+                                !(e.ctrl && ["c", "x"].contains(e.key)) && //but allow copying
+                                isChar(e.code) ) {
                         self.active.$input.focus();
                     }
                 }
