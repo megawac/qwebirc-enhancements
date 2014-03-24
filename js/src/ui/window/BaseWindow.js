@@ -74,7 +74,7 @@ ui.Window = new Class({
     deselect: function() {
         if (this.active && !this.detached) {
             this.active = false;
-            this.tab.removeClasses("selected");
+            this.tab.removeClass("selected");
             this.fireEvent("deselected");
         }
         return this;
@@ -164,14 +164,13 @@ ui.Window = new Class({
     highlightTab: function(state) {
         var hl = "", classes = constants.hl;
         if (state != this.highlight) {
-
             if (state === classes.us)
                 hl = "hilight-us";
             else if (state === classes.speech)
                 hl = "hilight-speech";
             else if (state === classes.activity)
                 hl = "hilight-activity";
-            this.tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+            this.tab.removeClasses(["hilight-activity", "hilight-us", "hilight-speech"])
                     .addClass(hl);
         }
         if (state == constants.hl.none || state >= this.highlight) {

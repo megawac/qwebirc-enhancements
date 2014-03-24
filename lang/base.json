@@ -90,5 +90,8 @@
     "loadingMessage"         : "Loading",
 
     "ENABLE"                 : "Enable",
-    "DISABLE"                : "Disable"
+    "DISABLE"                : "Disable",
+
+    "op"                     : "Admin",
+    "voice"                  : "Voice"
 }

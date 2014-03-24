@@ -19,7 +19,7 @@ ui.IWindows = new Class({
     },
 
     getClientId: function(client) {
-        return client === ui.WINDOW.custom || !client ? ui.WINDOW.custom : client.id;
+        return !client ? ui.WINDOW.custom : client.id;
     },
 
     newWindow: function(client, type, name) {
@@ -196,7 +196,7 @@ ui.IWindows = new Class({
     newCustomWindow: function(name, select, type) {
         type = type || ui.WINDOW.custom;
 
-        var win = this.newWindow(ui.WINDOW.custom, type, name);
+        var win = this.newWindow(null, type, name);
 
         if (select) this.selectWindow(win);
 
@@ -217,7 +217,7 @@ ui.IWindows = new Class({
             delete self.customWindows[wid];
         });
 
-        win.lines.addClasses("custom", cssClass || "");
+        win.lines.addClasses(["custom", cssClass || ""]);
 
         options = _.extend({
             element: win.lines

@@ -26,7 +26,7 @@ ui.QUI = new Class({
             }
         });
 
-        self.element.addClasses("qui", "signed-out");
+        self.element.addClasses(["qui", "signed-out"]);
 
         //create an image popover on (img) url hover
         //could use BS popovers here but this will be more efficent
@@ -112,7 +112,7 @@ ui.QUI = new Class({
             this.setBrouhahaChan(win.name);
             tab.addClass("selected");
         }
-        tab.removeClasses("hilight-activity", "hilight-us", "hilight-speech")
+        tab.removeClasses(["hilight-activity", "hilight-us", "hilight-speech"])
             .getSiblings(".selected:not(.detached,.brouhaha)").removeClass("selected");//remove last selection
     },
 

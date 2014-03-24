@@ -1,6 +1,6 @@
 <form class='input'>
     <div class='tt-ahead input-group'>
-        <span class='input-group-addon user'><span class='status {{status}}'></span><span class="nickname">{{nick}}</span></span>
+        <span class='input-group-addon user'>{{> status}}<span class="nickname">{{nick}}</span></span>
         {{!autocompleter}}
         <input class='tt-hint hidden' type='text' autocomplete='off' spellcheck='off' disabled>{{!the actual autocomplete layer - gets rendered underneath the tt-query by css}}
         <input class='tt-query form-control irc-input decorated' type='text' autocomplete='off' spellcheck='off'>

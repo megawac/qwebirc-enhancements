@@ -3,6 +3,7 @@
  *
  * @depends [ui/Window, ui/Detachable]
  * @depends [components/AutoScroll, components/Completer, components/Popups]
+ * @depends [config/modes]
  * @provides [ui/QUIWindow]
  */
 ui.QUIWindow = new Class({
@@ -32,20 +33,23 @@ ui.QUIWindow = new Class({
         var self = this;
         var type = self.type;
         var hasInput = util.windowNeedsInput(type);
+
+        var data = _.extend( this.getNickStatus() || {}, {
+            mobile: Browser.isMobile,
+            isChannel: util.isChannelType(self.type),
+            isIRCWindow: hasInput,
+            channel: self.name,
+            name: self.name,
+            id: self.id,//self.name.clean().replace(" ", "-"),
+            topic: lang.noTopic,
+            needsInput: hasInput,
+            nick: self.client && self.client.nickname,
+            client: self.client
+            // splitPane: false//feature in development having issue with resizes {{link to repo}}*/
+        });
+
         self.element.empty()
-            .html(self.template({
-                mobile: Browser.isMobile,
-                isChannel: util.isChannelType(self.type),
-                isIRCWindow: hasInput,
-                channel: self.name,
-                name: self.name,
-                id: self.id,//self.name.clean().replace(" ", "-"),
-                topic: lang.noTopic,
-                needsInput: hasInput,
-                nick: self.client && self.client.nickname,
-                client: self.client
-                // splitPane: false//feature in development having issue with resizes {{link to repo}}*/
-            }));
+            .html(self.template(data));
         var $win = self.window = self.element.getElement(".window").store("window", self);
 
         var $content = self.content = $win.getElement(".content");
@@ -174,12 +178,19 @@ ui.QUIWindow = new Class({
     },
 
     updatePrefix: function (data) {
-        if(data && (!data.thisclient || data.channel !== this.name)) return;
-        var prefix = data ? data.prefix : this.client.getNickStatus(this.name, this.client.nickname);
-        this.window.getElements(".input .user .status")
-                    .removeClasses("op", "voice")
-                    .addClass((prefix === constants.prefixes.op) ? "op" : (prefix === constants.prefixes.voice) ? "voice" : "");
+        if(data && (!data.thisclient || data.channel !== this.id)) return;
+
+        Element.from(templates.status(this.getNickStatus())).replaces(this.window.getElement(".input .status"));
         this.__dirtyFixes();
+    },
+
+    getNickStatus: function() {
+        if(!this.client) return null;
+        var nickchan = this.client.tracker.getNickOnChannel(this.client.nickname, this.id);
+        if(!nickchan) return null;
+        return _.find(config.modes, function(mode) {
+            return nickchan.prefixes.contains(mode.prefix);
+        });
     },
 
     createNickMenu: function(nick, $par, options) {

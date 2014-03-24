@@ -173,13 +173,13 @@
             return parent.adopt(this);
         },
 
-        addClasses: function() {
-            Array.each(arguments, this.addClass, this);
+        addClasses: function(classes) {
+            classes.each(this.addClass, this);
             return this;
         },
 
-        removeClasses: function() {
-            Array.each(arguments, this.removeClass, this);
+        removeClasses: function(classes) {
+            classes.each(this.removeClass, this);
             return this;
         }
     });
