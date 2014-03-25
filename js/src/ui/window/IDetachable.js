@@ -70,7 +70,8 @@ ui.IDetachableWindow = new Class({
                 y: [200, null]
             },
             handle: resizeHandle,
-            stopPropagation: true
+            stopPropagation: true,
+            onResize: self.__dirtyFixes.bind(self)
         });
         self.drag = wrapper.makeDraggable({
             handle: wrapper,
