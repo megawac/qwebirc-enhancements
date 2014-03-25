@@ -114,8 +114,11 @@
 
 .qwebirc .input .decorated {
     background: {{$saturate '-0.15'}};
-    {{#vendor-prefix}}
+    {{! will be split using .split(',')}}
+    {{#vendor-prefix '-webkit-,-moz-,-o-,-ms-,'}}
         background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
+    }
+    }
     {{/vendor-prefix}}
 }
 

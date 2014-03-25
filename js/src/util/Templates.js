@@ -81,8 +81,8 @@ qwebirc.ready(function(engine) {
         },
 
         //block helper
-        "vendor-prefix": function(options) {
-            return ["-webkit-", "-moz-", "-o-", ""].map(function(prefix) {
+        "vendor-prefix": function(prefixes, options) {
+            return prefixes.split(",").map(function(prefix) {
                 return util.format(options.fn(this), {
                     prefix: prefix
                 });
