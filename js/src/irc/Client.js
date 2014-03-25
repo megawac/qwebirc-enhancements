@@ -2,7 +2,7 @@
   * ircclient new and improved
   *
   * @depends [irc/Commands, irc/Connection, irc/Tracker, config/ctcp]
-  * @depends [util/constants, util/utils]
+  * @depends [irc/Numerics, util/constants, util/utils]
   * @provides [irc/Client]
   */
 var LANGTYPE = lang.TYPES;
@@ -29,6 +29,56 @@ irc.Client = new Class({
         v: irc.pmodes.SET_UNSET
     },
     toIRCLower: irc.RFC1459toIRCLower,//default text codec
+
+    IRC_COMMAND_MAP: {// function router see dispatch
+        // "ERROR": "",
+        // "INVITE": "",
+        // "JOIN": "",
+        // "KICK": "",
+        // "MODE": "",
+        // "NICK": "",
+        // "NOTICE": "",
+        // "PART": "",
+        // "PING": "",
+        // "TOPIC": "",
+        // "PRIVMSG": "",
+        // "QUIT": "",
+        // "WALLOPS": "",
+
+        "ERR_CANNOTSENDTOCHAN": "genericError",
+        "ERR_CHANOPPRIVSNEEDED": "genericError",
+        // "ERR_NICKNAMEINUSE": "",
+        "ERR_NOSUCHNICK": "genericError"//,
+
+        // "RPL_AWAY": "",
+        // "RPL_CHANNELMODEIS": "",
+        // "RPL_CREATIONTIME": "",
+        // "RPL_ENDOFNAMES": "",
+        // "RPL_ISUPPORT": "",
+        // "RPL_LIST": "",
+        // "RPL_LISTSTART": "",
+        // "RPL_LISTEND": "",
+        // "RPL_NAMREPLY": "",
+        // "RPL_NOTOPIC": "",
+        // "RPL_NOWAWAY": "",
+        // "RPL_TOPIC": "",
+        // "RPL_TOPICWHOTIME": "",
+        // "RPL_UNAWAY": "",
+        // "RPL_WELCOME": "",
+
+        // "RPL_WHOISACCOUNT": "",
+        // "RPL_WHOISACTUALLY": "",
+        // "RPL_WHOISCHANNELS": "",
+        // "RPL_WHOISGENERICTEXT": "",
+        // "RPL_WHOISIDLE": "",
+        // "RPL_WHOISOPERATOR": "",
+        // "RPL_WHOISOPERNAME": "",
+        // "RPL_WHOISSECURE": "",
+        // "RPL_WHOISSERVER": "",
+        // "RPL_WHOISUSER": "",
+        // "RPL_WHOISWEBIRC": "",
+        // "RPL_ENDOFWHOIS": "",
+    },
     
     initialize: function(options) {
         var self = this;
@@ -399,79 +449,5 @@ irc.Client = new Class({
             host: data.host,
             username: _.first(data.args)
         });
-    },
-
-    _whois: function(nick, type, data) {
-        var ndata = {
-            nick: nick,
-            channel: ui.WINDOW.active,
-            msgs: []
-        };
-        var msgs = ndata.msgs;
-        //todo clean this up - fix it up in irc_rpl_xxx
-        switch(type.toLowerCase()) {
-            case "user":
-                msgs.push({
-                    type: "whoisUser",
-                    host: data.ident + "@" + data.hostname
-                });
-
-                msgs.push({
-                    type: "whoisRealname",
-                    message: data.realname
-                });
-                break;
-            case "server":
-                msgs.push({
-                    x: data.server,
-                    message: data.serverdesc,
-                    type: "whoisServer"
-                });
-                break;
-            case "channels":
-                msgs.push({
-                    message: data.channels,
-                    type: "whoisChannels"
-                });
-                break;
-            case "account":
-                msgs.push({
-                    message: data.account,
-                    type: "whoisAccount"
-                });
-                break;
-            case "away":
-                msgs.push({
-                    message: data.away,
-                    type: "whoisAway"
-                });
-                break;
-            case "opername":
-                msgs.push({
-                    message: data.opername,
-                    type: "whoisOpername"
-                });
-                break;
-            case "actually":
-                msgs.push({
-                    message: data.hostname,
-                    x: data.ip,
-                    type: "whoisActually"
-                });
-                break;
-            case "generictext":
-                msgs.push({
-                    message: data.text,
-                    type: "whoisGenericText"
-                });
-                break;
-            default:
-                msgs.push({
-                    type: "whois" + type.toLowerCase().capitalize()
-                });
-        }
-
-        this.trigger("whois", ndata);
-        return true;
     }
 });
