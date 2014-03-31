@@ -94,8 +94,6 @@ irc.Client.implement({
         }
     },
 
-    irc_RPL_TOPICWHOTIME: Function.from(true),
-
     irc_RPL_AWAY: function(data) {
         var nick = data.args[1];
         var message = _.last(data.args);
@@ -127,18 +125,6 @@ irc.Client.implement({
             state: false,
             message: _.last(data.args),
             type: "genericError"
-        });
-        return true;
-    },
-
-    irc_RPL_CREATIONTIME: function(data) {
-        var channel = data.args[1],
-            time = data.args[2];
-
-        this.trigger("serverMessage", {
-            channel: channel || ui.WINDOW.active,
-            message: util.IRCDate(new Date(time * 1000)),
-            type: "channelCreationTime"
         });
         return true;
     },

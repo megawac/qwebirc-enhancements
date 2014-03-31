@@ -105,7 +105,8 @@ irc.Client.implement({
 
     irc_RPL_WHOISGENERICTEXT: genericText,
 
-    irc_RPL_WHOISWEBIRC: genericText,
+    //whoiswebirc
+    irc_RPL_UNIQOPIS: genericText,
 
     irc_RPL_WHOISSECURE: genericText,
 

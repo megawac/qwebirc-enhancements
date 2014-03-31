@@ -9,6 +9,7 @@
  * @depends [irc/Numerics]
  * @provides [util/ircprocessor]
  */
+/* jshint boss:true */
 var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     hasprefix_re = /^:([^ ]+) +/,
     colonrem_re = /^:[^ ]+ +/,
@@ -18,13 +19,16 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     argsm_re = /(.*?)(?:^:|\s+:)(.*)/,
     args_split_re = / +/,
     NUMERICS = irc.Numerics;
+
 util.parseIRCData = function(line/*, stripColors*/) {
     var message = {
         "raw": line,
-        "prefix": "",
-        "commandType": "normal"
+        "prefix": ""
+        // "commandType": "normal"
     };
     var match;
+    var middle, trailing;
+    var num = NUMERICS[message.rawCommand];
 
     /*if (stripColors) {
         line = line.replace(/[\x02\x1f\x16\x0f]|\x03\d{0,2}(?:,\d{0,2})?/g, "");
@@ -49,13 +53,13 @@ util.parseIRCData = function(line/*, stripColors*/) {
     message.rawCommand = match[1];
     line = line.replace(data_re, "");
 
-    if (NUMERICS[message.rawCommand]) {
-        message.command = NUMERICS[message.rawCommand].name;
-        message.commandType = NUMERICS[message.rawCommand].type;
+    if (num) {
+        message.command = num.name;
+        // if (num.type.startsWith("RPL_")) message.commandType = "reply";
+        // else if (num.type.startsWith("ERR_")) message.commandType = "error";
     }
 
     message.args = [];
-    var middle, trailing;
 
     // Parse parameters
     if (line.search(args_re) != -1) {
@@ -72,19 +76,24 @@ util.parseIRCData = function(line/*, stripColors*/) {
 
     return message;
 };
+
 util.processTwistedData = function(data) {
     var message = {
-        commandType: "normal",
+        // commandType: "normal",
         rawCommand: data[1],
         command: data[1],
         args: data[3],
         prefix: data[2]
     },
     match;
-    if(NUMERICS[data[1]]) {
-        message.command = NUMERICS[data[1]].name;
-        message.commandType = NUMERICS[data[1]].type;
+
+    var num = NUMERICS[message.rawCommand];
+    if (num) {
+        message.command = num.name;
+        // if (num.type.startsWith("RPL_")) message.commandType = "reply";
+        // else if (num.type.startsWith("ERR_")) message.commandType = "error";
     }
+
     if (match = message.prefix.match(prefix_re)) {
         message.nick = match[1];
         message.user = match[3];

@@ -46,7 +46,7 @@ irc.Client = new Class({
         // "WALLOPS": "",
 
         "ERR_CANNOTSENDTOCHAN": "genericError",
-        "ERR_CHANOPPRIVSNEEDED": "genericError",
+        "ERR_CHANOPRIVSNEEDED": "genericError",
         // "ERR_NICKNAMEINUSE": "",
         "ERR_NOSUCHNICK": "genericError"//,
 

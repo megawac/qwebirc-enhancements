@@ -3,530 +3,196 @@
  * @provides [irc/Numerics]
  */
 //https://www.alien.net.au/irc/irc2numerics.html
-irc.Numerics = { // from node-irc
-    "001": {
-        "name": "RPL_WELCOME",
-        "type": "reply"
-    },
-    "004": {
-        "name": "RPL_MYINFO",
-        "type": "reply"
-    },
-    "005": {
-        "name": "RPL_ISUPPORT",
-        "type": "reply"
-    },
-    "200": {
-        "name": "RPL_TRACELINK",
-        "type": "reply"
-    },
-    "201": {
-        "name": "RPL_TRACECONNECTING",
-        "type": "reply"
-    },
-    "202": {
-        "name": "RPL_TRACEHANDSHAKE",
-        "type": "reply"
-    },
-    "203": {
-        "name": "RPL_TRACEUNKNOWN",
-        "type": "reply"
-    },
-    "204": {
-        "name": "RPL_TRACEOPERATOR",
-        "type": "reply"
-    },
-    "205": {
-        "name": "RPL_TRACEUSER",
-        "type": "reply"
-    },
-    "206": {
-        "name": "RPL_TRACESERVER",
-        "type": "reply"
-    },
-    "208": {
-        "name": "RPL_TRACENEWTYPE",
-        "type": "reply"
-    },
-    "211": {
-        "name": "RPL_STATSLINKINFO",
-        "type": "reply"
-    },
-    "212": {
-        "name": "RPL_STATSCOMMANDS",
-        "type": "reply"
-    },
-    "213": {
-        "name": "RPL_STATSCLINE",
-        "type": "reply"
-    },
-    "214": {
-        "name": "RPL_STATSNLINE",
-        "type": "reply"
-    },
-    "215": {
-        "name": "RPL_STATSILINE",
-        "type": "reply"
-    },
-    "216": {
-        "name": "RPL_STATSKLINE",
-        "type": "reply"
-    },
-    "218": {
-        "name": "RPL_STATSYLINE",
-        "type": "reply"
-    },
-    "219": {
-        "name": "RPL_ENDOFSTATS",
-        "type": "reply"
-    },
-    "221": {
-        "name": "RPL_UMODEIS",
-        "type": "reply"
-    },
-    "241": {
-        "name": "RPL_STATSLLINE",
-        "type": "reply"
-    },
-    "242": {
-        "name": "RPL_STATSUPTIME",
-        "type": "reply"
-    },
-    "243": {
-        "name": "RPL_STATSOLINE",
-        "type": "reply"
-    },
-    "244": {
-        "name": "RPL_STATSHLINE",
-        "type": "reply"
-    },
-    "250": {
-        "name": "RPL_STATSCONN",
-        "type": "reply"
-    },
-    "251": {
-        "name": "RPL_LUSERCLIENT",
-        "type": "reply"
-    },
-    "252": {
-        "name": "RPL_LUSEROP",
-        "type": "reply"
-    },
-    "253": {
-        "name": "RPL_LUSERUNKNOWN",
-        "type": "reply"
-    },
-    "254": {
-        "name": "RPL_LUSERCHANNELS",
-        "type": "reply"
-    },
-    "255": {
-        "name": "RPL_LUSERME",
-        "type": "reply"
-    },
-    "256": {
-        "name": "RPL_ADMINME",
-        "type": "reply"
-    },
-    "257": {
-        "name": "RPL_ADMINLOC1",
-        "type": "reply"
-    },
-    "258": {
-        "name": "RPL_ADMINLOC2",
-        "type": "reply"
-    },
-    "259": {
-        "name": "RPL_ADMINEMAIL",
-        "type": "reply"
-    },
-    "261": {
-        "name": "RPL_TRACELOG",
-        "type": "reply"
-    },
-    "265": {
-        "name": "RPL_LOCALUSERS",
-        "type": "reply"
-    },
-    "266": {
-        "name": "RPL_GLOBALUSERS",
-        "type": "reply"
-    },
-    "300": {
-        "name": "RPL_NONE",
-        "type": "reply"
-    },
-    "301": {
-        "name": "RPL_AWAY",
-        "type": "reply"
-    },
-    "302": {
-        "name": "RPL_USERHOST",
-        "type": "reply"
-    },
-    "303": {
-        "name": "RPL_ISON",
-        "type": "reply"
-    },
-    "305": {
-        "name": "RPL_UNAWAY",
-        "type": "reply"
-    },
-    "306": {
-        "name": "RPL_NOWAWAY",
-        "type": "reply"
-    },
-    "311": {
-        "name": "RPL_WHOISUSER",
-        "type": "reply"
-    },
-    "312": {
-        "name": "RPL_WHOISSERVER",
-        "type": "reply"
-    },
-    "313": {
-        "name": "RPL_WHOISOPERATOR",
-        "type": "reply"
-    },
-    "314": {
-        "name": "RPL_WHOWASUSER",
-        "type": "reply"
-    },
-    "315": {
-        "name": "RPL_ENDOFWHO",
-        "type": "reply"
-    },
-    "317": {
-        "name": "RPL_WHOISIDLE",
-        "type": "reply"
-    },
-    "318": {
-        "name": "RPL_ENDOFWHOIS",
-        "type": "reply"
-    },
-    "319": {
-        "name": "RPL_WHOISCHANNELS",
-        "type": "reply"
-    },
 
-    "320": {
-        "name": "RPL_WHOISGENERICTEXT",
-        "type": "reply"
-    },
-    "325": {
-        "name": "RPL_WHOISWEBIRC",
-        "type": "reply"
-    },
-    "330": {
-        "name": "RPL_WHOISACCOUNT",
-        "type": "reply"
-    },
-    "338": {
-        "name": "RPL_WHOISACTUALLY",
-        "type": "reply"
-    },
-    "343": {
-        "name": "RPL_WHOISOPERNAME",
-        "type": "reply"
-    },
-    "321": {
-        "name": "RPL_LISTSTART",
-        "type": "reply"
-    },
-    "322": {
-        "name": "RPL_LIST",
-        "type": "reply"
-    },
-    "323": {
-        "name": "RPL_LISTEND",
-        "type": "reply"
-    },
-    "324": {
-        "name": "RPL_CHANNELMODEIS",
-        "type": "reply"
-    },
-    "329": {
-        "name": "RPL_CREATIONTIME",
-        "type": "reply"
-    },
-    "331": {
-        "name": "RPL_NOTOPIC",
-        "type": "reply"
-    },
-    "332": {
-        "name": "RPL_TOPIC",
-        "type": "reply"
-    },
-    "333": {
-        "name": "RPL_TOPICWHOTIME",
-        "type": "reply"
-    },
-    "341": {
-        "name": "RPL_INVITING",
-        "type": "reply"
-    },
-    "342": {
-        "name": "RPL_SUMMONING",
-        "type": "reply"
-    },
-    "351": {
-        "name": "RPL_VERSION",
-        "type": "reply"
-    },
-    "352": {
-        "name": "RPL_WHOREPLY",
-        "type": "reply"
-    },
-    "353": {
-        "name": "RPL_NAMREPLY",
-        "type": "reply"
-    },
-    "364": {
-        "name": "RPL_LINKS",
-        "type": "reply"
-    },
-    "365": {
-        "name": "RPL_ENDOFLINKS",
-        "type": "reply"
-    },
-    "366": {
-        "name": "RPL_ENDOFNAMES",
-        "type": "reply"
-    },
-    "367": {
-        "name": "RPL_BANLIST",
-        "type": "reply"
-    },
-    "368": {
-        "name": "RPL_ENDOFBANLIST",
-        "type": "reply"
-    },
-    "369": {
-        "name": "RPL_ENDOFWHOWAS",
-        "type": "reply"
-    },
-    "371": {
-        "name": "RPL_INFO",
-        "type": "reply"
-    },
-    "372": {
-        "name": "RPL_MOTD",
-        "type": "reply"
-    },
-    "374": {
-        "name": "RPL_ENDOFINFO",
-        "type": "reply"
-    },
-    "375": {
-        "name": "RPL_MOTDSTART",
-        "type": "reply"
-    },
-    "376": {
-        "name": "RPL_ENDOFMOTD",
-        "type": "reply"
-    },
-    "381": {
-        "name": "RPL_YOUREOPER",
-        "type": "reply"
-    },
-    "382": {
-        "name": "RPL_REHASHING",
-        "type": "reply"
-    },
-    "391": {
-        "name": "RPL_TIME",
-        "type": "reply"
-    },
-    "392": {
-        "name": "RPL_USERSSTART",
-        "type": "reply"
-    },
-    "393": {
-        "name": "RPL_USERS",
-        "type": "reply"
-    },
-    "394": {
-        "name": "RPL_ENDOFUSERS",
-        "type": "reply"
-    },
-    "395": {
-        "name": "RPL_NOUSERS",
-        "type": "reply"
-    },
-    "401": {
-        "name": "ERR_NOSUCHNICK",
-        "type": "error"
-    },
-    "402": {
-        "name": "ERR_NOSUCHSERVER",
-        "type": "error"
-    },
-    "403": {
-        "name": "ERR_NOSUCHCHANNEL",
-        "type": "error"
-    },
-    "404": {
-        "name": "ERR_CANNOTSENDTOCHAN",
-        "type": "error"
-    },
-    "405": {
-        "name": "ERR_TOOMANYCHANNELS",
-        "type": "error"
-    },
-    "406": {
-        "name": "ERR_WASNOSUCHNICK",
-        "type": "error"
-    },
-    "407": {
-        "name": "ERR_TOOMANYTARGETS",
-        "type": "error"
-    },
-    "409": {
-        "name": "ERR_NOORIGIN",
-        "type": "error"
-    },
-    "411": {
-        "name": "ERR_NORECIPIENT",
-        "type": "error"
-    },
-    "412": {
-        "name": "ERR_NOTEXTTOSEND",
-        "type": "error"
-    },
-    "413": {
-        "name": "ERR_NOTOPLEVEL",
-        "type": "error"
-    },
-    "414": {
-        "name": "ERR_WILDTOPLEVEL",
-        "type": "error"
-    },
-    "421": {
-        "name": "ERR_UNKNOWNCOMMAND",
-        "type": "error"
-    },
-    "422": {
-        "name": "ERR_NOMOTD",
-        "type": "error"
-    },
-    "423": {
-        "name": "ERR_NOADMININFO",
-        "type": "error"
-    },
-    "424": {
-        "name": "ERR_FILEERROR",
-        "type": "error"
-    },
-    "431": {
-        "name": "ERR_NONICKNAMEGIVEN",
-        "type": "error"
-    },
-    "432": {
-        "name": "ERR_ERRONEUSNICKNAME",
-        "type": "error"
-    },
-    "433": {
-        "name": "ERR_NICKNAMEINUSE",
-        "type": "error"
-    },
-    "436": {
-        "name": "ERR_NICKCOLLISION",
-        "type": "error"
-    },
-    "441": {
-        "name": "ERR_USERNOTINCHANNEL",
-        "type": "error"
-    },
-    "442": {
-        "name": "ERR_NOTONCHANNEL",
-        "type": "error"
-    },
-    "443": {
-        "name": "ERR_USERONCHANNEL",
-        "type": "error"
-    },
-    "444": {
-        "name": "ERR_NOLOGIN",
-        "type": "error"
-    },
-    "445": {
-        "name": "ERR_SUMMONDISABLED",
-        "type": "error"
-    },
-    "446": {
-        "name": "ERR_USERSDISABLED",
-        "type": "error"
-    },
-    "451": {
-        "name": "ERR_NOTREGISTERED",
-        "type": "error"
-    },
-    "461": {
-        "name": "ERR_NEEDMOREPARAMS",
-        "type": "error"
-    },
-    "462": {
-        "name": "ERR_ALREADYREGISTRED",
-        "type": "error"
-    },
-    "463": {
-        "name": "ERR_NOPERMFORHOST",
-        "type": "error"
-    },
-    "464": {
-        "name": "ERR_PASSWDMISMATCH",
-        "type": "error"
-    },
-    "465": {
-        "name": "ERR_YOUREBANNEDCREEP",
-        "type": "error"
-    },
-    "467": {
-        "name": "ERR_KEYSET",
-        "type": "error"
-    },
-    "471": {
-        "name": "ERR_CHANNELISFULL",
-        "type": "error"
-    },
-    "472": {
-        "name": "ERR_UNKNOWNMODE",
-        "type": "error"
-    },
-    "473": {
-        "name": "ERR_INVITEONLYCHAN",
-        "type": "error"
-    },
-    "474": {
-        "name": "ERR_BANNEDFROMCHAN",
-        "type": "error"
-    },
-    "475": {
-        "name": "ERR_BADCHANNELKEY",
-        "type": "error"
-    },
-    "481": {
-        "name": "ERR_NOPRIVILEGES",
-        "type": "error"
-    },
-    "482": {
-        "name": "ERR_CHANOPPRIVSNEEDED",
-        "type": "error"
-    },
-    "483": {
-        "name": "ERR_CANTKILLSERVER",
-        "type": "error"
-    },
-    "491": {
-        "name": "ERR_NOOPERHOST",
-        "type": "error"
-    },
-    "501": {
-        "name": "ERR_UMODEUNKNOWNFLAG",
-        "type": "error"
-    },
-    "502": {
-        "name": "ERR_USERSDONTMATCH",
-        "type": "error"
-    }
+//from https://github.com/williamwicks/irc-replies
+irc.Numerics = {
+    "200": "RPL_TRACELINK",
+    "201": "RPL_TRACECONNECTING",
+    "202": "RPL_TRACEHANDSHAKE",
+    "203": "RPL_TRACEUNKNOWN",
+    "204": "RPL_TRACEOPERATOR",
+    "205": "RPL_TRACEUSER",
+    "206": "RPL_TRACESERVER",
+    "207": "RPL_TRACESERVICE",
+    "208": "RPL_TRACENEWTYPE",
+    "209": "RPL_TRACECLASS",
+    "211": "RPL_STATSLINKINFO",
+    "212": "RPL_STATSCOMMANDS",
+    "213": "RPL_STATSCLINE",
+    "214": "RPL_STATSNLINE",
+    "215": "RPL_STATSILINE",
+    "216": "RPL_STATSKLINE",
+    "217": "RPL_STATSQLINE",
+    "218": "RPL_STATSYLINE",
+    "219": "RPL_ENDOFSTATS",
+    "221": "RPL_UMODEIS",
+    "231": "RPL_SERVICEINFO",
+    "232": "RPL_ENDOFSERVICES",
+    "233": "RPL_SERVICE",
+    "234": "RPL_SERVLIST",
+    "235": "RPL_SERVLISTEND",
+    "239": "RPL_STATSIAUTH",
+    "240": "RPL_STATSVLINE",
+    "241": "RPL_STATSLLINE",
+    "242": "RPL_STATSUPTIME",
+    "243": "RPL_STATSOLINE",
+    "244": "RPL_STATSHLINE",
+    "245": "RPL_STATSSLINE",
+    "246": "RPL_STATSPING",
+    "247": "RPL_STATSBLINE",
+    "248": "RPL_STATSDEFINE",
+    "249": "RPL_STATSDEBUG",
+    "250": "RPL_STATSDLINE",
+    "251": "RPL_LUSERCLIENT",
+    "252": "RPL_LUSEROP",
+    "253": "RPL_LUSERUNKNOWN",
+    "254": "RPL_LUSERCHANNELS",
+    "255": "RPL_LUSERME",
+    "256": "RPL_ADMINME",
+    "257": "RPL_ADMINLOC1",
+    "258": "RPL_ADMINLOC2",
+    "259": "RPL_ADMINEMAIL",
+    "261": "RPL_TRACELOG",
+    "262": "RPL_TRACEEND",
+    "263": "RPL_TRYAGAIN",
+    "265": "RPL_LOCALUSERS",
+    "266": "RPL_GLOBALUSERS",
+    "300": "RPL_NONE",
+    "301": "RPL_AWAY",
+    "302": "RPL_USERHOST",
+    "303": "RPL_ISON",
+    "304": "RPL_TEXT",
+    "305": "RPL_UNAWAY",
+    "306": "RPL_NOWAWAY",
+    "311": "RPL_WHOISUSER",
+    "312": "RPL_WHOISSERVER",
+    "313": "RPL_WHOISOPERATOR",
+    "314": "RPL_WHOWASUSER",
+    "315": "RPL_ENDOFWHO",
+    "316": "RPL_WHOISCHANOP",
+    "317": "RPL_WHOISIDLE",
+    "318": "RPL_ENDOFWHOIS",
+    "319": "RPL_WHOISCHANNELS",
+    "321": "RPL_LISTSTART",
+    "322": "RPL_LIST",
+    "323": "RPL_LISTEND",
+    "324": "RPL_CHANNELMODEIS",
+    "325": "RPL_UNIQOPIS",
+    "331": "RPL_NOTOPIC",
+    "332": "RPL_TOPIC",
+    "333": "RPL_TOPIC_WHO_TIME",
+    "341": "RPL_INVITING",
+    "342": "RPL_SUMMONING",
+    "344": "RPL_REOPLIST",
+    "345": "RPL_ENDOFREOPLIST",
+    "346": "RPL_INVITELIST",
+    "347": "RPL_ENDOFINVITELIST",
+    "348": "RPL_EXCEPTLIST",
+    "349": "RPL_ENDOFEXCEPTLIST",
+    "351": "RPL_VERSION",
+    "352": "RPL_WHOREPLY",
+    "353": "RPL_NAMREPLY",
+    "361": "RPL_KILLDONE",
+    "362": "RPL_CLOSING",
+    "363": "RPL_CLOSEEND",
+    "364": "RPL_LINKS",
+    "365": "RPL_ENDOFLINKS",
+    "366": "RPL_ENDOFNAMES",
+    "367": "RPL_BANLIST",
+    "368": "RPL_ENDOFBANLIST",
+    "369": "RPL_ENDOFWHOWAS",
+    "371": "RPL_INFO",
+    "372": "RPL_MOTD",
+    "373": "RPL_INFOSTART",
+    "374": "RPL_ENDOFINFO",
+    "375": "RPL_MOTDSTART",
+    "376": "RPL_ENDOFMOTD",
+    "381": "RPL_YOUREOPER",
+    "382": "RPL_REHASHING",
+    "383": "RPL_YOURESERVICE",
+    "384": "RPL_MYPORTIS",
+    "385": "RPL_NOTOPERANYMORE",
+    "391": "RPL_TIME",
+    "392": "RPL_USERSSTART",
+    "393": "RPL_USERS",
+    "394": "RPL_ENDOFUSERS",
+    "395": "RPL_NOUSERS",
+    "401": "ERR_NOSUCHNICK",
+    "402": "ERR_NOSUCHSERVER",
+    "403": "ERR_NOSUCHCHANNEL",
+    "404": "ERR_CANNOTSENDTOCHAN",
+    "405": "ERR_TOOMANYCHANNELS",
+    "406": "ERR_WASNOSUCHNICK",
+    "407": "ERR_TOOMANYTARGETS",
+    "408": "ERR_NOSUCHSERVICE",
+    "409": "ERR_NOORIGIN",
+    "411": "ERR_NORECIPIENT",
+    "412": "ERR_NOTEXTTOSEND",
+    "413": "ERR_NOTOPLEVEL",
+    "414": "ERR_WILDTOPLEVEL",
+    "415": "ERR_BADMASK",
+    "416": "ERR_TOOMANYMATCHES",
+    "421": "ERR_UNKNOWNCOMMAND",
+    "422": "ERR_NOMOTD",
+    "423": "ERR_NOADMININFO",
+    "424": "ERR_FILEERROR",
+    "431": "ERR_NONICKNAMEGIVEN",
+    "432": "ERR_ERRONEOUSNICKNAME",
+    "433": "ERR_NICKNAMEINUSE",
+    "434": "ERR_SERVICENAMEINUSE",
+    "435": "ERR_SERVICECONFUSED",
+    "436": "ERR_NICKCOLLISION",
+    "437": "ERR_UNAVAILRESOURCE",
+    "441": "ERR_USERNOTINCHANNEL",
+    "442": "ERR_NOTONCHANNEL",
+    "443": "ERR_USERONCHANNEL",
+    "444": "ERR_NOLOGIN",
+    "445": "ERR_SUMMONDISABLED",
+    "446": "ERR_USERSDISABLED",
+    "451": "ERR_NOTREGISTERED",
+    "461": "ERR_NEEDMOREPARAMS",
+    "462": "ERR_ALREADYREGISTRED",
+    "463": "ERR_NOPERMFORHOST",
+    "464": "ERR_PASSWDMISMATCH",
+    "465": "ERR_YOUREBANNEDCREEP",
+    "466": "ERR_YOUWILLBEBANNED",
+    "467": "ERR_KEYSET",
+    "471": "ERR_CHANNELISFULL",
+    "472": "ERR_UNKNOWNMODE",
+    "473": "ERR_INVITEONLYCHAN",
+    "474": "ERR_BANNEDFROMCHAN",
+    "475": "ERR_BADCHANNELKEY",
+    "476": "ERR_BADCHANMASK",
+    "477": "ERR_NOCHANMODES",
+    "478": "ERR_BANLISTFULL",
+    "481": "ERR_NOPRIVILEGES",
+    "482": "ERR_CHANOPRIVSNEEDED",
+    "483": "ERR_CANTKILLSERVER",
+    "484": "ERR_RESTRICTED",
+    "485": "ERR_UNIQOPRIVSNEEDED",
+    "491": "ERR_NOOPERHOST",
+    "492": "ERR_NOSERVICEHOST",
+    "499": "ERR_STATSKLINE",
+    "501": "ERR_UMODEUNKNOWNFLAG",
+    "502": "ERR_USERSDONTMATCH",
+    "708": "RPL_ETRACEFULL",
+    "759": "RPL_ETRACEEND",
+    "001": "RPL_WELCOME",
+    "002": "RPL_YOURHOST",
+    "003": "RPL_CREATED",
+    "004": "RPL_MYINFO",
+    "005": "RPL_ISUPPORT",
+    "010": "RPL_BOUNCE",
+    "015": "RPL_MAP",
+    "017": "RPL_MAPEND",
+    "018": "RPL_MAPSTART",
+    "020": "RPL_HELLO",
+    "042": "RPL_YOURID",
+    "043": "RPL_SAVENICK",
+
+
+    //custom ones added
+    "320": "RPL_WHOISGENERICTEXT",
+    "330": "RPL_WHOISACCOUNT",
+    "338": "RPL_WHOISACTUALLY"
 };
