@@ -69,7 +69,7 @@ ui.NavBar = new Class({
                 offset: {y:10}
             });
 
-        var hideHint = _.once(_.partial(Element.destroy, ddhint));
+        var hideHint = _.once(ddhint.destroy.bind(ddhint));
 
         var dropdownEffect = new Fx.Tween(dropdownbtn, {
             duration: "long",

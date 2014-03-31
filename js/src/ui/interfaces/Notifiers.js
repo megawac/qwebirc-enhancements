@@ -54,8 +54,8 @@
                 this.soundInit();
                 this.soundPlayer.addEvent("ready:once", this.playSound.bind(this, alias));
             }
-            else if (this.soundPlayer.isReady() && ((Date.now() - this.lastSound) > this.options.sounds.minSoundRepeatInterval)) {
-                this.lastSound = Date.now();
+            else if (this.soundPlayer.isReady() && ((_.now() - this.lastSound) > this.options.sounds.minSoundRepeatInterval)) {
+                this.lastSound = _.now();
                 this.soundPlayer.play(alias, {
                     volume: this.uiOptions.get("volume")
                 });

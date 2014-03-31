@@ -13,6 +13,9 @@ readyPromises.push(new Promise(function(fulfill) {
 
 var qwebircReadyPromise = Promise.all(readyPromises);
 
+// qwebirc.ready = function(cb/*, args*/) {
+//     return qwebircReadyPromise.then(_.partial.apply(_, [cb].concat(_.rest(arguments))));
+// };
 qwebirc.ready = function(cb/*, args*/) {
-    return qwebircReadyPromise.then(_.partial.apply(_, [cb].concat(_.rest(arguments))));
+    return qwebircReadyPromise.then(cb.pass(_.rest(arguments), this));
 };
