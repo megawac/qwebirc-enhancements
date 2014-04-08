@@ -60,6 +60,53 @@ module.exports = function(grunt) {
 
         suffix: "-<%= pkg.version %>",
 
+        //testing
+        connect: {
+            options: {
+                port: 9091,
+                base: ".",
+                keepAlive: true,
+                middleware: function (connect, options) {
+                    //see https://github.com/drewzboto/grunt-connect-proxy
+                    return [
+                        require("grunt-connect-proxy/lib/utils").proxyRequest,
+                        connect.static(options.base),
+                        connect.directory(options.base)
+                    ];
+                }
+            },
+            proxies: [
+                {
+                    host: "http://geeks-irc.herokuapp.com/",
+                    port: 80,
+                    https: true,
+                    changeOrigin: true,
+
+                    context: ["/lang"]
+                }
+            ]
+        },
+
+        mocha: {
+            all: {
+                src: ["http://0.0.0.0:9091/test/test-runner.html"],
+            },
+            options: {
+                run: true
+            }
+        },
+
+        jshint: {
+            all: {
+                files: {
+                    src: ["js/src/**.js"]
+                },
+                options: {
+                    jshintrc: ".jshintrc"
+                }
+            }
+        },
+
         //building
 
         handlebars: {
@@ -362,7 +409,6 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        modules: templateContext.getFileURL("modules"),
                         bundle: build.concat ? ["dist/js/qwebirc-full<%= suffix %>.js"] : files.full,
                         config: ["dist/js/app.js"]
                     },
@@ -411,6 +457,10 @@ module.exports = function(grunt) {
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
+    grunt.registerTask("server", ["configureProxies", "connect"]);
+
+    grunt.registerTask("test", ["jshint", "server", "mocha"]);
+
     grunt.registerTask("build-templates", [
         "concat:modifiablecss",
         "handlebars",
@@ -451,6 +501,7 @@ module.exports = function(grunt) {
     grunt.registerTask("build", function(prefix) {
         config.suffix = prefix || config.suffix + require("moment")().format("-MMDDhhmm");
         grunt.task.run([
+            "test",
             "build-templates",
             "build-js",
             "build-css",
