@@ -55,6 +55,9 @@ ui.IUIOptions = new Class({
                 self.commandhistory.options.store = completer.store;
                 if(!completer.store) self.commandhistory.clear();
                 _.invoke(self.windowArray, "toggleAutocomplete", completer.intrusive);
+            },
+            "change:show_timestamps": function(show) {
+                self.element.toggleClass("hide-timestamps", !show);
             }
         });
         setNotices();
