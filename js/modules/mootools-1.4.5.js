@@ -1,4 +1,4 @@
-/*
+/*!
 ---
 MooTools: the javascript framework
 ... no compat --- http://cdn.jsdelivr.net/mootools/1.4.5/mootools-core-1.4.5-full-nocompat.js

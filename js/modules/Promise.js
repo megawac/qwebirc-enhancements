@@ -1,3 +1,4 @@
+/* es6-promise <https://github.com/jakearchibald/es6-promise> */
 (function() {
 var define, requireModule, require, requirejs;
 
