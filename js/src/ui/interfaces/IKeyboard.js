@@ -45,11 +45,6 @@ ui.IKeyboard = new Class({
                 keys: "ctrl+u",
                 description: "",
                 handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("underline").bbcode)
-            },
-            colour: {
-                keys: "ctrl+c",
-                description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("colour").bbcode)
             }
         }
     },
