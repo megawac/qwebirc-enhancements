@@ -409,6 +409,7 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
+                        modules: [templateContext.getFileURL("modules")],
                         bundle: build.concat ? ["dist/js/qwebirc-full<%= suffix %>.js"] : files.full,
                         config: ["dist/js/app.js"]
                     },
