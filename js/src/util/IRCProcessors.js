@@ -28,7 +28,6 @@ util.parseIRCData = function(line/*, stripColors*/) {
     };
     var match;
     var middle, trailing;
-    var num = NUMERICS[message.rawCommand];
 
     /*if (stripColors) {
         line = line.replace(/[\x02\x1f\x16\x0f]|\x03\d{0,2}(?:,\d{0,2})?/g, "");
@@ -49,15 +48,9 @@ util.parseIRCData = function(line/*, stripColors*/) {
 
     // Parse command
     match = line.match(command_re);
-    message.command = match[1].toUpperCase();
     message.rawCommand = match[1];
+    message.command = NUMERICS[message.rawCommand] || match[1].toUpperCase();
     line = line.replace(data_re, "");
-
-    if (num) {
-        message.command = num.name;
-        // if (num.type.startsWith("RPL_")) message.commandType = "reply";
-        // else if (num.type.startsWith("ERR_")) message.commandType = "error";
-    }
 
     message.args = [];
 
@@ -81,18 +74,11 @@ util.processTwistedData = function(data) {
     var message = {
         // commandType: "normal",
         rawCommand: data[1],
-        command: data[1],
+        command: NUMERICS[data[1]] || data[1],
         args: data[3],
         prefix: data[2]
     },
     match;
-
-    var num = NUMERICS[message.rawCommand];
-    if (num) {
-        message.command = num.name;
-        // if (num.type.startsWith("RPL_")) message.commandType = "reply";
-        // else if (num.type.startsWith("ERR_")) message.commandType = "error";
-    }
 
     if (match = message.prefix.match(prefix_re)) {
         message.nick = match[1];
