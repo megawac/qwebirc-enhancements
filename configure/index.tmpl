@@ -10,22 +10,21 @@
     <meta name="keywords" content="irc,qwebirc<% if(config.network) { %>,<%= config.network.toLowerCase() %><% } %>">
     <link rel="shortcut icon" type="image/png" href="images/favicon.png">
   <!-- /build -->
-  <!-- build:process -->
-    <link href="dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css" rel="stylesheet">
-    <link href="dist/css/qwebirc-<%= suffix %>.css" rel="stylesheet">
+  <!-- build:style bundle -->
+    <link href="dist/css/bootstrap.css" rel="stylesheet">
+    <link href="dist/css/qwebirc.css" rel="stylesheet">
   <!-- /build -->
-  <!-- build:process -->
-    <script src="<%= getFileURL('modules') %>"></script>
-    <script src="<%= getFileURL('mootools') %>"></script>
+  <!-- build:modules -->
+    <script src="dist/js/modules.js"></script>
   <!-- /build -->
   <!-- build:script bundle  -->
-    <script src="dist/js/plugins-<%= suffix %>.js"></script>
-    <script src="dist/js/templates-<%= suffix %>.js"></script>
-    <script src="dist/js/qwebirc-<%= suffix %>.js"></script>
+    <script src="dist/js/plugins.js"></script>
+    <script src="dist/js/templates.js"></script>
+    <script src="dist/js/qwebirc.js"></script>
   <!-- /build -->
 
   <!-- build:script inline config -->
-    <script src="configure/config.js"></script>
+    <script src="dist/js/app.js"></script>
   <!-- /build -->
 </head>
 <body>

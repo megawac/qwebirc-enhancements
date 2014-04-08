@@ -58,7 +58,9 @@ module.exports = function(grunt) {
         build: build,
         meta: {},
 
-        suffix: "<%= pkg.version %>",
+        suffix: "-<%= pkg.version %>",
+
+        //building
 
         handlebars: {
             options: {
@@ -121,6 +123,19 @@ module.exports = function(grunt) {
         },
 
         concat: {
+            "apply-suffixes": {
+                files: {
+                    "dist/js/qwebirc<%= suffix %>.js": "dist/js/qwebirc.js",
+                    "dist/js/modules<%= suffix %>.js": "dist/js/modules.js",
+                    "dist/js/plugins<%= suffix %>.js": "dist/js/plugins.js",
+                    "dist/js/templates<%= suffix %>.js": "dist/js/templates.js",
+
+                    "dist/css/qwebirc<%= suffix %>.css": "dist/css/qwebirc.css",
+
+                    "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "dist/css/bootstrap.css"
+                }
+            },
+
             qweb: {
                 options: {
                     banner: "(function(window, document, undefined) {\n\"use strict;\"",
@@ -131,9 +146,9 @@ module.exports = function(grunt) {
                     }
                 },
                 // the files to concatenate
-                src: "dist/js/qwebirc-<%= suffix %>.js",
+                src: "dist/js/qwebirc.js",
                 // the location of the resulting JS file
-                dest: "dist/js/qwebirc-<%= suffix %>.js"
+                dest: "dist/js/qwebirc.js"
             },
 
             config: {
@@ -143,13 +158,14 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "dist/js/app-<%= suffix %>.js": "configure/config.js"
+
+                    "dist/js/app.js": "configure/config.js"
                 }
             },
 
             full: {
                 src: files.full,
-                dest: "dist/js/qwebirc-full-<%= suffix %>.js"
+                dest: "dist/js/qwebirc-full<%= suffix %>.js"
             },
 
             modifiablecss: {
@@ -159,7 +175,7 @@ module.exports = function(grunt) {
 
             plugins: {
                 src: files.plugins,
-                dest: "dist/js/plugins-<%= suffix %>.js"
+                dest: "dist/js/plugins.js"
             }
         },
 
@@ -198,7 +214,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "dist/js/qwebirc-<%= suffix %>.js": ["js/src/**/*.js"]
+                    "dist/js/qwebirc.js": ["js/src/**/*.js"]
                 }
             }
         },
@@ -236,7 +252,7 @@ module.exports = function(grunt) {
                     banner: "//qwebirc v<%= pkg.version %> core templates\n"
                 },
                 files: {
-                    "dist/js/templates-<%= suffix %>.js": files.templates.qwebirc
+                    "dist/js/templates.js": files.templates.qwebirc
                 }
             },
 
@@ -246,7 +262,7 @@ module.exports = function(grunt) {
                     banner: "/*App plugins see: github.com/megawac/qwebirc-enhancements/tree/master/js/libs*/\n"
                 },
                 files: {
-                    "dist/js/plugins-<%= suffix %>.js": files.plugins
+                    "dist/js/plugins.js": files.plugins
                 }
             },
             modules: {
@@ -256,18 +272,18 @@ module.exports = function(grunt) {
                     preserveComments: "some"
                 },
                 files: {
-                    "dist/js/modules-<%= suffix %>.js": files.modules
+                    "dist/js/modules.js": files.modules
                 }
             },
             qweb: {
                 files: {
-                    "dist/js/qwebirc-<%= suffix %>.js": "dist/js/qwebirc-<%= suffix %>.js"
+                    "dist/js/qwebirc.js": "dist/js/qwebirc.js"
                 }
             },
             config: {
                 options: {banner: ""},
                 files: {
-                    "dist/js/app-<%= suffix %>.js": "dist/js/app-<%= suffix %>.js"
+                    "dist/js/app.js": "dist/js/app.js"
                 }
             }
         },
@@ -279,7 +295,7 @@ module.exports = function(grunt) {
                     ieCompat: true
                 },
                 files: {
-                    "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "less/bootstrap.less"
+                    "dist/css/bootstrap.css": "less/bootstrap.less"
                 }
             },
             qwebirc: {
@@ -291,7 +307,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    "dist/css/qwebirc-<%= suffix %>.css": "less/qwebirc.less"
+                    "dist/css/qwebirc.css": "less/qwebirc.less"
                 }
             }
         },
@@ -308,7 +324,7 @@ module.exports = function(grunt) {
             },
             combine: {
                 files: {
-                    "dist/css/qwebirc-<%= suffix %>.css": ["dist/css/qwebirc-<%= suffix %>.css"]
+                    "dist/css/qwebirc.css": ["dist/css/qwebirc.css"]
                 }
             }
         },
@@ -318,8 +334,8 @@ module.exports = function(grunt) {
                 browsers: ["ie > 7", "firefox > 10", "chrome > 5", "safari > 5", "Opera > 10", "bb > 10", "iOS > 10"]
             },
             qweb: {
-                src: "dist/css/qwebirc-<%= suffix %>.css",
-                dest: "dist/css/qwebirc-<%= suffix %>.css"
+                src: "dist/css/qwebirc.css",
+                dest: "dist/css/qwebirc.css"
             },
         },
 
@@ -330,7 +346,7 @@ module.exports = function(grunt) {
             dist: {
                 files: {
                     "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
-                    "dist/css/qwebirc-<%= suffix %>.css": "dist/css/qwebirc-<%= suffix %>.css"
+                    "dist/css/qwebirc.css": "dist/css/qwebirc.css"
                 }
             }
         },
@@ -346,11 +362,15 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        bundle: build.concat ? ["dist/js/qwebirc-full-<%= suffix %>.js"] : files.full,
-                        config: ["dist/js/app-<%= suffix %>.js"]
+                        modules: templateContext.getFileURL("modules"),
+                        bundle: build.concat ? ["dist/js/qwebirc-full<%= suffix %>.js"] : files.full,
+                        config: ["dist/js/app.js"]
                     },
                     styles: {
-                        bundle: ["dist/css/qwebirc-<%= suffix %>.css"]
+                        bundle: [
+                            "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
+                            "dist/css/qwebirc<%= suffix %>.css"
+                        ]
                     }
                 }
             }
@@ -376,8 +396,8 @@ module.exports = function(grunt) {
         file_info: {
             source_files: {
                 src: files.full.concat([
-                    "dist/js/modules-<%= suffix %>.js", "js/modules/mootools-1.4.5.js", "js/modules/soundmanager2.js",
-                    "dist/css/qwebirc-<%= suffix %>.css", "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
+                    "dist/js/modules.js", "dist/js/templates.js", "dist/js/plugins.js", "dist/js/qwebirc.js",
+                    "dist/css/qwebirc.css", "dist/css/bootstrap.css"
                 ]),
                 options: {
                     stdout: build.report
@@ -429,11 +449,14 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("build", function(prefix) {
-        config.suffix = prefix || package.version + require("moment")().format("-MMDDhhmm");
+        config.suffix = prefix || config.suffix + require("moment")().format("-MMDDhhmm");
         grunt.task.run([
             "build-templates",
             "build-js",
             "build-css",
+
+            "concat:apply-suffixes",
+
             "build-html"
         ]);
         if(build.report) grunt.task.run("file_info");
