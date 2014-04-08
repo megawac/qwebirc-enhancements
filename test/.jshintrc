@@ -1,0 +1,16 @@
+{
+    "globals": {
+        "mocha": true,
+        "Should": true,
+        "describe": true,
+        "it": true,
+
+        "qwebirc": true
+    },
+
+    "expr": true,
+
+    "strict": false,
+
+    "mootools": true
+}
