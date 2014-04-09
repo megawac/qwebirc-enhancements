@@ -4,7 +4,7 @@
  * @provides [util/urlifier]
  */
 (function() {
-    //welcome to my dirty corner. Here we welcome regexs and confusing loops
+    //welcome to my dirty code corner.
 
     //Parses messages for url strings and creates hyperlinks
     var urlifier = util.urlifier = new components.Urlerizer({
@@ -13,32 +13,31 @@
     // var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
     //     chan_re = /#|\/|\\/;
 
-    urlifier.leading_punctuation.include(/^([\x00-\x02]|\x016|\x1F)/).include(/^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
-    urlifier.trailing_punctuation.include(/([\x00-\x03]|\x016|\x1F)$/);
+    urlifier.leading_punctuation.push(/^([\x00-\x02]|\x1D|\x1F)/, /^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
+    urlifier.trailing_punctuation.push(/([\x00-\x03]|\x1D|\x1F)$/);
 
-    urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
-        //given "qwebirc://whois/rushey#tf2mix/"
-        if(word.contains("qwebirc://")) {
-            var parsed = this.parsePunctuation(word),
-                mid = parsed.mid;
+    // urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
+    //     //given "qwebirc://whois/rushey#tf2mix/"
+    //     if(word.contains("qwebirc://")) {
+    //         var parsed = this.parsePunctuation(word),
+    //             mid = parsed.mid;
+    //         if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
+    //             var cmd = mid.slice(10);//remove qwebirc://
+    //             // if(cmd.startsWith("whois/")) {
+    //             //     var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
+    //             //     var chan = chan_match ? chan_match[0] : "";
+    //             //     var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
+    //             //     var user = cmd.slice(6, chanlen);//whois to channel
+    //             //     cmd = templates.userlink({"userid": user, "username": user + chan});
+    //             // }
+    //             word = parsed.lead + cmd + parsed.end;
+    //         }
+    //     }
+    //     return word;
 
-            if(mid.startsWith("qwebirc://") && mid.endsWith("/") && mid.length > 11) {
-                var cmd = mid.slice(10);//remove qwebirc://
-                /*if(cmd.startsWith("whois/")) {
-                    var chan_match = cmd.match(channame_re); //matches the chan or user to the dash
-                    var chan = chan_match ? chan_match[0] : "";
-                    var chanlen = chan_match ? chan_match.index : cmd.length - 1; //chan length or the len -1 to atleast remove the dash
-                    var user = cmd.slice(6, chanlen);//whois to channel
-                    cmd = templates.userlink({"userid": user, "username": user + chan});
-                }*/
-                word = parsed.lead + cmd + parsed.end;
-            }
-        }
-        return word;
-
-        //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
-    })
-    .addPattern(/\B#+(?![\._#-+])/, function(word) {
+    //     //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
+    // })
+    urlifier.addPattern(/\B#+(?![\._#-+])/, function(word) {
         var parsed = this.parsePunctuation(word),
             res = parsed.mid;
 
@@ -67,6 +66,10 @@
                 text = _text,
 
                 bb, style, endTag_re, end_indx, inner;
+
+            var matchBBCodeTag = function(sty) {
+                return sty.bbcode[0] === tag;
+            };
 
             var colours = irc.styles.colour; //replacing colours [colour fore=red back=2]ya[/colour] => \x034,2ya\x03
             text = text.replace(colour_re, function(match, zZz, attributes, text) {
@@ -100,9 +103,7 @@
                 stac.push(text.slice(0, tag_m.index));
                 text = text.slice(tag_m.index);
 
-                style = _.find(irc.styles.special, function(sty) {
-                    return sty.bbcode[0] === tag;
-                });
+                style = _.find(irc.styles.special, matchBBCodeTag);
                 if(style) {
                     bb = style.bbcode;
 
