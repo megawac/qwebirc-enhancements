@@ -28,12 +28,28 @@ describe("Hyperlink Parsing", function() {
         expect(getLinks("Go to google.ca then check out this video https://www.youtube.com/watch?v=ojvTSRA-O-Y xD")).to.have.length(2);
     });
 
+    it("Match Public (not local) Servers", function() {
+        expect(getLinks("Go to google.com:510")).to.have.length(1);
+        expect(getLinks("Go to 127.0.0.1:9090/#options")).to.have.length(0);
+        expect(getLinks("Go to http://localhost:8080?test=true")).to.have.length(0);
+    });
+
+    it("Match Public (not local) Servers", function() {
+        expect(getLinks("Go to google.com:510")).to.have.length(1);
+        expect(getLinks("Go to 127.0.0.1:9090/#options")).to.have.length(0);
+        expect(getLinks("Go to http://localhost:8080?test=true")).to.have.length(0);
+    });
+
+    it("Match Emails", function() {
+        expect(getLinks("Match my email megawac@gmail.com there")).to.have.length(1);
+    });
+
     it("Hyperlink IRC references", function() {
         expect(getLinks("Some message with a chan link to 51#qwebirc why not")).to.be.empty();
         expect(getLinks("Some message with a chan link to #qwebirc why not")).to.have.length(1);
     });
 
-    it("Hyperlinks can be wrapped by some characters", function() {
+    it("Hyperlinks can be wrapped/prefixed/suffixed by select characters", function() {
         expect(getLinks("Go to (google.ca)")).to.have.length(1);
         expect(getLinks("Go to [google.ca]")).to.have.length(1);
         expect(getLinks("Go to 'google.ca'")).to.have.length(1);

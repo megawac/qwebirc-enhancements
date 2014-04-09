@@ -23,11 +23,10 @@
     var getLeading = makeMatcher("startsWith");
     var getTrailing = makeMatcher("endsWith");
 
-    var simple_url = /^https?:\/\/\w/;
+    var https_url = /^https?:\/\/\w/;
     var url_improved = /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/;//matches anything thats urlish- even bit.ly/a
-    var simple_email = /^\S+@\S+\.\S+$/;
+    var simple_email = /^[\w-]+@\S+\.\S+$/;
     var unquoted_percents = /%(?![0-9A-Fa-f]{2})/;
-    var server = /(\:(\d{2}))|(qwebirc\:\/)/;
 
     components.Urlerizer = new Class({
         Implements: [Options],
@@ -57,8 +56,7 @@
                     parse: function(text) {
                         var options = this.options;
                         var word = text;
-                        if ((word.contains(".") || word.contains("@") || word.contains(":")) &&
-                                (!options.hide_servers || !(server.test(word))) ) {//dont match google.com:510
+                        if ((word.contains(".") || word.contains("@") || word.contains(":")) ) {
                             // Deal with punctuation.
                             var parsed = this.parsePunctuation(word);
                             var middle = parsed.mid;
@@ -68,9 +66,9 @@
                             var nofollow_attr = options.nofollow ? " rel='nofollow'" : "";
                             var target_attr = options.target ? " target='" + options.target + "'" : "";
 
-                            if (simple_url.test(middle)) url = this.urlquote(middle);
+                            if (https_url.test(middle)) url = this.urlquote(middle);
                             else if (url_improved.test(middle)) url = this.urlquote("http://" + middle);
-                            else if (middle.contains(":") && simple_email.test(middle)) {
+                            else if (simple_email.test(middle)) {
                                 // XXX: Not handling IDN.
                                 url = "mailto:" + middle;
                                 nofollow_attr = "";
