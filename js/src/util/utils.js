@@ -6,7 +6,6 @@
  */
 
 /* jshint boss:true */
-/* jshint unused:true */
 
 var join = function(by, xs) {
     return xs.join(by);

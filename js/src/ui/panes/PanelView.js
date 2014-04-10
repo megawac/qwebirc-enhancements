@@ -4,6 +4,7 @@
  * @depends [components/loader, util/uihelpers]
  * @provides [panes/PanelView]
  */
+/* exported PanelView */
 var PanelView = ui.PanelView = new Class({
     /* global getTemplate */
     Extends: Epitome.View,

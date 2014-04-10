@@ -36,12 +36,14 @@
     "irc": true,
     "util": true,
     "lang": true,
+    "sound": true,
     "templates": true,
     "config": true,
     "cookies": true,
     "constants": true,
     "windowNames": true,
     "components": true,
+    "PanelView": true,
 
     //Locals
     "DEBUG": true

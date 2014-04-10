@@ -90,6 +90,8 @@ ui.NavBar = new Class({
             left: [900, 5]
         });
 
+        //https://github.com/jshint/jshint/issues/1288
+        /* jshint immed:false */
         (function() {
             new Fx.Morph(ddhint, {
                 duration: "long"

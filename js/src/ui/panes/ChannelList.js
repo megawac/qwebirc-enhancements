@@ -43,7 +43,7 @@ ui.ChannelList = new Class({
         var self = this;
         var userFilter = self.element.getElement("input.filter").val();
         var filterExp = new RegExp(String.escapeRegExp(userFilter), "i"); //jsperf.com/contains-ignore-case
-        getTemplate("channel-list-content", function(template) {
+        util.getTemplate("channel-list-content", function(template) {
             self.element.getElement(".channels tbody").html(template({
                 channels: self.chanList.filter(function(chan) {
                     return !userFilter || filterExp.test(chan.name) || filterExp.test(chan.topic);

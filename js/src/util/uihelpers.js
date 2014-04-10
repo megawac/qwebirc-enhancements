@@ -18,7 +18,7 @@ ui.Behaviour = (function() {
     };
 })();
   
-var getTemplate = util.getTemplate = function(name, cb, options) {
+util.getTemplate = function(name, cb, options) {
     /*
         Loads a template. If its already on page call callback immediately otherwise load asyncronously
         Note: Should use deferred if available
@@ -51,7 +51,7 @@ var getTemplate = util.getTemplate = function(name, cb, options) {
   
 util.loadTemplate = function(name) {//helper to preload a template - assumes not called instantly
     var template;
-    getTemplate(name, function(tmpl) {template = tmpl});
+    util.getTemplate(name, function(tmpl) {template = tmpl});
     return function() {return template.apply(this, arguments);};
 };
   
@@ -164,7 +164,10 @@ document.addEvent("domready", function() {//based off https://gist.github.com/Ro
                     width: prefix + "calc(5px)"
                 }
             });
-            if ($el.style.length > 0) return (Browser.Features.calc = prefix + "calc");
+            if ($el.style.length > 0) {
+                Browser.Features.calc = prefix + "calc";
+                return true;
+            }
         } catch(nope){}
     });
 });

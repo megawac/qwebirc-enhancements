@@ -5,6 +5,8 @@
   * @depends [irc/Numerics, util/constants, util/utils]
   * @provides [irc/Client]
   */
+
+/* global auth */
 var LANGTYPE = lang.TYPES;
 irc.Client = new Class({
     Implements: [Options, Events, irc.Commands],

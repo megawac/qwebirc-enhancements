@@ -42,7 +42,7 @@
         var chans = data.channels;
         return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
     }
-    function addClientEvents(client, windows) {
+    function addClientEvents(client/*, windows*/) {
         var ui_ = this;
         var uiOptions = ui_.uiOptions;
         function formatData(type, _data) {

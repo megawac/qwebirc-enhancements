@@ -41,10 +41,10 @@ irc.atheme = {
             p: pass
         })
         .addEvents({
-            "failure": function(xhr) {
+            "failure": function(/*xhr*/) {
                 callback(null);
             },
-            "success": function(json, string) {
+            "success": function(json) {
                 if (json) {
                     if (json.success)
                         callback(json.output);
@@ -73,10 +73,10 @@ irc.atheme = {
             t: token
         })
         .addEvents({
-            "failure": function(xhr) {
+            "failure": function(/*xhr*/) {
                 callback(null);
             },
-            "success": function(json, string) {
+            "success": function(json) {
                 callback(json ? true : null);
             }
         })
@@ -103,10 +103,10 @@ irc.atheme = {
             p: user
         })
         .addEvents({
-            "failure": function(xhr) {
+            "failure": function(/*xhr*/) {
                 callback(null);
             },
-            "success": function(json, string) {
+            "success": function(json) {
                 callback(json ? json.success : null);
             }
         })
@@ -137,10 +137,10 @@ irc.atheme = {
             tm: topicmask && topicmask != "*" ? topicmask : undefined
         })
         .addEvents({
-            "failure": function(xhr) {
+            "failure": function(/*xhr*/) {
                 callback(null, 1, 1);
             },
-            "success": function(json, string) {
+            "success": function(json) {
                 if (json && json.success) {
                     callback(json.list, json.ts, json.total);
                 } else {

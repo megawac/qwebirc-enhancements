@@ -5,7 +5,7 @@
  * @provides [ui/Notifiers]
  */
 (function() {
-    /* global sound, notify */
+    /* global notify */
     var favIcons = {};
     document.store("favicon", favIcons);
     document.addEvent("domready", function() {
@@ -20,6 +20,7 @@
         }
     });
 
+    /* jshint unused:false */
     function makeSound(name) {
         if (_.isObject(name)) return name;
         return {
@@ -38,7 +39,9 @@
 
             sounds: { //files in sounds/
                 minSoundRepeatInterval: 1000,
+                /* jshint ignore:start */
                 sounds: (<%= serialize(config.sounds) %> || ["beep"]).map(makeSound)
+                /* jshint ignore:end */
             }
         },
         _notices: [],

@@ -14,6 +14,7 @@ ui.WelcomePane = new Class({
             "click:relay(.controls)": "controlClick"
         },
         onEnableNotifications: function() {
+            /* global toggleNotifications */
             toggleNotifications(this.ui.uiOptions, true, true);
         },
         onControlClick: function(e, controls) {

@@ -261,7 +261,7 @@
 
         __processData: function(payload) {
             var self = this;
-            if (payload[0] == false) {
+            if (payload[0] === false) {
                 if (self.connected) {
                     self.lostConnection(lang.connError, payload);
                 }

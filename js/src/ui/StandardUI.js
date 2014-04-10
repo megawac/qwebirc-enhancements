@@ -32,7 +32,7 @@ ui.StandardUI = new Class({
             });
             self.windows[ui.WINDOW.custom] = self.customWindows;
 
-            getTemplate("qwebirc-layout", function(template) {
+            util.getTemplate("qwebirc-layout", function(template) {
                 Elements.from(template()).inject($par);
                 self.outerTabs = $par.getElement(".outertabbar");
                 self.windowsPanel = $par.getElement(".windows");

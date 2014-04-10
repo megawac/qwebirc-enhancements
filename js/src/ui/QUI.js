@@ -40,7 +40,7 @@ ui.QUI = new Class({
             "mouseenter:relay(a)": function(e, $tar) {
                 if(destroyPopover()) return; //no need already shown
                 if(self.options.imageRegex.test($tar.href)) {
-                    getTemplate("image-popover", function(template) {
+                    util.getTemplate("image-popover", function(template) {
                         currentTarget = $tar;
                         currentPopover = Element.from(template({
                             image_url: $tar.href

@@ -3,7 +3,6 @@
  * @depends [sound]
  * @provides [sound/Player]
  */
-/* global sound */
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
@@ -19,45 +18,42 @@ sound.SoundPlayer = new Class({
         var self = this.setOptions(options);
         var opts = this.options;
 
-        window.addEvent("domready", function() {//load soundmanager ->
-            if (self.loadingSM !== false)
-                return;
-            self.loadingSM = true;
-            if (self.sm) {
-                self.fireEvent("ready");
-                return;
-            }
+        if (self.loadingSM !== false) return;
+        self.loadingSM = true;
+        if (self.sm) {
+            self.fireEvent("ready");
+            return;
+        }
 
-            var soundinit = function() {
-                var sm = self.sm = window.soundManager;
-                self.play = sm.play;
-                //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
-                sm.setup({
-                    url: opts.swfurl,
-                    preferFlash: opts.preferFlash,
-                    onready: function() {
-                        opts.sounds.each(function(sound) {//load all sounds here
-                            // self.register(sound.id, opts.soundsurl + sound.url + extension);
-                            sound = _.clone(sound);
-                            sound.url = _.map(sound.url, function(path) {
-                                return path.contains("/") ? path : opts.soundsurl + path;
-                            });
-                            sm.createSound(sound);
+        var soundinit = function() {
+            var sm = self.sm = window.soundManager;
+            self.play = sm.play;
+            //https://www.scirra.com/blog/44/on-html5-audio-formats-aac-and-ogg
+            sm.setup({
+                url: opts.swfurl,
+                preferFlash: opts.preferFlash,
+                onready: function() {
+                    opts.sounds.each(function(sound) {//load all sounds here
+                        // self.register(sound.id, opts.soundsurl + sound.url + extension);
+                        sound = _.clone(sound);
+                        sound.url = _.map(sound.url, function(path) {
+                            return path.contains("/") ? path : opts.soundsurl + path;
                         });
-                        self.loadingSM = false;
-                        self.fireEvent("ready");
-                    }
-                }).beginDelayedInit();
-            };
+                        sm.createSound(sound);
+                    });
+                    self.loadingSM = false;
+                    self.fireEvent("ready");
+                }
+            }).beginDelayedInit();
+        };
 
-            //load sound manager
-            if(window.soundManager) {
-                soundinit();
-            }
-            else {//lazy load
-                components.loader.javascript("<%= getFileURL('soundManager') %>").then(soundinit);//see gruntfile
-            }
-        });
+        //load sound manager
+        if(window.soundManager) {
+            soundinit();
+        }
+        else {//lazy load
+            components.loader.javascript("<%= getFileURL('soundManager') %>").then(soundinit);//see gruntfile
+        }
     },
 
     register: function(alias,src) {
