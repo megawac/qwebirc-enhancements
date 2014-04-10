@@ -161,6 +161,11 @@ ui.Window = new Class({
         }
     },
 
+    clear: function() {
+        this.lines.empty();
+        return this;
+    },
+
     highlightTab: function(state) {
         var hl = "", classes = constants.hl;
         if (state != this.highlight) {

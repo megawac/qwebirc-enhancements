@@ -55,7 +55,7 @@ config.COMMAND_ALIAS = {
     "PM": "PRIVMSG",
     "Q": "QUERY",
     "BACK": "AWAY",
-    "PRIVACY": "PRIVACYPOLICY",
     "HOP": "CYCLE",
-    "SLAP": "ME"
+    "SLAP": "ME",
+    "CLS": "CLEAR"
 };

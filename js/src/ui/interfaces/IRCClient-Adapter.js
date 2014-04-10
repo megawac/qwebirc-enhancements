@@ -225,7 +225,11 @@
                 });
             },
             "wallops": lineParser,
-            "raw": lineParser
+            "raw": lineParser,
+
+            "clear": function() {
+                ui_.getActiveWindow().clear();
+            }
         });
     }
 })();

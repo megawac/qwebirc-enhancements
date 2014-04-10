@@ -202,42 +202,6 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.Client s
         }
     },
 
-    // cmd_OPTIONS: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             "window": "optionsWindow",
-    //             "type": ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    // cmd_EMBED: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             "window": "embeddedWindow",
-    //             "type": ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    // cmd_PRIVACYPOLICY: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             "window": "privacyWindow",
-    //             "type": ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
-    // cmd_ABOUT: {
-    //     fn: function(args) {
-    //         this.trigger("openWindow", {
-    //             "window": "aboutWindow",
-    //             "type": ui.WINDOW.custom
-    //         });
-    //     }
-    // },
-
     cmd_QUOTE: {
         minargs: 1,
         fn: function(args) {
@@ -396,6 +360,12 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.Client s
                 this.__autojoined = true;
                 return ["JOIN", this.getChannels()];
             }
+        }
+    },
+
+    cmd_CLEAR: {
+        fn: function() {
+            this.trigger("clear");
         }
     }
 });
