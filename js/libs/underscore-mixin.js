@@ -117,8 +117,3 @@
     });
 
 })(this._);
-
-_.mixin({
-    /*jshint evil:true */
-    exec: this.eval
-});

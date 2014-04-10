@@ -61,28 +61,13 @@ module.exports = function(grunt) {
 
         //testing
         connect: {
-            options: {
-                port: 9091,
-                base: ".",
-                keepAlive: true,
-                middleware: function (connect, options) {
-                    //see https://github.com/drewzboto/grunt-connect-proxy
-                    return [
-                        require("grunt-connect-proxy/lib/utils").proxyRequest,
-                        connect.static(options.base),
-                        connect.directory(options.base)
-                    ];
+            server: {
+                options: {
+                    port: 9091,
+                    base: ".",
+                    middleware: require("./test/server/middleware")
                 }
-            },
-            proxies: [
-                {
-                    host: "http://geeks-irc.herokuapp.com/",
-                    https: true,
-                    changeOrigin: true,
-
-                    context: ["/lang"]
-                }
-            ]
+            }
         },
 
         mocha: {
@@ -458,7 +443,7 @@ module.exports = function(grunt) {
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
-    grunt.registerTask("server", ["configureProxies", "connect"]);
+    grunt.registerTask("server", ["connect:server"]);
 
     grunt.registerTask("test", [
         "jshint",
