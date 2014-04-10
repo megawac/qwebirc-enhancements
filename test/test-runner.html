@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -20,6 +21,7 @@
     <div id="ircui"></div>
   </div>
   <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/sinon/pkg/sinon.js"></script>
   <script src="../node_modules/expect.js/index.js"></script>
 
   <script>
@@ -27,8 +29,9 @@
     mocha.reporter('html');
   </script>
 
+  <script src="monkey-patches.js"></script>
   <script src="utils.js"></script>
-  <script src="irc-colours.js"></script>
+  <script src="irc-styles.js"></script>
   <script src="irc-parser.js"></script>
   <script src="url-format.js"></script>
   <script src="ui.js"></script>

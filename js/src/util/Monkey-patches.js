@@ -64,18 +64,21 @@
     String.implement({
 		//see es6 spec
         startsWith: function(what, pos) {
+            what = String(what);
             return this.slice((pos || 0), what.length) == what;
         },
         endsWith: function(what, pos) {
-            return this.slice(this.length - what.length - (pos || 0)) == what;
+            what = String(what);
+            var end = Math.min(Math.max(pos, 0), this.length);
+            return this.slice(end - what.length, end) == what;
         },
 
         trimRight: function (){
-            return String(this).replace(/~+$/, "");
+            return this.replace(/\s+$/, "");
         },
 
         trimLeft: function() {
-            return String(this).replace(/^\s+/, "");
+            return this.replace(/^\s+/, "");
         }
     });
 
@@ -121,7 +124,10 @@
             this.previous.apply(this, arguments);
             adoptEvent(el, [this]);
             return this;
-        }
+        }/*,
+        dispose: function() {
+            return disposeEvent(this.previous.apply(this, arguments));
+        }*/
     })
     .implement({
         //removes all elements in arguments from array if found - opposite of adopt
@@ -130,12 +136,11 @@
                 element = document.id(element, true);
                 if (element) element.dispose();
             });
-            this.fireEvent("disown", arguments);
-            return this;
+            return this.fireEvent("disown", arguments);
         },
 
         maxChildren: function(n) {
-            for (var ele, c = this.children; c.length >= n && (ele = this.firstChild);) {
+            for (var ele, c = this.children; c.length > n && (ele = this.firstChild);) {
                 ele.dispose();
             }
             return this;
@@ -143,11 +148,8 @@
 
         insertAt: function(element, position) {
             //http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-952280727
-            return this.insertBefore(element, this.childNodes[position] || null); //return node being inserted
-        },
-
-        isHovered: function() {
-            return !!(this.getElement(":hover") || this.parentNode.getElement(":hover") === this);
+            this.insertBefore(element, this.childNodes[position] || null); //returns element
+            return this;
         },
 
         isDisplayed: function() {
@@ -166,11 +168,6 @@
         toggle: function(state) {
             if (state == null) state = !this.isDisplayed();
             return this[state ? "show" : "hide"]();
-        },
-
-        swapParent: function(parent) {
-            this.dispose();
-            return parent.adopt(this);
         },
 
         addClasses: function(classes) {

@@ -4,6 +4,7 @@
         "expect": true,
         "describe": true,
         "it": true,
+        "sinon": true,
 
         "qwebirc": true
     },

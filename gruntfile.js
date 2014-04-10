@@ -37,7 +37,6 @@ module.exports = function(grunt) {
         cfg: config,
         config: config,
         files: files,
-
         serialize: function(obj, depth) {
             return require("toSrc")(obj, depth || 10);
         },
@@ -78,7 +77,6 @@ module.exports = function(grunt) {
             proxies: [
                 {
                     host: "http://geeks-irc.herokuapp.com/",
-                    port: 80,
                     https: true,
                     changeOrigin: true,
 
@@ -89,7 +87,9 @@ module.exports = function(grunt) {
 
         mocha: {
             all: {
-                src: ["http://0.0.0.0:9091/test/test-runner.html"],
+                options: {
+                    urls: [ "http://localhost:9091/test/test-runner.html" ],
+                }
             },
             options: {
                 run: true
@@ -460,7 +460,13 @@ module.exports = function(grunt) {
 
     grunt.registerTask("server", ["configureProxies", "connect"]);
 
-    grunt.registerTask("test", ["jshint", "server", "mocha"]);
+    grunt.registerTask("test", [
+        "jshint",
+        "build-templates",
+        "build-js",
+        "server",
+        "mocha"
+    ]);
 
     grunt.registerTask("build-templates", [
         "concat:modifiablecss",
@@ -503,8 +509,6 @@ module.exports = function(grunt) {
         config.suffix = prefix || config.suffix + require("moment")().format("-MMDDhhmm");
         grunt.task.run([
             "test",
-            "build-templates",
-            "build-js",
             "build-css",
 
             "concat:apply-suffixes",
