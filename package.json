@@ -23,8 +23,8 @@
     "url": "http://www.gnu.org/licenses/gpl.html",
     "file": "licence.lic"
   },
-  "engines": {
-    "node": ">= 0.6.0"
+  "scripts": {
+    "test": "grunt test --verbose"
   },
   "devDependencies": {
     "grunt": "0.4",
