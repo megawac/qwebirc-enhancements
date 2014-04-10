@@ -42,6 +42,7 @@ module.exports = function(grunt) {
         },
         getFileURL: function(resource) {//load path to resource
             var resc = files.resources[resource];
+            if(build.debug && resc.local) return resc.local;
             if(build["use cdn"] && resc.cdn) {
                 return build.minify ? resc["cdn min"] : resc.cdn;
             } else {
@@ -60,12 +61,13 @@ module.exports = function(grunt) {
         suffix: "-<%= pkg.version %>",
 
         //testing
-        connect: {
-            server: {
+        express: {
+            testing: {
                 options: {
+                    hostname: "*",
                     port: 9091,
-                    base: ".",
-                    middleware: require("./test/server/middleware")
+                    server: "./test/server/server",
+                    // open: "http://localhost:9091/test/test-runner.html"
                 }
             }
         },
@@ -443,7 +445,7 @@ module.exports = function(grunt) {
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
-    grunt.registerTask("server", ["connect:server"]);
+    grunt.registerTask("server", ["express:testing"]);
 
     grunt.registerTask("test", [
         "jshint",

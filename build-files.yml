@@ -56,12 +56,12 @@
         "modules": {
             # not including soundManager2 here so users can disable sound and not load code
             "cdn": "//cdn.jsdelivr.net/g/respond@1.4,mootools@1.4.5,handlebarsjs@1.3,es6-promise,underscorejs@1.6,one-color@2.4",
-            "local": "/dist/js/modules<%= suffix %>.js"
+            "local": "dist/js/modules<%= suffix %>.js"
         },
 
         "jQuery-images": {
             "cdn": "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/images",
-            "local": "/images"
+            "local": "images"
         }
     }
 }
