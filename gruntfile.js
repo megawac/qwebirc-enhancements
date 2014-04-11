@@ -53,7 +53,7 @@ module.exports = function(grunt) {
 
     package.build = build;
 
-    var config = {
+    grunt.initConfig({
         pkg: package,
         build: build,
         meta: {},
@@ -118,7 +118,6 @@ module.exports = function(grunt) {
                         "vendor-prefix": true
                     },
                     knownHelpersOnly: true,
-
                     data: config.templates
                 },
                 wrapped: true,
@@ -438,9 +437,7 @@ module.exports = function(grunt) {
                 }
             }
         }
-    };
-
-    grunt.initConfig(config);
+    });
 
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
@@ -493,7 +490,8 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("build", function(prefix) {
-        config.suffix = prefix || config.suffix + require("moment")().format("-MMDDhhmm");
+		console.log();
+        grunt.config.set("suffix", prefix || grunt.config.getRaw("suffix") + grunt.template.today("-mmddHHMM"));
         grunt.task.run([
             "test",
             "build-css",

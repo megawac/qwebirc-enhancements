@@ -3,15 +3,7 @@
 
 */
 (function(_, undefined) {
-    var functional = _.func = {},
-        slice = Array.prototype.slice,
-        concat = Array.prototype.concat;
-
-    _.each(["each", "map", "filter", "some", "every", "find", "sortBy", "groupBy", "invoke", "lookup"], function(name) { //useful for partials
-        functional[name] = function(fn, list) {
-            return _[name].apply(this, [list, fn].concat(slice.call(arguments, 2))); //could just call _.flip
-        };
-    });
+    var slice = Array.prototype.slice;
 
     _.mixin({
         autoCurry: function(fn, numArgs) {

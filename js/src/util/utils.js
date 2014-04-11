@@ -24,6 +24,8 @@ var joinEmpty = _.partial(join, ""),
     // splitEmpty = split(""),
     joinComma = util.joinChans = _.partial(join, ",");
 
+var _flipMap = _.partial(_.map, _);
+
     // splitComma = split(","),
 util.concatUnique = _.compose(_.uniq, Array.concat);
 
@@ -115,8 +117,8 @@ util.windowNeedsInput = _.partial(_.contains, constants.INPUT_TYPES);
 
 //String -> String
 //formatChannelStrings("test,test2,#test3,#tes#t4,test5,test6") => "#test,#test2,#test3,#tes#t4,#test5,#test6"
-util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_.func.map, formatChannel), splitChan);
-util.unformatChannelString = _.compose(_.uniq, _.partial(_.func.map, formatChannel), splitChan);
+util.formatChannelString = _.compose(joinComma, _.uniq, _.partial(_flipMap, formatChannel), splitChan);
+util.unformatChannelString = _.compose(_.uniq, _.partial(_flipMap, formatChannel), splitChan);
 
 util.formatURL = function(link) {
     link = util.isChannel(link) ? link.replace("#", "@") : link;
@@ -191,7 +193,7 @@ var charIRCLower = _.compose(_.partial(_.item, constants.IRCLowerTable), functio
 
 //returns the lower case value of a RFC1459 string using the irc table
 //called a fuck ton so memoization is incredible here
-irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_.func.map, charIRCLower)));
+irc.RFC1459toIRCLower = _.memoize(_.compose(joinEmpty, _.partial(_flipMap, charIRCLower)));
 
 irc.ASCIItoIRCLower = String.toLowerCase;
 
