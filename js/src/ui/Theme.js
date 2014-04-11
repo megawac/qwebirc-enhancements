@@ -1,24 +1,20 @@
 /**
- * Should migrate to utils
+ * Should migrate to utils wherever possible
  *
- * @depends [config/theme-templates, config/styles]
+ * @depends [config/theme-templates, util/colourise]
  * @depends [util/constants, util/utils, util/urlifier]
  * @provides [ui/Theme]
  */
-var styles = irc.styles;
 ui.Theme = new Class({
-    initialize: function(themeDict) {
-        var self = this,
-            defaults = _.extend({}, config.ThemeIRCTemplates, themeDict);
-
-        self._theme = Object.map(defaults, function(str) {
+    initialize: function() {
+        this._theme = Object.map(config.IRCTemplates, function(str) {
             // localize
             str = util.formatSafe(str, lang, /\{lang ([^{}]+)\}/g);
             // set controls
             return util.formatSafe(str, config.ThemeControlCodeMap);
         });
 
-        self.highlightClasses.channels = {};
+        this.highlightClasses.channels = {};
     },
 
     //I'm under the assumption i dont need to strip tags as handlebars should escape them for me
@@ -47,14 +43,14 @@ ui.Theme = new Class({
 
 
         var themed = type ? self.formatText(type, data) : data;
-        var result = self.colourise(themed);
+        var result = util.colourise(themed);
         // $ele/*.addClass("colourline")*/
         //     .insertAdjacentHTML("beforeend", result);
         return result;
     },
 
     formatTopic: function(topic, $ele) {
-        var result = this.colourise(this.urlerize(topic));
+        var result = util.colourise(this.urlerize(topic));
         $ele.addClass("colourline")
             .adopt(Elements.from(templates.topicText({
                 title: topic,
@@ -65,73 +61,6 @@ ui.Theme = new Class({
 
     formatText: function(type, data) {
         return util.format(this._theme[type], data);//most formatting done on init
-    },
-
-    colourise: function(line) { //more like stylize
-        //http://www.mirc.com/colors.html
-        //http://www.aviran.org/2011/12/stripremove-irc-client-control-characters/
-        //https://github.com/perl6/mu/blob/master/examples/rules/Grammar-IRC.pm
-        //regexs are cruel to parse this thing
-
-        if (line.contains(styles.close.key)) { //split up by the irc style break character ^O
-            return line.split(styles.close.key).map(this.colourise, this).join("");
-        }
-
-        var result = line;
-
-        var parseArr = _.compact(result.split(styles.colour.key));
-        
-        var col_re = /^\d/;
-
-        //crude mapper for matching the start of a colour string to its end token may be possible to do with reduce?
-        //will be an array of subarrays for each coloured string
-        var colouredarr = parseArr.reduce(function(memo, str) {
-            if( col_re.test(str) ) { //^C...
-                memo.getLast().push(str);
-            } else { //^C1***
-                memo.push([]);
-            }
-            return memo;
-        }, [[]]);
-
-        parseArr.each(function(str) {//help
-            if( col_re.test(str) ) { //^C...
-                colouredarr.getLast().push(str);
-            } else { //^C1***
-                colouredarr.push([]);
-            }
-        });
-
-        colouredarr.each(function(colourarr) {
-            colourarr.each(function(str) {
-                var colourMatch = str.match(styles.colour.fore_re),
-                    backgroundMatch = str.match(styles.colour.back_re),
-                    colour = util.getColourByKey(_.item(colourMatch, 0)),
-                    background = util.getColourByKey(_.last(backgroundMatch));//num aft num + comma
-
-                var html = templates.ircstyle({
-                    "colour": (colour ? colour.fore : ""),
-                    "background": (background ? background.back : ""),
-                    "text": str.slice(backgroundMatch ? backgroundMatch[0].length : colourMatch ? colourMatch[0].length : 0)
-                });
-
-                //would not be difficult to support nesting... just wouldnt be able to use templates but build in place (open when arr.length close on empty). The irc
-                // colour "spec" is too whack to be bothered for now...
-                result = result.replace(styles.colour.key + str, html);
-            });
-        });
-
-        //matching styles (italics bold under)
-        styles.special.each(function(style) {//i wish colours were this easy
-            result = result.replace(style.keyregex, function(match, text) {
-                return templates.ircstyle({
-                    "style": style.style,
-                    "text": text
-                });
-            });
-        });
-
-        return result;
     },
 
     urlerize: function(text) {

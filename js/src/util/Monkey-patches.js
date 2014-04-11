@@ -62,7 +62,7 @@
     });
 
     String.implement({
-		//see es6 spec
+        //see es6 spec
         startsWith: function(what, pos) {
             what = String(what);
             return this.slice((pos || 0), what.length) == what;

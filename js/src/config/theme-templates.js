@@ -18,7 +18,7 @@ config.ThemeControlCodeMap = Object.map(baseControlMap, function(str) {
     return util.formatSafe(str, baseControlMap);
 });
 
-config.ThemeIRCTemplates = {
+config.IRCTemplates = {
     "SIGNON": "{P}Signed on!",
     "CONNECT": "{P}Connected to server - establishing IRC connection.",
 

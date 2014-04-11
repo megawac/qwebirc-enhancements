@@ -13,21 +13,21 @@ irc.styles = [
         name: "underline",
         style: "underline",
         key: "\x1F",
-        keyregex: /\x1F(.*?)\x1F/,
+        keyregex: /\x1F(.*?)(\x1F|$)/,
         bbcode: ["[u]", "[/u]"]
     },
     {
         name: "bold",
         style: "bold",
         key: "\x02",
-        keyregex: /\x02(.*?)\x02/,
+        keyregex: /\x02(.*?)(\x02|$)/,
         bbcode: ["[b]", "[/b]"]
     },
     {
         name: "italic",
         style: "italic",
         key: "\x1D",
-        keyregex: /\x1D(.*?)\x1D/,
+        keyregex: /\x1D(.*?)(\x1D|$)/,
         bbcode: ["[i]", "[/i]"]
     },
     {
