@@ -37,16 +37,16 @@ provides: [Elements.from, Elements.From]
     Elements.from = function(text, excludeScripts){
         if (excludeScripts || excludeScripts == null) text = text.stripScripts();
 
-        var match = text.match(/^\s*<(t[dhr]|tbody|tfoot|thead)/i);
-        if(match) {//table fix
-            var container = new Element('table');
-            var tag = match[1].toLowerCase();
-            if (['td', 'th', 'tr'].contains(tag)){
-                container = new Element('tbody').inject(container);
-                if (tag != 'tr') container = new Element('tr').inject(container);
-            }
-            return new Elements(container.set('html', text).childNodes);
-        }
+        // var match = text.match(/^\s*<(t[dhr]|tbody|tfoot|thead)/i);
+        // if(match) {//table fix
+        //     var container = new Element('table');
+        //     var tag = match[1].toLowerCase();
+        //     if (['td', 'th', 'tr'].contains(tag)){
+        //         container = new Element('tbody').inject(container);
+        //         if (tag != 'tr') container = new Element('tr').inject(container);
+        //     }
+        //     return new Elements(container.set('html', text).childNodes);
+        // }
 
         return new Elements((range ? range.createContextualFragment(text) : //use faster range if available
                                      new Element('div').set('html', text)).childNodes);
