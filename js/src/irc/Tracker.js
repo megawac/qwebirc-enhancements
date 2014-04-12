@@ -1,7 +1,7 @@
 /**
  * This babe tracks users and some user information on each channel ya subscribe to
  *
- * @depends [irc, util/utils]
+ * @depends [irc, util/irc]
  * @provides [irc/Tracker]
  */
 irc.Tracker = new Class({

@@ -6,6 +6,8 @@
         "it": true,
         "sinon": true,
 
+        "_": true,
+
         "qwebirc": true
     },
 

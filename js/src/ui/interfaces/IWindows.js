@@ -178,13 +178,13 @@ ui.IWindows = new Class({
                 this.last.select();
             }
             else if (!_.isEmpty(winarr)) {//case for 2 consecutive closes
-                _.nextItem(winarr, index).select();
+                util.nextItem(winarr, index).select();
             }
         }
     },
     nextWindow: function(direction, fromWin) {
         var windows = _.where(this.windowArray, {detached:false});
-        var win = _.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
+        var win = util.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
         if (win) win.select();
 
         return win;

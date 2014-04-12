@@ -213,7 +213,7 @@ util.calc = function($ele, style, val) {
                 }
             });
             /* jshint evil:true */
-            var size = eval(expr); //safe usage - evals "500-20+12" for example
+            var size = window.eval(expr); //safe usage - evals "500-20+12" for example
             $ele.setStyle(style, size);
             return resize;
         };

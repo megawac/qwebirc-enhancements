@@ -91,7 +91,7 @@ ui.Theme = new Class({
                     (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
-                    (!parser.mentioned || util.testForNick(nick, data.m)) )
+                    (!parser.mentioned || util.createWordRegex(nick).test(data.m)) )
                 {
                     if((!win.active && win.id !== constants.brouhaha) || (!document.hasFocus()) ) {
                         if(parser.flash) {
@@ -109,7 +109,7 @@ ui.Theme = new Class({
                     }
                     if(parser.highlight) {
                         if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
-                        $ele.addClass(_.isBoolean(parser.highlight) ? _.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
+                        $ele.addClass(_.isBoolean(parser.highlight) ? util.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
                     }
                     if(parser.classes) {
                         $ele.addClass(parser.classes);

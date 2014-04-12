@@ -97,52 +97,54 @@ describe("IRC Styles/Colours", function() {
         });
     });
 
-    it("Mixed", function() {
-        var msg;
+    describe("spec", function() {
+        it("Mixed", function() {
+            var msg;
 
-        msg = colourise("\x02this is \x1Fsome text\x1F and \x032,13Keep space after\x03 text\x02");
-        expect(msg).to.have.length(1);
-        expect(filter(msg, ".bold")).to.have.length(1);
-        expect(msg[0].getElements(".underline")).to.have.length(1);
-        expect(msg[0].getElements(".col2.back13")).to.have.length(1);
-    });
+            msg = colourise("\x02this is \x1Fsome text\x1F and \x032,13Keep space after\x03 text\x02");
+            expect(msg).to.have.length(1);
+            expect(filter(msg, ".bold")).to.have.length(1);
+            expect(msg[0].getElements(".underline")).to.have.length(1);
+            expect(msg[0].getElements(".col2.back13")).to.have.length(1);
+        });
 
-    it("^O break styles", function() {
-        var msg;
+        it("^O break styles", function() {
+            var msg;
 
-        msg = colourise("this is \x1Fsome text and\x0D some more\x1F text\x1F");
-        expect(msg).to.have.length(4);
-        expect(filter(msg, ".underline")).to.have.length(2);
+            msg = colourise("this is \x1Fsome text and\x0D some more\x1F text\x1F");
+            expect(msg).to.have.length(4);
+            expect(filter(msg, ".underline")).to.have.length(2);
 
-        msg = colourise("\x02this is \x1Fsome text and\x0D\x032,13Keep space after\x03 text\x02");
-        //NOTE: that bold at the end will count as a span
-        expect(msg).to.have.length(4);
-        expect(filter(msg, ".bold")).to.have.length(2);
-        expect(msg[0].getElements(".underline")).to.have.length(1);
-        expect(msg[0].text()).to.be.equal("this is some text and");
-        expect(msg[0].getElements(".col2.back13")).to.have.length(0);
-        expect(filter(msg, ".col2.back13")).to.have.length(1);
-    });
+            msg = colourise("\x02this is \x1Fsome text and\x0D\x032,13Keep space after\x03 text\x02");
+            //NOTE: that bold at the end will count as a span
+            expect(msg).to.have.length(4);
+            expect(filter(msg, ".bold")).to.have.length(2);
+            expect(msg[0].getElements(".underline")).to.have.length(1);
+            expect(msg[0].text()).to.be.equal("this is some text and");
+            expect(msg[0].getElements(".col2.back13")).to.have.length(0);
+            expect(filter(msg, ".col2.back13")).to.have.length(1);
+        });
 
-    it("Don't require end signal", function() {
-        var msg;
+        it("Don't require end signal", function() {
+            var msg;
 
-        //don't require end signal
-        msg = colourise("Some text \x035keep on going ");
-        expect(msg).to.have.length(2);
-        expect(getText(msg)).to.be.equal("Some text keep on going ");
+            //don't require end signal
+            msg = colourise("Some text \x035keep on going ");
+            expect(msg).to.have.length(2);
+            expect(getText(msg)).to.be.equal("Some text keep on going ");
 
-        msg = colourise("this is \x1Dsome text and some more text");
-        expect(msg).to.have.length(2);
-        expect(getText(msg)).to.be.equal("this is some text and some more text");
+            msg = colourise("this is \x1Dsome text and some more text");
+            expect(msg).to.have.length(2);
+            expect(getText(msg)).to.be.equal("this is some text and some more text");
 
-        msg = colourise("this is \x02some text and some more text");
-        expect(msg).to.have.length(2);
-        expect(getText(msg)).to.be.equal("this is some text and some more text");
+            msg = colourise("this is \x02some text and some more text");
+            expect(msg).to.have.length(2);
+            expect(getText(msg)).to.be.equal("this is some text and some more text");
 
-        msg = colourise("this is \x1Fsome text and some more text");
-        expect(msg).to.have.length(2);
-        expect(getText(msg)).to.be.equal("this is some text and some more text");
+            msg = colourise("this is \x1Fsome text and some more text");
+            expect(msg).to.have.length(2);
+            expect(getText(msg)).to.be.equal("this is some text and some more text");
+        });
     });
 });
 

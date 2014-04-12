@@ -35,7 +35,7 @@
                 }).delay(500);
             }
         },*/
-        nickChange: util.noop
+        nickChange: _.noop
     });
     var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
     function formatChans(data) {
