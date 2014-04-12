@@ -44,9 +44,9 @@ module.exports = function(grunt) {
             var resc = files.resources[resource];
             if(build.debug && resc.local) return resc.local;
             if(build["use cdn"] && resc.cdn) {
-                return build.minify ? resc["cdn min"] : resc.cdn;
+                return resc.cdn;
             } else {
-                return build.minify ? resc["local min"] : resc.local;
+                return resc.local;
             }
         }
     };
@@ -395,7 +395,7 @@ module.exports = function(grunt) {
                     relative: false,
                     data: templateContext,
                     scripts: {
-                        modules: [templateContext.getFileURL("modules")],
+                        // modules: [templateContext.getFileURL("modules")],
                         bundle: build.concat ? ["dist/js/qwebirc-full<%= suffix %>.js"] : files.full,
                         config: ["dist/js/app.js"]
                     },

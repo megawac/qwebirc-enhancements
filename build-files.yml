@@ -37,17 +37,14 @@
 
     "resources": {
         "qwebirc templates": {
-            "local": "dist/dist/templates<%= suffix %>.js",
-            "local min": "dist/dist/templates<%= suffix %>.js"
+            "local": "dist/dist/templates<%= suffix %>.js"
         },
 
         "qwebirc css": {
-            "local": "dist/css/qwebirc<%= suffix %>.css",
-            "local min": "dist/css/qwebirc<%= suffix %>.css"
+            "local": "dist/css/qwebirc<%= suffix %>.css"
         },
         "bootstrap css": {
-            "local": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css",
-            "local min": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
+            "local": "dist/css/bootstrap-<%= pkg['frontend-dependencies'].twbs.version %>.css"
         },
         "soundManager": {
             "cdn": "//cdn.jsdelivr.net/soundmanager2/2.97a.20130512/soundmanager2-nodebug-jsmin.js",
