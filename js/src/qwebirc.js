@@ -4,8 +4,10 @@
  * @provides [qwebirc, irc, util, config, auth, ui, components, cookies, sound, lang, windowNames, templates, constants]
  */
 
+/* exported irc, util, ui, cookies, config, auth, components, sound, templates, constants, windowNames, readyPromises */
+
 //wrapped in iife during grunt build
-/* jshint globalstrict:true */
+/* jshint ignore:start */
 var DEBUG = "<%= build.debug %>" === "true"; //will be removed as dead code if false
 
 //cache common globals in scope
@@ -16,6 +18,8 @@ var $ = document.id,
     Events = window.Events,
     _ = window._,
     Epitome = window.Epitome;
+
+/* jshint ignore:end */
 
 
 //global object

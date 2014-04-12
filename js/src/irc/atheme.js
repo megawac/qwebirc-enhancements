@@ -13,17 +13,11 @@ irc.atheme = {
      */
     cacheAvoidance: util.randHexString(16),
     newRequest: function(command, data) {
-        /* New login request. */
-        var req = new Request.JSON({
+        /* eg New login request. */
+        return new Request.JSON({
             url: qwebirc.global.dynamicBaseURL + "a/" + command + "?req=" + irc.atheme.cacheAvoidance,
             data: data
-        });
-
-        if (Browser.ie && Browser.version < 8) {
-            req.setHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
-        }
-
-        return req;
+        }).send();
     },
     /**
      * Login to Atheme, getting an authentication token.
@@ -40,22 +34,18 @@ irc.atheme = {
             u: user,
             p: pass
         })
-        .addEvents({
-            "failure": function(xhr) {
+        .then(function(json) {
+            if (json) {
+                if (json.success)
+                    callback(json.output);
+                else
+                    callback("");
+            } else {
                 callback(null);
-            },
-            "success": function(json, string) {
-                if (json) {
-                    if (json.success)
-                        callback(json.output);
-                    else
-                        callback("");
-                } else {
-                    callback(null);
-                }
             }
-        })
-        .send();
+        }, function(/*xhr*/) {
+            callback(null);
+        });
     },
     /**
      * Logs out, invalidating an authentication token.
@@ -72,15 +62,11 @@ irc.atheme = {
             u: user,
             t: token
         })
-        .addEvents({
-            "failure": function(xhr) {
-                callback(null);
-            },
-            "success": function(json, string) {
-                callback(json ? true : null);
-            }
-        })
-        .send();
+        .then(function(json) {
+            callback(json ? true : null);
+        }, function(/*xhr*/) {
+            callback(null);
+        });
     },
     /**
      * Checks whether an authentication token is valid.
@@ -102,15 +88,11 @@ irc.atheme = {
             c: "INFO",
             p: user
         })
-        .addEvents({
-            "failure": function(xhr) {
-                callback(null);
-            },
-            "success": function(json, string) {
-                callback(json ? json.success : null);
-            }
-        })
-        .send();
+        .then(function(json) {
+            callback(json ? json.success : null);
+        }, function(/*xhr*/) {
+            callback(null);
+        });
     },
     /**
      * Retrieves a channel list.
@@ -136,19 +118,15 @@ irc.atheme = {
             cm: chanmask && chanmask != "*" ? chanmask : undefined,
             tm: topicmask && topicmask != "*" ? topicmask : undefined
         })
-        .addEvents({
-            "failure": function(xhr) {
-                callback(null, 1, 1);
-            },
-            "success": function(json, string) {
-                if (json && json.success) {
-                    callback(json.list, json.ts, json.total);
-                } else {
-                    callback([], 1, 0);
-                }
+        .then(function(json) {
+            if (json && json.success) {
+                callback(json.list, json.ts, json.total);
+            } else {
+                callback([], 1, 0);
             }
-        })
-        .send();
+        }, function(/*xhr*/) {
+            callback(null, 1, 1);
+        });
     }
 };
 //<% } %>

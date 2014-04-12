@@ -4,8 +4,8 @@
  * @depends [components/loader, util/uihelpers]
  * @provides [panes/PanelView]
  */
+/* exported PanelView */
 var PanelView = ui.PanelView = new Class({
-    /* global getTemplate */
     Extends: Epitome.View,
     options: {
         pane: "",
@@ -28,7 +28,7 @@ var PanelView = ui.PanelView = new Class({
     render: function() {
         var self = this.empty();
         var $loader = Element.from(templates.loadingPage()).inject(self.element);
-        var loadPromises = [getTemplate(self.options.pane), components.loader.load(self.options.deps)];
+        var loadPromises = [util.getTemplate(self.options.pane), components.loader.load(self.options.deps)];
         if (self.options.i18n) {
             loadPromises.push(lang.load("panes/" + self.options.i18n));
         }

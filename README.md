@@ -1,4 +1,4 @@
-qwebirc-mods  
+qwebirc-mods [![Build Status](https://travis-ci.org/megawac/qwebirc-enhancements.svg?branch=testing)](https://travis-ci.org/megawac/qwebirc-enhancements)
 =============  
 
 <img align="right" height="125" src="https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png">

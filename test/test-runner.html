@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+
+    <link href="../dist/css/bootstrap.css" rel="stylesheet">
+    <link href="../dist/css/qwebirc.css" rel="stylesheet">
+
+    <script src="../dist/js/modules.js"></script>
+    <script src="../dist/js/plugins.js"></script>
+    <script src="../dist/js/templates.js"></script>
+    <script src="../dist/js/qwebirc.js"></script>
+    <!-- <script src="../dist/js/app.js"></script> -->
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <div>
+    <div id="ircui"></div>
+  </div>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/sinon/pkg/sinon.js"></script>
+  <script src="../node_modules/expect.js/index.js"></script>
+
+  <script>
+    mocha.setup('bdd')
+    mocha.reporter('html');
+  </script>
+
+  <script src="elements.from.js"></script>
+  <script src="monkey-patches.js"></script>
+  <script src="utils.js"></script>
+  <script src="irc-parser.js"></script>
+  <script src="url-format.js"></script>
+  <script src="irc-styles.js"></script>
+
+  <script src="qwebirc.js"></script>
+  <script src="ui.js"></script>
+
+  <script>
+    // Only tests run in real browser, injected script run if options.run == true
+    if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+      mocha.run();
+    }
+  </script>
+</body>
+</html>

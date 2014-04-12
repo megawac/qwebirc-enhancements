@@ -37,28 +37,62 @@ module.exports = function(grunt) {
         cfg: config,
         config: config,
         files: files,
-
         serialize: function(obj, depth) {
             return require("toSrc")(obj, depth || 10);
         },
         getFileURL: function(resource) {//load path to resource
             var resc = files.resources[resource];
+            if(build.debug && resc.local) return resc.local;
             if(build["use cdn"] && resc.cdn) {
-                return build.minify ? resc["cdn min"] : resc.cdn;
+                return resc.cdn;
             } else {
-                return build.minify ? resc["local min"] : resc.local;
+                return resc.local;
             }
         }
     };
 
     package.build = build;
 
-    var config = {
+    grunt.initConfig({
         pkg: package,
         build: build,
         meta: {},
 
         suffix: "-<%= pkg.version %>",
+
+        //testing
+        express: {
+            testing: {
+                options: {
+                    hostname: "*",
+                    port: 9091,
+                    server: "./test/server/server",
+                    // open: "http://localhost:9091/test/test-runner.html"
+                }
+            }
+        },
+
+        mocha: {
+            all: {
+                options: {
+                    urls: [ "http://localhost:9091/test/test-runner.html" ],
+                }
+            },
+            options: {
+                run: true
+            }
+        },
+
+        jshint: {
+            all: {
+                files: {
+                    src: ["js/src/**/*.js"]
+                },
+                options: {
+                    jshintrc: ".jshintrc"
+                }
+            }
+        },
 
         //building
 
@@ -84,7 +118,6 @@ module.exports = function(grunt) {
                         "vendor-prefix": true
                     },
                     knownHelpersOnly: true,
-
                     data: config.templates
                 },
                 wrapped: true,
@@ -404,12 +437,20 @@ module.exports = function(grunt) {
                 }
             }
         }
-    };
-
-    grunt.initConfig(config);
+    });
 
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
+
+    grunt.registerTask("server", ["express:testing"]);
+
+    grunt.registerTask("test", [
+        "jshint",
+        "build-templates",
+        "build-js",
+        "server",
+        "mocha"
+    ]);
 
     grunt.registerTask("build-templates", [
         "concat:modifiablecss",
@@ -449,10 +490,10 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("build", function(prefix) {
-        config.suffix = prefix || config.suffix + require("moment")().format("-MMDDhhmm");
+		console.log();
+        grunt.config.set("suffix", prefix || grunt.config.getRaw("suffix") + grunt.template.today("-mmddHHMM"));
         grunt.task.run([
-            "build-templates",
-            "build-js",
+            "test",
             "build-css",
 
             "concat:apply-suffixes",

@@ -261,7 +261,7 @@
 
         __processData: function(payload) {
             var self = this;
-            if (payload[0] == false) {
+            if (payload[0] === false) {
                 if (self.connected) {
                     self.lostConnection(lang.connError, payload);
                 }
@@ -274,7 +274,7 @@
 
                 if      (type === "connect")    self.fireEvent("connect", data);
                 else if (type === "disconnect") self.fireEvent("disconnect", data);
-                else if (type === "c")          self.fireEvent("recv", util.processTwistedData(data));
+                else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
                 else if (DEBUG)                 console.warn("Unexpected type " + type, data);
             });
 

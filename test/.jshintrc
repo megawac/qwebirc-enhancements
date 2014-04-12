@@ -1,0 +1,19 @@
+{
+    "globals": {
+        "mocha": true,
+        "expect": true,
+        "describe": true,
+        "it": true,
+        "sinon": true,
+
+        "_": true,
+
+        "qwebirc": true
+    },
+
+    "expr": true,
+
+    "strict": false,
+
+    "mootools": true
+}

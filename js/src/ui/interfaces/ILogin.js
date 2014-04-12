@@ -4,6 +4,8 @@
  * @depends [panes/Welcome, components/Popups, util/utils, util/utils]
  * @provides [ui/ILogin]
  */
+
+/* global auth */
 (function() {
     function validate($ele, validators) {
         if(_.isEmpty(validators)) return;
@@ -16,7 +18,7 @@
                             .toggleClass("has-error", failbool);
         if (failbool) {
             if($controlpar.getElements(".help-block").filter(function(ele) {return ele.html() === failed.description();}).length === 0) {
-                getTemplate("failed-validator", function(template) {
+                util.getTemplate("failed-validator", function(template) {
                     Elements.from(template(failed)).inject($controlpar);
                     // $ele.focus();
                 });
@@ -42,7 +44,7 @@
             full: auth.enabled || settings.get("auth")
         });
 
-        getTemplate("authpage", function(template) {
+        util.getTemplate("authpage", function(template) {
             var $page = Element.from(template(data)).inject(parentElement);
 
             var $form = $page.getElement(".login"),

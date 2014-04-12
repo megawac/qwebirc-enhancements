@@ -22,6 +22,7 @@ ui.OptionView = new Class({
         },
         
         onDnToggle: function(e, target) {
+            /* global toggleNotifications */
             toggleNotifications(this.model);
             target.val(this.model.get("dn_state") ? lang.DISABLE : lang.ENABLE);
         }

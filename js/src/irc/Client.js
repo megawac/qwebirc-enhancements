@@ -2,9 +2,11 @@
   * ircclient new and improved
   *
   * @depends [irc/Commands, irc/Connection, irc/Tracker, config/ctcp]
-  * @depends [irc/Numerics, util/constants, util/utils]
+  * @depends [irc/Numerics, util/constants, util/irc]
   * @provides [irc/Client]
   */
+
+/* global auth */
 var LANGTYPE = lang.TYPES;
 irc.Client = new Class({
     Implements: [Options, Events, irc.Commands],

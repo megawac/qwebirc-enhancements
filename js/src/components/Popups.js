@@ -34,7 +34,7 @@
                 $caller = self.$caller;
             options = self.setOptions(options).options;
 
-            getTemplate(options.popup_template, function(popuptmpl) {
+            util.getTemplate(options.popup_template, function(popuptmpl) {
                 if(options.template) {//expected to be loaded
                     options.content = options.template(options);
                 }
@@ -85,7 +85,7 @@
                 throw "needs text";
             }
 
-            getTemplate(options.popup_template, function(popuptmpl) {
+            util.getTemplate(options.popup_template, function(popuptmpl) {
                 var $pop = Element.from(popuptmpl(options));
                 $par.adopt($pop);
                 self.$caller = $caller;

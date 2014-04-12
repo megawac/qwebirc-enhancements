@@ -13,7 +13,7 @@ ui.IUIOptions = new Class({
             defaults: options.uiOptions
         });
         var updateStylesheet = self.updateStylesheet.bind(self);
-        self.theme = new ui.Theme(options.theme);
+        self.theme = new ui.Theme();
         function setNotices() {
             var notices = uiOptions.get("standard_notices").concat(uiOptions.get("custom_notices"));
             var notifiers = notices
@@ -63,9 +63,7 @@ ui.IUIOptions = new Class({
         setNotices();
 
 
-        self._styleSheet = new Element("style", {
-            type: "text/css"
-        }).inject(document.head);
+        self._styleSheet = new Element("style").inject(document.head);
 
         updateStylesheet({
             colour: Object.filter({
@@ -79,7 +77,7 @@ ui.IUIOptions = new Class({
 
     updateStylesheet: function(values) {
         var self = this;
-        getTemplate("modifiablecss", function(template) {
+        util.getTemplate("modifiablecss", function(template) {
             var styles = _.merge({}, Browser, self.uiOptions.toJSON(), values);
             var stylesheet = template(styles);
             

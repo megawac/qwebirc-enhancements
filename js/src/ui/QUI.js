@@ -24,10 +24,8 @@ ui.QUI = new Class({
         });
 
         self.element.addClasses(["qui", "signed-out"]);
-
         self.popovers = new components.ImagePopover(self.element, self.uiOptions.get("image_popovers"));
         self.uiOptions.on("change:image_popovers", self.popovers.toggle.bind(self.popovers));
-        
         return self;
     },
 
