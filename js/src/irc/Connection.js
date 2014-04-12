@@ -274,7 +274,7 @@
 
                 if      (type === "connect")    self.fireEvent("connect", data);
                 else if (type === "disconnect") self.fireEvent("disconnect", data);
-                else if (type === "c")          self.fireEvent("recv", util.processTwistedData(data));
+                else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
                 else if (DEBUG)                 console.warn("Unexpected type " + type, data);
             });
 

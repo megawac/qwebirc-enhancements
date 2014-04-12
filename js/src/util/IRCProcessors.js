@@ -1,14 +1,3 @@
-/*
- * Adapted from https://github.com/martynsmith/node-irc - see http://jsperf.com/javascript-irc-parsers for dif implementations
- * parseMessage(line, stripColors)
- *
- * takes a raw "line" from the IRC server and turns it into an object with
- * useful keys
- * ":OCD!~OCD@76.72.16.142 PRIVMSG #tf2mix :mix servers are down. join mumble for an inhouse pug." => {"prefix":"OCD!~OCD@76.72.16.142","nick":"OCD","user":"~OCD","host":"76.72.16.142","command":"PRIVMSG","rawCommand":"PRIVMSG","commandType":"normal","args":["#tf2mix","mix servers are down. join mumble for an inhouse pug."]}
- *
- * @depends [irc/Numerics]
- * @provides [util/ircprocessor]
- */
 /* jshint boss:true */
 var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     hasprefix_re = /^:([^ ]+) +/,
@@ -20,7 +9,18 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
     args_split_re = / +/,
     NUMERICS = irc.Numerics;
 
-util.parseIRCData = function(line/*, stripColors*/) {
+/*
+ * Adapted from https://github.com/martynsmith/node-irc - see http://jsperf.com/javascript-irc-parsers for dif implementations
+ * parseMessage(line, stripColors)
+ *
+ * takes a raw "line" from the IRC server and turns it into an object with
+ * useful keys
+ * ":OCD!~OCD@76.72.16.142 PRIVMSG #tf2mix :mix servers are down. join mumble for an inhouse pug." => {"prefix":"OCD!~OCD@76.72.16.142","nick":"OCD","user":"~OCD","host":"76.72.16.142","command":"PRIVMSG","rawCommand":"PRIVMSG","commandType":"normal","args":["#tf2mix","mix servers are down. join mumble for an inhouse pug."]}
+ *
+ * @depends [irc/Numerics]
+ * @provides [util/ircprocessor]
+ */
+function parseIRCMessage(line/*, stripColors*/) {
     var message = {
         "raw": line,
         "prefix": ""
@@ -55,7 +55,7 @@ util.parseIRCData = function(line/*, stripColors*/) {
     message.args = [];
 
     // Parse parameters
-    if (line.search(args_re) != -1) {
+    if (args_re.test(line)) {
         match = line.match(argsm_re);
         middle = match[1].trimRight();
         trailing = match[2];
@@ -63,14 +63,17 @@ util.parseIRCData = function(line/*, stripColors*/) {
         middle = line;
     }
 
-    if (middle.length) message.args = middle.split(args_split_re);
+    if (middle) message.args = middle.split(args_split_re);
 
-    if (!_.isUndefined(trailing) && trailing.length) message.args.push(trailing);
+    if (trailing) message.args.push(trailing);
 
     return message;
-};
+}
 
-util.processTwistedData = function(data) {
+/**
+ * Parses a preprocessed line from the Qwebirc twisted server
+ */
+function parseTwistedMessage(data) {
     var message = {
         // commandType: "normal",
         rawCommand: data[1],
@@ -88,4 +91,8 @@ util.processTwistedData = function(data) {
         message.server = message.prefix;
     }
     return message;
+}
+
+util.parseIRCMessage = function(message) {
+    return _.isString(message) ? parseIRCMessage(message) : parseTwistedMessage(message);
 };
