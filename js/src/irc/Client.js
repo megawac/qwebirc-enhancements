@@ -10,7 +10,7 @@
 var LANGTYPE = lang.TYPES;
 irc.Client = new Class({
     Implements: [Options, Events, irc.Commands],
-    Binds: ["lostConnection", "send", "quit", "connected",  "retry", "dispatch"],
+    Binds: ["lostConnection", "send", "quit", "connected", "dispatch"],
     options: {
         networkServices: [],
         loginRegex: /a^/ //always fail
@@ -32,7 +32,7 @@ irc.Client = new Class({
     },
     toIRCLower: irc.RFC1459toIRCLower,//default text codec
 
-    IRC_COMMAND_MAP: {// function router see dispatch
+    IRC_COMMAND_MAP: {// map different commands to approriate functions
         // "ERROR": "",
         // "INVITE": "",
         // "JOIN": "",
@@ -47,10 +47,10 @@ irc.Client = new Class({
         // "QUIT": "",
         // "WALLOPS": "",
 
-        "ERR_CANNOTSENDTOCHAN": "genericError",
-        "ERR_CHANOPRIVSNEEDED": "genericError",
+        // "ERR_CANNOTSENDTOCHAN": "genericError",
+        // "ERR_CHANOPRIVSNEEDED": "genericError",
         // "ERR_NICKNAMEINUSE": "",
-        "ERR_NOSUCHNICK": "genericError"//,
+        // "ERR_NOSUCHNICK": "genericError"//,
 
         // "RPL_AWAY": "",
         // "RPL_CHANNELMODEIS": "",
@@ -98,8 +98,12 @@ irc.Client = new Class({
                 self.disconnect(data[1]);
             },
             "connect": self.connected,
-            // "retry": self.retry,
-            "lostConnection": self.lostConnection
+            "reconnect": function() {
+                self.writeMessages(lang.reconnected, {}, {channels: constants.all});
+            },
+            "retry": function() {
+                self.writeMessages(lang.attemptReconnect, {}, {channels: constants.all});
+            }
         });
 
         // self.commandparser = new irc.Commands(self);
@@ -123,12 +127,16 @@ irc.Client = new Class({
     },
 
     send: function(data) {
-        return this.connection.send(data);
+        try {
+            return this.connection.send(data);
+        } catch(dead_connection) {
+            this.trigger("sendFail", lang.notConnected);
+        }
     },
 
     disconnect: function(message) {
         delete this.tracker;
-        this.writeMessages(message || lang.disconnected, {}, {channels: "ALL", type: LANGTYPE.INFO});
+        this.writeMessages(message || lang.disconnected, {}, {channels: constants.all, type: LANGTYPE.INFO});
         this.connection.disconnect();
         return this.trigger("disconnect");
     },
@@ -147,20 +155,12 @@ irc.Client = new Class({
         return this;
     },
 
-    lostConnection: function(attempt) {
-        this.writeMessages(lang.connTimeOut, {
-            retryAttempts: attempt
-        }, {
-            channels: "ALL"
-        });
-    },
-
     // retry: function(data) {
     //     this.trigger("retry", data);
     //     this.writeMessages(lang.connRetry, {
     //         next: (data.next/1000).round(1)
     //     }, {
-    //         channels: "ALL"
+    //         channels: constants.all
     //     });
     // },
     /***********************************************
@@ -292,7 +292,6 @@ irc.Client = new Class({
             channel: constants.status,
             message: []
         }, idata);
-        data.channels = data.channels === "ALL" ? [constants.status, "brouhaha"].concat(this.channels) : data.channels;
 
         function write(message) {
             var msg = args ? util.format(message, args) :
@@ -318,19 +317,6 @@ irc.Client = new Class({
         return this.trigger("info", data);
     },
 
-    genericError: function(data) {
-        var message = _.last(data.args),
-            target = util.isChannel(data.args[1]) ? data.args[1] : constants.status;
-
-        this.trigger("error", {
-            target: target,
-            channel: target,
-            message: message,
-            type: "genericError",
-            colourClass: "warn"
-        });
-        return true;
-    },
     /*genericQueryError: function(data) {
         var message = _.last(data.args),
             target = util.isChannel(data.args[1]) ? data.args[1] : constants.status;

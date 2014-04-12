@@ -294,31 +294,6 @@ irc.Client.implement({
         return true;
     },
 
-
-    irc_ERR_NICKNAMEINUSE: function(data) {//add some number to the nick and resend
-        if(!this.__signedOn) {
-            var nick = data.args[1];
-            var newnick = nick + Array.getRandom("_`-");
-
-            data.args[data.args.length-1] = _.last(data.args) + " Retrying with nick: " + newnick;
-            this.genericError(data);
-
-            this.send(util.formatCommand("NICK", {nick: newnick}));
-        }
-        return true;
-    },
-
-    irc_ERROR: function(data) {
-        var message = _.last(data.args);
-
-        this.trigger("error", {
-            message: message,
-            type: "genericError"
-        });
-
-        return true;
-    },
-
     irc_MODE: function(data) {//http://tools.ietf.org/html/rfc1459.html#section-4.2.3
         var self = this;
         var target = data.args[0];
