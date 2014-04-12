@@ -11,11 +11,7 @@ function whoisWrapper(type, fn) {
     return _.compose(function(data) {
         data.type = type;
         data.msgs = Array.from(data.msgs || data.message).map(function(msg) {
-            if(_.isString(msg)) {
-                return {
-                    message: msg
-                };
-            }
+            if(_.isString(msg)) return { message: msg };
             return msg;
         });
         this.trigger("whois", data);

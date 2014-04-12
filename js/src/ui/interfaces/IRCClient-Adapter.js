@@ -38,6 +38,7 @@
         nickChange: util.noop
     });
     var broadcast_re = /MSG|TOPIC|(CHAN|PRIV)NOTICE/i;
+    var active = ui.WINDOW.active;
     function formatChans(data) {
         var chans = data.channels;
         return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
@@ -67,7 +68,7 @@
             
             _.each(formatChans(data), function(channel) {
                 data.channel = data.c = channel;
-                var win = (data.c === ui.WINDOW.active) ? ui_.getActiveWindow() : ui_.getWindow(client, channel);
+                var win = (data.c === active) ? ui_.getActiveWindow() : ui_.getWindow(client, channel);
                 if(!win) return;
                 if(_.isArray(data.message)) {
                     data.message.each(function(msg) {
@@ -221,7 +222,7 @@
             "serverNotice": lineParser,
             "whois": function(type, data) {
                 _.each(data.msgs, function(msg) {
-                    lineParser(type, _.extend({}, data, msg));
+                    lineParser(type, _.extend({c: active}, data, msg));
                 });
             },
             "wallops": lineParser,
