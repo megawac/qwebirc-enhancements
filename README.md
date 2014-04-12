@@ -1,4 +1,4 @@
-qwebirc-mods [![Build Status](https://travis-ci.org/megawac/qwebirc-enhancements.svg?branch=testing)](https://travis-ci.org/megawac/qwebirc-enhancements)
+qwebirc-mods [![Build Status](https://travis-ci.org/megawac/qwebirc-enhancements.svg)](https://travis-ci.org/megawac/qwebirc-enhancements)
 =============  
 
 <img align="right" height="125" src="https://raw.github.com/megawac/qwebirc-enhancements/master/images/qwebircsmall.png">
@@ -12,73 +12,30 @@ Qwebirc is intended to be a simple, intuitive and feature rich IRC client that o
 - Configure the qwebirc instance settings as described in [configuration](#configuration)
 - Install development build dependencies using `npm install` in the base folder (reads in package.json)
 - Run `grunt` to build static files
+- Start up a `qwebirc` or `iris` server with this repo set as the static files see #Server. For testing I personally use the server in [`test/server`](https://github.com/megawac/qwebirc-enhancements/blob/master/test/server/run.js) with the `base_url`s set to a live instance
 
 #### Making changes
 After making changes to source files run in the base directory and run `grunt` in the command line to recompile resources.
 
 ### Configuration
-Most basic configuration can be done with the files in [/configure](https://github.com/megawac/qwebirc-enhancements/tree/master/configure). Making more specific changes may require changes to source files.
+You can set compile settings either in the gruntfile manually or setting the compile presets in [`app-config.yml`](https://github.com/megawac/qwebirc-enhancements/blob/master/app-config.yml) and [`build.yml`](https://github.com/megawac/qwebirc-enhancements/blob/master/build.yml). A similar build step to the old `compile.py` build is in the works (see #17)
 
-You can set any [application options](https://github.com/megawac/qwebirc-enhancements/blob/master/js/src/ui/Interface.js#L2), [client options](https://github.com/megawac/qwebirc-enhancements/blob/master/js/src/irc/ircclient.js#L5), [user options](https://github.com/megawac/qwebirc-enhancements/blob/master/js/src/config/options.js#L3), or [settings](https://github.com/megawac/qwebirc-enhancements/blob/master/js/src/config/settings.js#L6) in the call to `qwebirc.createInstance()`. `createInstance` also checks the query string to see if any valid settings are set in the query string. For example, `127.0.0.1:9090/?channels=chat,qwebirc&style_saturation=5` will append `'#chat,#qwebirc'` to channels and set the user option, `style_saturation` to `5`. (Almost) Equivalently these can be set in the [create instance](https://github.com/megawac/qwebirc-enhancements/blob/master/configure/config.js) call:
-
-```
-qwebirc.createInstance("irc", qwebirc.ui.UI, {
-   "appTitle": "Freenode WebIRC",
-    "networkName": "Freenode",
-    "debug": false,
-    "settings": {
-        "channels": ['#chat', '#qwebirc']
-    },
-    uiOptions: {
-        "style_saturation": 5
-    },
-    "client": {
-        "networkServices": ["Services.Freenode.net"],
-        "loginRegex": /You are now identified for/,
-        "node": false
-    }
-});
-```
-
-You can set compile settings either in the gruntfile manually or using some of the presets in the [`package.json`](https://github.com/megawac/qwebirc-enhancements/blob/master/package.json#L33)
-- build:
- * minify: minimize the file size by shortening variable names and reducing whitespace
- * concat: concatenate files into large files where applicable
- * "use cdn": load files from a cdn where applicable
-  
-####Done:  
-* improved extendibility through modularization and refactoring
-* ui client relationship event driven and moving important functions to utils. Makes implementing extensions much simpler
- * redid url parser to be easier to add patterns and more complete
-* various new ui features and fixes (some mentioned below)
- * detachable windows and resizable components
- * fixed tab overflow not showing
- * stable scrolling implementation
- * image popovers
- * boostrapped
-* code quality improvements (more dry and intuitive and less hacky)
- * join-flood detection
- * Rewrote ui using mv* style
-* rewrote irc colouriser and moved to theme
-* rewrote and improved urlifier and moved to theme + module
-* moved modifiable css to a precompiled handlebars template
-* fix some memory leaks
-* moved all panes to seperate modules (havent rewritten the embed wizard)
-* mocked up new input bar see screenshot above
-* Localization (see [#7](https://github.com/megawac/qwebirc-enhancements/issues/7))
+Making changes to most source files will require you to rebuild via `grunt`
   
 ####TODOs: 
-* (minor) Finish Drag.SplitPane module (issues with keeping relative pos with window resizes) {{link to repo}}
-* (minor) Move `ui.Theme` methods to utils and `ui.IWindow`
 * Add options for:
  * (mid) configure hotkeys
-* (major) Refactor python compile code to call appropriate Grunt build and set app options
+* (major) Refactor python compile code to call appropriate Grunt build and set app options (#17)
   
   
 ####KNOWN BUGS:  
 * __ie7 isnt rendering__ the site according to webpagetest.org. please send help or maple syrup  
 
-##DEMO:  
+##Server:  
+Requires a light modification of either qwebirc or iris in order to support localization and switching the index file to `static.html`. See commits below if you don't want to use [my server fork](https://github.com/megawac/iris)
+- Compile: [`ffba0d7b2772d2`](https://github.com/megawac/iris/commit/ffba0d7b2772d2a26dcd47a4f941f6b020e52254)
+- Set index.html: [`83e67bf4b236e`](https://github.com/megawac/iris/commit/83e67bf4b236e532dcdcc7a8c9e6b7cb9f6ee4d9)
+- Localization engine: [`fed82b8a6a4c9`](https://github.com/megawac/iris/commit/fed82b8a6a4c9168fda4ee12a657fde5bddfc337)
 
 #### Twisted (or Iris)
 I have an instance of the code running over twisted on the Geeks-IRC network at [geeks-irc.herokuapp.com](http://geeks-irc.herokuapp.com/)
