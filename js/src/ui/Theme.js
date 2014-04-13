@@ -91,7 +91,7 @@ ui.Theme = new Class({
                     (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
-                    (!parser.mentioned || util.createWordRegex(nick).test(data.m)) )
+                    (!parser.mentioned || util.containsWord(nick, data.m)) )
                 {
                     if((!win.active && win.id !== constants.brouhaha) || (!document.hasFocus()) ) {
                         if(parser.flash) {

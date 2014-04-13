@@ -38,11 +38,15 @@ describe("Utilities", function() {
             expect(util.nextItem(col, 3, -col.length * 5)).to.be.equal(-2);
         });
 
-        it(".createWordRegex()", function() {
-            var nick_re = util.createWordRegex("megawac");
-            expect(nick_re.test("Some random sequence of characters with (megawac) in it")).to.be.ok();
-            expect(nick_re.test("Some random sequence of characters w/ megawac.")).to.be.ok();
-            expect(nick_re.test("Some random sequence of characters w/o amegawac in it")).to.not.be.ok();
+        it(".containsWord()", function() {
+            expect(util.containsWord("megawac", "Some random sequence of characters with (megawac) in it")).to.be.ok();
+            expect(util.containsWord("megawac", "Some random sequence of characters w/ megawac.")).to.be.ok();
+            expect(util.containsWord("megawac", "Some random sequence of characters w/o amegawac in it")).to.not.be.ok();
+
+            //handle random characters?
+            expect(util.containsWord("meg_awac`", "Some random sequence of characters with (-meg_awac`) in it")).to.be.ok();
+            expect(util.containsWord("meg_awac`", "Some random sequence of characters w/ -meg_awac`.")).to.be.ok();
+            expect(util.containsWord("meg_awac`", "Some random sequence of characters w/o amegawac in it")).to.not.be.ok();
         });
 
         it(".randHexString()", function() {

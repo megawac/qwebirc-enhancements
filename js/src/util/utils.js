@@ -85,8 +85,17 @@ util.unformatURL = function(link) {
     return link.replace(new RegExp("^" + ("<%= config.qwebirc_config.router_prefix %>" || "!")), "").replace(/^@/, "#");
 };
 
-util.createWordRegex = function(word) {
-    return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");//=> /\bmegawac\b/i
+//test if a string contains a word
+util.containsWord = function(word, content) {
+    var idx = content.indexOf(word);
+    var wordRe = /\w+/;
+    if (idx !== -1) {
+        return !(wordRe.test(content.charAt(idx - 1)) || wordRe.test(content.charAt(idx + word.length)));
+    }
+
+    return false;
+    //too naive?
+    //return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");
 };
 
 util.getStyleByName = function(name) {
