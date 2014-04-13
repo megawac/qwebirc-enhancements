@@ -36,14 +36,21 @@ irc.Client.implement({
             var nick = data.args[1];
             var newnick = nick + Array.getRandom("_`-");
 
-            this.writeMessages(lang.nickTaken, {
+            this.ALL_ERROR(lang.nickTaken, {
                 oldnick: nick,
                 nick: newnick
-            }, {channels: constants.all});
+            });
 
             this.send(util.formatCommand("NICK", {nick: newnick}));
         }
         return true;
+    },
+
+    ALL_ERROR: function(message, data, settings) {
+        this.writeMessages(message, data, _.extend({
+            channels: constants.all,
+            type: lang.types.ERROR
+        }, settings));
     },
 
     channelError: _.partial(genericIRCError, _, constants.active),

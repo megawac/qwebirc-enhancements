@@ -5,8 +5,6 @@
   * @depends [irc/Numerics, util/constants, util/irc]
   * @provides [irc/Client]
   */
-
-/* global auth */
 var LANGTYPE = lang.TYPES;
 irc.Client = new Class({
     Implements: [Options, Events, irc.Commands],
@@ -22,7 +20,6 @@ irc.Client = new Class({
     modeprefixes: "ov",
     __signedOn: false,
     authed: false,
-    nextctcp: 0,
     pmodes: {
         b: irc.pmodes.LIST,
         l: irc.pmodes.SET_ONLY,
@@ -90,7 +87,8 @@ irc.Client = new Class({
 
         self.connection = new irc.Connection({
             nickname: self.nickname,
-            serverPassword: options.serverPassword,
+            username: options.username,
+            password: options.password
         })
         .addEvents({
             "recv": self.dispatch,
@@ -103,6 +101,9 @@ irc.Client = new Class({
             },
             "retry": function() {
                 self.writeMessages(lang.attemptReconnect, {}, {channels: constants.all});
+            },
+            "error": function(message) {
+                self.ALL_ERROR(message);
             }
         });
 
@@ -346,7 +347,7 @@ irc.Client = new Class({
         self.writeMessages(lang.signOn, {}, {type: LANGTYPE.SERVER})
             .writeMessages(lang.loginMessages, {}, {channel: "brouhaha", type: LANGTYPE.INFO});
 
-        if (!self.authed && auth.enabled) {
+        if (!self.authed && self.options.auth) {
             self.send(util.formatCommand("AUTH", self.options));
             // self.exec(format("/AUTH {username} {password}", self.options));
 
@@ -404,17 +405,6 @@ irc.Client = new Class({
         this.exec("/JOIN " + this.inviteChanList.join(","));
         this.inviteChanList.empty();
     }, 100),
-
-    processCTCP: function(message) {
-        if (message.charAt(0) !== "\x01") return;
-
-        if (_.last(message) === "\x01") {
-            message = message.slice(1, message.length - 2);
-        } else {
-            message = message.slice(1);
-        }
-        return util.splitMax(message, " ", 2);
-    },
 
     updateNickList: function(channel) {
         this.trigger("updateNicklist", {

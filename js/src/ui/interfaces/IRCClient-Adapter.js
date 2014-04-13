@@ -21,19 +21,6 @@ ui.IIRCClient = new Class({
 
         return win;
     },
-    /*logout: function() {
-        if (!auth.loggedin)
-            return;
-        if (confirm("Log out?")) {
-            _.each(this.clients, function(client) {
-                client.quit(lang.logOut.message);
-            });
-
-            (function() {
-                document.location = qwebirc.global.dynamicBaseURL + "auth?logout=1";
-            }).delay(500);
-        }
-    },*/
     nickChange: _.noop
 });
 

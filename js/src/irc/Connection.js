@@ -1,24 +1,27 @@
 /**
-* Rewrite and simplification of the AJAX connection
-* Inspired by the upcoming websocket upgrades (http://hg.qwebirc.org/qwebirc/commits/b6c505fde3707943d3a3b05009ea28051716c808, https://github.com/ariscop/iris/commit/daa52ccefdb41d800959616b775ba6d2d1dee4c4)
-* URIs = dict(p=push, n=newConnection, s=subscribe)
-*
-* @depends [util/ircprocessor]
-* @depends [util/lang, util/utils]
-* @provides [irc/Connection]
-*/
+ * Rewrite and simplification of the AJAX connection
+ * Inspired by the upcoming websocket upgrades (http://hg.qwebirc.org/qwebirc/commits/b6c505fde3707943d3a3b05009ea28051716c808, https://github.com/ariscop/iris/commit/daa52ccefdb41d800959616b775ba6d2d1dee4c4)
+ * URIs = dict(p=push, n=newConnection, s=subscribe)
+ *
+ * @depends [util/ircprocessor]
+ * @depends [util/lang, util/utils]
+ * @provides [irc/Connection]
+ */
+var serverPasswordFormat = "<%= config.qwebirc_config.password_format %>" || "{username} {password}";
 irc.Connection = new Class({
     Implements: [Events, Options],
 
     options: {
         nickname: "",
-        serverPassword: null,
+        username: "",
+        password: null,
 
         retryInterval: 5000,
         retryIntervalScalar: 1.5, //retry after first attempt will be retryInterval * scalar
         maxRetries: 6 //retry for 30 secs
     },
     connected: false,
+    password_format: "",
 
     initialize: function(options) {
         this.setOptions(options);
@@ -32,7 +35,7 @@ irc.Connection = new Class({
         .send({
             data: {
                 nick: self.options.nickname,
-                password: self.options.serverPassword
+                password: util.format(serverPasswordFormat, self.options)
             }
         })
         .then(function(stream) {
@@ -157,8 +160,8 @@ irc.Connection = new Class({
 
     processData: function(payload) {
         var self = this;
-        if (payload[0] === false) { //I'm not sure if this is a legit case
-            if (DEBUG) console.error("Disconnecting cause of payload", payload);
+        if (payload[0] === false) { //Qwebirc server -> client level error
+            this.fireEvent("error", payload[1]);
             return self.lostConnection(lang.connError, payload);
         }
         payload.each(function(data) {
@@ -180,7 +183,7 @@ irc.Connection = new Class({
         this.retryInterval *= this.options.retryIntervalScalar;
         this.retries += 1;
 
-        this.connected = true;
+        this.connected = true; //gonna fake it to make it
         this.subscribe()
         .then(function() { //Reconnected!!!
             this.reconnect();
