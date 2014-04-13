@@ -22,7 +22,7 @@ var prefix_re = /^([_a-zA-Z0-9\[\]\/\\`^{}|-]*)(!([^@]+)@(.*))?$/,
  */
 function parseIRCMessage(line/*, stripColors*/) {
     var message = {
-        "raw": line,
+        // "raw": line,
         "prefix": ""
         // "commandType": "normal"
     };
@@ -95,4 +95,13 @@ function parseTwistedMessage(data) {
 
 util.parseIRCMessage = function(message) {
     return _.isString(message) ? parseIRCMessage(message) : parseTwistedMessage(message);
+};
+
+util.processCTCP = function(message) {
+    if (!message.startsWith("\x01")) return null;
+    //slice off the end \x01 if its there
+    message = message.slice(1, message.search(/\x01?$/));
+    var ctcp = util.splitMax(message, " ", 2);
+    ctcp[0] = ctcp[0].toUpperCase();
+    return ctcp;
 };

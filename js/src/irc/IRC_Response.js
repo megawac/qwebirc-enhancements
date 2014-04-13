@@ -5,15 +5,29 @@
   * @depends [util/utils]
   * @provides [irc/ReplyHandlers]
   */
-var partHandler = function(client, nick, chan) {
+function partHandler(client, nick, chan) {
     var wasus = nick === client.nickname;
     if(wasus && client.inChannel(chan)) {
         client.channels.erase(chan);
     }
     return wasus;
-};
+}
+
+function replyCTCP(client, data, ctcp) {
+    var replyfn = irc.RegisteredCTCPs[ctcp[0]];
+    var t = _.now() / 1000; //prevent flood
+    if (replyfn && t > client.nextctcp) {
+        client.send(util.formatCommand("CTCP", {
+            target: data.user,
+            type: ctcp[0],
+            text: replyfn(ctcp[1])
+        }));
+        client.nextctcp = t + 2;
+    }
+}
 
 irc.Client.implement({
+    nextctcp: 0,
     /*********************************************************************
     *                                                                    *
     *                Implements the IRC HANDLERS                         *
@@ -59,7 +73,7 @@ irc.Client.implement({
         var nick = data.nick;
         var wasus = (nick === this.nickname);
 
-        if(wasus) {
+        if (wasus) {
             this.storeChannels(util.addChannel(this.getChannels(), channel));
         }
 
@@ -167,21 +181,11 @@ irc.Client.implement({
         var target = data.args[0];
         var message = _.last(data.args);
 
-        var ctcp = this.processCTCP(message);
+        var ctcp = util.processCTCP(message);
         if (ctcp) {
-            var type = ctcp[0].toUpperCase();
-            var replyfn = irc.RegisteredCTCPs[type];
-            if (replyfn) {
-                var t = _.now() / 1000;//prevent flood
-                if (t > this.nextctcp) {
-                    this.send(util.formatCommand("CTCP", {
-                        target: data.user,
-                        type: type,
-                        text: replyfn(ctcp[1])
-                    }));
-                }
-                this.nextctcp = t + 5;
-            }
+            //http://www.irchelp.org/irchelp/rfc/ctcpspec.html
+            var type = ctcp[0];
+            replyCTCP(this, data, ctcp);
 
             if (target === this.nickname) {
                 var ctcptype = type === "ACTION" ? "privAction" : "privCTCP";
@@ -236,8 +240,8 @@ irc.Client.implement({
         var options = this.options;
 
 
-        if (this.isNetworkService(data.host) || data.nick) {
-            if(options.loginRegex.test(message)){
+        if (this.isNetworkService(data.host)) {
+            if (options.loginRegex.test(message)) {
                 this.onAuthenticated(data);
             }
             this.trigger("serverNotice", {
@@ -246,12 +250,12 @@ irc.Client.implement({
                 "channel": constants.status
             });
         } else if (target === this.nickname) {
-            var ctcp = this.processCTCP(message);
+            var ctcp = util.processCTCP(message);
             if (ctcp) {
+                replyCTCP(this, data, ctcp);
                 this.trigger("ctcpReply", {
-                    "nick": data.nick,
+                    "nick": nick,
                     "host": data.host,
-                    "ctcptype": ctcp[0],
                     "args": ctcp[1] || ""
                 });
             } else {

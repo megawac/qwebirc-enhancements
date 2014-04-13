@@ -9,14 +9,12 @@ describe("IRC Message Parsing", function() {
 
         it("prefix", function() {
             var msg = qwebirc.util.parseIRCMessage(":irc.example.com PING");
-            expect(msg.raw).to.be.equal(":irc.example.com PING");
             expect(msg.prefix).to.be.equal("irc.example.com");
             expect(msg.command).to.be.equal("PING");
         });
 
         it("args", function() {
             var msg = qwebirc.util.parseIRCMessage(":hitchcock.freenode.net NOTICE * :*** Looking up host...");
-            expect(msg.raw).to.be.equal(":hitchcock.freenode.net NOTICE * :*** Looking up host...");
             expect(msg.prefix).to.be.equal("hitchcock.freenode.net");
             expect(msg.command).to.be.equal("NOTICE");
             expect(msg.args).to.eql(["*", "*** Looking up host..."]);
@@ -38,6 +36,91 @@ describe("IRC Message Parsing", function() {
             expect(msg.args).to.eql(["Caleb","Nickname is already in use."]);
         });
 
+
+        //tests from node-irc (https://github.com/martynsmith/node-irc/blob/master/test/parse-line.js)
+        var checks = {
+            ":irc.dollyfish.net.nz 372 nodebot :The message of the day was last changed: 2012-6-16 23:57": {
+                prefix: "irc.dollyfish.net.nz",
+                server: "irc.dollyfish.net.nz",
+                command: "RPL_MOTD",
+                rawCommand: "372",
+                args: [ "nodebot", "The message of the day was last changed: 2012-6-16 23:57" ]
+            },
+            ":Ned!~martyn@irc.dollyfish.net.nz PRIVMSG #test :Hello nodebot!": {
+                prefix: "Ned!~martyn@irc.dollyfish.net.nz",
+                nick: "Ned",
+                user: "~martyn",
+                host: "irc.dollyfish.net.nz",
+                command: "PRIVMSG",
+                rawCommand: "PRIVMSG",
+                args: [ "#test", "Hello nodebot!" ]
+            },
+            ":Ned!~martyn@irc.dollyfish.net.nz PRIVMSG #test ::-)": {
+                prefix: "Ned!~martyn@irc.dollyfish.net.nz",
+                nick: "Ned",
+                user: "~martyn",
+                host: "irc.dollyfish.net.nz",
+                command: "PRIVMSG",
+                rawCommand: "PRIVMSG",
+                args: [ "#test", ":-)" ]
+            },
+            ":Ned!~martyn@irc.dollyfish.net.nz PRIVMSG #test ::": {
+                prefix: "Ned!~martyn@irc.dollyfish.net.nz",
+                nick: "Ned",
+                user: "~martyn",
+                host: "irc.dollyfish.net.nz",
+                command: "PRIVMSG",
+                rawCommand: "PRIVMSG",
+                args: [ "#test", ":" ]
+            },
+            ":Ned!~martyn@irc.dollyfish.net.nz PRIVMSG #test ::^:^:": {
+                prefix: "Ned!~martyn@irc.dollyfish.net.nz",
+                nick: "Ned",
+                user: "~martyn",
+                host: "irc.dollyfish.net.nz",
+                command: "PRIVMSG",
+                rawCommand: "PRIVMSG",
+                args: [ "#test", ":^:^:" ]
+            },
+            ":some.irc.net 324 webuser #channel +Cnj 5:10": {
+                prefix: "some.irc.net",
+                server: "some.irc.net",
+                command: "RPL_CHANNELMODEIS",
+                rawCommand: "324",
+                args: [ "webuser", "#channel", "+Cnj", "5:10" ]
+            },
+            ":nick!user@host QUIT :Ping timeout: 252 seconds": {
+                prefix: "nick!user@host",
+                nick: "nick",
+                user: "user",
+                host: "host",
+                command: "QUIT",
+                rawCommand: "QUIT",
+                args: [ "Ping timeout: 252 seconds" ]
+            },
+            ":nick!user@host PRIVMSG #channel :so : colons: :are :: not a problem ::::": {
+                prefix: "nick!user@host",
+                nick: "nick",
+                user: "user",
+                host: "host",
+                command: "PRIVMSG",
+                rawCommand: "PRIVMSG",
+                args: [ "#channel", "so : colons: :are :: not a problem ::::" ]
+            },
+            ":pratchett.freenode.net 324 nodebot #ubuntu +CLcntjf 5:10 #ubuntu-unregged": {
+                prefix: "pratchett.freenode.net",
+                server: "pratchett.freenode.net",
+                command: "RPL_CHANNELMODEIS",
+                rawCommand: "324",
+                args: [ "nodebot", "#ubuntu", "+CLcntjf", "5:10", "#ubuntu-unregged" ]
+            }
+        };
+
+        _.each(checks, function(result, line) {
+            it("parse " + line, function() {
+                expect(result).to.be.eql(qwebirc.util.parseIRCMessage(line));
+            });
+        });
     });
 
     describe("Qwebirc IRC Message Parsing", function() {
@@ -86,6 +169,20 @@ describe("IRC Message Parsing", function() {
             expect(msg.args).to.eql(["megawac`", "#some channel", "channel topic"]);
         });
 
+    });
+
+    describe("Parse CTCP", function() {
+        it("CTCP Ping", function() {
+            expect(qwebirc.util.processCTCP("\x01PING")).to.be.eql(["PING"]);
+            expect(qwebirc.util.processCTCP("\x01PING\x01")).to.be.eql(["PING"]);
+            expect(qwebirc.util.processCTCP("\x01ping\x01")).to.be.eql(["PING"]);
+            expect(qwebirc.util.processCTCP("PING")).to.not.be.ok();
+        });
+        it("Multi-param Ping", function() {
+            expect(qwebirc.util.processCTCP("\x01PING some data\x01")).to.be.eql(["PING", "some data"]);
+            expect(qwebirc.util.processCTCP("\x01PING some data")).to.be.eql(["PING", "some data"]);
+            expect(qwebirc.util.processCTCP("\x01piNg stuff")).to.be.eql(["PING", "stuff"]);
+        });
     });
 
 });
