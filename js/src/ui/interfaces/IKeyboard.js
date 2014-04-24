@@ -58,7 +58,7 @@ ui.IKeyboard = new Class({
         
         keyboard.scope = self;
 
-        function isChar(code) {//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+        function isChar(code) { //http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
             return code === 32 || (code > 46 && !(code >= 91 && code <= 123) && code !== 144 && code !== 145) ;
         }
 
@@ -79,8 +79,9 @@ ui.IKeyboard = new Class({
                     if(e.alt && !isNaN(e.key) && e.key <= self.windowArray.length) {
                         self.selectWindow(e.key - 1);
                     } else if(self.active.$input &&
-                                !(e.alt||e.meta) && //focus input on a character input or ctrl+[xxx]
-                                !(e.ctrl && ["c", "x"].contains(e.key)) && //but allow copying
+                                !(e.alt || e.meta) && //allow hotkeys
+                                //focus input on a character input or ctrl+[xxx]
+                                !(e.control && ["c", "x"].contains(e.key)) && //but allow copying
                                 isChar(e.code) ) {
                         self.active.$input.focus();
                     }
