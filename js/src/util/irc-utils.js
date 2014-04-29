@@ -98,21 +98,6 @@ util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
 util.stripPrefix = _.compose(function(xs){return xs[1];}, util.prefixOnNick);
 
-util.nickChanComparitor = function(client, nickHash) {
-    var _prefixes = client.prefixes,
-        _prefixNone = _prefixes.length,
-        prefixWeight = function(pre) {
-            return pre ? _prefixes.indexOf(pre) : _prefixNone;//not undef/empty
-        },
-        toLower = client.toIRCLower;
-    //compares two nick names by channel status > lexigraphy
-    return function(nick1, nick2) {
-        var p1weight = prefixWeight(nickHash[nick1].prefixes),
-            p2weight = prefixWeight(nickHash[nick2].prefixes);
-        return (p1weight !== p2weight) ? (p1weight - p2weight) : toLower(nick1).localeCompare(toLower(nick2));
-    };
-};
-
 //Should I include a real date frameowkr (used to have Mootools version...)
 util.IRCTimestamp = function(date) {
     if(!_.isDate(date)) date = new Date();
@@ -130,11 +115,4 @@ util.IRCDate = function(date) {
         h: date.getHours(),
         m: date.getMinutes()
     });
-};
-
-irc.nickChanEntry = function(p, l) {
-    return {
-        prefixes: p || "",
-        lastSpoke: l || 0
-    };
 };

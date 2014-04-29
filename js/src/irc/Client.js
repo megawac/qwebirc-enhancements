@@ -102,9 +102,7 @@ irc.Client = new Class({
             "lostConnection": self.lostConnection
         });
 
-        // self.commandparser = new irc.Commands(self);
-        // self.exec = self.commandparser.exec;
-        self.tracker = new irc.Tracker(self);
+        self.tracker = new irc.Tracker().setPrefixes(self.prefixes);
     },
 
     getOption: function(opt) {
@@ -406,7 +404,7 @@ irc.Client = new Class({
             case "PREFIX":
                 var len = (value.length - 2) / 2,
                     modeprefixes = self.modeprefixes = value.substr(1, len);
-                self.prefixes = value.substr(len + 2, len);
+                self.tracker.setPrefixes(self.prefixes = value.substr(len + 2, len));
                 _.each(modeprefixes, function(modeprefix) {
                     self.pmodes[modeprefix] = irc.pmodes.SET_UNSET;
                 });

@@ -4,158 +4,202 @@
  * @depends [irc, util/irc]
  * @provides [irc/Tracker]
  */
+
+//models
+irc.User = new Class({
+    // Extends: [Events],
+    nick: "",
+    channels: [],
+    prefixes: {},
+    // lastSpoke: 0,
+    initialize: function(user) {
+        this.nick = user;
+    },
+    joinChannel: function(channel, prefix) {
+        if (typeof channel === "object") {
+            prefix = channel.prefix;
+            channel = channel.channel;
+        }
+        this.prefixes[channel.name] = prefix || "";
+        this.channels.include(channel);
+        if (!channel.hasUser(this)) {
+            channel.addUser(this);
+        }
+        return this;
+    },
+    partChannel: function(channel) {
+        this.channels.erase(channel);
+        if (channel.hasUser(this)) {
+            channel.removeUser(this);
+        }
+        return this;
+    },
+    hasChannel: function(channel) {
+        return this.channels.contains(channel);
+    },
+    updateNick: function(newnick) {
+        this.nick = newnick;
+        this.channels.invoke("update");
+        return this;
+    },
+    getPrefix: function(channel) {
+        return this.prefixes[channel.name];
+    },
+    updatePrefix: function(channel, prefixes, event) {
+        this.prefixes[channel.name] = prefixes;
+        if(event) channel.update();
+        return this;
+    },
+    destroy: function() {
+        var channel;
+        while ((channel = this.channels.pop())) {
+            channel.partChannel(this);
+        }
+        return this;
+    }
+});
+
+irc.Channel = new Class({
+    Implements: [Events],
+    name: "",
+    users: [],
+    initialize: function(name, prefixes) {
+        this.name = name;
+        this.prefixes = prefixes; //for sorting
+    },
+    addUser: function(users) {
+        var self = this;
+        users = Array.from(users);
+        self.users.combine(users);
+        users.each(function(user) {
+            if (!user.hasChannel(self)) {
+                user.joinChannel(self);
+            }
+        });
+        return self.update();
+    },
+    removeUser: function(user) {
+        this.users.erase(user);
+        if (user.hasChannel(this)) {
+            user.partChannel(this);
+        }
+        return this.update();
+    },
+    hasUser: function(user) {
+        return this.users.contains(user);
+    },
+    update: function() {
+        return this.fireEvent("update", this.users);
+    },
+    destroy: function() {
+        var user;
+        while ((user = this.users.pop())) {
+            user.partChannel(this);
+        }
+        return this.fireEvent("destroy");
+    },
+    sort: function() {
+        var self = this;
+        var prefixes = self.prefixes;
+        var _prefixNone = prefixes.length;
+        function getWeight(prefix) {
+            return prefixes.indexOf(prefix);
+        }
+        function prefixWeight(prefixesOnUser) {
+            //only use the most important prefix
+            return prefixesOnUser ? _.min(prefixesOnUser, getWeight) : _prefixNone; //not undef/empty
+        }
+        //compares two nick names by channel status > lexigraphy
+        return self.users.sort(function(user1, user2) {
+            var p1weight = prefixWeight(user1.getPrefix(self)),
+                p2weight = prefixWeight(user2.getPrefix(self));
+            return (p1weight !== p2weight) ? (p1weight - p2weight) : user1.nick.toLowerCase().localeCompare(user2.nick.toLowerCase());
+        });
+    }
+});
+
+//Essentially just a MVC Collection...
 irc.Tracker = new Class({
-    channels: {},
-    nicknames: {},
-    initialize: function(owner) {
-        this.owner = owner;
+    channels: [],
+    nicknames: [],
+    prefixes: "",
+
+    setPrefixes: function(prefixes) {
+        this.prefixes = prefixes;
+        return this;
     },
 
-    getNick: function(nick) {
-        return this.nicknames[nick];
-    },
-
-    getOrCreateNick: function(nick) {
-        if(nick !== ""/* || !/^[\w\/`\-\[\] ]+$/.test(nick)*/) {//sometimes given "" as a nick
-            return this.getNick(nick) || (this.nicknames[nick] = {});
-        } else {
-            return {};
+    getNick: function(nick, create) {
+        if (nick.constructor === irc.User) return nick;
+        var user = _.findWhere(this.nicknames, {
+            nick: (typeof nick === "object" ? nick.nick : nick).toLowerCase()
+        });
+        if (!user && create && nick !== "") {
+            user = new irc.User(nick);
+            this.nicknames.push(user);
         }
+        return user;
     },
 
-    getChannel: function(channel) {
-        return this.channels[channel.toLowerCase()];
-    },
-
-    getOrCreateChannel: function(channel) {
-        return this.getChannel(channel) || (this.channels[channel.toLowerCase()] = {});
-    },
-
-    getOrCreateNickOnChannel: function(nick, channel) {
-        var nc = this.getOrCreateNick(nick);
-        return nc[channel.toLowerCase()] || this.addNickToChannel(nc, channel);
-    },
-
-    getNickOnChannel: function(nick, channel) {
-        var nickchan = this.getNick(nick);
-        if (nickchan) {
-            return nickchan[channel.toLowerCase()];
+    getChannel: function(channel, create) {
+        if (channel.constructor === irc.Channel) return channel;
+        var chan = _.findWhere(this.channels, {
+            name: channel.toLowerCase()
+        });
+        if (!chan && create && channel !== "") {
+            chan = new irc.Channel(channel);
+            this.channels.push(chan);
         }
+        return chan;
     },
 
     addNickToChannel: function(nick, channel) {
-        var nc = irc.nickChanEntry();
-
-        if(nick) {
-            var nickchan = this.getOrCreateNick(nick);
-            var chan = this.getOrCreateChannel(channel);
-
-            nickchan[channel.toLowerCase()] = nc;
-            chan[nick] = nc;
-        }
-
-        return nc;
+        var user = _.isArray(nick) ? nick.map(_.partial(this.getNick, _, true), this) : this.getNick(nick, true);
+        this.getChannel(channel, true).addUser(user, nick.prefix);
+        return this;
     },
 
     removeNick: function(nick) {
-        var self = this;
-        var nickchan = self.nicknames[nick];
-        if (nickchan){
-            _.each(nickchan, function(data, chan) {
-                var lchannel = chan.toLowerCase();
-                var channel = self.channels[lchannel];
-                if(channel) {
-                    delete channel[nick];
-                    if (_.isEmpty(channel)) {
-                        delete self.channels[lchannel];
-                    }
-                }
-            });
-            delete self.nicknames[nick];
-        }
+        var user = this.getNick(nick).destroy();
+        this.users.erase(user);
+        this._clean();
+        return this;
     },
 
     removeChannel: function(channel) {
-        var self = this;
-        var lchannel = channel.toLowerCase();
-        var chan = self.channels[lchannel];
-        if (chan) {
-            _.keys(chan).each(function(nick) {
-                var nc = self.nicknames[nick];
-                delete nc[lchannel];
-                if (_.isEmpty(nc)) { //in no more channels
-                    delete self.nicknames[nick];
-                }
-            });
-            delete self.channels[lchannel];
-        }
+        var chan = this.getChannel(channel).destroy();
+        
+        this.channels.erase(chan);
+        this._clean();
+        return this;
     },
 
-    removeNickFromChannel: function(nick, channel) {
-        var lchannel = channel.toLowerCase();
+    partChannel: function(nick, channel) {
+        var user = this.getNick(nick);
+        var chan = this.getChannel(channel);
 
-        var nickchan = this.getNick(nick);
-        var chan = this.getChannel(lchannel);
-        if (!nickchan || !chan) return;
-
-        delete nickchan[lchannel];
-        delete chan[nick];
-
-        if (_.isEmpty(nickchan)) {
-            delete this.nicknames[nick];
-        }
-        if (_.isEmpty(chan)) {
-            delete this.channels[lchannel];
-        }
+        chan.removeUser(user);
+        this._clean();
+        return this;
     },
 
     renameNick: function(oldnick, newnick) {
-        var self = this;
-        var nicklist = self.nicknames;
-        var nickchans = nicklist[oldnick];
-        if (!nickchans){
-            return;
-        }
+        this.getNick(oldnick).renameNick(newnick);
+        return this;
+    },
 
-        _.keys(nickchans).each(function(chan) {
-            var channel = self.getChannel(chan);
-            if(channel) {
-                channel[newnick] = channel[oldnick];
-                delete channel[oldnick];
+    //scheduled disconnect cleaning every once and a while
+    _clean: _.throttle(function() {
+        var self = this;
+        self.users.each(function(user) {
+            if (_.isEmpty(user.channels)) {
+                self.users.erase(user);
             }
         });
-
-        nicklist[newnick] = nicklist[oldnick];
-        delete nicklist[oldnick];
-    },
-
-    updateLastSpoke: function(nick, time) {
-        var nc = this.getNick(nick);
-        if (nc != null) {
-            nc.lastSpoke = time || Date.now();
-        }
-    },
-
-    getSortedByLastSpoke: function(channel) {
-        return _.sortBy(_.values(this.getChannel(channel)), function(nick) {
-            return -nick.lastSpoke;//reverse
+        self.channels.each(function(chan) {
+            if (_.isEmpty(chan.users)) {
+                self.channels.erase(chan);
+            }
         });
-    },
-
-    getSortedNicksForChannel: function(channel, sorter) {
-        var nickHash = channel ? this.getChannel(channel) : _.extend({}, this.nicknames, this.getChannel("brouhaha"));//all - should I merge with getChanenl("brouhaha") to keep prefixes on brouhaha?
-        if(_.isEmpty(nickHash)) return [];
-        if(!sorter) {
-            //sorts nicks by status > lexigraphy
-            //then add the prefix in front of the name
-            sorter = util.nickChanComparitor(this.owner, nickHash);
-        }
-        return _.keys(nickHash).sort(sorter).map(function(nick, index) {
-            return {
-                prefix: nickHash[nick].prefixes,
-                nick: nick,
-                index: index//in array
-            };
-        });
-    }
+    }, 10000)
 });

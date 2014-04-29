@@ -136,12 +136,5 @@ describe("Utilities", function() {
             expect(irc.RFC1459toIRCLower("Teta5sadaAs")).to.be.equal("teta5sadaas");
             expect(irc.RFC1459toIRCLower("Teta5sadaA\u0151s")).to.be.equal("teta5sadaas");
         });
-
-        it("create nickChan", function() {
-            var nc = irc.nickChanEntry("+");
-            expect(irc.nickChanEntry().prefixes).to.be.equal("");
-            expect(nc.prefixes).to.be.equal("+");
-            expect(nc.lastSpoke).to.be.equal(0);
-        });
     });
 });

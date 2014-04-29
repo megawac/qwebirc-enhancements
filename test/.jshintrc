@@ -14,6 +14,7 @@
     "expr": true,
 
     "strict": false,
+    "eqnull": true,
 
     "mootools": true
 }
