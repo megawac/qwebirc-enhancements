@@ -136,18 +136,18 @@ ui.Window = new Class({
     n: nick
     */
     addLine: function(type, data, colourClass) {
-        type = type.toUpperCase();
         var self = this;
         var theme = self.parentObject.theme;
+        var _type = type.toUpperCase();
         var $msg = Element.from(templates.ircMessage({
             type: type.clean().hyphenate().replace(" ", "-").toLowerCase(),
             colourClass: colourClass,
             timestamp: self.getOption("show_timestamps"), //show timestamp?
-            message: theme.formatMessage(/*$msg, */type, data)
+            message: theme.formatMessage(/*$msg, */_type, data)
         }));
 
         // Give user beep/dn notifications and highlight message based on user settings
-        var highlight =  self.id !== constants.brouhaha ? theme.highlightAndNotice(data, type, self, $msg) : constants.hl.none;
+        var highlight =  self.id !== constants.brouhaha ? theme.highlightAndNotice(data, _type, self, $msg) : constants.hl.none;
 
         if (!self.active && (highlight !== constants.hl.none)) {
             self.highlightTab(highlight);
@@ -156,7 +156,7 @@ ui.Window = new Class({
         self.lines.adopt($msg)
                 .maxChildren(self.options.maxLines);//remove lines if totalLines > maxLines
 
-        if(self.getOption("lastpos_line") && type.endsWith("CHANMSG")) {
+        if(self.getOption("lastpos_line") && _type.endsWith("CHANMSG")) {
             self.lastLine = (self.lastLine || Element.from(templates.messageLine())).inject(self.lines);
         }
     },
