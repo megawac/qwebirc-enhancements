@@ -73,16 +73,16 @@ qwebirc.createInstance = function(element_id, UIclass, options) {
             }
         },
         "login:once": function(loginopts) {
-            var ircopts = _.extend({settings: settings, uiOptions: instance.uiOptions}, options.client, loginopts);
+            var ircopts = _.extend({settings: settings, uiOptions: instance.uiOptions}, loginopts, options.client);
 
             var client = new irc.Client(ircopts);
             instance.newClient(client);
             client.connect();
             window.onbeforeunload = function(e) {
-                if (client.isConnected()) {//has gotten passed the IRC gate
+                if (client.isConnected()) { //has gotten passed the IRC gate
                     e = e || window.event;
                     e.preventDefault();
-                    e.returnValue = lang.dontLeave;//legacy ie
+                    e.returnValue = lang.dontLeave; //legacy ie
                     return lang.dontLeave;
                 }
             };

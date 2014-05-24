@@ -19,10 +19,6 @@
         }
     }
 
-    .nick-menu {
-        max-width: 150px;
-    }
-
     .dropdownhint {
       position: relative;
       left: -500px;
@@ -71,7 +67,7 @@
     .show-nicklist .leftpanel {
         position: absolute;
         left: 0;
-        right: 140px;
+        right: 150px;
     }
 
     .properties {
@@ -88,7 +84,7 @@
 
         .rightpanel {
             position: absolute;
-            width: 140px;
+            width: 150px;
             right: 0;
         }
 
@@ -184,6 +180,18 @@
         }
     }
 
+    .nicklist .user {
+        padding: 3px;
+
+        &:hover, &.selected {
+            padding: 4px 4px;
+            color: #555555;
+            background: #eeeeee;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+    }
+
     .nicklist .user, .nick-menu {
         display: block;
         text-decoration: none;
@@ -191,11 +199,21 @@
         padding-left: 1px;
     }
 
-    .nick-menu ul {
-        margin: 0;
-        padding-left: 20px;
-        list-style-type: circle;
-        cursor:pointer;cursor:hand;
+
+    .nick-menu {
+        max-width: 150px;
+        
+        &.dropdownmenu .user {
+            padding-left: 4px;
+            font-weight: bold;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: circle;
+            cursor:pointer;cursor:hand;
+        }
     }
 
     .nicklist .menu {

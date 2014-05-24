@@ -55,6 +55,7 @@
     "invalidCommand"         : "Can't use this command in this window",
     "invalidChanTarget"      : "Can't target a channel with this command.",
     "insufficentArgs"        : "Insufficient arguments for command.",
+    "notConnected"           : "Can't send - not connected",
 
     "setNick"                : "Set nickname",
     "setNickDesc"            : "Enter a new nickname",
@@ -66,16 +67,16 @@
     "attachWindow"           : "Redock Window",
     "dropdownHint"           : "Click the icon for the main menu.",
 
+    "noTopic"                : "(No topic set.)",
     "fishSlap"               : "slaps {nick} with a large fishbot",
     "partChan"               : "Part",
 
-    "noTopic"                : "(No topic set.)",
     "disconnected"           : "Client has been disconnected",
     "uncontrolledFlood"      : "ERROR: uncontrolled flood detected -- disconnected.",
-    "connLost"               : "Connection Lost",
-    "connError"              : "An error occured: {1}",
-    "connTimeOut"            : "Error: connection closed after {retryAttempts} requests failed.",
-    "connFail"               : "Couldn't connect to remote server.",
+    "connectionTimeOut"      : "Error: connection closed after {retryAttempts} requests failed.",
+    "connectionFail"         : "Couldn't connect to remote server.",
+    "reconnected"            : "Reconnected to server!",
+    "attemptReconnect"       : "Connection to server lost... Attempting to reconnect...",
     
     "connectWelcome"         : "Connect to {appTitle}",
     "nickname"               : "Nickname",
@@ -86,6 +87,7 @@
     "missingNick"            : "You must supply a nickname",
     "missingPass"            : "You must supply a password",
     "nickWrongLen"           : "Nick must be between {min} and {max} characters",
+    "nickTaken"              : "{oldnick} is in use... Retrying with {nick}",
 
     "loadingMessage"         : "Loading",
 

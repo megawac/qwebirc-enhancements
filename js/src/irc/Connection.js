@@ -1,331 +1,193 @@
 /**
- * Twisted IRCConnection Class... Still needs simplification
- * uris = dict(p=push, n=newConnection, s=subscribe)
+ * Rewrite and simplification of the AJAX connection
+ * Inspired by the upcoming websocket upgrades (http://hg.qwebirc.org/qwebirc/commits/b6c505fde3707943d3a3b05009ea28051716c808, https://github.com/ariscop/iris/commit/daa52ccefdb41d800959616b775ba6d2d1dee4c4)
+ * URIs = dict(p=push, n=newConnection, s=subscribe)
  *
  * @depends [util/ircprocessor]
- * @depends [util/lang, util/utils, components/Alert]   --dirty alerts I didnt feel like propogating
+ * @depends [util/lang, util/utils]
  * @provides [irc/Connection]
  */
-(function() {
-    //http://blog.mibbit.com/?p=143
-    // moved browser specific headers to be removed here so it doesnt have to be computed each connection.
-    // header nullables are browser dependent
-    var killBit = "";
-    var killHeaders = {//http://www.w3.org/TR/XMLHttpRequest/#dom-xmlhttprequest-setrequestheader
-        // "User-Agent": killBit,
-        "Accept": killBit,
-        "Accept-Language": killBit
-        /*,
-        "Content-Type": "M"*/
-    };
+var serverPasswordFormat = "<%= config.qwebirc_config.password_format %>" || "{username} {password}";
+irc.Connection = new Class({
+    Implements: [Events, Options],
 
-    irc.Connection = new Class({
-        Implements: [Events, Options],
-        Binds: ["send"],
-        options: {
-            nickname: "",
-            minTimeout: 45000,
-            maxTimeout: 5 * 60000,
-            timeoutIncrement: 10000,
-            initialTimeout: 65000,
-            floodInterval: 200,
-            floodMax: 10,
-            floodReset: 5000,
-            errorAlert: true,
-            maxRetries: 5,
-            serverPassword: null
-        },
-        connected: false,
-        counter: 0,
+    options: {
+        nickname: "",
+        username: "",
+        password: null,
 
-        __sendQueue: [],
-        __lastActiveRequest: null,
-        __activeRequest: null,
-        __sendQueueActive: false,
+        retryInterval: 5000,
+        retryIntervalScalar: 1.5, //retry after first attempt will be retryInterval * scalar
+        maxRetries: 6 //retry for 30 secs
+    },
+    connected: false,
+    password_format: "",
 
-        __floodLastRequest: 0,
-        __retryAttempts: 0,
-        __floodCounter: 0,
-        __floodLastFlood: 0,
-        __timeoutId: null,
+    initialize: function(options) {
+        this.setOptions(options);
+        this.cacheAvoidance = util.randHexString(16);
+    },
 
-
-        initialize: function(options) {
-            this.setOptions(options);
-            this.__timeout = this.options.initialTimeout;
-            this.cacheAvoidance = util.randHexString(16);
-        },
-
-        connect: function() {
-            var self = this;
-            self.connected = true;
-
-            self.newRequest("n")
-                .addEvent("complete", function(stream) {
-                    if (!stream) {
-                        self.lostConnection(lang.connFail);
-                        return;
-                    } else if (!stream[0]) {
-                        self.disconnect();
-                        self.lostConnection(lang.connError, stream);
-                        return;
-                    }
-                    self.sessionid = stream[1];
-                    self.recv();
-                }).send({
-                    data: {
-                        nick: self.options.nickname,
-                        password: self.options.serverPassword
-                    }
-                });
-        },
-
-        disconnect: function() {
-            this.connected = false;
-            this.__cancelTimeout();
-            this.__cancelRequests();
-        },
-
-        newRequest: function(url, floodProtection, synchronous, unmanaged) {
-            var self = this;
-            //check if request should proceed
-            if (!self.connected) {
-                return null;
-            } else if (floodProtection && self.__isFlooding()) {
-                self.disconnect();
-                self.__error(lang.uncontrolledFlood);
+    connect: function() {
+        var self = this;
+        self._connect();
+        self.newRequest("n")
+        .send({
+            data: {
+                nick: self.options.nickname,
+                password: util.format(serverPasswordFormat, self.options)
             }
-            var request = new Request.JSON({
-                url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
-                async: !synchronous,
-                encoding: ""//let server assume utf-8
-            });
+        })
+        .then(function(stream) {
+            self.sessionid = stream[1];
+            self.subscribe();
+        }, function(stream) { //couldnt connect
+            if (DEBUG) console.error("Connection failed: ", stream);
+            self.connected = false;
+            self.fireEvent("connectionFail", lang.connectionFail);
+        });
 
-            // try to minimise the amount of headers 
-            request.headers = {};//{X-Requested-With: "XMLHttpRequest", Accept: "application/json", X-Request: "JSON"}
-            
-            if(!unmanaged) {
-                request.addEvent("request", function() {
-                    Object.each(killHeaders, function(val, key) {
-                        try {
-                            request.xhr.setRequestHeader(key, val);
-                        } catch (o_O) {
-                            delete killHeaders[key];//cant set header on this browser
-                        }
-                    });
-                });
-            }
+        return self;
+    },
 
-            if (Browser.ie && Browser.version < 8) {
-                request.setHeader("If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT");
-            }
-            return request;
-        },
+    disconnect: function(data) {
+        this.connected = false;
+        this.fireEvent("disconnect", data);
+        this._sendQueue.empty();
+        //cancel all active requests
+        this._activeRequests.invoke("cancel").empty();
+    },
 
-        recv: function() {
-            var self = this;
-            var request = self.newRequest("s", true);
-            if (request == null) {
-                return;
-            }
-            self.__activeRequest = request;
-            request.__replaced = false;
-            var onComplete = function(stream) {
-                // replaced requests... 
-                if (request.__replaced) {
-                    self.__lastActiveRequest = null;
-                    if (stream) {
-                        self.__processData(stream);
-                    }
-                    return;
-                }
-                // the main request 
-                self.__activeRequest = null;
-                self.__cancelTimeout();
-                if (!stream) {
-                    if (self.connected && self.__checkRetries()) {
-                        self.recv();
-                    }
-                    return;
-                } else if (self.__processData(stream)) {
-                    self.recv();
-                }
-            };
-            request.addEvent("complete", onComplete);
-            self.__scheduleTimeout();
-            request.send("s=" + self.sessionid);//wish this could be omitted
-        },
+    reconnect: function() {
+        this._connect();
+        this.fireEvent("reconnect")
+            .subscribe();
+    },
 
-        send: function(data, synchronous) {
-            if (!this.connected) {
-                return false;
-            }
-            if (synchronous) {
-                this.__send(data, false);
-            } else {
-                this.__sendQueue.push(data);
-                this.__processSendQueue();
-            }
-            return true;
-        },
+    _connect: function() { //connect init
+        this.connected = true;
+        this.retryInterval = this.options.retryInterval;
+        this.retries = 0;
+    },
 
-        //send without queueing or waiting for response
-        sendUnqueued: function(data, async) {
-            this.newRequest("p", false, !!async, true)
-                .send({
-                    data: {
-                        s: this.sessionid,
-                        c: data
-                    }
-                });
-        },
-
-        __processSendQueue: function() {
-            if (this.__sendQueueActive || this.__sendQueue.length === 0) {
-                return;
-            }
-            this.sendQueueActive = true;
-            this.__send(this.__sendQueue.shift(), true);
-        },
-
-        __send: function(data, async) {
-            var request = this.newRequest("p", false, !async);
-            if (request == null) {
-                return;
-            }
-            request.addEvent("complete", this.__completeRequest.bind(this, async))
-                .send({
-                    data: {
-                        s: this.sessionid,
-                        c: data
-                    }
-                });
-        },
-
-        __completeRequest: function(async, stream) {
-            if (async) {
-                this.__sendQueueActive = false;
-            }
-            if (!stream || (!stream[0])) {
-                this.__sendQueue = [];
-                if (this.connected) {
-                    this.lostConnection(lang.connError, stream);
-                }
-                return false;
-            }
-            this.__processSendQueue();
-        },
-
-        __isFlooding: function() {
-            var t = Date.now(),
-                floodt = t - this.__floodLastRequest;
-            if (floodt < this.options.floodInterval) {
-                if (this.__floodLastFlood !== 0 && (floodt > this.options.floodReset)) {
-                    this.__floodCounter = 0;
-                }
-                this.__floodLastFlood = t;
-                if (++this.__floodCounter > this.options.floodMax) {
-                    return true;
-                }
-            }
-            this.__floodLastRequest = t;
-            return false;
-        },
-
-        __checkRetries: function() { /* hmm, something went wrong! */
-            if (++this.__retryAttempts > this.options.maxRetries && this.connected) {
-                this.disconnect();
-                this.__error(lang.connTimeOut, {
-                    retryAttempts: this.__retryAttempts
-                });
-                this.fireEvent("lostConnection", this.__retryAttempts);
-                return false;
-            }
-            var to = this.__timeout - this.options.timeoutIncrement;
-            if (to >= this.options.minTimeout) {
-                this.__timeout = to;
-            }
-            return true;
-        },
-
-        __cancelRequests: function() {
-            if (this.__lastActiveRequest != null) {
-                this.__lastActiveRequest.cancel();
-                this.__lastActiveRequest = null;
-            }
-            if (this.__activeRequest != null) {
-                this.__activeRequest.cancel();
-                this.__activeRequest = null;
-            }
-        },
-
-        __processData: function(payload) {
-            var self = this;
-            if (payload[0] === false) {
-                if (self.connected) {
-                    self.lostConnection(lang.connError, payload);
-                }
-                return false;
-            }
-
-            self.__retryAttempts = 0;
-            payload.each(function(data) {
-                var type = data[0];
-
-                if      (type === "connect")    self.fireEvent("connect", data);
-                else if (type === "disconnect") self.fireEvent("disconnect", data);
-                else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
-                else if (DEBUG)                 console.warn("Unexpected type " + type, data);
-            });
-
-            return true;
-        },
-
-
-        __scheduleTimeout: function() {
-            this.__timeoutId = this.__timeoutEvent.delay(this.__timeout, this);
-        },
-
-        __cancelTimeout: function() {
-            /* global $clear */
-            if (this.__timeoutId != null) {
-                $clear(this.__timeoutId);
-                this.__timeoutId = null;
-            }
-        },
-
-        __timeoutEvent: function() {
-            this.__timeoutId = null;
-            if (this.__activeRequest == null) {
-                return;
-            } else if (this.__lastActiveRequest) {
-                this.__lastActiveRequest.cancel();
-            }
-            // this.fireEvent("retry", {
-            //     duration: this.__timeout
-            // });
-            this.__activeRequest.__replaced = true;
-            this.__lastActiveRequest = this.__activeRequest;
-            var to = this.__timeout + this.options.timeoutIncrement;
-            if (to <= this.options.maxTimeout) {
-                this.__timeout = to;
-            }
-            this.recv();
-        },
-
-        lostConnection: function(/*reason*/) {
-            this.connected = false;
-            this.fireEvent("lostConnection", this.__retryAttempts);
-            this.__error.apply(this, arguments);
-        },
-
-        __error: function(message, context) {
-            var msg = context ? util.format(message.message, context) : message.message;
-            this.fireEvent("error", msg);
-            new components.Alert({
-                title: lang.connLost,
-                text: msg
-            });
+    _sendQueue: [],
+    send: function(message, synchronous) {
+        if (synchronous) {
+            this._send(message);
+            return this;
         }
-    });
-})();
+        this._sendQueue.push(message);
+        this._processQueue(message);
+
+        return this;
+    },
+
+    //creates a push request, sends it, then returns it
+    _send: function(message, sync) {
+        return this.newRequest("p", sync)
+        .send({
+            data: {
+                s: this.sessionid,
+                c: message
+            }
+        });
+    },
+
+    //Enqueue a dependent async request
+    _processQueue: function() {
+        var self = this, nextMessage;
+        if (self._sending || self._sendQueue.length === 0) return;
+
+        nextMessage = self._sendQueue.shift();
+
+        //send the message
+        self._send(nextMessage)
+        .then(function() { //success
+            self._sending = false;
+            self._processQueue();
+        }, function() { //error
+            self.fireEvent("sendFail", {
+                message: nextMessage
+            });
+            self._sending = false;
+            self._processQueue();
+        });
+    },
+
+    // set up a IRC subscription request
+    subscribe: function() {
+        var self = this;
+        var request = self.newRequest("s");
+
+        request
+        .send("s=" + self.sessionid)
+        .then(function(payload) {
+            if(payload) self.processData(payload);
+            self.subscribe();
+        }, function(stream) { //errored out what do
+            if (DEBUG) console.warn("Recieve error:", stream);
+        });
+
+        return request;
+    },
+
+    counter: 0,
+    _activeRequests: [],
+    newRequest: function(url, synchronous) {
+        if (!this.connected) throw "Clients been disconnected";
+        if(DEBUG && synchronous) console.log("Warning: sending synchronous command to", url);
+        var self = this;
+        var request = new Request.JSON({
+            url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
+            async: !synchronous,
+            encoding: ""//let server assume utf-8
+        });
+
+        // try to minimise the amount of headers 
+        request.headers = {};
+        //not sure if this is necessary
+        if (Browser.ie && Browser.version < 8) {
+            request.setHeader("If-Modified-Since", "Sat, 01 Jan 2000 00:00:00 GMT");
+        }
+
+        self._activeRequests.push(request);
+        request.addEvent("complete", function() {
+            self._activeRequests.erase(request);
+        });
+
+        return request;
+    },
+
+    processData: function(payload) {
+        var self = this;
+        if (payload[0] === false) { //Qwebirc server -> client level error
+            this.fireEvent("error", payload[1]);
+            return self.lostConnection(lang.connError, payload);
+        }
+        payload.each(function(data) {
+            var type = data[0];
+            if      (type === "connect")    self.fireEvent("connect", data);
+            else if (type === "disconnect") self.disconnect(data);
+            else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
+            else if (DEBUG)                 console.warn("Unexpected type " + type, data);
+        });
+    },
+
+    lostConnection: function(/*reason*/) {
+        this.connected = false;
+        if (this.retries < this.options.maxRetries) this.retry.delay(this.retryInterval, this);
+        else this.disconnect();
+    },
+
+    retry: function() {
+        this.retryInterval *= this.options.retryIntervalScalar;
+        this.retries += 1;
+
+        this.connected = true; //gonna fake it to make it
+        this.subscribe()
+        .then(function() { //Reconnected!!!
+            this.reconnect();
+        });
+        this.connected = false;
+    }
+});

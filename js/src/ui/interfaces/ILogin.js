@@ -4,8 +4,6 @@
  * @depends [panes/Welcome, components/Popups, util/utils, util/utils]
  * @provides [ui/ILogin]
  */
-
-/* global auth */
 (function() {
     function validate($ele, validators) {
         if(_.isEmpty(validators)) return;
@@ -29,8 +27,9 @@
         return !failed;
     }
 
-    var LoginBox = function(parentElement, callback) {
-        var options = this.options;
+    function LoginBox(parentElement, callback) {
+        var app = this;
+        var options = app.options;
         var settings = options.settings;
         var validators = options.validators;
 
@@ -41,7 +40,7 @@
             username: settings.get("username"),
             password: settings.get("password"),
             channels: formatChans(settings.get("channels")),
-            full: auth.enabled || settings.get("auth")
+            full: options.requireAuth || settings.get("auth")
         });
 
         util.getTemplate("authpage", function(template) {
@@ -54,10 +53,8 @@
                 $chkAddAuth = $page.getElement("#authenticate"),
                 $chans = $page.getElement(".init-channels");
 
-            $page.addEvents({
-                "blur:relay([data-validate])": function(e, target) {
-                    validate(target, validators[target.get("data-validate")]);
-                }
+            $page.addEvent("blur:relay([data-validate])", function(e, target) {
+                validate(target, validators[target.get("data-validate")]);
             });
             $chans.addEvent("dblclick", function() {
                 new components.Dialog({
@@ -73,15 +70,15 @@
                 });
             });
 
-            settings.on("change:channels", function(chans) {
+            function updateChans(chans) {
                 $chans.text(formatChans(chans));
-            });
-
-            function updateChans() {
-                $form.getElements("[name='full']").getParent("div").toggle();
             }
 
-            $chkAddAuth.addEvent("click", updateChans);
+            settings.on("change:channels", updateChans);
+
+            $chkAddAuth.addEvent("click", function() {
+                $form.toggleClass("hide-auth", !$chkAddAuth.val());
+            });
 
             $form.addEvent("submit", function(e) {
                 e.stop();
@@ -106,29 +103,20 @@
 
                 settings.set("nickname", nickname);// nicks valid
 
-                if (auth.enabled || $chkAddAuth.val()) {
+                if (app.options.requireAuth || $chkAddAuth.val()) {
                     data.username = $usernameBox.val();
-                    data.realname = data.username || "";
+                    data.username = data.username || "";
                     data.password = $passwordBox.val();
-
-                    if (auth.bouncerAuth()) {
-                        data.serverPassword = data.password;
-                    }
-                    else if(auth.passAuth()){
-                        data.serverPassword = data.username + " " + data.password;
-                    }
+                    data.auth = true;
 
                     settings.set("username", data.username);
                     settings.set("password", data.password);
                     settings.set("auth", true);
-                    auth.enabled = true;
                 } else {
                     settings.unset("auth");
                 }
 
                 parentElement.empty();
-
-                auth.loggedin = true;
 
                 callback(data);
             });
@@ -137,11 +125,14 @@
 
             ui.Behaviour.apply($page);
         });
-    };
+    }
 
     ui.ILogin = new Class({
         Implements: [Events],
         LoginBox: LoginBox,
+        options: {
+            requireAuth: false
+        },
         loginBox: function() {
             var self = this;
             var win = this.newCustomWindow(windowNames.login, true, ui.WINDOW.connect);

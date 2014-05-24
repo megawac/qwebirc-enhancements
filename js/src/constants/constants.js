@@ -9,7 +9,7 @@ ui.WINDOW = {
     custom: 8,
     connect: 16,
     messages: 32,
-
+    all: 10,
     active: 9 //currently selected window
 };
 
@@ -33,6 +33,8 @@ constants.hl = {
 constants.brouhaha = "brouhaha";
 constants.status = "status";
 constants.login = "login";
+constants.active = ui.WINDOW.active;
+constants.all = ui.WINDOW.all;
 
 
 // constants.window = {

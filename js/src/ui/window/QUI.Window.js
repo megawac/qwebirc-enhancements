@@ -77,7 +77,7 @@ ui.QUIWindow = new Class({
         if(e) e.stop();
         if (this.closed) return;
 
-        if (util.isChannelType(this.type)) {
+        if (this.type === ui.WINDOW.channel) {
             this.client.exec("/PART " + this.name);
         }
 

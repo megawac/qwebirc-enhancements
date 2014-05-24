@@ -33,13 +33,6 @@ var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
         staticBaseURL: "<%= config.qwebirc_config.static_url %>" || "/"
     },
     config: {},
-    auth: {
-        loggedin: false,
-        enabled: false,
-
-        passAuth: Function.from(true),
-        bouncerAuth: Function.from(false)
-    },
     sound: {},
     lang: {
         windowNames: {}
