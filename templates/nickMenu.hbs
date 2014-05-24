@@ -1,5 +1,5 @@
 <div class='nick-menu'>
-    {{#if showNick}}<h5>{{nick}}</h5>{{/if}}
+    {{#if showNick}}<span class="user">{{nick}}</span>{{/if}}
     <ul>
         <li data-exec="/WHOIS {{nick}}">whois</li>
         {{#if notus}}<li data-exec="/QUERY {{nick}}">query</li>{{/if}}
