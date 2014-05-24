@@ -49,7 +49,7 @@ irc.Client.implement({
     ALL_ERROR: function(message, data, settings) {
         this.writeMessages(message, data, _.extend({
             channels: constants.all,
-            type: lang.types.ERROR
+            type: lang.TYPES.ERROR
         }, settings));
     },
 

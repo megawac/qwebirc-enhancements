@@ -5,6 +5,7 @@
  * @provides [irc/Commands]
  */
 function formatMessage(cmdline) {
+    if (_.isArray(cmdline)) return cmdline;
     if (cmdline.startsWith("/")) {
         cmdline = (cmdline.startsWith("//") ? "SAY " : "") + cmdline.slice(1); //qweb issue #349
     } else {
@@ -20,10 +21,11 @@ irc.Commands = new Class({//sort of an abstract class but relies on irc.Client s
     // this method will call functions in: Commands based on the this scope
     exec: function(line, chan) {
         var self = this,
-            allargs = formatMessage(line),
+            allargs = line,
             command, args, cmdopts, target;
         //allargs var will change each loop over
         while (allargs != null) {
+            allargs = formatMessage(allargs);
             command = allargs[0].toUpperCase();
             command = config.COMMAND_ALIAS[command] || command;
             args = allargs[1];
