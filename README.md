@@ -12,7 +12,7 @@ Qwebirc is intended to be a simple, intuitive and feature rich IRC client that o
 - Configure the qwebirc instance settings as described in [configuration](#configuration)
 - Install development build dependencies using `npm install` in the base folder (reads in package.json)
 - Run `grunt` to build static files
-- Start up a `qwebirc` or `iris` server with this repo set as the static files see #Server. For testing I personally use the server in [`test/server`](https://github.com/megawac/qwebirc-enhancements/blob/master/test/server/run.js) with the `base_url`s set to a live instance
+- Start up a [iris or qwebirc](#server) with this repo's static files see [#server](#server). For testing I personally use the server in [`test/server`](https://github.com/megawac/qwebirc-enhancements/blob/master/test/server/run.js) with the `base_url` set to a live instance
 
 #### Making changes
 After making changes to source files run in the base directory and run `grunt` in the command line to recompile resources.
