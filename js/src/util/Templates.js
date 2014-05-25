@@ -9,13 +9,10 @@ qwebirc.ready(function(engine) {
         messageLine:    "<hr class='lastpos' />",
         dropdownhint:   "<div class='dropdownhint'>" + lang.dropdownHint + "</div>",
         
-        tabDetach:      "<span class='detach ui-icon ui-icon-newwin' title='" + lang.detachWindow + "'></span>",
-        tabAttach:      "<span class='attach ui-icon ui-icon-circle-minus' title='" + lang.attachWindow + "'></span>",
-        tabClose:       "<span class='tab-close ui-icon ui-icon-circle-close' title='" + lang.closeTab + "'></span>"
+        tabDetach:      "<span class='detach entypo' title='" + lang.detachWindow + "'>&#59212;</span>",
+        tabAttach:      "<span class='attach entypo' title='" + lang.attachWindow + "'>&#59213;</span>",
+        tabClose:       "<span class='tab-close entypo' title='" + lang.closeTab + "'>&#10006;</span>"
     };
-
-    // source.verticalDivider = "<div class='ui-icon ui-icon-grip-solid-vertical handle vertical'></div>";
-    // source.horizontalDivider = "<div class='ui-icon ui-icon-grip-solid-horizontal handle horizontal'></div>";
 
     /************************
         HELPERS

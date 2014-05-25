@@ -71,22 +71,23 @@ ui.NavBar = new Class({
 
         var hideHint = _.once(ddhint.destroy.bind(ddhint));
 
-        var dropdownEffect = new Fx.Tween(dropdownbtn, {
+        //menu fade in/out animation
+        new Fx.Tween(dropdownbtn, {
             duration: "long",
             property: "opacity",
             link: "chain"
-        });
-        dropdownEffect
-            .start(0.25)
-            .start(1)
-            .start(0.33)
-            .start(1);
+        })
+        .start(0.25)
+        .start(1)
+        .start(0.33)
+        .start(1);
 
         //slide hint accross the screen
         new Fx.Morph(ddhint, {
             duration: "normal",
             transition: Fx.Transitions.Sine.easeOut
-        }).start({
+        })
+        .start({
             left: [900, 5]
         });
 
