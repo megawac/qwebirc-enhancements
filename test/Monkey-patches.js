@@ -127,6 +127,10 @@ describe("Element Methods", function() {
 describe("String methods", function() {
     //tests from sugarjs https://github.com/andrewplummer/Sugar/blob/master/test/environments/sugar/string.js
     it("startsWith", function() {
+        expect("hello".startsWith("hell")).to.be.ok();
+        expect("HELLO".startsWith("HELL")).to.be.ok();
+        expect("HELLO".startsWith("hell")).to.not.be.ok();
+        expect("HELLO".startsWith("hell")).to.not.be.ok();
         expect("hello".startsWith("hell", 0)).to.be.ok();
         expect("HELLO".startsWith("HELL", 0)).to.be.ok();
         expect("HELLO".startsWith("hell", 0)).to.not.be.ok();
@@ -142,6 +146,10 @@ describe("String methods", function() {
     });
     
     it("endsWith", function() {
+        expect("vader".endsWith("der")).to.be.ok();
+        expect("VADER".endsWith("DER")).to.be.ok();
+        expect("VADER".endsWith("der")).to.not.be.ok();
+        expect("VADER".endsWith("DeR")).to.not.be.ok();
         expect("vader".endsWith("der", 5)).to.be.ok();
         expect("VADER".endsWith("DER", 5)).to.be.ok();
         expect("VADER".endsWith("der", 5)).to.not.be.ok();

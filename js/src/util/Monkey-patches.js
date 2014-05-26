@@ -69,7 +69,8 @@
         },
         endsWith: function(what, pos) {
             what = String(what);
-            var end = Math.min(Math.max(pos, 0), this.length);
+            var end = Math.max(pos, 0);
+            if (isNaN(end) || end > this.length) end = this.length;
             return this.slice(end - what.length, end) == what;
         },
 
