@@ -15,6 +15,7 @@ irc.Connection = new Class({
         nickname: "",
         username: "",
         password: null,
+        auth: false,
 
         retryInterval: 5000,
         retryIntervalScalar: 1.5, //retry after first attempt will be retryInterval * scalar
@@ -33,10 +34,10 @@ irc.Connection = new Class({
         self._connect();
         self.newRequest("n")
         .send({
-            data: {
+            data: Object.filter({ //remove empty strings (e.g. if password isn't given)
                 nick: self.options.nickname,
-                password: util.format(serverPasswordFormat, self.options)
-            }
+                password: self.options.auth ? util.format(serverPasswordFormat, self.options) : ""
+            }, String.trim)
         })
         .then(function(stream) {
             self.sessionid = stream[1];

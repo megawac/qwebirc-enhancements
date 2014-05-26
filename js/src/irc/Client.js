@@ -88,7 +88,8 @@ irc.Client = new Class({
         self.connection = new irc.Connection({
             nickname: self.nickname,
             username: options.username,
-            password: options.password
+            password: options.password,
+            auth: options.auth
         })
         .addEvents({
             "recv": self.dispatch,
