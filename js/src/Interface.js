@@ -11,8 +11,8 @@ var DEFAULT_QWEBIRC_CONFIG = {
 
     validators: { //test is a helper from ircutils
         nick: [{
-            test: util.test(/^[\s\S]{1,9}$/), //max 9 by spec some servers implement different rules
-            description: lang.getFormatter("nickWrongLen", {min: 1, max: 9})
+            test: util.test(/^[\s\S]{1,30}$/), //30 to 31 characters is an IRCd standard. Worse to worse, the ircd will reject.
+            description: lang.getFormatter("nickWrongLen", {min: 1, max: 30})
         }],
         password: [{
             test: function(pass, $ele) {
