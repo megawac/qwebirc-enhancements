@@ -490,17 +490,15 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("build", function(prefix) {
-		console.log();
         grunt.config.set("suffix", prefix || grunt.config.getRaw("suffix") + grunt.template.today("-mmddHHMM"));
         grunt.task.run([
-            "test",
+            "build-templates",
+            "build-js",
             "build-css",
-
             "concat:apply-suffixes",
-
             "build-html"
         ]);
-        if(build.report) grunt.task.run("file_info");
+        if (build.report) grunt.task.run("file_info");
     });
 
     grunt.registerTask("release", ["build", "release"]);
