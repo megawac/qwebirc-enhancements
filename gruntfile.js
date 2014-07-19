@@ -134,7 +134,7 @@ module.exports = function(grunt) {
 
                     content = content.replace(/^[\x20\t]+/mg, "")
                                     .replace(/[\x20\t]+$/mg, "")
-                                    .replace(/\r\n/g, "");//remove line breaks (for min)
+                                    .replace(/[\r\n]/g, "");//remove line breaks (for min)
 
                     content = content.split(mark_open).join(match_open)
                                     .split(mark_close).join(match_close);
