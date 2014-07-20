@@ -19,7 +19,7 @@ module.exports = function(grunt) {
                 if (_.isObject(val)) return deepTemplate(val, config);
                 if (_.isString(val)) {
                     if (/(_re|Regex(p)?)$/.test(key)) return new RegExp(val);
-                    return _.template(val, config);
+                    return _.template(val)(config);
                 }
                 return val;
             })
@@ -440,7 +440,11 @@ module.exports = function(grunt) {
     });
 
     // load all grunt tasks
-    require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
+    _.chain({})
+     .extend(package.optionalDependencies, package.devDependencies)
+     .keys()
+     .filter(_.partial(_.startsWith, _, "grunt-", null))
+     .each(grunt.loadNpmTasks);
 
     grunt.registerTask("server", ["express:testing"]);
 

@@ -49,8 +49,7 @@
     "grunt-file-info": "~1.0.4",
     "grunt-html-build": "0.3",
     "grunt-release": "0.7",
-    "lodash": "2.4",
-    "matchdep": "~0.3.0",
+    "lodash": "https://github.com/lodash/lodash/tarball/10adb686248793fd0f3e237c3928719c6d88e5b5",
     "toSrc": "~0.1.3"
   },
   "frontend-dependencies": {
