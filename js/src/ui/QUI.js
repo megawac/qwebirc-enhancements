@@ -33,6 +33,7 @@ ui.QUI = new Class({
         var brouhaha = this.windows.brouhaha;
         brouhaha.currentChannel = name;
         brouhaha.window.getElement(".channel-name").text(name);
+        return brouhaha;
     },
 
     selectTab: function(tab) {
@@ -71,22 +72,25 @@ ui.QUI = new Class({
 
     newClient: function(client) {
         var self = this;
+        var windows = self.windows;
         var status = self.parent(client);
         //load brouhaha window (b4 connecting)
         var makeBrouhaha = function() {
             if(self.uiOptions.get("brouhaha").enabled) {
-                var brouhaha = self.windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, windowNames.brouhaha);
-                if(!client.isConnected()) {
-                    client.addEvent("userJoined:once", function(type, data) {
-                        self.setBrouhahaChan(data.channel);
-                        brouhaha.select();
-                    });//no need to wait see IRCClient.__signedOn
-                }
-            } else if(self.windows.brouhaha) {
-                self.windows.brouhaha.close();
-                delete self.windows.brouhaha;
+                windows.brouhaha = self.newWindow(client, ui.WINDOW.channel, windowNames.brouhaha);
+            } else if (windows.brouhaha) {
+                windows.brouhaha.close();
+                delete windows.brouhaha;
             }
         };
+
+        client.addEvent("userJoined:once", function(type, data) {
+            if (windows.brouhaha) {
+                self.setBrouhahaChan(data.channel).select();
+            } else {
+                _.result(_.find(self.getWindows(client), util.isChannel), "select");
+            }
+        });//no need to wait see IRCClient.__signedOn
 
         makeBrouhaha();
         self.uiOptions.on("change:brouhaha", makeBrouhaha);
