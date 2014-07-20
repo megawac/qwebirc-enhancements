@@ -140,24 +140,4 @@ irc.Client.implement({
         });
         return true;
     }
-
-
-    // irc_RPL_LISTSTART: function() {
-    //     this.listedChans = [];//should have a make list command in command utils
-    //     return !this.hidelistout;
-    // },
-
-    // irc_RPL_LIST: function(data) {
-    //     this.listedChans.push({
-    //         channel: data.args[1],
-    //         users: _.toInt(data.args[2]),
-    //         topic: data.args[3]
-    //     });
-    //     return !this.hidelistout;
-    // },
-
-    // irc_RPL_LISTEND: function() {
-    //     this.trigger("listend", this.listedChans);
-    //     return !this.hidelistout;
-    // }
 });

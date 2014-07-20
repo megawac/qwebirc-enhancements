@@ -16,7 +16,7 @@ irc.Client = new Class({
     inviteChanList: [],
     channels: [],
     activeTimers: {},
-    prefixes: "~&@%+",//heirarchy of prefixes - ~owner @(operator), % half op +(voice) - will be overriden by server
+    prefixes: "~&@%+", //heirarchy of prefixes - ~owner @(operator), % half op +(voice) - will be overriden by server
     modeprefixes: "ov",
     __signedOn: false,
     authed: false,
@@ -27,56 +27,12 @@ irc.Client = new Class({
         o: irc.pmodes.SET_UNSET,
         v: irc.pmodes.SET_UNSET
     },
-    toIRCLower: irc.RFC1459toIRCLower,//default text codec
+    toIRCLower: irc.RFC1459toIRCLower, //default text codec
 
-    IRC_COMMAND_MAP: {// map different commands to approriate functions
-        // "ERROR": "",
-        // "INVITE": "",
-        // "JOIN": "",
-        // "KICK": "",
-        // "MODE": "",
-        // "NICK": "",
-        // "NOTICE": "",
-        // "PART": "",
-        // "PING": "",
-        // "TOPIC": "",
-        // "PRIVMSG": "",
-        // "QUIT": "",
-        // "WALLOPS": "",
-
-        // "ERR_CANNOTSENDTOCHAN": "genericError",
-        // "ERR_CHANOPRIVSNEEDED": "genericError",
-        // "ERR_NICKNAMEINUSE": "",
-        // "ERR_NOSUCHNICK": "genericError"//,
-
-        // "RPL_AWAY": "",
-        // "RPL_CHANNELMODEIS": "",
-        // "RPL_CREATIONTIME": "",
-        // "RPL_ENDOFNAMES": "",
-        // "RPL_ISUPPORT": "",
-        // "RPL_LIST": "",
-        // "RPL_LISTSTART": "",
-        // "RPL_LISTEND": "",
-        // "RPL_NAMREPLY": "",
-        // "RPL_NOTOPIC": "",
-        // "RPL_NOWAWAY": "",
-        // "RPL_TOPIC": "",
-        // "RPL_TOPICWHOTIME": "",
-        // "RPL_UNAWAY": "",
-        // "RPL_WELCOME": "",
-
-        // "RPL_WHOISACCOUNT": "",
-        // "RPL_WHOISACTUALLY": "",
-        // "RPL_WHOISCHANNELS": "",
-        // "RPL_WHOISGENERICTEXT": "",
-        // "RPL_WHOISIDLE": "",
-        // "RPL_WHOISOPERATOR": "",
-        // "RPL_WHOISOPERNAME": "",
-        // "RPL_WHOISSECURE": "",
-        // "RPL_WHOISSERVER": "",
-        // "RPL_WHOISUSER": "",
-        // "RPL_WHOISWEBIRC": "",
-        // "RPL_ENDOFWHOIS": "",
+    IRC_COMMAND_MAP: { // map different commands to approriate functions
+        "RPL_LIST": "rawActive",
+        "RPL_LISTSTART": "rawActive",
+        "RPL_LISTEND": "rawActive"
     },
     
     initialize: function(options) {
@@ -271,12 +227,21 @@ irc.Client = new Class({
     **************************************************/
     dispatch: function(data) {
         var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
-
         if (!(fn && fn.call(this, data))) {//fn dne or does not return true
             this.rawNumeric(data);
         }
     },
     
+    // noop to avtive window
+    rawActive: function(data) {
+        this.trigger("raw", {
+            "channel": ui.WINDOW.active,
+            "numeric": data.command,
+            "message": data.args.slice(1).join(" ")
+        });
+        return true;
+    },
+
     rawNumeric: function(data) {
         this.trigger("raw", {
             "numeric": data.command,
