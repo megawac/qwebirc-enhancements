@@ -97,7 +97,8 @@ ui.QUIWindow = new Class({
     select: function() {//change window elements
         if(!this.active && !this.closed) {
             this.parent();
-            this._selectUpdates();
+            // defer a moment as its hefty
+            this._selectUpdates.delay(1, this);
             this.setActive()
                 .fireEvent("selected");
         }
@@ -120,8 +121,11 @@ ui.QUIWindow = new Class({
             self.fxscroll.start();
         }
         if(!self.completer && self.type === ui.WINDOW.channel) {
-            self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), self.history.get(self.id), {
-                autocomplete: self.getOption("completer").intrusive
+            self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), null, {
+                autocomplete: self.getOption("completer").intrusive,
+                getData: function() {
+                    return self.history.get(self.id).concat(_.keys(self.lastNickHash));
+                }
             });
             self.completer.$hint.addClass("decorated");
             self.$input.removeClass("decorated");
@@ -130,7 +134,6 @@ ui.QUIWindow = new Class({
         if (util.isChannelType(self.type)) {
             self.updatePrefix.delay(1000, self);//takes a little while to recieve on some servers
         }
-
     },
 
     __dirtyFixes: function() {

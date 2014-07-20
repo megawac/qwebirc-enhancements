@@ -16,7 +16,7 @@
     };
     
     var hinter = function() {
-        if(this.options.autocomplete) {
+        if (this.options.autocomplete) {
             var text = this.$input.get("value");
             var full;
             if(text.length >= this.options.minlen) {
@@ -33,10 +33,12 @@
         Binds: ["process", "update"],
         index: -1,
         options: {
-            stopPropogation: false,
+            stopEvent: true,
             //autostyle -todo for now templated,
             autoPosition: true,//autopositon hint
             autocomplete: true,
+            getData: null,
+            checkData: 10000,
             selectors: {
                 hint: ".tt-hint",
                 input: ".tt-query"
@@ -50,7 +52,11 @@
         initialize: function(target, data, options) {
             options = this.setOptions(options).options;
             target = document.id(target);
-            this.data = data;
+
+            this.setData(data);
+            if (options.getData) {
+                this.setData.periodical(this.options.checkData, this);
+            }
 
             this.$events = {
                 "keydown": this.process,
@@ -67,14 +73,22 @@
             }
         },
 
+        setData: function(data) {
+            if (data) {
+                this.data = data;
+            } else if (this.options.getData) {
+                this.data = this.options.getData();
+            }
+        },
+
         toggleAutocomplete: function(state) {
             this.options.autocomplete = state != null ? !!state : !this.options.autocomplete;
         },
 
         process: function(evt) {
             var method = keyboardBinds[evt.key];
-            if(this[method]) {
-                if(this.options.stopPropogation) evt.stopPropagation();
+            if (this[method]) {
+                if (this.options.stopEvent) evt.stop();
                 this[method]();
             }
             //cant do hinting here as this is fired before input
@@ -82,7 +96,7 @@
 
         next: function() {
             this.stop();
-            if(this.index > 0) {
+            if (this.index > 0) {
                 this.set(this.data[--this.index]);
             } else {
                 this.set("");
@@ -92,7 +106,7 @@
 
         previous: function() {
             this.stop();
-            if(this.index + 1 < this.data.length) {
+            if (this.index + 1 < this.data.length) {
                 this.set(this.data[++this.index]);
             } else {
                 this.set("");
