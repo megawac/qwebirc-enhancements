@@ -88,7 +88,9 @@ ui.QUI = new Class({
             if (windows.brouhaha) {
                 self.setBrouhahaChan(data.channel).select();
             } else {
-                _.result(_.find(self.getWindows(client), util.isChannel), "select");
+                _.result(_.find(self.getWindows(client), function(chan) {
+                    return util.isChannel(chan.name);
+                }), "select");
             }
         });//no need to wait see IRCClient.__signedOn
 

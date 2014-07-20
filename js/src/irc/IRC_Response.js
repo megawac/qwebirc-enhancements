@@ -18,7 +18,7 @@ function replyCTCP(client, data, ctcp) {
     var t = _.now() / 1000; //prevent flood
     if (replyfn && t > client.nextctcp) {
         client.send(util.formatCommand("CTCP", {
-            target: data.user,
+            target: data.nick,
             type: ctcp[0],
             text: replyfn(ctcp[1])
         }));
