@@ -37,7 +37,6 @@
             autoPosition: true,//autopositon hint
             autocomplete: true,
             getData: null,
-            checkData: 10000,
             selectors: {
                 hint: ".tt-hint",
                 input: ".tt-query"
@@ -53,9 +52,6 @@
             target = document.id(target);
 
             this.setData(data);
-            if (options.getData) {
-                this.setData.periodical(this.options.checkData, this);
-            }
 
             this.$events = {
                 "keydown": this.process,
@@ -72,19 +68,20 @@
             }
         },
 
-        setData: function(data) {
+        setData: _.throttle(function(data) {
             if (data) {
                 this.data = data;
             } else if (this.options.getData) {
                 this.data = this.options.getData();
             }
-        },
+        }, 2500),
 
         toggleAutocomplete: function(state) {
             this.options.autocomplete = state != null ? !!state : !this.options.autocomplete;
         },
 
         process: function(evt) {
+            this.setData();
             var method = keyboardBinds[evt.key];
             if (this[method]) {
                 if (evt.key === "tab") evt.stop(); // don't tab out of input

@@ -32,7 +32,7 @@ irc.Client = new Class({
     IRC_COMMAND_MAP: { // map different commands to approriate functions
         "RPL_LIST": "rawActive",
         "RPL_LISTSTART": "rawActive",
-        "RPL_LISTEND": "rawActive"
+        "RPL_LISTEND": "noop"
     },
     
     initialize: function(options) {
@@ -248,6 +248,9 @@ irc.Client = new Class({
             "message": data.args.slice(1).join(" ")
         });
     },
+
+    // for things to be ignored
+    noop: _.constant(true),
 
     /*************************************************
     *               message helpers                  *
