@@ -33,7 +33,6 @@
         Binds: ["process", "update"],
         index: -1,
         options: {
-            stopEvent: true,
             //autostyle -todo for now templated,
             autoPosition: true,//autopositon hint
             autocomplete: true,
@@ -88,7 +87,7 @@
         process: function(evt) {
             var method = keyboardBinds[evt.key];
             if (this[method]) {
-                if (this.options.stopEvent) evt.stop();
+                if (evt.key === "tab") evt.stop(); // don't tab out of input
                 this[method]();
             }
             //cant do hinting here as this is fired before input

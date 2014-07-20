@@ -54,17 +54,19 @@ util.splitMax = function(str, by, max) {
 };
 
 //returns next item in array with overflow
+//#note: will always returns an item
 //xs array
 //pos start index
 //dir ammount direction +/-
-util.nextItem = function(xs, pos, dir) {//#note: will always returns an item
-    pos = pos || _.size(xs);
+util.nextItem = function(xs, pos, dir) {
+    pos = _.isNumber(pos) ? pos : xs.length;
+    var length = xs.length;
     var index = pos + (dir || 1);
-    if (index >= xs.length) {
-        index %= xs.length;
+    if (index >= length) {
+        index %= length;
     }
     if (index < 0) {
-        index = xs.length + (index % xs.length);
+        index = length + (index % length);
     }
     return xs[index];
 };
