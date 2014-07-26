@@ -54,6 +54,9 @@ ui.QUI = new Class({
     selectWindow: function(win, deselActive) {
         win = this.parent(win, deselActive);
         this.selectTab(win.tab);
+        // Add current window id to parent for themeing via css
+        this.element.removeClasses(_.pluck([this.active, this.last].clean(), "id"))
+            .toggleClass(win.id, !util.isChannelType(win.type) || util.isBaseWindow(win.name));
     },
 
     newTab: function(win, name) {
