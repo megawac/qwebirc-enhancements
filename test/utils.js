@@ -108,11 +108,13 @@ describe("Utilities", function() {
         it(".formatChannel()", function() {
             expect(util.formatChannel("#test")).to.be.equal("#test");
             expect(util.formatChannel("test")).to.be.equal("#test");
+            expect(util.formatChannel("")).to.equal("");
         });
 
         it(".formatChannelString()", function() {
             expect(util.formatChannelString("test,test2,#test3,#tes#t4,test5,test6")).to.be.equal("#test,#test2,#test3,#tes#t4,#test5,#test6");
             expect(util.formatChannelString(["test", "test2", "#test3", "#tes#t4", "test5", "test6"])).to.be.equal("#test,#test2,#test3,#tes#t4,#test5,#test6");
+            expect(util.formatChannelString("")).to.equal("");
         });
 
         it(".unformatChannelString()", function() {

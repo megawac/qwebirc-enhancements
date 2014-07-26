@@ -21,7 +21,7 @@ var isChannel = util.isChannel = function(str) {
 };
 
 var formatChannel = util.formatChannel = function(chan) {
-    if (!isChannel(chan)) {
+    if (chan && !isChannel(chan)) {
         chan = "#" + chan;
     }
     return chan.replace(" ", "");
@@ -74,7 +74,6 @@ util.unformatChannel = function(chan) {
 util.formatChannelString = _.compose(joinComma, _.uniq, mappedChannelFormat, splitChan);
 util.unformatChannelString = _.compose(_.uniq, mappedChannelFormat, splitChan);
 
-
 util.addPrefix = function(nc, pref, prefs) {
     if (prefs && !util.validPrefix(prefs, pref) || nc.prefixes.contains(pref)) return nc.prefixes;
     return nc.prefixes = _.sortBy( (pref + nc.prefixes).split(""), function(pref) {
@@ -96,7 +95,9 @@ util.prefixOnNick = _.curry(function(prefixes, nick) {
 
 util.getPrefix = _.compose(_.first, util.prefixOnNick);
 
-util.stripPrefix = _.compose(function(xs){return xs[1];}, util.prefixOnNick);
+util.stripPrefix = _.compose(function(xs){
+    return xs[1];
+}, util.prefixOnNick);
 
 util.nickChanComparitor = function(client, nickHash) {
     var _prefixes = client.prefixes,
