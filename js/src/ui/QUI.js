@@ -8,9 +8,11 @@ ui.QUI = new Class({
     Extends: ui.StandardUI,
     // Binds: ["__createChannelMenu"],
     Window: ui.QUIWindow,
+
     initialize: function($par, options) {
         this.parent($par, options);
     },
+
     postInitialize: function() {
         var self = this.parent();
         self.nav.on({
@@ -40,10 +42,10 @@ ui.QUI = new Class({
         var active = this.active;
         var win = tab.retrieve("window");
         var isChannel = util.isChannelType(win.type);
-        if(!active || !isChannel || (isChannel && active.id !== constants.brouhaha)) {
+        if (!active || !isChannel || (isChannel && active.id !== constants.brouhaha)) {
             win.select();
         }
-        if(this.windows.brouhaha && isChannel && !util.isBaseWindow(win.id)) {//update brouhaha window attrs
+        if (this.windows.brouhaha && isChannel && !util.isBaseWindow(win.id)) {//update brouhaha window attrs
             this.setBrouhahaChan(win.name);
             tab.addClass("selected");
         }
@@ -51,13 +53,17 @@ ui.QUI = new Class({
             .getSiblings(".selected:not(.detached,.brouhaha)").removeClass("selected");//remove last selection
     },
 
+
     selectWindow: function(win, deselActive) {
         win = this.parent(win, deselActive);
         this.selectTab(win.tab);
         // Add current window id to parent for themeing via css
-        this.element.removeClasses(_.pluck([this.active, this.last].clean(), "id"))
-            .toggleClass(win.id, !util.isChannelType(win.type) || util.isBaseWindow(win.name));
+        win.element.toggleClass(win.id, !util.isChannelType(win.type) || util.isBaseWindow(win.name));
     },
+
+    // closeWindow: function(win) {
+    //     return this.parent(win);
+    // },
 
     newTab: function(win, name) {
         var self = this;

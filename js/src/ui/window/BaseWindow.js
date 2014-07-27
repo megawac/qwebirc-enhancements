@@ -54,7 +54,7 @@ ui.Window = new Class({
 
     close: function() {
         this.closed = true;
-        this.parentObject.__closed(this);
+        this.parentObject.closeWindow(this);
         return this.destroy();
     },
 

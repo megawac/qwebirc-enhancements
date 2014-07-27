@@ -39,17 +39,6 @@
     background: {{$hue '0.5'}} !important;
 }
 
-.qui .properties {
-    background: {{$saturate '0.04'}};
-    border-top: thin solid {{$lighten '-0.1'}};
-}
-
-.qui .topic {
-    color: {{$mix '4f4f4f' 'font'}};
-    background: {{$hex 'background'}};
-    border-bottom: thin dashed {{$lighten '-0.15'}};
-}
-
 {{! tab stuff }}
 .qui .outertabbar, .qui .detached-window .header {
     color: {{$mix '0d0b0b' 'font'}};
@@ -74,20 +63,6 @@
     border-left: thin solid {{$lighten '-0.15'}};
 }
 
-{{!--
-.qui .nicklist .user, .qui .nick-menu {
-    border: thin solid {{$lighten '-0.1'}};
-}
-
-.qui .nicklist .selected {
-    color: {{$hex 'font'}};
-    background: #fff;
-
-    border-top: thin solid {{$lighten '-0.15'}};
-    border-bottom: thin solid {{$lighten '-0.15'}};
-}
---}}
-
 .qui .dropdownmenu, .qui hr.lastpos {
     border: thin solid {{$lighten '-0.15'}};
     background: {{$hex 'background'}};
@@ -95,6 +70,17 @@
 
 .qui .dropdownmenu a:hover {
     background: {{$saturate '40%'}};
+}
+
+.qui .properties {
+    background: {{$saturate '0.04'}};
+    border-top: thin solid {{$lighten '-0.1'}};
+}
+
+.qui .topic {
+    color: {{$mix '4f4f4f' 'font'}};
+    background: {{$hex 'background'}};
+    border-bottom: thin dashed {{$lighten '-0.15'}};
 }
 
 {{! irc input stuff }}
@@ -117,11 +103,18 @@
     {{! will be split using .split(',')}}
     {{#vendor-prefix '-webkit-,-moz-,-o-,-ms-,'}}
         background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
-    }
-    }
     {{/vendor-prefix}}
 }
 
 .qui .user {
     background: {{$saturate '-0.15'}};
+}
+
+{{!custom brouhaha styling}}
+.qui .brouhaha .content, .qui .brouhaha .dropdownmenu {
+    background: {{$saturate '-0.10'}};
+}
+
+.qui .brouhaha .properties, .qui .brouhaha .input {
+    background: {{$saturate '-0.6'}};
 }

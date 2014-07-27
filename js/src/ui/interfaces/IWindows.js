@@ -156,13 +156,15 @@ ui.IWindows = new Class({
         }
         return win;
     },
+    
     setWindow: function(win/*, deselActive*/) {
         if (!this.active || (win !== this.active && !this.active.closed)) {
             this.last = this.active;
         }
         this.active = win;
     },
-    __closed: function(win) {
+
+    closeWindow: function(win) {
         var winarr = this.windowArray;
         var isActive = win === this.active;
 
@@ -182,6 +184,7 @@ ui.IWindows = new Class({
             }
         }
     },
+
     nextWindow: function(direction, fromWin) {
         var windows = _.where(this.windowArray, {detached:false});
         var win = util.nextItem(windows, windows.indexOf(fromWin || this.active), direction); //get window from array
@@ -189,6 +192,7 @@ ui.IWindows = new Class({
 
         return win;
     },
+
     prevWindow: function() {
         this.nextWindow(-1);
     },
