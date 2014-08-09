@@ -33,9 +33,10 @@ function addClientEvents(client/*, windows*/) {
     function formatChans(data) {
         var chans = data.channels;
         if (chans === constants.all) {
-            return _.keys(ui_.getWindows(client));
+            chans = ui_.getWindows(client);
         }
-        return chans && _.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
+        // don't use _.isObject here (true for arrays)
+        return chans && Type.isObject(chans) ? _.keys(chans) : Array.from(chans || data.channel);
     }
 
     function formatData(type, _data) {

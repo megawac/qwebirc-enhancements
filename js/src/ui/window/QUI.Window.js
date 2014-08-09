@@ -124,7 +124,7 @@ ui.QUIWindow = new Class({
             self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), null, {
                 autocomplete: self.getOption("completer").intrusive,
                 getData: function() {
-                    return self.history.get(self.id).concat(_.keys(self.lastNickHash));
+                    return (self.history.get(self.id) || []).concat(_.keys(self.lastNickHash));
                 }
             });
             self.completer.$hint.addClass("decorated");
