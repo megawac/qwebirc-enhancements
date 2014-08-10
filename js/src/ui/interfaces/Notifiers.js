@@ -52,10 +52,10 @@
         beep: function() {
             return this.playSound(this.uiOptions.get("beep_sound"));
         },
+
         playSound: function(alias) {
             if(!this.soundPlayer) {
-                this.soundInit();
-                this.soundPlayer.addEvent("ready:once", this.playSound.bind(this, alias));
+                this.soundInit(this.playSound.bind(this, alias));
             }
             else if (this.soundPlayer.isReady() && ((_.now() - this.lastSound) > this.options.sounds.minSoundRepeatInterval)) {
                 this.lastSound = _.now();
@@ -65,19 +65,18 @@
             }
             return this;
         },
-        soundInit: function() {
+
+        soundInit: function(then) {
             //used to have a bunch of flash checks. going to let the sm handle it
-            if(!(this.soundPlayer instanceof sound.SoundPlayer)) {
-                // var sounds = this.options.sounds;
-                // sounds.sounds = sounds.sounds.map(makeSound);
+            if(!(this.soundPlayer instanceof sound.SoundPlayer) && this.uiOptions.get("volume") > 0) {
                 this.soundPlayer = new sound.SoundPlayer(this.options.sounds);
+                if (then) this.soundPlayer.addEvent("ready:once", then);
             }
         },
 
         flash: function(force) {
             var self = this;
-            if ((!force && document.hasFocus()) || !self.canFlash || self.flashing)
-                return;
+            if ((!force && document.hasFocus()) || !self.canFlash || self.flashing) return;
 
             self.titleText = document.title;
 
