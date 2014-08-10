@@ -58,7 +58,7 @@ function addClientEvents(client/*, windows*/) {
 
     function lineParser(type, data) {
         data = formatData(type, data);
-        
+
         _.each(formatChans(data), function(channel) {
             data.channel = data.c = channel;
             var win = (data.c === constants.active) ? ui_.getActiveWindow() : ui_.getWindow(client, channel);

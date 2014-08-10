@@ -23,7 +23,7 @@ ui.Theme = new Class({
         var isobj = _.isObject(_data);
         var data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
-        if(isobj) {
+        if (isobj) {
             if ("n" in data) {
                 //works slightly harder than it has too :/
                 data.N = templates.userlink(data);
@@ -32,8 +32,8 @@ ui.Theme = new Class({
             //now all we have to do is format the data as desired and pass to theme
             ["m", "c"].each(function(key) {//urlerize message and nick
                 var val = data[key];
-                if(val) {
-                    if(_.isArray(val)) { //modes are given as an array so we need to fold
+                if (val) {
+                    if (_.isArray(val)) { //modes are given as an array so we need to fold
                         val = val.join("");
                     }
                     data[key] = self.urlerize(val);
@@ -79,39 +79,39 @@ ui.Theme = new Class({
             nick = win.client.nickname,
             notus = data.n !== nick;
 
-        if(data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
+        if (data && type && /(NOTICE|ACTION|MSG)$/.test(type)) {
             if(data.m) {
                 $ele.addClass("message");
             }
             /* jshint maxcomplexity:false */
             self.messageParsers.each(function(parser) {
                 //sorry little crazy :)
-                if( (!parser.notus || notus) &&//implications - organized them by complexity
+                if ( (!parser.notus || notus) &&//implications - organized them by complexity
                     (!parser.types || parser.types.contains(win.type)) &&
                     (!parser.type || parser.type.test(type)) &&
                     (!parser.msg || parser.msg.test(data.m)) &&
                     (!parser.nick || parser.nick.test(data.n)) &&
                     (!parser.mentioned || util.containsWord(nick, data.m)) )
                 {
-                    if((!win.active && win.id !== constants.brouhaha) || (!document.hasFocus()) ) {
-                        if(parser.flash) {
+                    if ((!win.active && win.id !== constants.brouhaha) || (!document.hasFocus()) ) {
+                        if (parser.flash) {
                             win.parentObject.flash();
                         }
-                        if(parser.beep) {
+                        if (parser.beep) {
                             win.parentObject.beep();
                         }
-                        if(parser.pm) {
+                        if (parser.pm) {
                             win.parentObject.showNotice({
                                 title: "IRC " + type + "!",
                                 body: util.format("{nick}({channel}): {message}", data)
                             });
                         }
                     }
-                    if(parser.highlight) {
-                        if(!highlights.channels[win.name]) highlights.channels[win.name] = 0;
+                    if (parser.highlight) {
+                        if (!highlights.channels[win.name]) highlights.channels[win.name] = 0;
                         $ele.addClass(_.isBoolean(parser.highlight) ? util.nextItem(highlights, highlights.channels[win.name]++, 1) : parser.highlight);
                     }
-                    if(parser.classes) {
+                    if (parser.classes) {
                         $ele.addClass(parser.classes);
                     }
                     tabHighlight = Math.max(tabHighlight, parser.tabhl);

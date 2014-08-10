@@ -247,7 +247,7 @@ irc.Client.implement({
             this.trigger("serverNotice", {
                 "nick": nick,
                 "message": message,
-                "channel": constants.active
+                "channel": _.find(this.channels, _.partial(String.contains, message, _, null)) || constants.active
             });
         } else if (target === this.nickname) {
             var ctcp = util.processCTCP(message);
@@ -298,7 +298,8 @@ irc.Client.implement({
         return true;
     },
 
-    irc_MODE: function(data) {//http://tools.ietf.org/html/rfc1459.html#section-4.2.3
+    //http://tools.ietf.org/html/rfc1459.html#section-4.2.3
+    irc_MODE: function(data) {
         var self = this;
         var target = data.args[0];
         var args = data.args.slice(1);
@@ -310,9 +311,9 @@ irc.Client.implement({
                 "type": "UMODE",
                 "n": this.nickname
             });
-        } else {//target is channel
+        } else { //target is channel
             var modes = args[0].split("");
-            var nick = _.last(args);//note: not bothering for ban mask case 
+            var nick = _.last(args); //note: not bothering for ban mask case
             var cmode = constants.op;
 
             modes.filter(function(mode) {
