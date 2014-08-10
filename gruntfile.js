@@ -101,13 +101,13 @@ module.exports = function(grunt) {
                 namespace: "qwebirc.templates",
                 compilerOptions: {
                     knownHelpers: {
+                        "equals": true,
                         "check": true,
                         "enableDisable": true,
                         "$link": true,
                         "format": true,
                         "lang": true,
                         "$timestamp": true,
-
                         //mcss vars
                         "$result": true,
                         "$hex": true,
@@ -420,7 +420,7 @@ module.exports = function(grunt) {
                 commitMessage: "Dropping v-<%= version %>", //default: "release <%= version %>"
                 github: {
                     repo: "megawac/qwebirc-enhancements", //put your user/repo here
-                    usernameVar: "GITHUB_USER", //ENVIRONMENT VARIABLE that contains Github username 
+                    usernameVar: "GITHUB_USER", //ENVIRONMENT VARIABLE that contains Github username
                     passwordVar: "GITHUB_PASS" //ENVIRONMENT VARIABLE that contains Github password
                 }
             }

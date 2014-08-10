@@ -8,7 +8,7 @@ qwebirc.ready(function(engine) {
     var source = {
         messageLine:    "<hr class='lastpos' />",
         dropdownhint:   "<div class='dropdownhint'>" + lang.dropdownHint + "</div>",
-        
+
         tabDetach:      "<span class='detach entypo' title='" + lang.detachWindow + "'>&#59212;</span>",
         tabAttach:      "<span class='attach entypo' title='" + lang.attachWindow + "'>&#59213;</span>",
         tabClose:       "<span class='tab-close entypo' title='" + lang.closeTab + "'>&#10006;</span>"
@@ -21,23 +21,27 @@ qwebirc.ready(function(engine) {
         "check": function(checked){
             return checked ? "checked" : "";
         },
-        
+
+        "equals": function(a, b, options) {
+            return a === b ? options.fn(this) : options.inverse(this);
+        },
+
         "enableDisable": function(x) {
             return x ? lang.DISABLE : lang.ENABLE;//if true shows disable
         },
-        
+
         "$link": util.formatURL,
-        
+
         "format": function(prop) {
             return util.format(prop, this);
         },
-        
+
         "lang": function(prop) {
             var item = _.lookup(lang, prop);
             if (!item && DEBUG) console.error(prop + " is invalid");
             return util.format(_.lookup(lang, prop), this);
         },
-        
+
         "$timestamp": util.IRCTimestamp,
 
         //Modifiable css helpers!
@@ -56,7 +60,7 @@ qwebirc.ready(function(engine) {
             var mixer = one.color(val);
             return new one.color.RGB(mixer.red() * base.red(), mixer.blue() * base.blue(), mixer.green() * base.green(), base.alpha() * mixer.alpha()).hex();
         },
-        
+
         "$saturate": function(val, colourProp) {
             var base = one.color(this.colour[_.isString(colourProp) ? colourProp : "background"] || colourProp);
             return base.saturation(parseFloat(val), true).hex();
