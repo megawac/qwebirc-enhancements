@@ -118,7 +118,7 @@
                 <label class="control-label-inline">{{lang "option.NOTICE_SOUND"}}
                     <select class="form-control input-sm" id="beep_sound">
                         {{#each beep_sounds}}
-                        <option value="{{id}}" {{#equals beep_sound id}}selected{{/equals}}>{{id}}</option>
+                        <option value="{{id}}" {{#equals ../beep_sound id}}selected{{/equals}}>{{id}}</option>
                         {{/each}}
                     </select>
                     <input type="button" value="{{lang "option.TEST"}}" id="sound-test">
@@ -149,7 +149,7 @@
             </div>
         </div>
         <div class="hotkeys control-group well">
-            
+
         </div>
     </div>
     <div class="actions">
