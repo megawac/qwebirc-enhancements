@@ -39,10 +39,6 @@
     background: {{$hue '0.5'}} !important;
 }
 
-.qui .lines .server-notice {
-    background: {{$hue '-0.1'}} !important;
-}
-
 {{! tab stuff }}
 .qui .outertabbar, .qui .detached-window .header {
     color: {{$mix '0d0b0b' 'font'}};
@@ -121,6 +117,6 @@
     background: {{$saturate '-0.15'}};
     {{! will be split using .split(',')}}
     {{#vendor-prefix '-webkit-,-moz-,-o-,-ms-,'}}
-        background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
+        background-image: {prefix}linear-gradient(bottom, {{$saturate '0.065'}} 35%, {{$saturate '-0.025'}} 85%);
     {{/vendor-prefix}}
 }
