@@ -88,16 +88,34 @@ util.unformatURL = function(link) {
 };
 
 //test if a string contains a word
-util.containsWord = function(word, content) {
-    var idx = content.indexOf(word);
-    var wordRe = /\w+/;
-    if (idx !== -1) {
-        return !(wordRe.test(content.charAt(idx - 1)) || wordRe.test(content.charAt(idx + word.length)));
+util.indexOfWord = function(word, content, index) {
+    index = (index || 0) - 1;
+    var wordRe = /\w/;
+    var length = word.length;
+    while ((index = content.indexOf(word, index + 1)) >= 0) {
+        if (!(wordRe.test(content.charAt(index - 1)) ||
+            (index + length < content.length &&
+                wordRe.test(content.charAt(index + length))))) {
+            break;
+        }
     }
 
-    return false;
+    return index;
     //too naive?
     //return new RegExp("\\b" + String.escapeRegExp(word) + "\\b", "i");
+};
+
+util.containsWord = function(word, content) {
+    return util.indexOfWord(word, content) >= 0;
+};
+
+util.countWord = function(word, content) {
+    var count = 0;
+    var index = -1;
+    while ( (index = util.indexOfWord(word, content, index + 1)) >= 0) {
+        count += 1;
+    }
+    return count;
 };
 
 util.getStyleByName = function(name) {

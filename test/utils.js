@@ -38,6 +38,27 @@ describe("Utilities", function() {
             expect(util.nextItem(col, 3, -col.length * 5)).to.be.equal(-2);
         });
 
+        it(".indexOfWord()", function() {
+            expect(util.indexOfWord("megawac", "Some random sequence of characters with (megawac) in it")).to.be.equal(41);
+
+            //handle random characters?
+            expect(util.indexOfWord("meg_awac`", "Some random sequence of characters with (-meg_awac`) in it")).to.be.equal(42);
+            expect(util.indexOfWord("megawac", "Some random sequence of characters w/o amegawac in it")).to.be.equal(-1);
+
+            // multiple occurances
+            expect(util.indexOfWord("megawac", "Some random sequence of characters w/o amegawac in it but then out of nowhere" +
+                " megawac")).to.be.equal(78);
+            expect(util.indexOfWord("megawac", "Some random sequence of characters w/o amegawac in it but then out of nowhere" +
+                " megawacb")).to.be.equal(-1);
+
+            // takes counter
+            expect(util.indexOfWord("megawac", "megawac, megawac megawac, megawac, megawac")).to.be.equal(0);
+            expect(util.indexOfWord("megawac", "megawac, megawac megawac, megawac, megawac", 0)).to.be.equal(0);
+            expect(util.indexOfWord("megawac", "megawac, megawac megawac, megawac, megawac", 1)).to.be.equal(9);
+            expect(util.indexOfWord("megawac", "megawac, megawac megawac, megawac, megawac", 10)).to.be.equal(17);
+            expect(util.indexOfWord("megawac", "megawac, megawac megawac, megawac, megawac", 20), 26);
+        });
+
         it(".containsWord()", function() {
             expect(util.containsWord("megawac", "Some random sequence of characters with (megawac) in it")).to.be.ok();
             expect(util.containsWord("megawac", "Some random sequence of characters w/ megawac.")).to.be.ok();
@@ -46,7 +67,18 @@ describe("Utilities", function() {
             //handle random characters?
             expect(util.containsWord("meg_awac`", "Some random sequence of characters with (-meg_awac`) in it")).to.be.ok();
             expect(util.containsWord("meg_awac`", "Some random sequence of characters w/ -meg_awac`.")).to.be.ok();
-            expect(util.containsWord("meg_awac`", "Some random sequence of characters w/o amegawac in it")).to.not.be.ok();
+            expect(util.containsWord("meg_awac`", "Some random sequence of characters w/ -meg_awac`")).to.be.ok();
+            expect(util.containsWord("megawac", "Some random sequence of characters w/o amegawac in it")).to.not.be.ok();
+
+            // multiple occurances
+            expect(util.containsWord("megawac", "Some random sequence of characters w/o amegawac in it but then out of nowhere" +
+                " megawac")).to.be.ok();
+        });
+
+        it(".countWord()", function() {
+            expect(util.countWord("megawac", "t t t t")).to.be.equal(0);
+            expect(util.countWord("t", "t t t t")).to.be.equal(4);
+            expect(util.countWord("t", "t at the t")).to.be.equal(2);
         });
 
         it(".randHexString()", function() {

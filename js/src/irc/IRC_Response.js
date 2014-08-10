@@ -244,10 +244,16 @@ irc.Client.implement({
             if (options.loginRegex.test(message)) {
                 this.onAuthenticated(data);
             }
+
+            var chan = _.min(this.channels, function(channel) {
+                var index = util.indexOfWord(channel, message);
+                if (index >= 0) return index;
+            });
+
             this.trigger("serverNotice", {
                 "nick": nick,
                 "message": message,
-                "channel": _.find(this.channels, _.partial(String.contains, message, _, null)) || constants.active
+                "channel": chan !== Infinity ? chan : constants.status
             });
         } else if (target === this.nickname) {
             var ctcp = util.processCTCP(message);
