@@ -1,10 +1,10 @@
-{{!--  
+{{!--
     * Note this is a handlebars template. Changing values in here requires a grunt rebuild
     * note the context (for property names) is the uiOptions values see ui/standardUI for implementation
     * update the Browser object is also now part of the context so you can do #if ie6 or something
 
     * Available helpers
-    * see js/src/utils/Templates (github.com/megawac/qwebirc-enhancements/blob/master/js/src/util/Templates.js) 
+    * see js/src/utils/Templates (github.com/megawac/qwebirc-enhancements/blob/master/js/src/util/Templates.js)
     * colours will assume the base background by default
         * "$result": property, default -> str           get a property or its default val
         * "$hex": str ([colour]) -> hex                 get hex val
@@ -98,14 +98,6 @@
     border: thin solid {{$lighten '-0.15'}};
 }
 
-.qwebirc .input .decorated {
-    background: {{$saturate '-0.15'}};
-    {{! will be split using .split(',')}}
-    {{#vendor-prefix '-webkit-,-moz-,-o-,-ms-,'}}
-        background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
-    {{/vendor-prefix}}
-}
-
 .qui .user {
     background: {{$saturate '-0.15'}};
 }
@@ -117,4 +109,14 @@
 
 .qui .brouhaha .properties, .qui .brouhaha .input {
     background: {{$saturate '-0.6'}};
+}
+
+{{!pretty input}}
+
+.qwebirc .input .decorated {
+    {{! will be split using .split(',')}}
+    {{#vendor-prefix '-webkit-,-moz-,-o-,-ms-,'}}
+        background-image: {prefix}linear-gradient(bottom, {{$saturate '-0.10'}} 66%, {{$saturate '-0.15'}} 54%);
+    {{/vendor-prefix}}
+    background: {{$saturate '-0.15'}};
 }
