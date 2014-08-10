@@ -125,9 +125,9 @@ module.exports = function(grunt) {
                 // amd: true,
                 processContent: function(content) {//remove whitespace
                     var mark_open = "\x08openstr\x08";
-                    var match_open = " {{";
+                    var match_open = "{ {{";
                     var mark_close = "\x08closesstr\x08";
-                    var match_close = "}} ";
+                    var match_close = "}} }";
                     //prevent }} } from being joint to {{{ or }}} which will break the handlebars parser
                     content = content.replace(/\{[\x20\t\n\r]+\{\{/g, mark_open)
                                     .replace(/\}\}[\x20\t\n\r]+\}/g, mark_close);
