@@ -189,13 +189,15 @@ ui.Window = new Class({
         // if(!$tar || !$tar.hasClass("input-field")) {
         var $tar = this.$input;
         //}
-        var unparsed = $tar.val(),
-            parsed = util.inputParser.parse(unparsed);
-        if (parsed) {
-            this.history.addLine(this.name, unparsed || parsed);
-            this.client.exec(parsed, this.currentChannel);
-            $tar.val("");
-        }
-        $tar.blur();//in case a new channel is created
+
+        $tar.val().split(/[\r\n]/).each(function(line) {
+            var parsed = util.inputParser.parse(line);
+            if (parsed) {
+                this.history.addLine(this.name, line || parsed);
+                this.client.exec(parsed, this.currentChannel);
+                $tar.val("");
+            }
+        }, this);
+        $tar.blur(); //in case a new channel is created
     }
 });
