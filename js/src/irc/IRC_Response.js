@@ -247,7 +247,7 @@ irc.Client.implement({
             this.trigger("serverNotice", {
                 "nick": nick,
                 "message": message,
-                "channel": constants.status
+                "channel": constants.active
             });
         } else if (target === this.nickname) {
             var ctcp = util.processCTCP(message);
