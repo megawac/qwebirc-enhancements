@@ -17,7 +17,7 @@ util.colourise = function(line) { //more like stylize
 
     var result = line;
 
-    var parseArr = _.compact(result.split(styleColour.key));
+    var parseArr = result.split(styleColour.key).filter(Boolean);
     
     var col_re = /^\d/;
 
@@ -32,13 +32,13 @@ util.colourise = function(line) { //more like stylize
         return memo;
     }, [[]]);
 
-    parseArr.each(function(str) {//help
-        if( col_re.test(str) ) { //^C...
-            colouredarr.getLast().push(str);
-        } else { //^C1***
-            colouredarr.push([]);
-        }
-    });
+    // parseArr.each(function(str) {//help
+    //     if( col_re.test(str) ) { //^C...
+    //         colouredarr.getLast().push(str);
+    //     } else { //^C1***
+    //         colouredarr.push([]);
+    //     }
+    // });
 
     colouredarr.each(function(colourarr) {
         colourarr.each(function(str) {

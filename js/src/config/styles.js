@@ -42,9 +42,14 @@ irc.styles = [
 ];
 
 //dirty but better than filtering every time?
-irc.styles.special = _.reject(irc.styles, function(sty) { return sty.name == "normal" ||  sty.name == "colour" } );
-irc.styles.colour = _.findWhere(irc.styles, {name: "colour" } );
-irc.styles.normal = _.findWhere(irc.styles, {name: "normal" } );
+irc.styles.special = irc.styles.slice(1, 4);
+irc.styles.colour = irc.styles[4];
+irc.styles.normal = irc.styles[0];
+
+// breaks all open styles ^O (\x0D)
+irc.styles.close = {
+    key: "\x0D"
+};
 
 // breaks all open styles ^O (\x0D)
 irc.styles.close = {
