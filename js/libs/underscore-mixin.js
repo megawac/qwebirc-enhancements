@@ -40,7 +40,9 @@
         },
 
         /* jshint devel:true */
-        log: function() {if(console && console.log) console.log(arguments)},
+        log: function() {
+            if (console && console.log) console.log(arguments);
+        },
 
         //https://gist.github.com/rjz/2815273
         assign: function(obj, key, value) {
@@ -59,7 +61,7 @@
 
         lookup: function (obj, key){
             var type = typeof key;
-            if (type == "string" || type == "number") key = (""+key).split(".");
+            if (type == "string" || type == "number") key = ("" + key).split(".");
             for (var i = 0, l = key.length; i < l; i++){
                 if (_.has(obj, key[i])) obj = obj[key[i]];
                 else return undefined;
@@ -69,9 +71,7 @@
 
         item: function(xs, n) {
             return xs == null ? null : xs[n];
-        },
-
-        last: Array.getLast
+        }
 
         //.alias({a:1,b:{alpha:'a'}}, {a: 'test', c: 'rawf'}) => {a: 1, b: Object, test: 1}
         // alias: function(obj, aliases, force) {//obj is an object and aliases is a dictionary of (string union listof string)
