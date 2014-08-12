@@ -1,17 +1,17 @@
 <div class="container-fluid center">
     <form class="login {{#unless full}}hide-auth{{/unless}}">
         <h2>{{lang 'connectWelcome'}}</h2>
-        <div class="control-group right">
+        <div class="control-group login-field">
             <label class="control-label" for="nickname">{{lang 'nickname'}}:
                 <input type="text" class="form-control" data-validate="nick" id="nickname" value="{{nickname}}" placeholder="{{lang 'nickname'}}" required />
             </label>
         </div>
-        <div class="control-group right auth">
+        <div class="control-group login-field auth">
             <label class="control-label" for="username">{{lang 'username'}}:
                 <input type="text" class="form-control" data-validate="username" id="username" value="{{username}}" placeholder="{{networkName}} {{lang 'username'}}">
             </label>
         </div>
-        <div class="control-group right auth">
+        <div class="control-group login-field auth">
             <label class="control-label" for="password">{{lang 'password'}}:
                 <input type="password" class="form-control" data-validate="password" id="password" value="{{password}}">
             </label>
