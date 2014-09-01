@@ -43,7 +43,7 @@ irc.Connection = new Class({
             self.sessionid = stream[1];
             self.subscribe();
         }, function(stream) { //couldnt connect
-            if (DEBUG) console.error("Connection failed: ", stream);
+            if (qwebirc.DEBUG) console.error("Connection failed: ", stream);
             self.connected = false;
             self.fireEvent("connectionFail", lang.connectionFail);
         });
@@ -126,7 +126,7 @@ irc.Connection = new Class({
             if(payload) self.processData(payload);
             self.subscribe();
         }, function(stream) { //errored out what do
-            if (DEBUG) console.warn("Recieve error:", stream);
+            console.warn("Recieve error:", stream);
         });
 
         return request;
@@ -136,7 +136,7 @@ irc.Connection = new Class({
     _activeRequests: [],
     newRequest: function(url, synchronous) {
         if (!this.connected) throw "Clients been disconnected";
-        if(DEBUG && synchronous) console.log("Warning: sending synchronous command to", url);
+        if(qwebirc.DEBUG && synchronous) console.log("Warning: sending synchronous command to", url);
         var self = this;
         var request = new Request.JSON({
             url: qwebirc.global.dynamicBaseURL + "e/" + url + "?r=" + self.cacheAvoidance + "&t=" + self.counter++,
@@ -144,7 +144,7 @@ irc.Connection = new Class({
             encoding: ""//let server assume utf-8
         });
 
-        // try to minimise the amount of headers 
+        // try to minimise the amount of headers
         request.headers = {};
         //not sure if this is necessary
         if (Browser.ie && Browser.version < 8) {
@@ -170,7 +170,7 @@ irc.Connection = new Class({
             if      (type === "connect")    self.fireEvent("connect", data);
             else if (type === "disconnect") self.disconnect(data);
             else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
-            else if (DEBUG)                 console.warn("Unexpected type " + type, data);
+            else if (qwebirc.DEBUG)         console.warn("Unexpected type " + type, data);
         });
     },
 

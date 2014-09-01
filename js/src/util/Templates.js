@@ -38,7 +38,7 @@ qwebirc.ready(function(engine) {
 
         "lang": function(prop) {
             var item = _.lookup(lang, prop);
-            if (!item && DEBUG) console.error(prop + " is invalid");
+            if (!item && qwebirc.DEBUG) console.error(prop + " is invalid");
             return util.format(_.lookup(lang, prop), this);
         },
 

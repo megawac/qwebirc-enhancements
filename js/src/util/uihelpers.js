@@ -17,7 +17,7 @@ ui.Behaviour = (function() {
         }
     };
 })();
-  
+
 util.getTemplate = function(name, cb, options) {
     /*
         Loads a template. If its already on page call callback immediately otherwise load asyncronously
@@ -25,11 +25,11 @@ util.getTemplate = function(name, cb, options) {
         Still need to finish implementing this.
     */
     var promise = new Promise(function(fulfill, reject) {
-        if(_.isFunction(name)) {
-            if(DEBUG) console.warn("wtf");
-            fulfill(name);//assume identity
+        if (_.isFunction(name)) {
+            if (qwebirc.DEBUG) console.warn("wtf");
+            fulfill(name); //assume identity
         }
-        else if(_.has(templates, name)) {
+        else if (_.has(templates, name)) {
             fulfill(_.lookup(templates, name));
         }
         else {
@@ -48,30 +48,30 @@ util.getTemplate = function(name, cb, options) {
     if(cb) promise.then(cb);
     return promise;
 };
-  
+
 util.loadTemplate = function(name) {//helper to preload a template - assumes not called instantly
     var template;
     util.getTemplate(name, function(tmpl) {template = tmpl});
     return function() {return template.apply(this, arguments);};
 };
-  
+
 ui.setTitle = function(title) {
     document.title = title;
 };
-  
+
 // util.setCaretPos = Element.setCaretPosition;
-  
+
 // util.setAtEnd = function($el) {
 //     $el.setCaretPosition($el.value.length);
 // };
-  
+
 // util.getCaretPos = Element.getCaretPosition;
-  
+
 util.wrapSelected = function($eles, wrap) {
     var isArray = _.isArray(wrap);
     var start = isArray ? wrap[0] : wrap,
         end = isArray ? wrap[1] : wrap;
-  
+
     return $$($eles).each(function($ele) {
         var range = $ele.getSelectedRange();
         if(range.start != range.end) {
@@ -81,7 +81,7 @@ util.wrapSelected = function($eles, wrap) {
         }
     });
 };
-  
+
 ui.decorateDropdown = function($btn, $ddm, options) {
     options = options || {};
     var evts = {
@@ -97,7 +97,7 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     function toggleMenu(state) {
         if(options.onShow)
             options.onShow.call(this, $ddm);
-  
+
         if (state===true || !$ddm.isDisplayed()) {
             $ddm.show();
             document.addEvents(evts);
@@ -106,16 +106,16 @@ ui.decorateDropdown = function($btn, $ddm, options) {
         }
         return $ddm;
     }
-  
+
     $ddm.store("toggle", toggleMenu)
         .position.delay(50, $ddm, {
             relativeTo: $btn,
             position: {x: "left", y: "bottom"},
             edge: {x: "left", y: "top"}
         });
-  
+
     if($ddm.isDisplayed()) document.addEvents(evts);
-  
+
     if(options.btnlistener) {
         $btn.addEvent("click", function(e) {
             e.stop();
@@ -124,26 +124,26 @@ ui.decorateDropdown = function($btn, $ddm, options) {
     }
     return options.autohide ? hideMenu() : $ddm;
 };
-  
+
 //dirty function please help with css :(
 //dir can be "width" "height"
 util.fillContainer = function ($ele, options) {
     options = Object.append({style: ["width"], offset: 20}, options);
-  
+
     var filler = function() {
         Array.from( options.style ).each(function(style) {//wait a sec for potential style recalcs
             var method = style.contains("width") ? "x" : "y",
                 offset = options.offset;
-  
+
             $ele.getSiblings()
                 .each(function(sib) {
                     offset += sib.getSize()[method];
                 });
-  
+
             util.calc($ele, style, "100% - " + offset + "px");
         });
     };
-  
+
     _.defer(filler);
     return $ele;
 };
@@ -222,7 +222,7 @@ util.calc = function($ele, style, val) {
         return resize();
 	}
 };
-  
+
 util.elementAtScrollPos = function($ele, pos, dir, offset) {
     dir = (dir || "width").capitalize();
     offset = offset || 10;
@@ -252,7 +252,7 @@ util.elementAtScrollPos = function($ele, pos, dir, offset) {
 
         items.each(function(item) {
             var $e = util.removeGrid(item.element);
-            
+
             if(item.fill) {
                 expando = item;//dont set grid cols for this ele
             }

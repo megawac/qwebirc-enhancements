@@ -34,7 +34,7 @@ irc.Client = new Class({
         "RPL_LISTSTART": "rawActive",
         "RPL_LISTEND": "noop"
     },
-    
+
     initialize: function(options) {
         var self = this;
         options = self.setOptions(options).options;
@@ -167,11 +167,11 @@ irc.Client = new Class({
 
     nickOnChanHasAtLeastPrefix: function(nick, channel, prefix) {
         var entry = this.tracker.getNickOnChannel(nick, channel);
-        if (!entry) return false; // shouldn't happen 
+        if (!entry) return false; // shouldn't happen
 
         /* this array is sorted */
         var pos = this.prefixes.indexOf(prefix);
-        if (pos === -1) return false; // shouldn't happen 
+        if (pos === -1) return false; // shouldn't happen
 
         var prefixes = this.prefixes.slice(0, pos + 1);
 
@@ -227,11 +227,12 @@ irc.Client = new Class({
     **************************************************/
     dispatch: function(data) {
         var fn = this[this.IRC_COMMAND_MAP[data.command] || "irc_" + data.command];
+        if (qwebirc.DEBUG) console.log(data);
         if (!(fn && fn.call(this, data))) {//fn dne or does not return true
             this.rawNumeric(data);
         }
     },
-    
+
     // noop to avtive window
     rawActive: function(data) {
         this.trigger("raw", {
@@ -347,7 +348,7 @@ irc.Client = new Class({
                     self.toIRCLower = irc.ASCIItoIRCLower;
                 } else if (value === "rfc1459") {
                     //default
-                } else if(DEBUG) {
+                } else if(qwebirc.DEBUG) {
                     // TODO: handle
                     console.warn("unsupported codec");
                 }

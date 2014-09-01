@@ -8,7 +8,6 @@
 
 //wrapped in iife during grunt build
 /* jshint ignore:start */
-var DEBUG = "<%= build.debug %>" === "true"; //will be removed as dead code if false
 
 //cache common globals in scope
 var $ = document.id,
@@ -24,6 +23,7 @@ var $ = document.id,
 
 //global object
 var qwebirc = window.qwebirc = _.merge(window.qwebirc || {}, {
+    DEBUG: "<%= build.debug %>" === "true",
     irc: {},
     ui: {},
     util: {},

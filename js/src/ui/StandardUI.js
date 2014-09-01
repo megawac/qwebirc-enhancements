@@ -36,7 +36,7 @@ ui.StandardUI = new Class({
                 $par.adopt(Elements.from(template()));
                 self.outerTabs = $par.getElement(".outertabbar");
                 self.windowsPanel = $par.getElement(".windows");
-            
+
                 self.postInitialize()
                     .fireEvent("ready");
             });
@@ -62,7 +62,7 @@ ui.StandardUI = new Class({
             "nextWindow": self.nextWindow,
             "prevWindow": self.prevWindow
         });
-        
+
         self.element.addEvent("click:relay(.internal)", function(e, $tar) {
             e.preventDefault();
             self.updateURI($tar.get("href"));
@@ -71,7 +71,7 @@ ui.StandardUI = new Class({
         /* jshint maxcomplexity:false */
         var checkRoute = _.partial(_.defer, function(data) {
             var request = util.unformatURL(data.request).toLowerCase();
-            if(DEBUG) console.log("Route: %s Formatted: %s", data.request, request);
+            if(qwebirc.DEBUG) console.log("Route: %s Formatted: %s", data.request, request);
 
             if(self.active && request === self.active.id) {
                 return;
