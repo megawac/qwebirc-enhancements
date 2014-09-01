@@ -30,8 +30,8 @@
                 }
             }
             // look for a partial match
-            var lastWordIndex = text.lastIndexOf(" ");
-            var lastWord = text.slice(lastWordIndex + 1);
+            var lastWordIndex = text.lastIndexOf(" ") + 1;
+            var lastWord = text.slice(lastWordIndex);
             index = this.partials.length;
             while (index--) {
                 curr = this.partials[index];
