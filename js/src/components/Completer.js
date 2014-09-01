@@ -5,39 +5,30 @@
  * @provides [components/Completer]
  */
 (function() {
-    var keyboardBinds = {
-        "down": "next",
-        "up": "previous",
-        "tab": "finish",
-        "right": "finish",
-        "left": "stop",
-        "esc": "stop",
-        "enter": "complete"
-    };
 
     function hinter() {
-        if (this.options.autocomplete) {
-            var text = this.$input.get("value");
-            var index, curr;
-            if (!text) return this.seth("");
-            if (text.length >= this.options.minlen) {
-                index = this.data.length;
-                while (index--) {
-                    curr = this.data[index];
-                    if (curr.length > text.length && curr.startsWith(text)) {
-                        return this.seth(curr);
-                    }
+        if (!this.options.autocomplete) return;
+        var text = this.$input.get("value");
+        var index, curr, lastWord, lastWordIndex;
+        if (!text) return this.seth("");
+        if (text.length >= this.options.minlen) {
+            index = this.data.length;
+            while (index--) {
+                curr = this.data[index];
+                if (curr.length > text.length && curr.startsWith(text)) {
+                    return this.seth(curr);
                 }
             }
-            // look for a partial match
-            var lastWordIndex = text.lastIndexOf(" ") + 1;
-            var lastWord = text.slice(lastWordIndex);
-            index = this.partials.length;
-            while (index--) {
-                curr = this.partials[index];
-                if (curr.startsWith(lastWord)) {
-                    return this.seth(text.slice(0, lastWordIndex) + curr);
-                }
+        }
+        // look for a partial match
+        lastWordIndex = text.lastIndexOf(" ") + 1;
+        if (lastWordIndex == text.length) return this.seth("");
+        lastWord = text.slice(lastWordIndex);
+        index = this.partials.length;
+        while (index--) {
+            curr = this.partials[index];
+            if (curr.startsWith(lastWord)) {
+                return this.seth(text.slice(0, lastWordIndex) + curr);
             }
         }
     }
@@ -62,6 +53,16 @@
         data: [],
         partials: [],
 
+        keyboardBinds: {
+            "down": "next",
+            "up": "previous",
+            "tab": "finish",
+            "right": "finish",
+            "left": "stop",
+            "esc": "stop",
+            "enter": "complete"
+        },
+
         //expects to be given a container with 2 inputs. One for actual input and a disabled one for offering possible completion.
         //Future can also contain a container for menu
         initialize: function(target, options) {
@@ -78,7 +79,7 @@
                                 .addEvents(this.$events);
             this.$hint = target.getElement(options.selectors.hint)
                                 .show();
-            if(options.autoPosition) {
+            if (options.autoPosition) {
                 this.$hint.setStyle("position", "absolute");
                 this.update.delay(50);
                 window.addEvent("resize", this.update);
@@ -100,7 +101,7 @@
 
         process: function(evt) {
             this.updateData();
-            var method = keyboardBinds[evt.key];
+            var method = this.keyboardBinds[evt.key];
             if (this[method]) {
                 if (evt.key === "tab") evt.stop(); // don't tab out of input
                 this[method]();
@@ -134,8 +135,9 @@
         },
 
         finish: function() {
-            var text = this.$hint.get("value") || null;
-            this.set(text);
+            var hint = this.$hint.get("value");
+            var text = this.$input.get("value");
+            if (hint && hint != text) this.set(text + " ");
         },
 
         stop: function() {
@@ -143,11 +145,11 @@
         },
 
         set: function(text) {
-            if(_.isString(text)) this.$input.set("value", text);
+            if (typeof text === "string") this.$input.set("value", text);
         },
 
         seth: function(text) {
-            if(_.isString(text)) this.$hint.set("value", text);
+            if (_.isString(text)) this.$hint.set("value", text);
         },
 
         reset: function() {
