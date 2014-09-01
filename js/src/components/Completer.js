@@ -14,19 +14,33 @@
         "esc": "stop",
         "enter": "complete"
     };
-    
-    var hinter = function() {
+
+    function hinter() {
         if (this.options.autocomplete) {
             var text = this.$input.get("value");
-            var full;
-            if(text.length >= this.options.minlen) {
-                full = _.find(this.data, function(txt) {
-                    return txt.startsWith(text);
-                });
+            var index, curr;
+            if (!text) return this.seth("");
+            if (text.length >= this.options.minlen) {
+                index = this.data.length;
+                while (index--) {
+                    curr = this.data[index];
+                    if (curr.length > text.length && curr.startsWith(text)) {
+                        return this.seth(curr);
+                    }
+                }
             }
-            this.seth(full || "");
+            // look for a partial match
+            var lastWordIndex = text.lastIndexOf(" ");
+            var lastWord = text.slice(lastWordIndex + 1);
+            index = this.partials.length;
+            while (index--) {
+                curr = this.partials[index];
+                if (curr.startsWith(lastWord)) {
+                    return this.seth(text.slice(0, lastWordIndex) + curr);
+                }
+            }
         }
-    };
+    }
 
     components.Completer = new Class({
         Implements: [Options],
@@ -37,6 +51,7 @@
             autoPosition: true,//autopositon hint
             autocomplete: true,
             getData: null,
+            getPartials: null,
             selectors: {
                 hint: ".tt-hint",
                 input: ".tt-query"
@@ -44,18 +59,20 @@
             minlen: 1,
             delay: 400 //throttle time
         },
+        data: [],
+        partials: [],
 
         //expects to be given a container with 2 inputs. One for actual input and a disabled one for offering possible completion.
         //Future can also contain a container for menu
-        initialize: function(target, data, options) {
+        initialize: function(target, options) {
             options = this.setOptions(options).options;
             target = document.id(target);
 
-            this.setData(data);
+            this.updateData();
 
             this.$events = {
                 "keydown": this.process,
-                "input": _.throttle(hinter.bind(this), options.delay)
+                "keyup": _.throttle(hinter.bind(this), options.delay)
             };
             this.$input = target.getElement(options.selectors.input)
                                 .addEvents(this.$events);
@@ -68,11 +85,12 @@
             }
         },
 
-        setData: _.throttle(function(data) {
-            if (data) {
-                this.data = data;
-            } else if (this.options.getData) {
+        updateData: _.throttle(function() {
+            if (this.options.getData) {
                 this.data = this.options.getData();
+            }
+            if (this.options.getPartials) {
+                this.partials = this.options.getPartials();
             }
         }, 2500),
 
@@ -81,7 +99,7 @@
         },
 
         process: function(evt) {
-            this.setData();
+            this.updateData();
             var method = keyboardBinds[evt.key];
             if (this[method]) {
                 if (evt.key === "tab") evt.stop(); // don't tab out of input

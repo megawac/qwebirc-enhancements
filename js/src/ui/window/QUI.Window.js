@@ -12,7 +12,7 @@ ui.QUIWindow = new Class({
     options: {
         events: {
             // "click:relay(.input .send)": "sendInput", (its a submit button no need)
-    
+
             "dblclick:relay(.input .nickname)": "setNickname",
             "dblclick:relay(.topic)": "editTopic",
 
@@ -102,7 +102,7 @@ ui.QUIWindow = new Class({
             this.setActive()
                 .fireEvent("selected");
         }
-        
+
         return this;
     },
 
@@ -121,10 +121,13 @@ ui.QUIWindow = new Class({
             self.fxscroll.start();
         }
         if(!self.completer && self.type === ui.WINDOW.channel) {
-            self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), null, {
+            self.completer = new components.Completer(self.window.getElement(".input .tt-ahead"), {
                 autocomplete: self.getOption("completer").intrusive,
                 getData: function() {
-                    return (self.history.get(self.id) || []).concat(_.keys(self.lastNickHash));
+                    return self.history.get(self.id) || [];
+                },
+                getPartials: function() {
+                    return _.keys(self.lastNickHash).concat(self.client.channels);
                 }
             });
             self.completer.$hint.addClass("decorated");
