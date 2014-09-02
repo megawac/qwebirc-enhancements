@@ -34,17 +34,17 @@ ui.IKeyboard = new Class({
             bold: {
                 keys: "ctrl+b",
                 description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("bold").bbcode)
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", irc.styles.bold.bbcode)
             },
             italic: {
                 keys: "ctrl+i",
                 description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("italic").bbcode)
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", irc.styles.italic.bbcode)
             },
             underline: {
                 keys: "ctrl+u",
                 description: "",
-                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", util.getStyleByName("underline").bbcode)
+                handler: _.partial(util.wrapSelected, ".window:not(.hidden) .input .irc-input", irc.styles.underline.bbcode)
             }
         }
     },
@@ -55,7 +55,7 @@ ui.IKeyboard = new Class({
         var self = this,
             keyboard = self.keyboard = new Keyboard({active: true}).addShortcuts(self.hotkeys.keyboard),
             ircKeyboard = self.ircKeyboard = new Keyboard({active: false}).addShortcuts(self.hotkeys.input);
-        
+
         keyboard.scope = self;
 
         function isChar(code) { //http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes

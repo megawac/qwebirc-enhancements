@@ -5,8 +5,8 @@
 var baseControlMap = { //these are settings for the templates -ie {C} is replaced by irc.styles.colour.key
     "C": irc.styles.colour.key,
     "O": irc.styles.colour.key,
-    "B": util.getStyleByName("bold").key,
-    "U": util.getStyleByName("underline").key,
+    "B": irc.styles.bold.key,
+    "U": irc.styles.underline.key,
     "D": Browser.ie ? "" : irc.styles.normal.key, //address ie bug where /x00 is null character
     //little clever here
     "NN": templates.userlink({"nick":"{N}"}),//nick name

@@ -75,7 +75,7 @@
             text = text.replace(colour_re, function(match, zZz, attributes, text) {
                 var attrs = attributes.clean().split(" "), //will split into cey value pairs ["te=a", "b=a"]
                     attrso = {},
-                    fore, bac;
+                    fore, back;
 
                 attrs.each(function(attr) { //map the obj
                     if(attr.contains("=")) {
@@ -84,18 +84,18 @@
                     }
                 });
 
-                if(attrso.fore || attrso.bac){
+                if(attrso.fore || attrso.back){
                     fore = util.getColourByName(attrso.fore) || util.getColourByKey(attrso.fore) || util.getColourByName("black");
-                    bac = util.getColourByName(attrso.back) || util.getColourByKey(attrso.back) || util.getColourByName("white");
+                    back = util.getColourByName(attrso.back) || util.getColourByKey(attrso.back) || util.getColourByName("white");
                     return colours.format.substitute({
                         f: fore.key,
-                        b: bac.key,
+                        b: back.key,
                         t: text
                     });
                 }
                 return match;
             });
-            
+
             /* jshint boss: true */
             while(tag_m = text.match(tag_re)) { //todo do the matching as above
                 tag = tag_m[0];

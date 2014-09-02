@@ -1,7 +1,7 @@
 /**
  * my bank of helper functions
  *
- * @depends [util/constants, config/styles, irc/LowerTable]
+ * @depends [util/constants, util/colourise, irc/LowerTable]
  * @provides [util/utils]
  */
 
@@ -118,18 +118,6 @@ util.countWord = function(word, content) {
     return count;
 };
 
-util.getStyleByName = function(name) {
-    return _.findWhere(irc.styles, {
-        name: name
-    });
-};
-
-util.getStyleByKey = function(key) {
-    return _.findWhere(irc.styles, {
-        key: Number.toInt(key)
-    });
-};
-
 util.getColourByName = function(name) {
     return _.findWhere(irc.colours, {
         name: name
@@ -151,7 +139,7 @@ util.pad = function(cond, padding, str) {
 util.padzero = _.partial(util.pad, function(x) {return x.length <= 1;}, "0");
 util.padspace = _.partial(util.pad, _.negate(_.isEmpty), " ");
 
-// NOT cryptographically secure! 
+// NOT cryptographically secure!
 //http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
 util.randHexString = function(numBytes) {
     var id = "";

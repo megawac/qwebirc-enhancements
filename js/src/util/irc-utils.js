@@ -1,7 +1,7 @@
 /**
  * my bank of helper functions
  *
- * @depends [util/constants, config/styles, irc/LowerTable, util/utils]
+ * @depends [util/constants, util/colourise, irc/LowerTable, util/utils]
  * @provides [util/irc]
  */
 /*jshint boss:true*/
