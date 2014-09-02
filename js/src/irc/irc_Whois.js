@@ -41,7 +41,7 @@ irc.Client.implement({
                 host: ident + "@" + hostname
             },
             {
-                message: data.args[4],
+                message: data.args[5],
                 type: "whoisRealname"
             }]
         };
