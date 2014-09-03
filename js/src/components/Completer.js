@@ -137,7 +137,7 @@
         finish: function() {
             var hint = this.$hint.get("value");
             var text = this.$input.get("value");
-            if (hint && hint != text) this.set(text + " ");
+            if (hint && hint != text) this.set(hint + " ");
         },
 
         stop: function() {
