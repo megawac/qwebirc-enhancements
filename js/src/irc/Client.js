@@ -50,7 +50,7 @@ irc.Client = new Class({
         .addEvents({
             "recv": self.dispatch,
             "disconnect": function(data) {
-                self.disconnect(data[1]);
+                self.disconnect(_.last(data));
             },
             "connect": self.connected,
             "reconnect": function() {
