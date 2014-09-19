@@ -49,32 +49,32 @@
 		}, [[]]);
 
 		_.each(colouredarr, function(colourarr) {
-			_.each(colourarr, function(str, index) {
-				var match = str.match(back_re);
-				var colour = match[1];
-				var background = match[3];
+	        _.each(colourarr, function(str, index) {
+	            var match = str.match(back_re);
+	            var colour = match[1];
+	            var background = match[3];
 
-				// set the background colour
-				// we set this seperate from the fore to allow for nesting
-				if (isFinite(background) && irc.colours[background]) {
-					var wrapStr = colourarr.slice(index).join(colourKey),
-						textIndex = colour.length + background.length + 1;
-					str = colour + str.slice(textIndex);
-					result = result.replace(colourKey + wrapStr, templates.ircstyle({
-						style: irc.colours[background].back,
-						text: colourKey + colour + wrapStr.slice(textIndex)
-					}));
-				}
+	            // set the background colour
+	            // we set this seperate from the fore to allow for nesting
+	            if (irc.colours[+background]) {
+	                var wrapStr = colourarr.slice(index).join(colourKey),
+	                    textIndex = colour.length + background.length + 1;
+	                str = colour + str.slice(textIndex);
+	                result = result.replace(colourKey + wrapStr, irc.template({
+	                    style: irc.colours[+background].back,
+	                    text: colourKey + colour + wrapStr.slice(textIndex)
+	                }));
+	            }
 
-				// set the fore colour
-				if (irc.colours[colour]) {
-					result = result.replace(colourKey + str, templates.ircstyle({
-						"style": irc.colours[colour].fore,
-						"text": str.slice(colour.length)
-					}));
-				}
-			});
-		});
+	            // set the fore colour
+	            if (irc.colours[+colour]) {
+	                result = result.replace(colourKey + str, irc.template({
+	                    "style": irc.colours[+colour].fore,
+	                    "text": str.slice(colour.length)
+	                }));
+	            }
+	        });
+	    });
 
 
 		// Matching styles (italics/bold/underline)
