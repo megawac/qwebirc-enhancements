@@ -24,7 +24,7 @@ ui.Theme = new Class({
         var data = isobj ? _.clone(_data) : _data; //sometimes an internal reference
 
         if (isobj) {
-            if ("n" in data) {
+            if (data.n != null) {
                 //works slightly harder than it has too :/
                 data.N = templates.userlink(data);
                 data.nicktmpl = templates.ircnick(data);

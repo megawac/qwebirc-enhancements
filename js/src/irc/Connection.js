@@ -166,11 +166,16 @@ irc.Connection = new Class({
             return self.lostConnection(lang.connError, payload);
         }
         payload.each(function(data) {
-            var type = data[0];
-            if      (type === "connect")    self.fireEvent("connect", data);
-            else if (type === "disconnect") self.disconnect(data);
-            else if (type === "c")          self.fireEvent("recv", util.parseIRCMessage(data));
-            else if (qwebirc.DEBUG)         console.warn("Unexpected type " + type, data);
+            switch (data[0]) {
+                case "connect":
+                    return self.fireEvent("connect", data);
+                case "disconnect":
+                    return self.disconnect(data);
+                case "c":
+                    return self.fireEvent("recv", util.parseIRCMessage(data));
+                default:
+                    console.warn("Unexpected type " + data[0], data);
+            }
         });
     },
 

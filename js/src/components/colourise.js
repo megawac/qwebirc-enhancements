@@ -60,7 +60,7 @@
                     var wrapStr = colourarr.slice(index).join(colourKey),
                         textIndex = colour.length + background.length + 1;
                     str = colour + str.slice(textIndex);
-                    result = result.replace(colourKey + wrapStr, irc.template({
+                    result = result.replace(colourKey + wrapStr, templates.ircstyle({
                         style: irc.colours[+background].back,
                         text: colourKey + colour + wrapStr.slice(textIndex)
                     }));
@@ -68,7 +68,7 @@
 
                 // set the fore colour
                 if (irc.colours[+colour]) {
-                    result = result.replace(colourKey + str, irc.template({
+                    result = result.replace(colourKey + str, templates.ircstyle({
                         "style": irc.colours[+colour].fore,
                         "text": str.slice(colour.length)
                     }));
