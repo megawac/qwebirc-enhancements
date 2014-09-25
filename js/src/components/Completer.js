@@ -48,7 +48,7 @@
                 input: ".tt-query"
             },
             minlen: 1,
-            delay: 400 //throttle time
+            delay: 100 //throttle time
         },
         data: [],
         partials: [],
