@@ -4,7 +4,7 @@ describe("Hyperlink Parsing", function() {
     function getLinks(str) {
         var formatted = qwebirc.util.urlifier.parse(str);
         return Elements.from(formatted).filter(function(e) {
-           return e.tagName === "A";
+            return e.tagName === "A";
         });
     }
 
@@ -81,6 +81,16 @@ describe("Hyperlink Parsing", function() {
             expect(chan).to.be.eql(["#channel", "#chan2"]);
             expect(getLinks("Go to #channel\x00").get("html")).to.be.eql(["#channel"]);
             expect(getLinks("Go to \x1F#channel\x1D").get("html")).to.be.eql(["#channel"]);
+        });
+    });
+
+    describe("That shits escaped", function() {
+        var urlifier = qwebirc.util.urlifier;
+        it("Should be escaped", function() {
+            var str = "<script>alert('hi');</script>";
+            var parsed = urlifier.parse(str)
+            expect(parsed).to.not.be.equal(str);
+            expect(parsed.contains("<script>")).to.not.be.ok();
         });
     });
 });

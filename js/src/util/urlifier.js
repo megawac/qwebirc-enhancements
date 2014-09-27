@@ -41,7 +41,7 @@
         var parsed = this.parsePunctuation(word),
             res = parsed.mid;
 
-        if(util.isChannel(res)) {
+        if (util.isChannel(res)) {
             res = templates.customlink({
                 val: res,
                 internal: true
@@ -52,14 +52,15 @@
     });
 
     var inputurl = util.inputParser = new components.Urlerizer({
-        default_parser: false
+        default_parser: false,
+        autoescape: false
     });
 
     var bbmatch = /\[.+?\].+\[\/.+?\]/i;
     var colour_re = /\[colo(u)?r+(.*?)\](.*?)\[\/colo(u)?r\b\]/ig;
-    inputurl.addPattern(bbmatch,//this pattern needs to be optimized
-        function parsebb(_text) {//see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
-            var stac = [],//for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
+    inputurl.addPattern(bbmatch, //this pattern needs to be optimized
+        function parsebb(_text) { //see http://patorjk.com/blog/2011/05/07/extendible-bbcode-parser-in-javascript/
+            var stac = [], //for colours try somthing like "[b test=a]test[/b] test".match(/\[b+(.*?)\](.*?)\[\/b\b\]/)
                 tag_re = /\[.+?\]/i,
                 tag_m, tag,
                 text = _text,
@@ -77,13 +78,13 @@
                     fore, back;
 
                 attrs.each(function(attr) { //map the obj
-                    if(attr.contains("=")) {
+                    if (attr.contains("=")) {
                         attr = attr.split("=");
                         attrso[attr[0]] = attr[1];
                     }
                 });
 
-                if(attrso.fore || attrso.back){
+                if (attrso.fore || attrso.back) {
                     fore = util.getColourByName(attrso.fore) || util.getColourByKey(attrso.fore) || util.getColourByName("black");
                     back = util.getColourByName(attrso.back) || util.getColourByKey(attrso.back) || util.getColourByName("white");
                     return colours.format.substitute({
@@ -96,21 +97,21 @@
             });
 
             /* jshint boss: true */
-            while(tag_m = text.match(tag_re)) { //todo do the matching as above
+            while (tag_m = text.match(tag_re)) { //todo do the matching as above
                 tag = tag_m[0];
                 //assume everything before has been processed
                 stac.push(text.slice(0, tag_m.index));
                 text = text.slice(tag_m.index);
 
                 style = _.find(irc.styles.special, matchBBCodeTag);
-                if(style) {
+                if (style) {
                     bb = style.bbcode;
 
                     endTag_re = new RegExp(String.escapeRegExp(bb[1]), "i");
                     end_indx = text.search(endTag_re);
-                    if(end_indx !== -1) {
+                    if (end_indx !== -1) {
                         inner = text.slice(tag.length, end_indx);
-                        if(bbmatch.test(inner)) {//recurse
+                        if (bbmatch.test(inner)) { //recurse
                             inner = parsebb(inner);
                         }
                         stac.push(style.key + inner + style.key);

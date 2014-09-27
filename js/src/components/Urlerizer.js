@@ -1,4 +1,4 @@
-/** 
+/**
  * Spin off the js lib by lsjosa found here: https://github.com/ljosa/urlize.js
  * @depends [components]
  * @provides [components/Urlerizer]
@@ -24,7 +24,7 @@
     var getTrailing = makeMatcher("endsWith");
 
     var has_protocol = /^.*?:\/\/\w/;
-    var url_improved = /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/;//matches anything thats urlish- even bit.ly/a
+    var url_improved = /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/; //matches anything thats urlish- even bit.ly/a
     var simple_email = /^[\w-]+@\S+\.\S+$/;
     var unquoted_percents = /%(?![0-9A-Fa-f]{2})/;
 
@@ -32,61 +32,62 @@
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: false,
+            autoescape: true,
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
-            default_parser: true,
-            hide_servers:true
+            default_parser: true
         },
 
         //ignored punctuation
         //these regexps break jshint...
-        leading_punctuation: [/^[“‘(\[<'"]/],
-        trailing_punctuation: [/[”’)\]>.,.'"]$/],
+        leading_punctuation: [/^([“‘(\[<'"]|&#x27;|&#x60;|&quot;|&lt;)/],
+        trailing_punctuation: [/([”’)\]>.,.'"]|&#x27;|&#x60;|&quot;|&gt;)$/],
         /* "' close the open quotes for my shitty syntax highlighter "' */
 
-        initialize: function(opts) {
-            this.setOptions(opts);
+        initialize: function(options) {
+            this.setOptions(options);
 
-            if(this.options.default_parser) {
+            if (this.options.default_parser) {
                 this.patterns.push({
-                    pattern: /[\w-]{2,}\.[a-z]{2,4}\b/,//i think this should pass tests on all valid urls... will also pick up things like test.test
+                    pattern: /[\w-]{2,}\.[a-z]{2,4}\b/, //i think this should pass tests on all valid urls... will also pick up things like test.test
                     entireStr: false,
                     /* jshint maxcomplexity:false */
                     parse: function(text) {
                         var options = this.options;
+                        var nofollow = options.nofollow;
                         var word = text;
-                        if ((word.contains(".") || word.contains("@") || word.contains(":")) ) {
-                            // Deal with punctuation.
-                            var parsed = this.parsePunctuation(word);
-                            var middle = parsed.mid;
+                        // Deal with punctuation.
+                        var parsed = this.parsePunctuation(word);
+                        var middle = parsed.mid;
 
-                            // Make URL we want to point to.
-                            var url;
-                            var nofollow_attr = options.nofollow ? " rel='nofollow'" : "";
-                            var target_attr = options.target ? " target='" + options.target + "'" : "";
+                        // Make URL we want to point to.
+                        var url;
+                        if (has_protocol.test(middle)) url = this.urlquote(middle);
+                        else if (url_improved.test(middle)) url = this.urlquote("http://" + middle);
+                        else if (simple_email.test(middle)) {
+                            // XXX: Not handling IDN.
+                            url = "mailto:" + middle;
+                            nofollow = false;
+                        }
 
-                            if (has_protocol.test(middle)) url = this.urlquote(middle);
-                            else if (url_improved.test(middle)) url = this.urlquote("http://" + middle);
-                            else if (simple_email.test(middle)) {
-                                // XXX: Not handling IDN.
-                                url = "mailto:" + middle;
-                                nofollow_attr = "";
-                            }
-
-                            // Make link.
-                            if (url) {
-                                var trimmed = options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle;
-                                middle = "<a href='" + url + "'" + nofollow_attr + target_attr + ">" + trimmed + "</a>";
-                                word = parsed.lead + middle + parsed.end;
-                            }
+                        // Make link.
+                        if (url) {
+                            middle = this.template({
+                                link: url,
+                                val: options.trim_url_limit ? String.truncate(middle, options.trim_url_limit) : middle,
+                                nofollow: nofollow,
+                                target: options.target
+                            });
+                            return parsed.lead + middle + parsed.end;
                         }
                         return word;
                     }
                 });
             }
         },
+
+        template: templates.customlink,
 
         // Quotes a URL if it isn't already quoted.
         urlquote: function(url) {
@@ -107,7 +108,8 @@
                     return !pat.entireStr;
                 }),
 
-                i = result.length, item;
+                i = result.length,
+                item;
 
             function parseWord(pattern) {
                 item = result[i];
