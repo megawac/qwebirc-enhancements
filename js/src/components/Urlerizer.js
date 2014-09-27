@@ -23,7 +23,7 @@
     var getLeading = makeMatcher("startsWith");
     var getTrailing = makeMatcher("endsWith");
 
-    var https_url = /^https?:\/\/\w/;
+    var has_protocol = /^.*?:\/\/\w/;
     var url_improved = /^www\.|^(?!http)\w[^@]+\.[a-zA-Z]{2,4}/;//matches anything thats urlish- even bit.ly/a
     var simple_email = /^[\w-]+@\S+\.\S+$/;
     var unquoted_percents = /%(?![0-9A-Fa-f]{2})/;
@@ -32,7 +32,7 @@
         Implements: [Options],
         options: {
             nofollow: false,
-            autoescape: true,
+            autoescape: false,
             trim_url_limit: false,
             //length of a url before it is trimmed
             target: false,
@@ -42,8 +42,9 @@
 
         //ignored punctuation
         //these regexps break jshint...
-        leading_punctuation: [/^[“‘(\[<]/ /* "' */, "&quot;", "&#x27;", "&lt;"],
-        trailing_punctuation: [/[”’)\]>.,.]$/, "&quot;", "&#x27;", "&gt;"],
+        leading_punctuation: [/^[“‘(\[<'"]/],
+        trailing_punctuation: [/[”’)\]>.,.'"]$/],
+        /* "' close the open quotes for my shitty syntax highlighter "' */
 
         initialize: function(opts) {
             this.setOptions(opts);
@@ -66,7 +67,7 @@
                             var nofollow_attr = options.nofollow ? " rel='nofollow'" : "";
                             var target_attr = options.target ? " target='" + options.target + "'" : "";
 
-                            if (https_url.test(middle)) url = this.urlquote(middle);
+                            if (has_protocol.test(middle)) url = this.urlquote(middle);
                             else if (url_improved.test(middle)) url = this.urlquote("http://" + middle);
                             else if (simple_email.test(middle)) {
                                 // XXX: Not handling IDN.
@@ -138,6 +139,7 @@
                 if (leadMatch) {
                     mid = mid.slice(leadMatch.length);
                     lead += leadMatch;
+                    return true;
                 }
             }
 
@@ -146,13 +148,13 @@
                 if (endMatch) {
                     mid = mid.slice(0, mid.length - endMatch.length);
                     end = endMatch + end;
+                    return true;
                 }
             }
 
-            //destructive calls
-            while(this.leading_punctuation.some(leader)) {}
-
-            while(this.trailing_punctuation.some(trailer)) {}
+            // Note: destructive calls
+            while (this.leading_punctuation.some(leader)) {}
+            while (this.trailing_punctuation.some(trailer)) {}
 
             return {
                 lead: lead,

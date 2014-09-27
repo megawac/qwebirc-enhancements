@@ -13,7 +13,7 @@
     // var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
     //     chan_re = /#|\/|\\/;
 
-    urlifier.leading_punctuation.push(/^([\x00-\x02]|\x1D|\x1F)/, /^(\x03+(\d{1,2})(?:,\d{1,2})?)/);
+    urlifier.leading_punctuation.push(/^([\x00-\x02]|\x1D|\x1F)/, /^\x03\d{1,2}(,\d{1,2})?/);
     urlifier.trailing_punctuation.push(/([\x00-\x03]|\x1D|\x1F)$/);
 
     // urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
@@ -37,7 +37,7 @@
 
     //     //generates something like <span class="hyperlink-whois">Tristan#tf2mix</span>
     // })
-    urlifier.addPattern(/\B#+(?![\._#-+])/, function(word) {
+    urlifier.addPattern(/#+(?![\._#-+])/, function(word) {
         var parsed = this.parsePunctuation(word),
             res = parsed.mid;
 
@@ -52,8 +52,7 @@
     });
 
     var inputurl = util.inputParser = new components.Urlerizer({
-        default_parser: false,
-        autoescape: false
+        default_parser: false
     });
 
     var bbmatch = /\[.+?\].+\[\/.+?\]/i;

@@ -32,6 +32,12 @@ describe("Hyperlink Parsing", function() {
         expect(getLinks("Go to google.com:510")).to.have.length(1);
         expect(getLinks("Go to 127.0.0.1:9090/#options")).to.have.length(0);
         expect(getLinks("Go to http://localhost:8080?test=true")).to.have.length(0);
+        expect(getLinks("Go to http://google.com:510").get("href")).to.be.eql(["http://google.com:510"]);
+    });
+
+    it("Perserves https", function() {
+        expect(getLinks("Go to https://google.com:510").get("href")).to.be.eql(["https://google.com:510"]);
+        expect(getLinks("Go to https://amazon.ca/x/y/z?test=true").get("href")).to.be.eql(["https://amazon.ca/x/y/z?test=true"]);
     });
 
     it("Match Public (not local) Servers", function() {
@@ -41,7 +47,8 @@ describe("Hyperlink Parsing", function() {
     });
 
     it("Match Emails", function() {
-        expect(getLinks("Match my email megawac@gmail.com there")).to.have.length(1);
+        expect(getLinks("Match my email megawac@gmail.com there").get("href")).to.be.eql(["mailto:megawac@gmail.com"]);
+        expect(getLinks("Match my email megawac@gmail.com there").get("text")).to.be.eql(["megawac@gmail.com"]);
     });
 
     it("Hyperlink IRC references", function() {
@@ -50,23 +57,36 @@ describe("Hyperlink Parsing", function() {
     });
 
     it("Hyperlinks can be wrapped/prefixed/suffixed by select characters", function() {
-        expect(getLinks("Go to (google.ca)")).to.have.length(1);
-        expect(getLinks("Go to [google.ca]")).to.have.length(1);
-        expect(getLinks("Go to 'google.ca'")).to.have.length(1);
-        expect(getLinks("Go to <google.ca>")).to.have.length(1);
-        expect(getLinks("Go to #channel\x00")).to.have.length(1);
-        expect(getLinks("Go to \x02google.ca")).to.have.length(1);
-        expect(getLinks("Go to \x1D#channel")).to.have.length(1);
-        expect(getLinks("Go to google.ca\x03")).to.have.length(1);
-        expect(getLinks("Go to \x1Fgoogle.ca\x1D")).to.have.length(1);
-        expect(getLinks("Go to \x1F#channel\x1D")).to.have.length(1);
+        expect(getLinks("Go to (google.ca)").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to [google.ca]").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to 'google.ca'").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to <google.ca>").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x02google.ca").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to google.ca\x03").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x1Fgoogle.ca\x1D").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x031,2google.ca\x03").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x0311,12google.ca\x03").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x0310google.ca\x03").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("\x00www.tragicservers.com\x00").html()).to.be.eql(["www.tragicservers.com"]);
     });
 
+    it("Hyperlinks support different protocols", function() {
+        expect(getLinks("Go to mumble://atf2.org:64738").get("text")).to.be.eql(["mumble://atf2.org:64738"]);
+        expect(getLinks("Go to mumble://atf2.org:64738").get("href")).to.be.eql(["mumble://atf2.org:64738"]);
+    });
+
+    describe("Hyperlinks channels", function() {
+        it("matches prefixed/wrapped/etc chans", function() {
+            var chan = getLinks("Go to \x031,2#channel' stuff #chan2'").html();
+            expect(chan).to.be.eql(["#channel", "#chan2"]);
+            expect(getLinks("Go to #channel\x00").get("html")).to.be.eql(["#channel"]);
+            expect(getLinks("Go to \x1F#channel\x1D").get("html")).to.be.eql(["#channel"]);
+        });
+    });
 });
+
 
 describe("BBCode Input Parsing", function() {
-    
-    
+
 
 });
-
