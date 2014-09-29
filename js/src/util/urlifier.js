@@ -13,8 +13,8 @@
     // var channame_re = /(#|>|&gt;)[\s\S]*(?=\/)/,
     //     chan_re = /#|\/|\\/;
 
-    urlifier.leading_punctuation.push(/^([\x00-\x02]|\x1D|\x1F)/, /^\x03\d{1,2}(,\d{1,2})?/);
-    urlifier.trailing_punctuation.push(/([\x00-\x03]|\x1D|\x1F)$/);
+    urlifier.leading_punctuation.push(/^([\x00-\x02]|\x1D|\x1F)/, /^\x03(\d{1,2}(,\d{1,2})?)?/);
+    urlifier.trailing_punctuation.push(/([\x00-\x02]|\x1D|\x1F)$/, /\x03(\d{1,2}(,\d{1,2})?)?$/);
 
     // urlifier.addPattern(/qwebirc:\/\/(.*)/, function(word) {
     //     //given "qwebirc://whois/rushey#tf2mix/"

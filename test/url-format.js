@@ -66,7 +66,10 @@ describe("Hyperlink Parsing", function() {
         expect(getLinks("Go to \x1Fgoogle.ca\x1D").get("text")).to.be.eql(["google.ca"]);
         expect(getLinks("Go to \x031,2google.ca\x03").get("text")).to.be.eql(["google.ca"]);
         expect(getLinks("Go to \x0311,12google.ca\x03").get("text")).to.be.eql(["google.ca"]);
-        expect(getLinks("Go to \x0310google.ca\x03").get("text")).to.be.eql(["google.ca"]);
+        expect(getLinks("Go to \x0311,12google.ca\x03").get("href")).to.be.eql(["http://google.ca"]);
+        expect(getLinks("Go to \x0311,12google.ca\x03").get("href")).to.be.eql(["http://google.ca"]);
+        expect(getLinks("\x031Go to \x03google.ca").get("href")).to.be.eql(["http://google.ca"]);
+        expect(getLinks("\x031Go to google.ca\x031,2 text").get("href")).to.be.eql(["http://google.ca"]);
         expect(getLinks("\x00www.tragicservers.com\x00").html()).to.be.eql(["www.tragicservers.com"]);
     });
 
