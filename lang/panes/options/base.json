@@ -2,7 +2,7 @@
     "option": {
         "interface"                 : "Interface",
         "irc_opts"                  : "Chat Preferences",
-        "notices"                   : "Notificiations",
+        "notices"                   : "Notifications",
         "hotkeys"                   : "Hot Keys",
 
         "ENABLE_IMAGE_POPOUT"       : "Pop images out on hover..?",
@@ -33,7 +33,7 @@
         "MESSAGE_NOTICE"            : "Message:",
         "AUTOESCAPE"                : "Escape text",
         "MENTIONED"                 : "Mentioned",
-        "ESCAPE_HINT"               : "This text is transformed into a regular expressions - autoescaping will check for the exact text you entered",
+        "ESCAPE_HINT"               : "This text is transformed into a regular expression - autoescaping will check for the exact text you entered",
         "DESKTOP_NOTICES"           : "Receive desktop notifications if supported (on any notice with flash)",
         "IGNORE_CASE"               : "Case insensitive",
         "NOTUS"                     : "Not us",
