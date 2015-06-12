@@ -18,13 +18,13 @@ var DEFAULT_QWEBIRC_CONFIG = {
             test: function(pass, $ele) {
                 return pass || !$ele.isVisible();
             },
-            description: lang.getter("missingNick")
+            description: lang.getter("missingPass")
         }],
         username: [{
             test: function(user, $ele) {
                 return user || !$ele.isVisible();
             },
-            description: lang.getter("missingPass")
+            description: lang.getter("missingNick")
         }]
     },
     parseQueryString: true,
