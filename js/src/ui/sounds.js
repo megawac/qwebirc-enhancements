@@ -6,11 +6,11 @@
 sound.SoundPlayer = new Class({
     Implements: [Options, Events],
     options: {
-        soundsurl: "/sound/",//directory of sounds for sm
-        swfurl: "/swf",
+        soundsurl: qwebirc.global.staticBaseURL + "sound/", //directory of sounds for sm
+        swfurl: qwebirc.global.staticBaseURL + "swf",
         flashVersion: 8,
         sounds: [],
-        preferFlash: false//use html5 if possible
+        preferFlash: false //use html5 if possible
     },
     loadingSM: false,
 
