@@ -51,15 +51,7 @@ qwebirc_config: #random variables you may wish to settings
     timeout: #timeout requests after period
 
     #for instance google analytics code. Below is jsdelivr tracking https://github.com/jsdelivr/jsdelivr#contribute-performance-data
-    extra_html: >
-        <script type="text/javascript">
-        (function(w, d) { var a = function() { var a = d.createElement('script'); a.type = 'text/javascript';
-        a.async = 'async'; a.src = '//' + ((w.location.protocol === 'https:') ? 's3.amazonaws.com/cdx-radar/' :
-        'radar.cedexis.com/') + '01-11475-radar10.min.js'; d.body.appendChild(a); };
-        if (w.addEventListener) { w.addEventListener('load', a, false); }
-        else if (w.attachEvent) { w.attachEvent('onload', a); }
-        }(window, document));
-        </script>
+    extra_html: <script src="//cdn.jsdelivr.net/jsdelivr-rum/latest/jsdelivr-rum.min.js"></script>
 templates: ## any data you would like to prefill the handlebars templates
     feedback_form_url: https://docs.google.com/forms/d/1DQUg-DOEMbmqqeCryhMr6t20m2EMSkng28HdWIUm2vM/viewform
 
