@@ -24,6 +24,7 @@
     "file": "licence.lic"
   },
   "scripts": {
+    "prepublish": "grunt",
     "test": "grunt test"
   },
   "optionalDependencies": {
